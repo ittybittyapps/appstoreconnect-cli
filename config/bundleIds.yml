@@ -1,0 +1,18 @@
+- identifier: com.ittybittyapps.app1
+  name: App1
+  platform: IOS
+  seedId: AABBCCDDEE
+  capabilities:
+  -
+
+- identifier: com.ittybittyapps.app2
+  name: App2
+  platform: IOS
+  seedId: AABBCCDDEE
+  capabilities:
+  - 
+
+- identifier: *
+  name: Itty Bitty Apps Wildcard AppID
+  platform: IOS
+  seedId: AABBCCDDEE

@@ -1,0 +1,3 @@
+import AppStoreConnectCLI
+
+AppStoreConnectCLI.main()

@@ -1,0 +1,4 @@
+- name: My iPad
+  platform: IOS
+  status: ENABLED
+  udid: abcdefghi

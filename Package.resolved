@@ -1,0 +1,43 @@
+{
+  "object": {
+    "pins": [
+      {
+        "package": "AppStoreConnect-Swift-SDK",
+        "repositoryURL": "https://github.com/AvdLee/appstoreconnect-swift-sdk.git",
+        "state": {
+          "branch": "master",
+          "revision": "163c04ba5d7c921888be19913092901d5ace8dad",
+          "version": null
+        }
+      },
+      {
+        "package": "Files",
+        "repositoryURL": "https://github.com/johnsundell/files.git",
+        "state": {
+          "branch": null,
+          "revision": "22fe84797d499ffca911ccd896b34efaf06a50b9",
+          "version": "4.1.1"
+        }
+      },
+      {
+        "package": "swift-argument-parser",
+        "repositoryURL": "https://github.com/apple/swift-argument-parser",
+        "state": {
+          "branch": null,
+          "revision": "35b76bf577d3cc74820f8991894ce3bcdf024ddc",
+          "version": "0.0.2"
+        }
+      },
+      {
+        "package": "Yams",
+        "repositoryURL": "https://github.com/jpsim/Yams.git",
+        "state": {
+          "branch": null,
+          "revision": "c947a306d2e80ecb2c0859047b35c73b8e1ca27f",
+          "version": "2.0.0"
+        }
+      }
+    ]
+  },
+  "version": 1
+}

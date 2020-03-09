@@ -1,0 +1,10 @@
+- username: oliver@ittybittyapps.com
+  firstName: Oliver
+  lastName: Jones
+  roles:
+  - ACCOUNT_HOLDER
+  - ADMIN
+  provisioningAllowed: true
+  allAppsVisible: true
+  visibleApps:
+  - codes.orj.app1
