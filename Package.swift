@@ -24,6 +24,10 @@ let package = Package(
         .package(
             url: "https://github.com/jpsim/Yams.git",
             from: "2.0.0"
+        ),
+        .package(
+            url: "https://github.com/scottrhoyt/SwiftyTextTable.git",
+            from: "0.5.0"
         )
     ],
     targets: [
@@ -37,7 +41,8 @@ let package = Package(
             dependencies: [.product(name: "Files", package: "Files"),
                            .product(name: "AppStoreConnect-Swift-SDK", package: "AppStoreConnect-Swift-SDK"),
                            .product(name: "Yams", package: "Yams"),
-                           .product(name: "ArgumentParser", package: "swift-argument-parser")]
+                           .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                           .product(name: "SwiftyTextTable", package: "SwiftyTextTable")]
         ),
         .testTarget(
             name: "appstoreconnect-cliTests",
