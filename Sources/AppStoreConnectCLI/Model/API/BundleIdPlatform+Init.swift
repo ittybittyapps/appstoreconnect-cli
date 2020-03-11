@@ -4,10 +4,10 @@ import ArgumentParser
 import AppStoreConnect_Swift_SDK
 import Foundation
 
-extension DeviceStatus: CaseIterable, ExpressibleByArgument {
-    public typealias AllCases = [DeviceStatus]
-    public static var allCases: DeviceStatus.AllCases {
-        return [.enabled, .disabled]
+extension BundleIdPlatform: CaseIterable, ExpressibleByArgument {
+    public typealias AllCases = [BundleIdPlatform]
+    public static var allCases: BundleIdPlatform.AllCases {
+        return [.iOS, .macOS]
     }
 
     public init?(argument: String) {
