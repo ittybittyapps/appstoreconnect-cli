@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "appstoreconnect-cli",
     platforms: [
-        .macOS(.v10_12)
+        .macOS(.v10_15)
     ],
     dependencies: [
         .package(
