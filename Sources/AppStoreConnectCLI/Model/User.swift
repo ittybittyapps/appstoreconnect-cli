@@ -39,7 +39,7 @@ extension User {
 // MARK: - TextTable conveniences
 
 extension User {
-    static func getTableColumns(includeVisibleApps: Bool) -> [TextTableColumn] {
+    static func tableColumns(includeVisibleApps: Bool) -> [TextTableColumn] {
         var columns = [
             TextTableColumn(header: "Username"),
             TextTableColumn(header: "First Name"),
@@ -54,7 +54,7 @@ extension User {
         }
         return columns
     }
-    func toTableRow() -> [CustomStringConvertible] {
+    var tableRow: [CustomStringConvertible] {
         return [
             username,
             firstName,

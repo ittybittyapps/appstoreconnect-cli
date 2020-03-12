@@ -38,7 +38,7 @@ extension Device {
 // MARK: - TextTable conveniences
 
 extension Device {
-    static func getTableColumns() -> [TextTableColumn] {
+    static func tableColumns() -> [TextTableColumn] {
         return [
             TextTableColumn(header: "ID"),
             TextTableColumn(header: "Date Added"),
@@ -51,7 +51,7 @@ extension Device {
         ]
     }
 
-    func toTableRow() -> [CustomStringConvertible] {
+    var tableRow: [CustomStringConvertible] {
         let formatter = DateFormatter()
         formatter.dateFormat = "dd/MM/yyyy"
         return [
