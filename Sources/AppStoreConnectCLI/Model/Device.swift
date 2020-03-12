@@ -38,7 +38,7 @@ extension Device {
 // MARK: - TextTable conveniences
 
 extension Device {
-    static func getTableColumns() -> [TextTableColumn] {
+    static func tableColumns() -> [TextTableColumn] {
         return [
             TextTableColumn(header: "ID"),
             TextTableColumn(header: "Date Added"),

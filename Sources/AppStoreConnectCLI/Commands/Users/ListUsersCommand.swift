@@ -120,7 +120,7 @@ public struct ListUsersCommand: ParsableCommand {
             }
 
         } else {
-            let columns = User.getTableColumns(includeVisibleApps: includeVisibleApps)
+            let columns = User.tableColumns(includeVisibleApps: includeVisibleApps)
             var table = TextTable(columns: columns)
             table.addRows(values: users.map { $0.tableRow })
             let str = table.render()

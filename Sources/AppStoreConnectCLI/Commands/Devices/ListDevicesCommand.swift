@@ -111,7 +111,7 @@ struct ListDevicesCommand: ParsableCommand {
             }
 
         } else {
-            let columns = Device.getTableColumns()
+            let columns = Device.tableColumns()
             var table = TextTable(columns: columns)
             table.addRows(values: devices.map { $0.tableRow })
             let str = table.render()
