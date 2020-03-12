@@ -51,7 +51,7 @@ extension Device {
         ]
     }
 
-    func toTableRow() -> [CustomStringConvertible] {
+    var tableRow: [CustomStringConvertible] {
         let formatter = DateFormatter()
         formatter.dateFormat = "dd/MM/yyyy"
         return [

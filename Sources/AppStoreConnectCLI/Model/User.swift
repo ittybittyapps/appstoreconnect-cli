@@ -54,7 +54,7 @@ extension User {
         }
         return columns
     }
-    func toTableRow() -> [CustomStringConvertible] {
+    var tableRow: [CustomStringConvertible] {
         return [
             username,
             firstName,

@@ -113,7 +113,7 @@ struct ListDevicesCommand: ParsableCommand {
         } else {
             let columns = Device.getTableColumns()
             var table = TextTable(columns: columns)
-            table.addRows(values: devices.map { $0.toTableRow() })
+            table.addRows(values: devices.map { $0.tableRow })
             let str = table.render()
 
             print(str)
