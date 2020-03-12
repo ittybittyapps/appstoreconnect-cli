@@ -36,9 +36,7 @@ struct ListDevicesCommand: ParsableCommand {
     )
     var filterPlatform: [BundleIdPlatform?]
 
-    @Option(
-        help: ArgumentHelp(stringLiteral: "Filter the results by the specified device status (\(DeviceStatus.allCases.map { $0.rawValue.lowercased() }.joined(separator: ", "))).")
-    )
+    @Option(help: "Filter the results by the specified device status (\(DeviceStatus.allCases.map { $0.rawValue.lowercased() }.joined(separator: ", "))).")
     var filterStatus: DeviceStatus?
 
     @Option(
