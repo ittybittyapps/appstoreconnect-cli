@@ -4,7 +4,7 @@ import AppStoreConnect_Swift_SDK
 import ArgumentParser
 import Foundation
 
-struct GetUserInfoCommand: ParsableCommand, HTTPClientBuilder, UserOutputBuilder {
+struct GetUserInfoCommand: ParsableCommand, UserOutputBuilder {
     static var configuration = CommandConfiguration(
         commandName: "info",
         abstract: "Get information about a user on your team, such as name, roles, and app visibility.")
@@ -22,17 +22,11 @@ struct GetUserInfoCommand: ParsableCommand, HTTPClientBuilder, UserOutputBuilder
     var outputFormat: OutputFormat?
 
     func run() throws {
-        var filters = [ListUsers.Filter]()
-        filters.append(ListUsers.Filter.username([email]))
+        let filters: [ListUsers.Filter] = [.username([email])]
 
-        let api = try setupAPI(auth: auth)
+        let api = try HTTPClient(auth: auth)
 
-        let request = APIEndpoint.users(fields: nil,
-                                        include: nil,
-                                        limit: nil,
-                                        sort: nil,
-                                        filter: filters,
-                                        next: nil)
+        let request = APIEndpoint.users(filter: filters)
 
         _ = api.request(request)
             .map { $0.data.compactMap(User.fromAPIUser) }

@@ -5,7 +5,7 @@ import ArgumentParser
 import Combine
 import Foundation
 
-public struct ListUsersCommand: ParsableCommand, HTTPClientBuilder, UserOutputBuilder {
+public struct ListUsersCommand: ParsableCommand, UserOutputBuilder {
     public static var configuration = CommandConfiguration(
         commandName: "list",
         abstract: "Get a list of the users on your team.")
@@ -50,7 +50,7 @@ public struct ListUsersCommand: ParsableCommand, HTTPClientBuilder, UserOutputBu
     var outputFormat: OutputFormat?
 
     public func run() throws {
-        let api = try setupAPI(auth: auth)
+        let api = try HTTPClient(auth: auth)
 
         var filters = [ListUsers.Filter]()
 
