@@ -5,7 +5,7 @@ import ArgumentParser
 import Combine
 import Foundation
 
-public struct ListUsersCommand: ParsableCommand, UserOutputBuilder {
+public struct ListUsersCommand: ParsableCommand {
     public static var configuration = CommandConfiguration(
         commandName: "list",
         abstract: "Get a list of the users on your team.")
@@ -81,8 +81,11 @@ public struct ListUsersCommand: ParsableCommand, UserOutputBuilder {
                 if case let .failure(error) = completion {
                     print(String(describing: error))
                 }
-            }, receiveValue: { [output, includeVisibleApps] users in
-                output(users, includeVisibleApps)
+            }, receiveValue: { [includeVisibleApps, outputFormat] users in
+                let userOutput = UserOutput(users: users,
+                                            includeVisibleApps: includeVisibleApps,
+                                            format: outputFormat)
+                print(userOutput)
             })
     }
 }

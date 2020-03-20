@@ -4,7 +4,7 @@ import AppStoreConnect_Swift_SDK
 import ArgumentParser
 import Foundation
 
-struct GetUserInfoCommand: ParsableCommand, UserOutputBuilder {
+struct GetUserInfoCommand: ParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "info",
         abstract: "Get information about a user on your team, such as name, roles, and app visibility.")
@@ -34,8 +34,11 @@ struct GetUserInfoCommand: ParsableCommand, UserOutputBuilder {
                 if case let .failure(error) = completion {
                     print(String(describing: error))
                 }
-            }, receiveValue: { [output, includeVisibleApps] users in
-                output(users, includeVisibleApps)
+            }, receiveValue: { [includeVisibleApps, outputFormat] users in
+                let userOutput = UserOutput(users: users,
+                                            includeVisibleApps: includeVisibleApps,
+                                            format: outputFormat)
+                print(userOutput)
             })
     }
 }
