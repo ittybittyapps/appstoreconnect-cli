@@ -4,10 +4,8 @@ import AppStoreConnect_Swift_SDK
 import ArgumentParser
 import Combine
 import Foundation
-import SwiftyTextTable
-import Yams
 
-public struct ListUsersCommand: ParsableCommand {
+public struct ListUsersCommand: ParsableCommand, HTTPClientBuilder, UserOutputBuilder {
     public static var configuration = CommandConfiguration(
         commandName: "list",
         abstract: "Get a list of the users on your team.")
@@ -52,9 +50,7 @@ public struct ListUsersCommand: ParsableCommand {
     var outputFormat: OutputFormat?
 
     public func run() throws {
-        let authYml = try String(contentsOfFile: auth)
-        let configuration: APIConfiguration = try YAMLDecoder().decode(from: authYml)
-        let api = HTTPClient(configuration: configuration)
+        let api = try setupAPI(auth: auth)
 
         var filters = [ListUsers.Filter]()
 
@@ -85,47 +81,8 @@ public struct ListUsersCommand: ParsableCommand {
                 if case let .failure(error) = completion {
                     print(String(describing: error))
                 }
-            }, receiveValue: { [self] users in
-                self.output(users)
+            }, receiveValue: { [output, includeVisibleApps] users in
+                output(users, includeVisibleApps)
             })
-    }
-
-    func output(_ users: [User]) {
-        if let outputFormat = outputFormat {
-            do {
-                switch outputFormat {
-                    case .json:
-                        let jsonEncoder = JSONEncoder()
-                        jsonEncoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-
-                        let redactedUsers = includeVisibleApps
-                            ? users
-                            : users.map { user in
-                                var copy = user
-                                copy.visibleApps = nil
-                                return copy
-                        }
-
-                        var dict = [String:[User]]()
-                        dict["users"] = redactedUsers
-                        let json = try jsonEncoder.encode(dict)
-                        print(String(data: json, encoding: .utf8)!)
-                    case .yaml:
-                        let yamlEncoder = YAMLEncoder()
-                        let yaml = try yamlEncoder.encode(users)
-                        print("users:\n" + yaml)
-                }
-            } catch {
-                print(error)
-            }
-
-        } else {
-            let columns = User.tableColumns(includeVisibleApps: includeVisibleApps)
-            var table = TextTable(columns: columns)
-            table.addRows(values: users.map { $0.tableRow })
-            let str = table.render()
-
-            print(str)
-        }
     }
 }
