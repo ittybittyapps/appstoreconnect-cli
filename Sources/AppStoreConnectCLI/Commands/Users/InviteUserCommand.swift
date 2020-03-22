@@ -4,12 +4,6 @@ import AppStoreConnect_Swift_SDK
 import ArgumentParser
 import Foundation
 
-//extension Array: ExpressibleByArgument where Element == String {
-//    public init?(argument: String) {
-//        self = [argument]
-//    }
-//}
-
 struct InviteUserCommand: ParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "invite",
@@ -27,7 +21,7 @@ struct InviteUserCommand: ParsableCommand {
     @Argument(help: "The user invitation recipient's last name.")
     var lastName: String
 
-    @Argument(help: "Assigned user roles that determine the user's access to sections of App Store Connect and tasks they can perform.")
+    @Option(parsing: ArrayParsingStrategy.singleValue, help: "Assigned user roles that determine the user's access to sections of App Store Connect and tasks they can perform.")
     var roles: [UserRole]
 
     @Flag(help: "Indicates that a user has access to all apps available to the team.")
@@ -36,12 +30,12 @@ struct InviteUserCommand: ParsableCommand {
     @Flag(help: "Indicates the user's specified role allows access to the provisioning functionality on the Apple Developer website.")
     var provisioningAllowed: Bool
 
-    //TODO: parse two arrays as argument
-//    @Argument(help: "Array of opaque resource ID that uniquely identifies the resources.")
-//    var appsVisibleIds: [String]
+    @Option(parsing: ArrayParsingStrategy.singleValue,
+        help: "Array of opaque resource ID that uniquely identifies the resources.")
+    var appsVisibleIds: [String?]
 
     public func run() throws {
-        let api = try HTTPClient(auth: auth)
+        let api = try HTTPClient(authenticationYmlPath: auth)
 
         let request = APIEndpoint.invite(userWithEmail: email,
                                          firstName: firstName,
@@ -49,7 +43,7 @@ struct InviteUserCommand: ParsableCommand {
                                          roles: roles,
                                          allAppsVisible: allAppsVisible,
                                          provisioningAllowed: provisioningAllowed,
-                                         appsVisibleIds: nil)
+                                         appsVisibleIds: allAppsVisible ? [] : appsVisibleIds.compactMap{ $0 }) // appsVisibleIds should not have value when allAppsVisible is true
 
         _ = api.request(request)
             .map { $0.data }
