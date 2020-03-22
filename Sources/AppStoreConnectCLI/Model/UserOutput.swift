@@ -25,16 +25,16 @@ extension UserOutput: CustomStringConvertible {
                                 var copy = user
                                 copy.visibleApps = nil
                                 return copy
-                        }
+                            }
                         
-                        var dict = [String:[User]]()
+                        var dict = [String: [User]]()
                         dict["users"] = redactedUsers
                         let json = try jsonEncoder.encode(dict)
-                        return(String(data: json, encoding: .utf8)!)
+                        return String(data: json, encoding: .utf8)!
                     case .yaml:
                         let yamlEncoder = YAMLEncoder()
                         let yaml = try yamlEncoder.encode(users)
-                        return("users:\n" + yaml)
+                        return "users:\n" + yaml
                 }
             } catch {
                 return "Error \(error.localizedDescription)"
@@ -43,9 +43,8 @@ extension UserOutput: CustomStringConvertible {
             let columns = User.tableColumns(includeVisibleApps: includeVisibleApps)
             var table = TextTable(columns: columns)
             table.addRows(values: users.map { $0.tableRow })
-            let str = table.render()
-            
-            return(str)
+
+            return table.render()
         }
     }
 }

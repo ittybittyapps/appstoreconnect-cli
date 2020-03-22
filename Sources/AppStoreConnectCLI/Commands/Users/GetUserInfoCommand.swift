@@ -24,12 +24,12 @@ struct GetUserInfoCommand: ParsableCommand {
     func run() throws {
         let filters: [ListUsers.Filter] = [.username([email])]
 
-        let api = try HTTPClient(auth: auth)
+        let api = try HTTPClient(authenticationYmlPath: auth)
 
         let request = APIEndpoint.users(filter: filters)
 
         _ = api.request(request)
-            .map { $0.data.compactMap(User.fromAPIUser) }
+            .map(User.fromAPIResponse)
             .sink(receiveCompletion: { completion in
                 if case let .failure(error) = completion {
                     print(String(describing: error))

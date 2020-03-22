@@ -50,7 +50,7 @@ public struct ListUsersCommand: ParsableCommand {
     var outputFormat: OutputFormat?
 
     public func run() throws {
-        let api = try HTTPClient(auth: auth)
+        let api = try HTTPClient(authenticationYmlPath: auth)
 
         var filters = [ListUsers.Filter]()
 
@@ -75,8 +75,8 @@ public struct ListUsersCommand: ParsableCommand {
                                         filter: filters,
                                         next: nil)
 
-        let _ = api.request(request)
-            .map { $0.data.compactMap(User.fromAPIUser) }
+        _ = api.request(request)
+            .map(User.fromAPIResponse)
             .sink(receiveCompletion: { completion in
                 if case let .failure(error) = completion {
                     print(String(describing: error))
