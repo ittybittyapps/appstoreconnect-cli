@@ -4,12 +4,6 @@ import AppStoreConnect_Swift_SDK
 import ArgumentParser
 import Foundation
 
-//extension Array: ExpressibleByArgument where Element == String {
-//    public init?(argument: String) {
-//        self = [argument]
-//    }
-//}
-
 struct InviteUserCommand: ParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "invite",
