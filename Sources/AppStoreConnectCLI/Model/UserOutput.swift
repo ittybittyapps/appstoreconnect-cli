@@ -7,44 +7,55 @@ import Yams
 struct UserOutput {
     let users: [User]
     let includeVisibleApps: Bool
-    let format: OutputFormat?
+    var format: OutputFormat
+
+    init(users: [User], includeVisibleApps: Bool, format: OutputFormat?) {
+        self.users = users
+        self.includeVisibleApps = includeVisibleApps
+        self.format = format ?? .table
+    }
 }
 
 extension UserOutput: CustomStringConvertible {
     var description: String {
-        if let outputFormat = format {
-            do {
-                switch outputFormat {
-                    case .json:
-                        let jsonEncoder = JSONEncoder()
-                        jsonEncoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-                        
-                        let redactedUsers = includeVisibleApps
-                            ? users
-                            : users.map { user in
-                                var copy = user
-                                copy.visibleApps = nil
-                                return copy
-                            }
-                        
-                        var dict = [String: [User]]()
-                        dict["users"] = redactedUsers
-                        let json = try jsonEncoder.encode(dict)
-                        return String(data: json, encoding: .utf8)!
-                    case .yaml:
-                        let yamlEncoder = YAMLEncoder()
-                        let yaml = try yamlEncoder.encode(users)
-                        return "users:\n" + yaml
-                }
-            } catch {
-                return "Error \(error.localizedDescription)"
-            }
-        } else {
-            let columns = User.tableColumns(includeVisibleApps: includeVisibleApps)
-            var table = TextTable(columns: columns)
-            table.addRows(values: users.map { $0.tableRow })
+        let formatUsers: ([User]) throws -> String
+        switch format {
+            case .json:
+                formatUsers = {
+                    var users = $0
+                    let jsonEncoder = JSONEncoder()
+                    jsonEncoder.outputFormatting = [.prettyPrinted, .sortedKeys]
 
-            return table.render()
+                    if !self.includeVisibleApps {
+                        users = users.map { user in
+                            var newUser = user
+                            newUser.visibleApps = nil
+                            return newUser
+                        }
+                    }
+
+                    let json = try jsonEncoder.encode(["users": users])
+                    return String(data: json, encoding: .utf8)!
+                }
+            case .yaml:
+                formatUsers = { users in
+                    let yamlEncoder = YAMLEncoder()
+                    let yaml = try yamlEncoder.encode(users)
+                    return "users:\n" + yaml
+                }
+            case .table:
+                formatUsers = {
+                    let columns = User.tableColumns(includeVisibleApps: self.includeVisibleApps)
+                    var table = TextTable(columns: columns)
+                    table.addRows(values: $0.map { $0.tableRow })
+                    return table.render()
+                }
+        }
+
+        do {
+            return try formatUsers(users)
+        } catch {
+            return "Failed to format users"
         }
     }
 }

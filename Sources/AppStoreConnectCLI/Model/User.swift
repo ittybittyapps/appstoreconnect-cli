@@ -43,21 +43,15 @@ extension User {
             let userVisibleApps = response.include?.filter {
                 userVisibleAppIds?.contains($0.id) ?? false
             }
-            guard let user = User(user, visibleApps: userVisibleApps) else {
-                fatalError("Failed to init user")
-            }
 
-            return user
+            guard let attributes = user.attributes else { fatalError("Failed to init user") }
+
+            return User(attributes: attributes, visibleApps: userVisibleApps)
         }
     }
 
-    init?(_ apiUser: AppStoreConnect_Swift_SDK.User, visibleApps: [AppStoreConnect_Swift_SDK.App]? = nil) {
-        guard let attributes = apiUser.attributes,
-              let username = attributes.username else {
-            return nil
-        }
-
-        self.username = username
+    init(attributes: AppStoreConnect_Swift_SDK.User.Attributes, visibleApps: [AppStoreConnect_Swift_SDK.App]? = nil) {
+        self.username = attributes.username ?? ""
         self.firstName = attributes.firstName ?? ""
         self.lastName = attributes.lastName ?? ""
         self.roles = attributes.roles ?? []

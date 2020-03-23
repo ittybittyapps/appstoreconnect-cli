@@ -35,9 +35,10 @@ struct GetUserInfoCommand: ParsableCommand {
                     print(String(describing: error))
                 }
             }, receiveValue: { [includeVisibleApps, outputFormat] users in
-                let userOutput = UserOutput(users: users,
-                                            includeVisibleApps: includeVisibleApps,
-                                            format: outputFormat)
+                let userOutput = UserOutput(
+                    users: users,
+                    includeVisibleApps: includeVisibleApps,
+                    format: outputFormat)
                 print(userOutput)
             })
     }
