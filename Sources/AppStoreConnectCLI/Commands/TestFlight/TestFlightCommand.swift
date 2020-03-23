@@ -3,7 +3,7 @@
 import ArgumentParser
 import Foundation
 
-public struct TestFlightCommand: ParsableCommand {
+struct TestFlightCommand: ParsableCommand {
     public static var configuration = CommandConfiguration(
         commandName: "testflight",
         abstract: "Manage your beta testing program, including beta testers and groups, apps, and builds.",
@@ -12,7 +12,4 @@ public struct TestFlightCommand: ParsableCommand {
             TestFlightBetaTestersCommand.self,
             TestFlightBuildsCommand.self
         ])
-
-    public init() {
-    }
 }
