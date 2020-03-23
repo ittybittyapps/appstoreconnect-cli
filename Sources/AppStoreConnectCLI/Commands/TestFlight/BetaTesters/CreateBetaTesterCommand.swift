@@ -12,14 +12,42 @@ struct CreateBetaTesterCommand: ParsableCommand {
     @Option(default: "config/auth.yml", help: "The APIConfiguration.")
     var auth: String
 
-    @Argument(help: "the first name of beta tester")
-    var firstName: String
+    @Argument(help: "the beta tester’s email address, used for sending beta testing invitations.")
+    var email: String
 
-    @Argument(help: "the last name of beta tester")
-    var lastName: String
+    @Option(help: "the beta tester’s first name.")
+    var firstName: String?
+
+    @Option(help: "the beta tester’s last name.")
+    var lastName: String?
+
+    @Argument(help: "array of opaque resource ID that uniquely identifies the resources.")
+    var buildIds: [String]
 
     func run() throws {
-        print(firstName)
-        print(lastName)
+        let api = try HTTPClient(authenticationYmlPath: auth)
+
+        let request = APIEndpoint.create(betaTesterWithEmail: email, firstName: firstName, lastName: lastName, buildIds: buildIds)
+
+        _ = api.request(request)
+            .map{ $0.data }
+            .sink(
+                receiveCompletion: { completion in
+                    if case let .failure(error) = completion {
+                        print(String(describing: error))
+                    }
+                },
+                receiveValue: { (tester: BetaTester) -> Void in
+                    print("Invitation has been sent! tester info: ")
+
+                    let jsonEncoder = JSONEncoder()
+                    jsonEncoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+
+                    let json = try! jsonEncoder.encode(["betatester": tester])
+
+                    print(String(data: json, encoding: .utf8)!)
+                }
+            )
+
     }
 }
