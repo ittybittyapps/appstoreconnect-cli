@@ -31,35 +31,37 @@ struct InviteUserCommand: ParsableCommand {
     var provisioningAllowed: Bool
 
     @Option(parsing: ArrayParsingStrategy.singleValue,
-        help: "Array of opaque resource ID that uniquely identifies the resources.")
+            help: "Array of opaque resource ID that uniquely identifies the resources.")
     var appsVisibleIds: [String?]
+
+    @Option(help: "Return exportable results in provided format (\(OutputFormat.allCases.map { $0.rawValue }.joined(separator: ", "))).")
+    var outputFormat: OutputFormat?
 
     public func run() throws {
         let api = try HTTPClient(authenticationYmlPath: auth)
 
-        let request = APIEndpoint.invite(userWithEmail: email,
-                                         firstName: firstName,
-                                         lastName: lastName,
-                                         roles: roles,
-                                         allAppsVisible: allAppsVisible,
-                                         provisioningAllowed: provisioningAllowed,
-                                         appsVisibleIds: allAppsVisible ? [] : appsVisibleIds.compactMap{ $0 }) // appsVisibleIds should not have value when allAppsVisible is true
+        let request = APIEndpoint.invite(
+            userWithEmail: email,
+            firstName: firstName,
+            lastName: lastName,
+            roles: roles,
+            allAppsVisible: allAppsVisible,
+            provisioningAllowed: provisioningAllowed,
+            appsVisibleIds: allAppsVisible ? [] : appsVisibleIds.compactMap{ $0 }) // appsVisibleIds should not have value when allAppsVisible is true
 
         _ = api.request(request)
             .map { $0.data }
-            .sink(receiveCompletion: { completion in
-                if case let .failure(error) = completion {
-                    print(String(describing: error))
+            .sink(
+                receiveCompletion: Printers.handleError,
+                receiveValue: { (result: UserInvitation) -> Void in
+                    print("Invitation email has been sent, invitation info: ")
+
+                    let jsonEncoder = JSONEncoder()
+                    jsonEncoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+
+                    let data = try! jsonEncoder.encode(result)
+                    print(String(data: data, encoding: .utf8)!)
                 }
-            }, receiveValue: { (result: UserInvitation) -> Void in
-                print("Invitation email has been sent, invitation info: ")
-
-                let jsonEncoder = JSONEncoder()
-                jsonEncoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-
-                let data = try! jsonEncoder.encode(result)
-                print(String(data: data, encoding: .utf8)!)
-            }
-        )
+            )
     }
 }
