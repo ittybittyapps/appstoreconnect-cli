@@ -4,8 +4,6 @@ import AppStoreConnect_Swift_SDK
 import ArgumentParser
 import Combine
 import Foundation
-import SwiftyTextTable
-import Yams
 
 public struct ListUsersCommand: ParsableCommand {
     public static var configuration = CommandConfiguration(
@@ -52,9 +50,7 @@ public struct ListUsersCommand: ParsableCommand {
     var outputFormat: OutputFormat?
 
     public func run() throws {
-        let authYml = try String(contentsOfFile: auth)
-        let configuration: APIConfiguration = try YAMLDecoder().decode(from: authYml)
-        let api = HTTPClient(configuration: configuration)
+        let api = try HTTPClient(authenticationYmlPath: auth)
 
         var filters = [ListUsers.Filter]()
 
@@ -79,53 +75,18 @@ public struct ListUsersCommand: ParsableCommand {
                                         filter: filters,
                                         next: nil)
 
-        let _ = api.request(request)
-            .map { $0.data.compactMap(User.fromAPIUser) }
+        _ = api.request(request)
+            .map(User.fromAPIResponse)
             .sink(receiveCompletion: { completion in
                 if case let .failure(error) = completion {
                     print(String(describing: error))
                 }
-            }, receiveValue: { [self] users in
-                self.output(users)
+            }, receiveValue: { [includeVisibleApps, outputFormat] users in
+                let userOutput = UserOutput(
+                    users: users,
+                    includeVisibleApps: includeVisibleApps,
+                    format: outputFormat)
+                print(userOutput)
             })
-    }
-
-    func output(_ users: [User]) {
-        if let outputFormat = outputFormat {
-            do {
-                switch outputFormat {
-                    case .json:
-                        let jsonEncoder = JSONEncoder()
-                        jsonEncoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-
-                        let redactedUsers = includeVisibleApps
-                            ? users
-                            : users.map { user in
-                                var copy = user
-                                copy.visibleApps = nil
-                                return copy
-                        }
-
-                        var dict = [String:[User]]()
-                        dict["users"] = redactedUsers
-                        let json = try jsonEncoder.encode(dict)
-                        print(String(data: json, encoding: .utf8)!)
-                    case .yaml:
-                        let yamlEncoder = YAMLEncoder()
-                        let yaml = try yamlEncoder.encode(users)
-                        print("users:\n" + yaml)
-                }
-            } catch {
-                print(error)
-            }
-
-        } else {
-            let columns = User.tableColumns(includeVisibleApps: includeVisibleApps)
-            var table = TextTable(columns: columns)
-            table.addRows(values: users.map { $0.tableRow })
-            let str = table.render()
-
-            print(str)
-        }
     }
 }

@@ -4,8 +4,9 @@ import ArgumentParser
 import Foundation
 
 enum OutputFormat: String, CaseIterable, Codable {
-    case json = "json"
-    case yaml = "yaml"
+    case json
+    case yaml
+    case table
 //    case csv = "csv"
 }
 

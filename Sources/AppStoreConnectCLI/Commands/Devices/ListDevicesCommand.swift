@@ -89,34 +89,29 @@ struct ListDevicesCommand: ParsableCommand {
     }
 
     func output(_ devices: [Device]) {
-        if let outputFormat = outputFormat {
-            do {
-                switch outputFormat {
-                    case .json:
-                        let jsonEncoder = JSONEncoder()
-                        jsonEncoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-                        // TODO: Date format?
+        do {
+            switch outputFormat ?? .table {
+                case .json:
+                    let jsonEncoder = JSONEncoder()
+                    jsonEncoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+                    // TODO: Date format?
 
-                        var dict = [String:[Device]]()
-                        dict["devices"] = devices
-                        let json = try jsonEncoder.encode(dict)
-                        print(String(data: json, encoding: .utf8)!)
-                    case .yaml:
-                        let yamlEncoder = YAMLEncoder()
-                        let yaml = try yamlEncoder.encode(devices)
-                        print("devices:\n" + yaml)
-                }
-            } catch {
-                print(error)
+                    var dict = [String: [Device]]()
+                    dict["devices"] = devices
+                    let json = try jsonEncoder.encode(dict)
+                    print(String(data: json, encoding: .utf8)!)
+                case .yaml:
+                    let yamlEncoder = YAMLEncoder()
+                    let yaml = try yamlEncoder.encode(devices)
+                    print("devices:\n" + yaml)
+                case .table:
+                    let columns = Device.tableColumns()
+                    var table = TextTable(columns: columns)
+                    table.addRows(values: devices.map { $0.tableRow })
+                    print(table.render())
             }
-
-        } else {
-            let columns = Device.tableColumns()
-            var table = TextTable(columns: columns)
-            table.addRows(values: devices.map { $0.tableRow })
-            let str = table.render()
-
-            print(str)
+        } catch {
+            print(error)
         }
     }
 }
