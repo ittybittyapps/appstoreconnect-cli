@@ -56,11 +56,7 @@ struct InviteUserCommand: ParsableCommand {
                 receiveValue: { (result: UserInvitation) -> Void in
                     print("Invitation email has been sent, invitation info: ")
 
-                    let jsonEncoder = JSONEncoder()
-                    jsonEncoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-
-                    let data = try! jsonEncoder.encode(result)
-                    print(String(data: data, encoding: .utf8)!)
+                    print(UserInvitationOutput(userInvitation: invitation, format: outputFormat))
                 }
             )
     }
