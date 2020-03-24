@@ -12,7 +12,7 @@ public struct ListUsersCommand: ParsableCommand {
 
     public init() {}
 
-    @Option(default: "../config/auth.yml", help: "The APIConfiguration.")
+    @Option(default: "config/auth.yml", help: "The APIConfiguration.")
     var auth: String
 
     @Option(help: "Limit the number of users to return (maximum 200).")
