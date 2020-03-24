@@ -9,7 +9,7 @@ struct GetUserInfoCommand: ParsableCommand {
         commandName: "info",
         abstract: "Get information about a user on your team, such as name, roles, and app visibility.")
 
-    @Option(default: "../config/auth.yml", help: "The APIConfiguration.")
+    @Option(default: "config/auth.yml", help: "The APIConfiguration.")
     var auth: String
 
     @Argument(help: "The email of the user to find.")

@@ -12,7 +12,7 @@ struct ListDevicesCommand: ParsableCommand {
         commandName: "list",
         abstract: "Find and list devices")
 
-    @Option(default: "../config/auth.yml", help: "The APIConfiguration.")
+    @Option(default: "config/auth.yml", help: "The APIConfiguration.")
     var auth: String
 
     @Option(help: "Limit the number of devices to return (maximum 200).")
