@@ -52,11 +52,9 @@ struct InviteUserCommand: ParsableCommand {
         _ = api.request(request)
             .map { $0.data }
             .sink(
-                receiveCompletion: Printers.handleError,
-                receiveValue: { (result: UserInvitation) -> Void in
-                    print("Invitation email has been sent, invitation info: ")
-
-                    print(UserInvitationOutput(userInvitation: invitation, format: outputFormat))
+                receiveCompletion: Printers.CompletionPrinter().print,
+                receiveValue: { [outputFormat] (invitation: UserInvitation) in
+                    Printers.UserInvitationOutput(format: outputFormat).print(invitation)
                 }
             )
     }

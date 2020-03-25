@@ -79,13 +79,9 @@ public struct ListUsersCommand: ParsableCommand {
         _ = api.request(request)
             .map(User.fromAPIResponse)
             .sink(
-                receiveCompletion: Printers.handleError,
+                receiveCompletion: Printers.CompletionPrinter().print,
                 receiveValue: { [includeVisibleApps, outputFormat] users in
-                    let userOutput = UserOutput(
-                        users: users,
-                        includeVisibleApps: includeVisibleApps,
-                        format: outputFormat)
-                    print(userOutput)
+                    _ = users.map(Printers.UserPrinter(format: outputFormat, includeVisibleApps: includeVisibleApps).print)
                 }
         )
     }
