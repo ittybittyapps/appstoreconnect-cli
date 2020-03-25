@@ -21,7 +21,7 @@ struct InviteUserCommand: ParsableCommand {
     @Argument(help: "The user invitation recipient's last name.")
     var lastName: String
 
-    @Option(parsing: ArrayParsingStrategy.singleValue, help: "Assigned user roles that determine the user's access to sections of App Store Connect and tasks they can perform.")
+    @Option(parsing: .upToNextOption, help: "Assigned user roles that determine the user's access to sections of App Store Connect and tasks they can perform.")
     var roles: [UserRole]
 
     @Flag(help: "Indicates that a user has access to all apps available to the team.")
@@ -30,7 +30,7 @@ struct InviteUserCommand: ParsableCommand {
     @Flag(help: "Indicates the user's specified role allows access to the provisioning functionality on the Apple Developer website.")
     var provisioningAllowed: Bool
 
-    @Option(parsing: ArrayParsingStrategy.singleValue,
+    @Option(parsing: .upToNextOption,
             help: "Array of opaque resource ID that uniquely identifies the resources.")
     var appsVisibleIds: [String?]
 
