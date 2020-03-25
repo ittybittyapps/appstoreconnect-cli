@@ -12,8 +12,8 @@ protocol Renderer {
     func render(_ input: Input)
 }
 
-enum Printers {
-    struct CompletionPrinter: Renderer {
+enum Renderers {
+    struct CompletionRenderer: Renderer {
         func render(_ input: Subscribers.Completion<Error>) {
             switch input {
                 case .finished:
@@ -25,8 +25,8 @@ enum Printers {
     }
 }
 
-extension Printers {
-    struct UserPrinter: Renderer {
+extension Renderers {
+    struct UserRenderer: Renderer {
         typealias Input = User
 
         let format: OutputFormat?
@@ -62,8 +62,8 @@ extension Printers {
     }
 }
 
-extension Printers {
-    struct UserInvitationOutput: Renderer {
+extension Renderers {
+    struct UserInvitationRenderer: Renderer {
         typealias Input = UserInvitation
 
         let format: OutputFormat?

@@ -52,9 +52,9 @@ struct InviteUserCommand: ParsableCommand {
         _ = api.request(request)
             .map { $0.data }
             .sink(
-                receiveCompletion: Printers.CompletionPrinter().render,
+                receiveCompletion: Renderers.CompletionRenderer().render,
                 receiveValue: { [outputFormat] (invitation: UserInvitation) in
-                    Printers.UserInvitationOutput(format: outputFormat).render(invitation)
+                    Renderers.UserInvitationRenderer(format: outputFormat).render(invitation)
                 }
             )
     }
