@@ -79,9 +79,9 @@ public struct ListUsersCommand: ParsableCommand {
         _ = api.request(request)
             .map(User.fromAPIResponse)
             .sink(
-                receiveCompletion: Printers.CompletionPrinter().print,
+                receiveCompletion: Printers.CompletionPrinter().render,
                 receiveValue: { [includeVisibleApps, outputFormat] users in
-                    _ = users.map(Printers.UserPrinter(format: outputFormat, includeVisibleApps: includeVisibleApps).print)
+                    _ = users.map(Printers.UserPrinter(format: outputFormat, includeVisibleApps: includeVisibleApps).render)
                 }
         )
     }

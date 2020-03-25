@@ -80,7 +80,7 @@ struct ListDevicesCommand: ParsableCommand {
         let _ = api.request(request)
             .map { $0.data.compactMap(Device.fromAPIUser) }
             .sink(
-                receiveCompletion: Printers.CompletionPrinter().print,
+                receiveCompletion: Printers.CompletionPrinter().render,
                 receiveValue: output
             )
     }
