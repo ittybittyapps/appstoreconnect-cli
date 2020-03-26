@@ -9,7 +9,7 @@ struct DevicesCommand: ParsableCommand {
         abstract: "Device commands",
         subcommands: [
             ListDevicesCommand.self,
-            ReadDeviceInfoCommand.self, // Get information for a specific device registered to your team.
+            ReadDeviceInfoCommand.self,
             /* TODO
             RegisterDeviceCommand.self, // Register a new device for app development.
             UpdateDeviceCommand.self, // Update the name or status of a specific device.
