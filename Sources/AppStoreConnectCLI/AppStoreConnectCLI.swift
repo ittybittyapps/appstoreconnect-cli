@@ -12,6 +12,7 @@ public struct AppStoreConnectCLI: ParsableCommand {
             // CertificatesCommand.self,
             DevicesCommand.self,
             // ProfilesCommand.self,
+            TestFlightCommand.self,
             UsersCommand.self,
         ])
 
