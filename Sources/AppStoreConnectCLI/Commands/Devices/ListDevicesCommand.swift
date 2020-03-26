@@ -43,7 +43,7 @@ struct ListDevicesCommand: ParsableCommand {
         help: "Filter the results by the specified device udid.",
         transform: { $0.lowercased() }
     )
-    var filterUDID: [String?]
+    var filterUDID: [String]
 
     @Option(help: "Return exportable results in provided format (\(OutputFormat.allCases.map { $0.rawValue }.joined(separator: ", "))).")
     var outputFormat: OutputFormat?
@@ -65,6 +65,10 @@ struct ListDevicesCommand: ParsableCommand {
             // tvOs or watchOs.
             // This appears to be an API issue.
             filters.append(Devices.Filter.platform(filterPlatform.compactMap { $0 }.map { $0 == .iOS ? Platform.ios : Platform.macOs}))
+        }
+
+        if !filterUDID.isEmpty {
+            filters.append(Devices.Filter.udid(filterUDID))
         }
 
         if let filterStatus = filterStatus {
