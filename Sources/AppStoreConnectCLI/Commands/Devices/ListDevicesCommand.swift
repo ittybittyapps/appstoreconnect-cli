@@ -85,34 +85,7 @@ struct ListDevicesCommand: ParsableCommand {
             .map { $0.data.map(Device.fromAPIDevice) }
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: output
+                receiveValue: Renderers.ResultRenderer(format: outputFormat).render
             )
-    }
-
-    func output(_ devices: [Device]) {
-        do {
-            switch outputFormat ?? .table {
-                case .json:
-                    let jsonEncoder = JSONEncoder()
-                    jsonEncoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-                    // TODO: Date format?
-
-                    var dict = [String: [Device]]()
-                    dict["devices"] = devices
-                    let json = try jsonEncoder.encode(dict)
-                    print(String(data: json, encoding: .utf8)!)
-                case .yaml:
-                    let yamlEncoder = YAMLEncoder()
-                    let yaml = try yamlEncoder.encode(devices)
-                    print("devices:\n" + yaml)
-                case .table:
-                    let columns = Device.tableColumns()
-                    var table = TextTable(columns: columns)
-                    table.addRows(values: devices.map { $0.tableRow })
-                    print(table.render())
-            }
-        } catch {
-            print(error)
-        }
     }
 }

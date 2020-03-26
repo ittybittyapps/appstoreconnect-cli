@@ -68,3 +68,19 @@ extension Device {
         ]
     }
 }
+
+extension Device: ResultRenderable {
+    func renderTable() -> String {
+        var table = TextTable(columns: Self.tableColumns())
+        table.addRow(values: self.tableRow)
+        return table.render()
+    }
+}
+
+extension Array: ResultRenderable where Element == Device {
+    func renderTable() -> String {
+        var table = TextTable(columns: Element.tableColumns())
+        table.addRow(values: self.map(\.tableRow))
+        return table.render()
+    }
+}

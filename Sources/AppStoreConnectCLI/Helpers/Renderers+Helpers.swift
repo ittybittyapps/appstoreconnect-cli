@@ -23,6 +23,35 @@ enum Renderers {
             }
         }
     }
+
+    struct ResultRenderer<T: ResultRenderable>: Renderer {
+        typealias Input = T
+
+        let format: OutputFormat?
+
+        func render(_ input: T) {
+            switch format ?? .table {
+            case .json:
+                let jsonEncoder = JSONEncoder()
+                jsonEncoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+                let json = try! jsonEncoder.encode(input)
+
+                print(String(data: json, encoding: .utf8)!)
+            case .yaml:
+                let yamlEncoder = YAMLEncoder()
+                let yaml = try! yamlEncoder.encode(input)
+
+                print(yaml)
+            case .table:
+                print(input.renderTable())
+            }
+        }
+
+    }
+}
+
+protocol ResultRenderable: Codable {
+    func renderTable() -> String
 }
 
 extension Renderers {
