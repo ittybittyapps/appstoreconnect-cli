@@ -17,7 +17,7 @@ enum Renderers {
         func render(_ input: Subscribers.Completion<Error>) {
             switch input {
                 case .finished:
-                    print("Completed successfully")
+                    break
                 case .failure(let error):
                     print("Completed with error: \(error)")
             }
