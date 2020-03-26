@@ -9,8 +9,8 @@ struct GetUserInfoCommand: ParsableCommand {
         commandName: "info",
         abstract: "Get information about a user on your team, such as name, roles, and app visibility.")
 
-    @Option(default: "config/auth.yml", help: "The APIConfiguration.")
-    var auth: String
+    @OptionGroup()
+    var authOptions: AuthOptions
 
     @Argument(help: "The email of the user to find.")
     var email: String
@@ -24,7 +24,7 @@ struct GetUserInfoCommand: ParsableCommand {
     func run() throws {
         let filters: [ListUsers.Filter] = [.username([email])]
 
-        let api = try HTTPClient(authenticationYmlPath: auth)
+        let api = try HTTPClient(authOptions: authOptions)
 
         let request = APIEndpoint.users(filter: filters)
 
