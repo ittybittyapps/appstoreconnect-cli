@@ -78,7 +78,7 @@ struct ListDevicesCommand: ParsableCommand {
                                               next: nil)
 
         let _ = api.request(request)
-            .map { $0.data.compactMap(Device.fromAPIUser) }
+            .map { $0.data.map(Device.fromAPIDevice) }
             .sink(receiveCompletion: { completion in
                 if case let .failure(error) = completion {
                     print(String(describing: error))
