@@ -43,7 +43,7 @@ struct ListDevicesCommand: ParsableCommand {
         help: "Filter the results by the specified device udid.",
         transform: { $0.lowercased() }
     )
-    var filterUDID: [String?]
+    var filterUDID: [String]
 
     @Option(help: "Return exportable results in provided format (\(OutputFormat.allCases.map { $0.rawValue }.joined(separator: ", "))).")
     var outputFormat: OutputFormat?
@@ -67,6 +67,10 @@ struct ListDevicesCommand: ParsableCommand {
             filters.append(Devices.Filter.platform(filterPlatform.compactMap { $0 }.map { $0 == .iOS ? Platform.ios : Platform.macOs}))
         }
 
+        if !filterUDID.isEmpty {
+            filters.append(Devices.Filter.udid(filterUDID))
+        }
+
         if let filterStatus = filterStatus {
             filters.append(Devices.Filter.status([filterStatus]))
         }
@@ -78,7 +82,7 @@ struct ListDevicesCommand: ParsableCommand {
                                               next: nil)
 
         let _ = api.request(request)
-            .map { $0.data.compactMap(Device.fromAPIUser) }
+            .map { $0.data.map(Device.fromAPIDevice) }
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,
                 receiveValue: output
