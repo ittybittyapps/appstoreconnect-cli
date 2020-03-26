@@ -66,27 +66,23 @@ public struct ListUsersCommand: ParsableCommand {
             filters.append(ListUsers.Filter.visibleApps(filterVisibleApps.compactMap { $0 }))
         }
 
-        let request = APIEndpoint.users(fields: nil,
-                                        include: includeVisibleApps
-                                            ? [ListUsers.Include.visibleApps]
-                                            : nil,
-                                        limit: nil, // Limit of visibleApps if included, not limit of users
-                                        sort: [sort].compactMap { $0 },
-                                        filter: filters,
-                                        next: nil)
+        let request = APIEndpoint.users(
+            fields: nil,
+            include: includeVisibleApps
+                ? [ListUsers.Include.visibleApps]
+                : nil,
+            limit: nil, // Limit of visibleApps if included, not limit of users
+            sort: [sort].compactMap { $0 },
+            filter: filters,
+            next: nil)
 
         _ = api.request(request)
             .map(User.fromAPIResponse)
-            .sink(receiveCompletion: { completion in
-                if case let .failure(error) = completion {
-                    print(String(describing: error))
+            .sink(
+                receiveCompletion: Renderers.CompletionRenderer().render,
+                receiveValue: { [includeVisibleApps, outputFormat] users in
+                    _ = users.map(Renderers.UserRenderer(format: outputFormat, includeVisibleApps: includeVisibleApps).render)
                 }
-            }, receiveValue: { [includeVisibleApps, outputFormat] users in
-                let userOutput = UserOutput(
-                    users: users,
-                    includeVisibleApps: includeVisibleApps,
-                    format: outputFormat)
-                print(userOutput)
-            })
+        )
     }
 }

@@ -83,13 +83,10 @@ struct ListDevicesCommand: ParsableCommand {
 
         let _ = api.request(request)
             .map { $0.data.map(Device.fromAPIDevice) }
-            .sink(receiveCompletion: { completion in
-                if case let .failure(error) = completion {
-                    print(String(describing: error))
-                }
-            }, receiveValue: { [self] devices in
-                self.output(devices)
-            })
+            .sink(
+                receiveCompletion: Renderers.CompletionRenderer().render,
+                receiveValue: output
+            )
     }
 
     func output(_ devices: [Device]) {

@@ -30,17 +30,12 @@ struct GetUserInfoCommand: ParsableCommand {
 
         _ = api.request(request)
             .map(User.fromAPIResponse)
-            .sink(receiveCompletion: { completion in
-                if case let .failure(error) = completion {
-                    print(String(describing: error))
+            .sink(
+                receiveCompletion: Renderers.CompletionRenderer().render,
+                receiveValue: { [includeVisibleApps, outputFormat] users in
+                   _ = users.map(Renderers.UserRenderer(format: outputFormat, includeVisibleApps: includeVisibleApps).render)
                 }
-            }, receiveValue: { [includeVisibleApps, outputFormat] users in
-                let userOutput = UserOutput(
-                    users: users,
-                    includeVisibleApps: includeVisibleApps,
-                    format: outputFormat)
-                print(userOutput)
-            })
+            )
     }
 }
 
