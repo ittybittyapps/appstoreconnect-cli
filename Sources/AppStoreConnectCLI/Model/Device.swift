@@ -22,7 +22,7 @@ struct Device: Codable {
 // MARK: - API conveniences
 
 extension Device {
-    static func fromAPIUser(_ apiDevice: AppStoreConnect_Swift_SDK.Device) -> Device? {
+    static func fromAPIDevice(_ apiDevice: AppStoreConnect_Swift_SDK.Device) -> Device {
         let attributes = apiDevice.attributes
         return Device(id: apiDevice.id,
                       addedDate: attributes.addedDate,
