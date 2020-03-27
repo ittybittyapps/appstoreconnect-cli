@@ -70,7 +70,7 @@ extension Device {
 }
 
 extension Device: ResultRenderable {
-    func renderTable() -> String {
+    func renderAsTable() -> String {
         var table = TextTable(columns: Self.tableColumns())
         table.addRow(values: self.tableRow)
         return table.render()
@@ -78,9 +78,9 @@ extension Device: ResultRenderable {
 }
 
 extension Array: ResultRenderable where Element == Device {
-    func renderTable() -> String {
+    func renderAsTable() -> String {
         var table = TextTable(columns: Element.tableColumns())
-        table.addRow(values: self.map(\.tableRow))
+        table.addRows(values: self.map(\.tableRow))
         return table.render()
     }
 }

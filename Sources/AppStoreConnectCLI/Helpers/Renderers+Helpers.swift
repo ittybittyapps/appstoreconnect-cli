@@ -32,18 +32,11 @@ enum Renderers {
         func render(_ input: T) {
             switch format ?? .table {
             case .json:
-                let jsonEncoder = JSONEncoder()
-                jsonEncoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-                let json = try! jsonEncoder.encode(input)
-
-                print(String(data: json, encoding: .utf8)!)
+                print(input.renderAsJSON())
             case .yaml:
-                let yamlEncoder = YAMLEncoder()
-                let yaml = try! yamlEncoder.encode(input)
-
-                print(yaml)
+                print(input.renderAsYAML())
             case .table:
-                print(input.renderTable())
+                print(input.renderAsTable())
             }
         }
 
@@ -51,7 +44,29 @@ enum Renderers {
 }
 
 protocol ResultRenderable: Codable {
-    func renderTable() -> String
+    /// Renders the receiver as a JSON string.
+    func renderAsJSON() -> String
+
+    /// Renders the receiver as a YAML string.
+    func renderAsYAML() -> String
+
+    /// Renders the receiver as a SwiftyTable string.
+    func renderAsTable() -> String
+}
+
+extension ResultRenderable {
+    func renderAsJSON() -> String {
+        let jsonEncoder = JSONEncoder()
+        jsonEncoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        let json = try! jsonEncoder.encode(self)
+        return String(data: json, encoding: .utf8)!
+    }
+
+    func renderAsYAML() -> String  {
+        let yamlEncoder = YAMLEncoder()
+        let yaml = try! yamlEncoder.encode(self)
+        return yaml
+    }
 }
 
 extension Renderers {
