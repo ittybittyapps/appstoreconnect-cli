@@ -24,7 +24,7 @@ struct GetUserInfoCommand: ParsableCommand {
     func run() throws {
         let filters: [ListUsers.Filter] = [.username([email])]
 
-        let api = try HTTPClient(authOptions: authOptions)
+        let api = HTTPClient(configuration: APIConfiguration.load(from: authOptions))
 
         let request = APIEndpoint.users(filter: filters)
 
