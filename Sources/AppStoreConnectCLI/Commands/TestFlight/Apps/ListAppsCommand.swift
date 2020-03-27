@@ -67,7 +67,7 @@ struct ListAppsCommand: ParsableCommand {
         )
 
         _ = api.request(request)
-            .map { $0.data.map(App.fromAPIApp) }
+            .map { $0.data.map(App.init) }
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,
                 receiveValue: output
