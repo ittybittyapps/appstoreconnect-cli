@@ -95,35 +95,3 @@ extension ResultRenderable where Self: TableInfoProvider {
         return table.render()
     }
 }
-
-extension Renderers {
-    struct UserInvitationRenderer: Renderer {
-        typealias Input = UserInvitation
-
-        let format: OutputFormat?
-
-        func render(_ input: UserInvitation) {
-            print("Invitation email has been sent, invitation info: ")
-            
-            switch format ?? .table {
-                case .json:
-                    let jsonEncoder = JSONEncoder()
-                    jsonEncoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-                    let data = try! jsonEncoder.encode(input)
-
-                    print(String(data: data, encoding: .utf8)!)
-                case .yaml:
-                    let yamlEncoder = YAMLEncoder()
-                    let yaml = try! yamlEncoder.encode(input)
-
-                    print(yaml)
-                case .table:
-                    let columns = UserInvitation.tableColumns()
-                    var table = TextTable(columns: columns)
-                    table.addRow(values: input.tableRow)
-
-                    print(table.render())
-            }
-        }
-    }
-}

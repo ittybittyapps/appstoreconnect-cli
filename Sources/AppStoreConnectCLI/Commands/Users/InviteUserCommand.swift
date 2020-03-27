@@ -53,9 +53,7 @@ struct InviteUserCommand: ParsableCommand {
             .map { $0.data }
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: { [outputFormat] (invitation: UserInvitation) in
-                    Renderers.UserInvitationRenderer(format: outputFormat).render(invitation)
-                }
+                receiveValue: Renderers.ResultRenderer(format: outputFormat).render
             )
     }
 }

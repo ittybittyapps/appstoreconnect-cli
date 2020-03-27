@@ -4,7 +4,9 @@ import Foundation
 import SwiftyTextTable
 import AppStoreConnect_Swift_SDK
 
-extension UserInvitation {
+extension UserInvitation: ResultRenderable { }
+
+extension UserInvitation: TableInfoProvider {
     static func tableColumns() -> [TextTableColumn] {
        return [
             TextTableColumn(header: "Email"),
