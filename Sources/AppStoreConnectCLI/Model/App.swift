@@ -44,10 +44,10 @@ extension App {
 
     var tableRow: [CustomStringConvertible] {
         return [
-            bundleId ?? "N/A",
-            name ?? "N/A",
-            primaryLocale ?? "N/A",
-            sku ?? "N/A",
+            bundleId ?? "",
+            name ?? "",
+            primaryLocale ?? "",
+            sku ?? "",
         ]
     }
 }
