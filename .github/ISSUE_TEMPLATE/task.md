@@ -1,6 +1,6 @@
 ---
 name: Task
-about: Create a technical task that needs doing
+about: Create a technical task that needs doing.
 title: 'Task: ...'
 labels: "task"
 assignees: ''
