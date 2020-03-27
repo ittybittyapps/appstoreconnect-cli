@@ -14,7 +14,8 @@ extension APIConfiguration {
             return APIConfiguration(
                 issuerID: issuerId,
                 privateKeyID: privateKeyID,
-                privateKey: privateKey)
+                privateKey: privateKey
+            )
         }
 
         // Then use config file
@@ -33,7 +34,8 @@ extension APIConfiguration {
             return APIConfiguration(
                 issuerID: issuerId,
                 privateKeyID: privateKeyID,
-                privateKey: privateKey)
+                privateKey: privateKey
+            )
         }
 
         fatalError("Can't load APIConfiguration, no auth config found")
