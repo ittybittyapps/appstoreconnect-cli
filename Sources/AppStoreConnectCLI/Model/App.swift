@@ -4,7 +4,7 @@ import Foundation
 import AppStoreConnect_Swift_SDK
 import SwiftyTextTable
 
-struct App: Codable {
+struct App: ResultRenderable {
     var bundleId: String?
     var name: String?
     var primaryLocale: String?
@@ -27,7 +27,7 @@ extension App {
 
 // MARK: - TextTable conveniences
 
-extension App {
+extension App: TableInfoProvider {
     static func tableColumns() -> [TextTableColumn] {
         return [
             TextTableColumn(header: "bundleId"),
