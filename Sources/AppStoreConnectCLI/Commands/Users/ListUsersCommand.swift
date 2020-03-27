@@ -81,7 +81,7 @@ public struct ListUsersCommand: ParsableCommand {
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,
                 receiveValue: { [includeVisibleApps, outputFormat] users in
-                    _ = users.map(Renderers.UserRenderer(format: outputFormat, includeVisibleApps: includeVisibleApps).render)
+                    Renderers.UsersRenderer(format: outputFormat, includeVisibleApps: includeVisibleApps).render(users)
                 }
         )
     }
