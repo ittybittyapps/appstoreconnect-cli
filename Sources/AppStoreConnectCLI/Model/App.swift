@@ -1,9 +1,4 @@
-//
-//  App.swift
-//  AppStoreConnectCLI
-//
-//  Created by Huw Rowlands on 26/3/20.
-//
+// Copyright 2020 Itty Bitty Apps Pty Ltd
 
 import Foundation
 import AppStoreConnect_Swift_SDK
