@@ -17,9 +17,4 @@ struct AuthOptions: ParsableArguments {
     var privateKey: String?
 }
 
-struct OutputOptions: ParsableArguments {
-    @Option(help: "Return exportable results in provided format (\(OutputFormat.allCases.map { $0.rawValue }.joined(separator: ", "))).")
-    var outputFormat: OutputFormat?
-}
-
 
