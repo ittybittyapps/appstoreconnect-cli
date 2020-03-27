@@ -63,30 +63,7 @@ struct ListAppsCommand: ParsableCommand {
             .map { $0.data.map(App.init) }
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: output
+                receiveValue: Renderers.ResultRenderer(format: outputFormat).render
             )
-    }
-
-    func output(_ apps: [App]) {
-        do {
-            switch outputFormat ?? .table {
-                case .json:
-                    let jsonEncoder = JSONEncoder()
-                    jsonEncoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-                    let json = try jsonEncoder.encode(apps)
-                    print(String(data: json, encoding: .utf8)!)
-                case .yaml:
-                    let yamlEncoder = YAMLEncoder()
-                    let yaml = try yamlEncoder.encode(apps)
-                    print(yaml)
-                case .table:
-                    let columns = App.tableColumns()
-                    var table = TextTable(columns: columns)
-                    table.addRows(values: apps.map { $0.tableRow })
-                    print(table.render())
-            }
-        } catch {
-            print(error)
-        }
     }
 }
