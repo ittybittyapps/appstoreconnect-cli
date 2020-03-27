@@ -76,7 +76,7 @@ extension Renderers {
         let format: OutputFormat?
         let includeVisibleApps: Bool
 
-        func render(_ input: User) {
+        func render(_ input: Input) {
             var user = input
 
             if !includeVisibleApps {
@@ -99,6 +99,45 @@ extension Renderers {
                     let columns = User.tableColumns(includeVisibleApps: self.includeVisibleApps)
                     var table = TextTable(columns: columns)
                     table.addRow(values: input.tableRow)
+
+                    print(table.render())
+            }
+        }
+    }
+
+    struct UsersRenderer: Renderer {
+        typealias Input = [User]
+
+        let format: OutputFormat?
+        let includeVisibleApps: Bool
+
+        func render(_ input: Input) {
+            var users = input
+
+            if !self.includeVisibleApps {
+                users = input.map { user in
+                    var newUser = user
+                    newUser.visibleApps = nil
+                    return newUser
+                }
+            }
+
+            switch format ?? .table {
+                case .json:
+                    let jsonEncoder = JSONEncoder()
+                    jsonEncoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+                    let json = try! jsonEncoder.encode(users)
+
+                    print(String(data: json, encoding: .utf8)!)
+                case .yaml:
+                    let yamlEncoder = YAMLEncoder()
+                    let yaml = try! yamlEncoder.encode(users)
+
+                    print(yaml)
+                case .table:
+                    let columns = User.tableColumns(includeVisibleApps: self.includeVisibleApps)
+                    var table = TextTable(columns: columns)
+                    table.addRows(values: input.map { $0.tableRow })
 
                     print(table.render())
             }
