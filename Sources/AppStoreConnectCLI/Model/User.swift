@@ -4,7 +4,7 @@ import Foundation
 import AppStoreConnect_Swift_SDK
 import SwiftyTextTable
 
-struct User: Codable {
+struct User: ResultRenderable {
     var username: String
     var firstName: String
     var lastName: String
@@ -63,24 +63,21 @@ extension User {
 
 // MARK: - TextTable conveniences
 
-extension User {
-    static func tableColumns(includeVisibleApps: Bool) -> [TextTableColumn] {
-        var columns = [
+extension User: TableInfoProvider {
+    static func tableColumns() -> [TextTableColumn] {
+        [
             TextTableColumn(header: "Username"),
             TextTableColumn(header: "First Name"),
             TextTableColumn(header: "Last Name"),
             TextTableColumn(header: "Role"),
             TextTableColumn(header: "Provisioning Allowed"),
-            TextTableColumn(header: "All Apps Visible")
+            TextTableColumn(header: "All Apps Visible"),
+            TextTableColumn(header: "Visible Apps")
         ]
-
-        if includeVisibleApps {
-            columns.append(TextTableColumn(header: "Visible Apps"))
-        }
-        return columns
     }
+
     var tableRow: [CustomStringConvertible] {
-        return [
+        [
             username,
             firstName,
             lastName,
