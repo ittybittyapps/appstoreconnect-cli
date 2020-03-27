@@ -25,9 +25,6 @@ struct ListAppsCommand: ParsableCommand {
     @Option(help: "Filter the results by the specified bundle IDs; comma-separated for multiple values")
     var filterBundleIds: [String]
 
-    @Option(help: "Filter the results by the specified app IDs; comma-separated for multiple values")
-    var filterIds: [String]
-
     @Option(help: "Filter the results by the specified app names; comma-separated for multiple values")
     var filterNames: [String]
 
@@ -39,10 +36,6 @@ struct ListAppsCommand: ParsableCommand {
 
         if filterBundleIds.isEmpty == false {
             filters += [ListApps.Filter.bundleId(filterBundleIds)]
-        }
-
-        if filterIds.isEmpty == false {
-            filters += [ListApps.Filter.id(filterIds)]
         }
 
         if filterNames.isEmpty == false {
