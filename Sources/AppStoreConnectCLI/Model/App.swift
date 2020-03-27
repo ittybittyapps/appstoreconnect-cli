@@ -19,9 +19,9 @@ struct App: Codable {
 // MARK: - API conveniences
 
 extension App {
-    static func fromAPIApp(_ apiApp: AppStoreConnect_Swift_SDK.App) -> App {
+    init(_ apiApp: AppStoreConnect_Swift_SDK.App) {
         let attributes = apiApp.attributes
-        return App(
+        self.init(
             bundleId: attributes?.bundleId,
             name: attributes?.name,
             primaryLocale: attributes?.primaryLocale,
