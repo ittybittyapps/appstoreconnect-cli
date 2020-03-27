@@ -32,9 +32,7 @@ struct GetUserInfoCommand: ParsableCommand {
             .map(User.fromAPIResponse)
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: { [includeVisibleApps, outputFormat] users in
-                   _ = users.map(Renderers.UserRenderer(format: outputFormat, includeVisibleApps: includeVisibleApps).render)
-                }
+                receiveValue: Renderers.ResultRenderer(format: outputFormat).render
             )
     }
 }
