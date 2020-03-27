@@ -4,7 +4,7 @@ import Foundation
 import AppStoreConnect_Swift_SDK
 import SwiftyTextTable
 
-struct Device: Codable {
+struct Device: ResultRenderable {
     var id: String
     var addedDate: Date?
     var name: String?
@@ -37,7 +37,7 @@ extension Device {
 
 // MARK: - TextTable conveniences
 
-extension Device {
+extension Device: TableInfoProvider {
     static func tableColumns() -> [TextTableColumn] {
         return [
             TextTableColumn(header: "ID"),
@@ -66,21 +66,5 @@ extension Device {
             platform?.rawValue ?? "",
             status?.rawValue ?? ""
         ]
-    }
-}
-
-extension Device: ResultRenderable {
-    func renderAsTable() -> String {
-        var table = TextTable(columns: Self.tableColumns())
-        table.addRow(values: self.tableRow)
-        return table.render()
-    }
-}
-
-extension Array: ResultRenderable where Element == Device {
-    func renderAsTable() -> String {
-        var table = TextTable(columns: Element.tableColumns())
-        table.addRows(values: self.map(\.tableRow))
-        return table.render()
     }
 }

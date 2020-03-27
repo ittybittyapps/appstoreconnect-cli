@@ -69,6 +69,33 @@ extension ResultRenderable {
     }
 }
 
+/// Provides the necessary info to be able to render a table with SwiftyTable
+protocol TableInfoProvider {
+
+    /// Array of columns, with their headers, for display
+    static func tableColumns() -> [TextTableColumn]
+
+    /// A single row of table info, in the same order as `Self.tableColumns()`
+    var tableRow: [CustomStringConvertible] { get }
+
+}
+
+extension Array: ResultRenderable where Element: TableInfoProvider & Codable {
+    func renderAsTable() -> String {
+        var table = TextTable(columns: Element.tableColumns())
+        table.addRows(values: self.map(\.tableRow))
+        return table.render()
+    }
+}
+
+extension ResultRenderable where Self: TableInfoProvider {
+    func renderAsTable() -> String {
+        var table = TextTable(columns: Self.tableColumns())
+        table.addRow(values: self.tableRow)
+        return table.render()
+    }
+}
+
 extension Renderers {
     struct UserRenderer: Renderer {
         typealias Input = User
