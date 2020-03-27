@@ -1,6 +1,5 @@
-# appstoreconnect-cli
+![App Store Connect CLI - Interact with the App Store Connect API from the command line.](https://user-images.githubusercontent.com/1712450/77729642-4c204080-7053-11ea-9c0b-e21218c70c8c.png)
 
-A tool for interacting with the Apple AppStore Connect API from the command line.
 
 ## Authentication
 The default location for an `auth.yml` file is `config/auth.yml`. It's format should look like:
