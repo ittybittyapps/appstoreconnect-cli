@@ -58,13 +58,13 @@ extension Device {
             id,
             addedDate != nil
                 ? formatter.string(from: addedDate!)
-                : "N/A",
-            name ?? "N/A",
-            deviceClass?.rawValue ?? "N/A",
-            model ?? "N/A",
-            udid ?? "N/A",
-            platform?.rawValue ?? "N/A",
-            status?.rawValue ?? "N/A"
+                : "",
+            name ?? "",
+            deviceClass?.rawValue ?? "",
+            model ?? "",
+            udid ?? "",
+            platform?.rawValue ?? "",
+            status?.rawValue ?? ""
         ]
     }
 }
