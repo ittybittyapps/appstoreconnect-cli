@@ -9,7 +9,7 @@ struct InviteUserCommand: ParsableCommand {
         commandName: "invite",
         abstract: "Invite a user with assigned user roles to join your team.")
 
-    @Option(default: "../config/auth.yml", help: "The APIConfiguration.")
+    @Option(default: "config/auth.yml", help: "The APIConfiguration.")
     var auth: String
 
     @Argument(help: "The email address of a pending user invitation. The email address must be valid to activate the account. It can be any email address, not necessarily one associated with an Apple ID.")
