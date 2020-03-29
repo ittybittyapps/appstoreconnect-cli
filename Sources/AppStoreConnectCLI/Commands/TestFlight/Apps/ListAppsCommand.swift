@@ -22,13 +22,13 @@ struct ListAppsCommand: ParsableCommand {
     @Option(help: "Return exportable results in provided format (\(OutputFormat.allCases.map { $0.rawValue }.joined(separator: ", "))).")
     var outputFormat: OutputFormat?
 
-    @Option(help: "Filter the results by the specified bundle IDs; comma-separated for multiple values")
+    @Option(parsing: .upToNextOption, help: "Filter the results by the specified bundle IDs")
     var filterBundleIds: [String]
 
-    @Option(help: "Filter the results by the specified app names; comma-separated for multiple values")
+    @Option(parsing: .upToNextOption, help: "Filter the results by the specified app names")
     var filterNames: [String]
 
-    @Option(help: "Filter the results by the specified app SKUs; comma-separated for multiple values")
+    @Option(parsing: .upToNextOption, help: "Filter the results by the specified app SKUs")
     var filterSkus: [String]
 
     private var listFilters: [ListApps.Filter]? {

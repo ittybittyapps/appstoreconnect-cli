@@ -25,19 +25,20 @@ public struct ListUsersCommand: ParsableCommand {
     var sort: ListUsers.Sort?
 
     @Option(
+        parsing: .upToNextOption,
         help: "Filter the results by the specified username.",
         transform: { $0.lowercased() }
     )
     var filterUsername: [String?]
 
     @Option(
-        parsing: ArrayParsingStrategy.singleValue,
+        parsing: .upToNextOption,
         help: ArgumentHelp(stringLiteral: "Filter the results by the specified roles (\(UserRole.allCases.map { $0.rawValue.lowercased() }.joined(separator: ", "))).")
     )
     var filterRole: [UserRole?]
 
     @Option(
-        parsing: ArrayParsingStrategy.singleValue,
+        parsing: .upToNextOption,
         help: ArgumentHelp(stringLiteral: "Filter the results by the app(s) visible to each user.\nUsers with access to all apps will always be included."),
         transform: { $0.lowercased() }
     )

@@ -25,13 +25,14 @@ struct ListDevicesCommand: ParsableCommand {
     var sort: Devices.Sort?
 
     @Option(
+        parsing: .upToNextOption,
         help: "Filter the results by the specified device name.",
         transform: { $0.lowercased() }
     )
     var filterName: [String?]
 
     @Option(
-        parsing: ArrayParsingStrategy.singleValue,
+        parsing: .upToNextOption,
         help: ArgumentHelp(stringLiteral: "Filter the results by the specified device platform (\(BundleIdPlatform.allCases.map { $0.rawValue.lowercased() }.joined(separator: ", "))).")
     )
     var filterPlatform: [BundleIdPlatform?]
@@ -40,6 +41,7 @@ struct ListDevicesCommand: ParsableCommand {
     var filterStatus: DeviceStatus?
 
     @Option(
+        parsing: .upToNextOption,
         help: "Filter the results by the specified device udid.",
         transform: { $0.lowercased() }
     )
