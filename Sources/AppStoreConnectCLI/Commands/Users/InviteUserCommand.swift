@@ -21,7 +21,7 @@ struct InviteUserCommand: ParsableCommand {
     @Argument(help: "The user invitation recipient's last name.")
     var lastName: String
 
-    @Option(parsing: ArrayParsingStrategy.singleValue, help: "Assigned user roles that determine the user's access to sections of App Store Connect and tasks they can perform.")
+    @Option(parsing: .upToNextOption, help: "Assigned user roles that determine the user's access to sections of App Store Connect and tasks they can perform.")
     var roles: [UserRole]
 
     @Flag(help: "Indicates that a user has access to all apps available to the team.")
@@ -30,15 +30,46 @@ struct InviteUserCommand: ParsableCommand {
     @Flag(help: "Indicates the user's specified role allows access to the provisioning functionality on the Apple Developer website.")
     var provisioningAllowed: Bool
 
-    @Option(parsing: ArrayParsingStrategy.singleValue,
-            help: "Array of opaque resource ID that uniquely identifies the resources.")
-    var appsVisibleIds: [String?]
+    @Option(parsing: .upToNextOption,
+            help: "Array of bundle IDs that uniquely identifies the apps.")
+    var bundleIds: [String]
 
     @Option(help: "Return exportable results in provided format (\(OutputFormat.allCases.map { $0.rawValue }.joined(separator: ", "))).")
     var outputFormat: OutputFormat?
 
     public func run() throws {
-        let api = try HTTPClient(authenticationYmlPath: auth)
+        if allAppsVisible {
+            inviteUserToTeam()
+            return
+        }
+
+        if !bundleIds.isEmpty {
+            getResourceIdsFrom(bundleIds: bundleIds) {
+                self.inviteUserToTeam(with: $0)
+            }
+        }
+
+        fatalError("Invalid Input: If you set allAppsVisible to false, you must provide at least one value for the visibleApps relationship.")
+    }
+
+    func getResourceIdsFrom(bundleIds: [String],
+                            completionHandler: @escaping (_ resourceIds: [String]) -> Void) {
+        let api = try! HTTPClient(authenticationYmlPath: auth)
+
+        let getAppResourceIdRequest = APIEndpoint.apps(
+            filters: [ListApps.Filter.bundleId(bundleIds)]
+        )
+
+        _ = api.request(getAppResourceIdRequest)
+            .map { $0.data }
+            .sink(
+                receiveCompletion: Renderers.CompletionRenderer().render,
+                receiveValue: { completionHandler($0.map { $0.id }) }
+            )
+    }
+
+    func inviteUserToTeam(with appsVisibleIds: [String] = [])  {
+        let api = try! HTTPClient(authenticationYmlPath: auth)
 
         let request = APIEndpoint.invite(
             userWithEmail: email,
@@ -47,7 +78,7 @@ struct InviteUserCommand: ParsableCommand {
             roles: roles,
             allAppsVisible: allAppsVisible,
             provisioningAllowed: provisioningAllowed,
-            appsVisibleIds: allAppsVisible ? [] : appsVisibleIds.compactMap{ $0 }) // appsVisibleIds should not have value when allAppsVisible is true
+            appsVisibleIds: appsVisibleIds) // appsVisibleIds should be empty when allAppsVisible is true
 
         _ = api.request(request)
             .map { $0.data }
