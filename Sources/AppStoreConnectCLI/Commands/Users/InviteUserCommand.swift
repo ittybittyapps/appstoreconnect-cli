@@ -78,7 +78,7 @@ struct InviteUserCommand: ParsableCommand {
             roles: roles,
             allAppsVisible: allAppsVisible,
             provisioningAllowed: provisioningAllowed,
-            appsVisibleIds: appsVisibleIds) // appsVisibleIds should not have value when allAppsVisible is true
+            appsVisibleIds: appsVisibleIds) // appsVisibleIds should be empty when allAppsVisible is true
 
         _ = api.request(request)
             .map { $0.data }
