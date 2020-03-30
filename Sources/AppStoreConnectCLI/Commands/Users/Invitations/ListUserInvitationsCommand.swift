@@ -4,13 +4,10 @@ import AppStoreConnect_Swift_SDK
 import ArgumentParser
 import Foundation
 
-public struct ListUserInvitationsCommand: ParsableCommand {
+struct ListUserInvitationsCommand: ParsableCommand {
     public static var configuration = CommandConfiguration(
         commandName: "list-invites",
         abstract: "Get a list of pending invitations to join your team.")
-
-    public init() {
-    }
 
     @Option(help: "Limit the number of users to return (maximum 200).")
     var limit: Int?
