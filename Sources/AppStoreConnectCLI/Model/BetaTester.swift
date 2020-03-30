@@ -13,9 +13,9 @@ extension BetaTester: TableInfoProvider {
             TextTableColumn(header: "First Name"),
             TextTableColumn(header: "Last Name"),
             TextTableColumn(header: "Invite Type"),
-            TextTableColumn(header: "Apps Id"),
-            TextTableColumn(header: "Beta Groups Ids"),
-            TextTableColumn(header: "Builds Ids")
+            TextTableColumn(header: "App Ids"),
+            TextTableColumn(header: "Beta Group Ids"),
+            TextTableColumn(header: "Build Ids")
         ]
     }
 
