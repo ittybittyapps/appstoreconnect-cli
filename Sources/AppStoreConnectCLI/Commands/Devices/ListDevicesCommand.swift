@@ -29,13 +29,13 @@ struct ListDevicesCommand: ParsableCommand {
         help: "Filter the results by the specified device name.",
         transform: { $0.lowercased() }
     )
-    var filterName: [String?]
+    var filterName: [String]
 
     @Option(
         parsing: .upToNextOption,
         help: ArgumentHelp(stringLiteral: "Filter the results by the specified device platform (\(BundleIdPlatform.allCases.map { $0.rawValue.lowercased() }.joined(separator: ", "))).")
     )
-    var filterPlatform: [BundleIdPlatform?]
+    var filterPlatform: [BundleIdPlatform]
 
     @Option(help: "Filter the results by the specified device status (\(DeviceStatus.allCases.map { $0.rawValue.lowercased() }.joined(separator: ", "))).")
     var filterStatus: DeviceStatus?
@@ -58,7 +58,7 @@ struct ListDevicesCommand: ParsableCommand {
         var filters = [Devices.Filter]()
 
         if !filterName.isEmpty {
-            filters.append(Devices.Filter.name(filterName.compactMap { $0 }))
+            filters.append(Devices.Filter.name(filterName))
         }
 
         if !filterPlatform.isEmpty {
@@ -66,7 +66,7 @@ struct ListDevicesCommand: ParsableCommand {
             // rather than a Platform, so there is no support for
             // tvOs or watchOs.
             // This appears to be an API issue.
-            filters.append(Devices.Filter.platform(filterPlatform.compactMap { $0 }.map { $0 == .iOS ? Platform.ios : Platform.macOs}))
+            filters.append(Devices.Filter.platform(filterPlatform.map { $0 == .iOS ? Platform.ios : Platform.macOs}))
         }
 
         if !filterUDID.isEmpty {
