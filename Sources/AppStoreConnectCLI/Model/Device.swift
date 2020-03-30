@@ -8,8 +8,6 @@ struct Device: ResultRenderable {
     var id: String
     var addedDate: Date?
     var name: String?
-    // Returns nil for valid results probably because the attribute
-    // property is misnamed. Issue has been raised in the repository
     var deviceClass: DeviceClass?
     var model: String?
     var udid: String?
@@ -27,7 +25,7 @@ extension Device {
         return Device(id: apiDevice.id,
                       addedDate: attributes.addedDate,
                       name: attributes.name,
-                      deviceClass: attributes.devicesClass,
+                      deviceClass: attributes.deviceClass,
                       model: attributes.model,
                       udid: attributes.udid,
                       platform: attributes.platform,

@@ -5,9 +5,9 @@
         "package": "AppStoreConnect-Swift-SDK",
         "repositoryURL": "https://github.com/AvdLee/appstoreconnect-swift-sdk.git",
         "state": {
-          "branch": "master",
-          "revision": "163c04ba5d7c921888be19913092901d5ace8dad",
-          "version": null
+          "branch": null,
+          "revision": "f1d3e0d62f6c18023c626629f7f326739534c262",
+          "version": "1.0.1"
         }
       },
       {
