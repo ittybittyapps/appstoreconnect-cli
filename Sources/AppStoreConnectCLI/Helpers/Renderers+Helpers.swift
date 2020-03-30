@@ -1,6 +1,7 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
 import Foundation
+import CodableCSV
 import Combine
 import SwiftyTextTable
 import Yams
@@ -31,6 +32,8 @@ enum Renderers {
 
         func render(_ input: T) {
             switch format ?? .table {
+            case .csv:
+                print(input.renderAsCSV())
             case .json:
                 print(input.renderAsJSON())
             case .yaml:
@@ -44,6 +47,9 @@ enum Renderers {
 }
 
 protocol ResultRenderable: Codable {
+    /// Renders the receiver as a CSV string.
+    func renderAsCSV() -> String
+
     /// Renders the receiver as a JSON string.
     func renderAsJSON() -> String
 
@@ -81,6 +87,14 @@ protocol TableInfoProvider {
 }
 
 extension Array: ResultRenderable where Element: TableInfoProvider & Codable {
+    func renderAsCSV() -> String {
+        let headers = Element.tableColumns().map { $0.header }
+        let rows = self.map { $0.tableRow.map { "\($0)" } }
+        let wholeTable = [headers] + rows
+
+        return try! CSVWriter.serialize(rows: wholeTable, into: String.self)
+    }
+
     func renderAsTable() -> String {
         var table = TextTable(columns: Element.tableColumns())
         table.addRows(values: self.map(\.tableRow))
@@ -89,6 +103,14 @@ extension Array: ResultRenderable where Element: TableInfoProvider & Codable {
 }
 
 extension ResultRenderable where Self: TableInfoProvider {
+    func renderAsCSV() -> String {
+        let headers = Self.tableColumns().map { $0.header }
+        let row = self.tableRow.map { "\($0)" }
+        let wholeTable = [headers] + [row]
+
+        return try! CSVWriter.serialize(rows: wholeTable, into: String.self)
+    }
+
     func renderAsTable() -> String {
         var table = TextTable(columns: Self.tableColumns())
         table.addRow(values: self.tableRow)

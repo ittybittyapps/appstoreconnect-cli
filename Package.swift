@@ -28,6 +28,10 @@ let package = Package(
         .package(
             url: "https://github.com/scottrhoyt/SwiftyTextTable.git",
             from: "0.5.0"
+        ),
+        .package(
+            url: "https://github.com/dehesa/CodableCSV.git",
+            from: "0.5.1"
         )
     ],
     targets: [
@@ -42,7 +46,8 @@ let package = Package(
                            .product(name: "AppStoreConnect-Swift-SDK", package: "AppStoreConnect-Swift-SDK"),
                            .product(name: "Yams", package: "Yams"),
                            .product(name: "ArgumentParser", package: "swift-argument-parser"),
-                           .product(name: "SwiftyTextTable", package: "SwiftyTextTable")]
+                           .product(name: "SwiftyTextTable", package: "SwiftyTextTable"),
+                           .product(name: "CodableCSV", package: "CodableCSV")]
         ),
         .testTarget(
             name: "appstoreconnect-cliTests",

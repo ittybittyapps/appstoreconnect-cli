@@ -11,6 +11,15 @@
         }
       },
       {
+        "package": "CodableCSV",
+        "repositoryURL": "https://github.com/dehesa/CodableCSV.git",
+        "state": {
+          "branch": null,
+          "revision": "c010320df5a18d963718236da694a044ae832c42",
+          "version": "0.5.1"
+        }
+      },
+      {
         "package": "Files",
         "repositoryURL": "https://github.com/johnsundell/files.git",
         "state": {

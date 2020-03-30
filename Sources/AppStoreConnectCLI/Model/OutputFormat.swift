@@ -4,10 +4,10 @@ import ArgumentParser
 import Foundation
 
 enum OutputFormat: String, CaseIterable, Codable {
+    case csv
     case json
-    case yaml
     case table
-//    case csv = "csv"
+    case yaml
 }
 
 extension OutputFormat: ExpressibleByArgument {
