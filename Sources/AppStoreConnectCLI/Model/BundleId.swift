@@ -2,6 +2,7 @@
 
 import Foundation
 import AppStoreConnect_Swift_SDK
+import SwiftyTextTable
 
 enum BundleIdCapability: String, Decodable {
     case icloud
@@ -29,10 +30,45 @@ enum BundleIdCapability: String, Decodable {
     case accessWifiInformation
 }
 
-struct BundleId: Decodable {
-    var identifier: String
-    var name: String
-    var platform: BundleIdPlatform
-    var seedId: String
-    var capabilities: [BundleIdCapability]?
+struct BundleId: ResultRenderable {
+    var identifier: String?
+    var name: String?
+    var platform: BundleIdPlatform?
+    var seedId: String?
+}
+
+// MARK: - API conveniences
+
+extension BundleId {
+    init(_ apiBundleId: AppStoreConnect_Swift_SDK.BundleId) {
+        let attributes = apiBundleId.attributes
+        self.init(
+            identifier: attributes?.identifier,
+            name: attributes?.name,
+            platform: attributes?.platform,
+            seedId: attributes?.seedId
+        )
+    }
+}
+
+// MARK: - TextTable conveniences
+
+extension BundleId: TableInfoProvider {
+    static func tableColumns() -> [TextTableColumn] {
+        return [
+            TextTableColumn(header: "identifier"),
+            TextTableColumn(header: "name"),
+            TextTableColumn(header: "platform"),
+            TextTableColumn(header: "seedId")
+        ]
+    }
+
+    var tableRow: [CustomStringConvertible] {
+        return [
+            identifier ?? "",
+            name ?? "",
+            platform?.rawValue ?? "",
+            seedId ?? ""
+        ]
+    }
 }
