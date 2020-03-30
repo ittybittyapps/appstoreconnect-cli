@@ -12,19 +12,19 @@ struct CreateBetaTesterCommand: ParsableCommand {
     @Option(default: "config/auth.yml", help: "The APIConfiguration.")
     var auth: String
 
-    @Argument(help: "the beta tester’s email address, used for sending beta testing invitations.")
+    @Argument(help: "The beta tester's email address, used for sending beta testing invitations.")
     var email: String
 
-    @Option(help: "the beta tester’s first name.")
+    @Option(help: "The beta tester's first name.")
     var firstName: String?
 
-    @Option(help: "the beta tester’s last name.")
+    @Option(help: "The beta tester's last name.")
     var lastName: String?
 
-    @Argument(help: "array of opaque resource ID that uniquely identifies the resources.")
+    @Argument(help: "Array of opaque resource ID that uniquely identifies the resources.")
     var buildIds: [String]
 
-    @Option(help: "return exportable results in provided format (\(OutputFormat.allCases.map { $0.rawValue }.joined(separator: ", "))).")
+    @Option(help: "Return exportable results in provided format (\(OutputFormat.allCases.map { $0.rawValue }.joined(separator: ", "))).")
     var outputFormat: OutputFormat?
 
     func run() throws {
