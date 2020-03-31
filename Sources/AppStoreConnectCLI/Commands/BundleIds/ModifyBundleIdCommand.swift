@@ -17,8 +17,8 @@ struct ModifyBundleIdCommand: ParsableCommand {
     @Option(help: "Return exportable results in provided format (\(OutputFormat.allCases.map { $0.rawValue }.joined(separator: ", "))).")
     var outputFormat: OutputFormat?
 
-    @Option(help: "The bundle ID to update. Must be unique.")
-    var bundleId: String
+    @Option(help: "The unique identifier of the bundle ID.")
+    var identifier: String
 
     @Option(help: "The new name for the bundle identifier.")
     var name: String
@@ -27,9 +27,9 @@ struct ModifyBundleIdCommand: ParsableCommand {
         let api = HTTPClient(configuration: APIConfiguration.load(from: authOptions))
 
         _ = try api
-            .findInternalIdentifier(for: bundleId)
-            .flatMap {
-                api.request(APIEndpoint.modifyBundleId(id: $0, name: self.name)).eraseToAnyPublisher()
+            .findInternalIdentifier(for: identifier)
+            .flatMap { internalId in
+                api.request(APIEndpoint.modifyBundleId(id: internalId, name: self.name)).eraseToAnyPublisher()
             }
             .map(BundleId.init)
             .sink(

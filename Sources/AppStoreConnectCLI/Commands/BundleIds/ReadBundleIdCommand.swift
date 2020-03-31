@@ -17,16 +17,16 @@ struct ReadBundleIdCommand: ParsableCommand {
     @Option(help: "Return exportable results in provided format (\(OutputFormat.allCases.map { $0.rawValue }.joined(separator: ", "))).")
     var outputFormat: OutputFormat?
 
-    @Argument(help: "The bundle ID to read. Must be unique.")
-    var bundleId: String
+    @Argument(help: "The unique identifier of the bundle ID.")
+    var identifier: String
 
     func run() throws {
         let api = HTTPClient(configuration: APIConfiguration.load(from: authOptions))
 
         _ = try api
-            .findInternalIdentifier(for: bundleId)
-            .flatMap {
-                api.request(APIEndpoint.readBundleIdInformation(id: $0)).eraseToAnyPublisher()
+            .findInternalIdentifier(for: identifier)
+            .flatMap { internalId in
+                api.request(APIEndpoint.readBundleIdInformation(id: internalId)).eraseToAnyPublisher()
             }
             .map(BundleId.init)
             .sink(

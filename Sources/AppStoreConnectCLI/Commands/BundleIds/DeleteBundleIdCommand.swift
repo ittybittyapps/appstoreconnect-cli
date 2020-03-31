@@ -14,16 +14,16 @@ struct DeleteBundleIdCommand: ParsableCommand {
     @OptionGroup()
     var authOptions: AuthOptions
 
-    @Argument(help: "The bundle ID to delete. Must be unique.")
-    var bundleId: String
+    @Argument(help: "The bundle ID identifier to delete. Must be unique.")
+    var identifier: String
 
     func run() throws {
         let api = HTTPClient(configuration: APIConfiguration.load(from: authOptions))
 
         _ = try api
-            .findInternalIdentifier(for: bundleId)
-            .flatMap {
-                api.request(APIEndpoint.delete(bundleWithId: $0)).eraseToAnyPublisher()
+            .findInternalIdentifier(for: identifier)
+            .flatMap { internalId in
+                api.request(APIEndpoint.delete(bundleWithId: internalId)).eraseToAnyPublisher()
             }
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,

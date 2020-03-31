@@ -17,7 +17,7 @@ struct RegisterBundleIdCommand: ParsableCommand {
     var outputFormat: OutputFormat?
 
     @Option(help: "An opaque resource ID that uniquely identifies the bundle identifier.")
-    var bundleId: String
+    var identifier: String
 
     @Option(help: "The new name for the bundle identifier.")
     var name: String
@@ -30,7 +30,7 @@ struct RegisterBundleIdCommand: ParsableCommand {
     func run() throws {
         let api = HTTPClient(configuration: APIConfiguration.load(from: authOptions))
 
-        let request = APIEndpoint.registerNewBundleId(id: bundleId, name: name, platform: platform)
+        let request = APIEndpoint.registerNewBundleId(id: identifier, name: name, platform: platform)
 
         _ = api.request(request)
             .map(BundleId.init(response:))

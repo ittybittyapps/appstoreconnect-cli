@@ -19,19 +19,19 @@ struct ListBundleIdsCommand: ParsableCommand {
     @Option(help: "Return exportable results in provided format (\(OutputFormat.allCases.map { $0.rawValue }.joined(separator: ", "))).")
     var outputFormat: OutputFormat?
 
-    @Option(parsing: .upToNextOption, help: "Filter the results by the specified bundle IDs")
+    @Option(parsing: .upToNextOption, help: "Filter the results by bundle ID identifier")
     var filterIdentifier: [String]
 
-    @Option(parsing: .upToNextOption, help: "Filter the results by the specified app names")
+    @Option(parsing: .upToNextOption, help: "Filter the results by app name")
     var filterName: [String]
 
     @Option(
         parsing: .upToNextOption,
-        help: ArgumentHelp(stringLiteral: "Filter the results by the specified platform (\(Platform.allCases.map { $0.rawValue.lowercased() }.joined(separator: ", "))).")
+        help: ArgumentHelp(stringLiteral: "Filter the results by platform (\(Platform.allCases.map { $0.rawValue.lowercased() }.joined(separator: ", "))).")
     )
     var filterPlatform: [Platform]
 
-    @Option(parsing: .upToNextOption, help: "Filter the results by the specified seed IDs")
+    @Option(parsing: .upToNextOption, help: "Filter the results by seed ID")
     var filterSeedId: [String]
 
     private var filters: [BundleIds.Filter]? {
