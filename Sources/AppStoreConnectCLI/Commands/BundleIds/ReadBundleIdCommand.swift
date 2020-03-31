@@ -24,7 +24,7 @@ struct ReadBundleIdCommand: ParsableCommand {
         let api = HTTPClient(configuration: APIConfiguration.load(from: authOptions))
 
         _ = try api
-            .findInternalIdentifier(for: identifier)
+            .internalId(matching: identifier)
             .flatMap { internalId in
                 api.request(APIEndpoint.readBundleIdInformation(id: internalId)).eraseToAnyPublisher()
             }
