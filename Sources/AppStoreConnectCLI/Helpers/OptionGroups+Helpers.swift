@@ -15,6 +15,9 @@ struct AuthOptions: ParsableArguments {
 
     @Option(help: "Your private key from App Store Connect")
     var privateKey: String?
+
+    @Option(help: "Your private API key file(.p8) path downloaded from App Store Connect")
+    var privateKeyFilePath: String?
 }
 
 
