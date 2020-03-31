@@ -31,6 +31,7 @@ enum BundleIdCapability: String, Decodable {
 }
 
 struct BundleId: ResultRenderable {
+    var id: String?
     var identifier: String?
     var name: String?
     var platform: BundleIdPlatform?
@@ -43,6 +44,7 @@ extension BundleId {
     init(_ apiBundleId: AppStoreConnect_Swift_SDK.BundleId) {
         let attributes = apiBundleId.attributes
         self.init(
+            id: apiBundleId.id,
             identifier: attributes?.identifier,
             name: attributes?.name,
             platform: attributes?.platform,

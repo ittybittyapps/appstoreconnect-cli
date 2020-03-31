@@ -9,8 +9,8 @@ struct BundleIdsCommand: ParsableCommand {
         abstract: "Manage the bundle IDs that uniquely identify your apps.",
         subcommands: [
             ListBundleIdsCommand.self,
-            /* TODO
             ReadBundleIdCommand.self,
+            /* TODO
             ModifyBundleIdCommand.self,
             DeleteBundleIdCommand.self,
             */
