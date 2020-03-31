@@ -18,6 +18,7 @@ class HTTPClient {
     /// - Returns: `Deferred<Future<T, Error>>` that executes once subscribed to (cold observable)
     func request<T: Decodable>(_ endpoint: APIEndpoint<T>) -> Deferred<Future<T, Error>> {
         return Deferred() { [provider] in
+            // We use dispatch group to make this blocking - due to the nature of the app as a CLI tool it is necessary for API calls to be blocking
             let dispatchGroup = DispatchGroup()
             return Future<T, Error> { promise in
                 dispatchGroup.enter()
@@ -42,6 +43,7 @@ class HTTPClient {
     /// - Returns: `Deferred<Future<Void, Error>>` that executes once subscribed to (cold observable)
     func request(_ endpoint: APIEndpoint<Void>) -> Deferred<Future<Void, Error>> {
         return Deferred() { [provider] in
+            // We use dispatch group to make this blocking - due to the nature of the app as a CLI tool it is necessary for API calls to be blocking
             let dispatchGroup = DispatchGroup()
             return Future<Void, Error> { promise in
                 dispatchGroup.enter()
