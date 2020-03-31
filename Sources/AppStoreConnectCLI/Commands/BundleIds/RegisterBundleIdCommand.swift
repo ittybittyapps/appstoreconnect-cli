@@ -10,8 +10,8 @@ struct RegisterBundleIdCommand: ParsableCommand {
         abstract: "Register a new bundle ID for app development."
     )
 
-    @Option(default: "config/auth.yml", help: "The APIConfiguration.")
-    var auth: String
+    @OptionGroup()
+    var authOptions: AuthOptions
 
     @Option(help: "Return exportable results in provided format (\(OutputFormat.allCases.map { $0.rawValue }.joined(separator: ", "))).")
     var outputFormat: OutputFormat?
@@ -28,7 +28,7 @@ struct RegisterBundleIdCommand: ParsableCommand {
     var platform: BundleIdPlatform
 
     func run() throws {
-        let api = try HTTPClient(authenticationYmlPath: auth)
+        let api = HTTPClient(configuration: APIConfiguration.load(from: authOptions))
 
         let request = APIEndpoint.registerNewBundleId(id: bundleId, name: name, platform: platform)
 
