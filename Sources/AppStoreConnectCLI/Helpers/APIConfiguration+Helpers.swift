@@ -28,14 +28,14 @@ extension APIConfiguration {
         }
 
         // Last, try to use environment variables
-        if let issuerId = ProcessInfo.processInfo.environment["APPSTORE_ISSUER_ID"],
-            let privateKeyID = ProcessInfo.processInfo.environment["APPSTORE_KEY_ID"] {
+        if let issuerId = ProcessInfo.appstoreIssuerId,
+            let privateKeyID = ProcessInfo.appstorePrivateKeyID {
 
-            if let privateKey = ProcessInfo.processInfo.environment["APPSTORE_KEY"] {
+            if let privateKey = ProcessInfo.appstorePrivateKey {
                 return APIConfiguration(issuerId, privateKeyID, privateKey)
             }
 
-            if let path = ProcessInfo.processInfo.environment["APPSTORE_KEY_FILE_PATH"] {
+            if let path = ProcessInfo.appstoreKeyFilePath {
                 return APIConfiguration(issuerId, privateKeyID, readPrivateKeyFrom(filePath: path))
             }
         }
@@ -48,9 +48,7 @@ extension APIConfiguration {
         let fileContentArray = apiKeyFileContent?.components(separatedBy: .newlines)
 
         // Strip header and footer, then concatenate each line together
-        let apiKey = fileContentArray?.filter { !$0.contains("-----") }.joined()
-
-        guard let privateKey = apiKey else {
+        guard let privateKey = fileContentArray?.filter({ !$0.contains("-----") }).joined() else {
             fatalError("Invalid private key file path provided, or file has invalid content")
         }
 
@@ -59,5 +57,23 @@ extension APIConfiguration {
 
     init(_ issuerID: String, _ privateKeyID: String, _ privateKey: String) {
         self.init(issuerID: issuerID, privateKeyID: privateKeyID, privateKey: privateKey)
+    }
+}
+
+private extension ProcessInfo {
+    static var appstoreIssuerId: String? {
+        self.processInfo.environment["APPSTORE_ISSUER_ID"]
+    }
+
+    static var appstorePrivateKeyID: String? {
+        self.processInfo.environment["APPSTORE_KEY_ID"]
+    }
+
+    static var appstorePrivateKey: String? {
+        self.processInfo.environment["APPSTORE_KEY"]
+    }
+
+    static var appstoreKeyFilePath: String? {
+        self.processInfo.environment["APPSTORE_KEY_FILE_PATH"]
     }
 }
