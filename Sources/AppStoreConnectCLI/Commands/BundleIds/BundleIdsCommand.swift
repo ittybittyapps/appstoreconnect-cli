@@ -10,8 +10,8 @@ struct BundleIdsCommand: ParsableCommand {
         subcommands: [
             ListBundleIdsCommand.self,
             ReadBundleIdCommand.self,
-            /* TODO
             ModifyBundleIdCommand.self,
+            /* TODO
             DeleteBundleIdCommand.self,
             */
             RegisterBundleIdCommand.self,
