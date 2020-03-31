@@ -11,8 +11,8 @@ struct ModifyBundleIdCommand: ParsableCommand {
         abstract: "Update a specific bundle ID's name."
     )
 
-    @Option(default: "config/auth.yml", help: "The APIConfiguration.")
-    var auth: String
+    @OptionGroup()
+    var authOptions: AuthOptions
 
     @Option(help: "Return exportable results in provided format (\(OutputFormat.allCases.map { $0.rawValue }.joined(separator: ", "))).")
     var outputFormat: OutputFormat?
@@ -24,7 +24,7 @@ struct ModifyBundleIdCommand: ParsableCommand {
     var name: String
 
     func run() throws {
-        let api = try HTTPClient(authenticationYmlPath: auth)
+        let api = HTTPClient(configuration: APIConfiguration.load(from: authOptions))
 
         _ = try api
             .findInternalIdentifier(for: bundleId)

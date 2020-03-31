@@ -10,8 +10,8 @@ struct ListBundleIdsCommand: ParsableCommand {
         abstract: "Find and list bundle IDs that are registered to your team."
     )
 
-    @Option(default: "config/auth.yml", help: "The APIConfiguration.")
-    var auth: String
+    @OptionGroup()
+    var authOptions: AuthOptions
 
     @Option(help: "Limit the number of resources (maximum 200).")
     var limit: Int?
@@ -57,7 +57,7 @@ struct ListBundleIdsCommand: ParsableCommand {
     }
 
     func run() throws {
-        let api = try HTTPClient(authenticationYmlPath: auth)
+        let api = HTTPClient(configuration: APIConfiguration.load(from: authOptions))
 
         let request = APIEndpoint.listBundleIds(
             filter: filters,

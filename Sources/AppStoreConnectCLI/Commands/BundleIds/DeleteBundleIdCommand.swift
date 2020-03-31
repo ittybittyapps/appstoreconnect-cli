@@ -11,14 +11,14 @@ struct DeleteBundleIdCommand: ParsableCommand {
         abstract: "Delete a bundle ID that is used for app development."
     )
 
-    @Option(default: "config/auth.yml", help: "The APIConfiguration.")
-    var auth: String
+    @OptionGroup()
+    var authOptions: AuthOptions
 
     @Argument(help: "The bundle ID to delete. Must be unique.")
     var bundleId: String
 
     func run() throws {
-        let api = try HTTPClient(authenticationYmlPath: auth)
+        let api = HTTPClient(configuration: APIConfiguration.load(from: authOptions))
 
         _ = try api
             .findInternalIdentifier(for: bundleId)
