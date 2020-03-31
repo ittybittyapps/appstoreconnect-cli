@@ -23,7 +23,8 @@ struct ReadBundleIdCommand: ParsableCommand {
     func run() throws {
         let api = try HTTPClient(authenticationYmlPath: auth)
 
-        _ = try findOpaqueIdentifier(for: bundleId)
+        _ = try api
+            .findInternalIdentifier(for: bundleId)
             .flatMap {
                 api.request(APIEndpoint.readBundleIdInformation(id: $0)).eraseToAnyPublisher()
             }
@@ -33,24 +34,4 @@ struct ReadBundleIdCommand: ParsableCommand {
                 receiveValue: Renderers.ResultRenderer(format: outputFormat).render
             )
     }
-
-    private func findOpaqueIdentifier(for bundleId: String) throws -> AnyPublisher<String, Error> {
-           let api = try HTTPClient(authenticationYmlPath: auth)
-
-           let request = APIEndpoint.listBundleIds(
-               filter: [
-                   BundleIds.Filter.identifier([bundleId])
-               ]
-           )
-
-           return api.request(request)
-               .map { $0.data.map(BundleId.init) }
-               .compactMap { response -> String? in
-                   guard response.count == 1 else {
-                       fatalError("Bundle ID not unique. Consider using `list`.")
-                   }
-                   return response.first?.id
-               }
-               .eraseToAnyPublisher()
-       }
 }

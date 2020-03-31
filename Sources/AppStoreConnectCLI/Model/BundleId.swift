@@ -1,7 +1,8 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
-import Foundation
 import AppStoreConnect_Swift_SDK
+import Combine
+import Foundation
 import SwiftyTextTable
 
 enum BundleIdCapability: String, Decodable {
@@ -73,4 +74,30 @@ extension BundleId: TableInfoProvider {
             seedId ?? ""
         ]
     }
+}
+
+extension HTTPClient {
+
+    /// Find the opaque identifier for this bundle ID.
+    ///
+    /// This is an App Store Connect internal identifier; not the bundle-id. Use this for reading, modifying and deleting bundle-id resources.
+    func findInternalIdentifier(for bundleId: String) throws -> AnyPublisher<String, Error> {
+        let request = APIEndpoint.listBundleIds(
+            filter: [
+                BundleIds.Filter.identifier([bundleId])
+            ]
+        )
+
+        return self.request(request)
+            .map { $0.data.map(BundleId.init) }
+            .map { $0.filter { $0.identifier == bundleId } }
+            .compactMap { response -> String? in
+                if response.count == 1 {
+                    return response.first?.id
+                }
+                fatalError("Bundle ID '\(bundleId)' not unique or not found")
+            }
+            .eraseToAnyPublisher()
+    }
+
 }
