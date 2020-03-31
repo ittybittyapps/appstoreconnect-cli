@@ -19,7 +19,7 @@ struct ListBundleIdsCommand: ParsableCommand {
     @Option(help: "Return exportable results in provided format (\(OutputFormat.allCases.map { $0.rawValue }.joined(separator: ", "))).")
     var outputFormat: OutputFormat?
 
-    @Option(parsing: .upToNextOption, help: "Filter the results by bundle ID identifier")
+    @Option(parsing: .upToNextOption, help: "Filter the results by reverse-DNS bundle ID identifier (eg. com.example.app)")
     var filterIdentifier: [String]
 
     @Option(parsing: .upToNextOption, help: "Filter the results by app name")

@@ -14,7 +14,7 @@ struct DeleteBundleIdCommand: ParsableCommand {
     @OptionGroup()
     var authOptions: AuthOptions
 
-    @Argument(help: "The bundle ID identifier to delete. Must be unique.")
+    @Argument(help: "The reverse-DNS bundle ID identifier to delete. Must be unique. (eg. com.example.app)")
     var identifier: String
 
     func run() throws {

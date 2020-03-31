@@ -17,7 +17,7 @@ struct ReadBundleIdCommand: ParsableCommand {
     @Option(help: "Return exportable results in provided format (\(OutputFormat.allCases.map { $0.rawValue }.joined(separator: ", "))).")
     var outputFormat: OutputFormat?
 
-    @Argument(help: "The unique identifier of the bundle ID.")
+    @Argument(help: "The reverse-DNS bundle ID identifier to read. Must be unique. (eg. com.example.app)")
     var identifier: String
 
     func run() throws {
