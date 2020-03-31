@@ -52,6 +52,17 @@ extension BundleId {
             seedId: attributes?.seedId
         )
     }
+
+    init(response: AppStoreConnect_Swift_SDK.BundleIdResponse) {
+        let attributes = response.data.attributes
+        self.init(
+            id: response.data.id,
+            identifier: attributes?.identifier,
+            name: attributes?.name,
+            platform: attributes?.platform,
+            seedId: attributes?.seedId
+        )
+    }
 }
 
 // MARK: - TextTable conveniences

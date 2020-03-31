@@ -11,10 +11,11 @@ class HTTPClient {
         provider = APIProvider(configuration: configuration)
     }
 
-    /// Returns a Deferred Future that executes once subscribed to
+    /// Make a request for something `Decodable`.
     ///
     /// - Parameters:
     ///   - endpoint: The API endpoint to request
+    /// - Returns: `Deferred<Future<T, Error>>` that executes once subscribed to (cold observable)
     func request<T: Decodable>(_ endpoint: APIEndpoint<T>) -> Deferred<Future<T, Error>> {
         return Deferred() { [provider] in
             let dispatchGroup = DispatchGroup()
@@ -24,6 +25,30 @@ class HTTPClient {
                     switch result {
                         case .success(let response):
                             promise(.success(response))
+                        case .failure(let error):
+                            promise(.failure(error))
+                    }
+                    dispatchGroup.leave()
+                }
+                dispatchGroup.wait()
+            }
+        }
+    }
+
+    /// Make a request which does not return anything (ie. returns `Void`) when successful.
+    ///
+    /// - Parameters:
+    ///   - endpoint: The API endpoint to request
+    /// - Returns: `Deferred<Future<Void, Error>>` that executes once subscribed to (cold observable)
+    func request(_ endpoint: APIEndpoint<Void>) -> Deferred<Future<Void, Error>> {
+        return Deferred() { [provider] in
+            let dispatchGroup = DispatchGroup()
+            return Future<Void, Error> { promise in
+                dispatchGroup.enter()
+                provider.request(endpoint) { result in
+                    switch result {
+                        case .success:
+                            promise(.success(()))
                         case .failure(let error):
                             promise(.failure(error))
                     }
