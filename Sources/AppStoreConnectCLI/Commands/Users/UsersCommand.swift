@@ -20,6 +20,6 @@ struct UsersCommand: ParsableCommand {
             SetUserVisibleAppsCommand.self,
             SyncUsersCommand.self
         ],
-        defaultSubcommand: ListAppsCommand.self
+        defaultSubcommand: ListUsersCommand.self
     )
 }
