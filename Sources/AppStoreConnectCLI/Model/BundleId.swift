@@ -63,7 +63,7 @@ extension HTTPClient {
     /// Find the opaque internal identifier for this bundle ID.
     ///
     /// This is an App Store Connect internal identifier; not the reverse-DNS bundleId identifier. Use this for reading, modifying and deleting bundleId resources.
-    func findInternalIdentifier(for identifier: String) throws -> AnyPublisher<String, Error> {
+    func internalId(matching identifier: String) throws -> AnyPublisher<String, Error> {
         let request = APIEndpoint.listBundleIds(
             filter: [
                 BundleIds.Filter.identifier([identifier])
