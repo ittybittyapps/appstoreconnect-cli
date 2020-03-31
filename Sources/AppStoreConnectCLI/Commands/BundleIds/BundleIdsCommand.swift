@@ -11,9 +11,7 @@ struct BundleIdsCommand: ParsableCommand {
             ListBundleIdsCommand.self,
             ReadBundleIdCommand.self,
             ModifyBundleIdCommand.self,
-            /* TODO
             DeleteBundleIdCommand.self,
-            */
             RegisterBundleIdCommand.self,
         ],
         defaultSubcommand: ListBundleIdsCommand.self
