@@ -16,7 +16,7 @@ struct RegisterBundleIdCommand: ParsableCommand {
     @Option(help: "Return exportable results in provided format (\(OutputFormat.allCases.map { $0.rawValue }.joined(separator: ", "))).")
     var outputFormat: OutputFormat?
 
-    @Option(help: "An opaque resource ID that uniquely identifies the bundle identifier.")
+    @Option(help: "The reverse-DNS bundle ID identifier. Must be unique. (eg. com.example.app)")
     var identifier: String
 
     @Option(help: "The new name for the bundle identifier.")

@@ -17,7 +17,7 @@ struct ModifyBundleIdCommand: ParsableCommand {
     @Option(help: "Return exportable results in provided format (\(OutputFormat.allCases.map { $0.rawValue }.joined(separator: ", "))).")
     var outputFormat: OutputFormat?
 
-    @Option(help: "The unique identifier of the bundle ID.")
+    @Option(help: "The reverse-DNS bundle ID identifier. (eg. com.example.app)")
     var identifier: String
 
     @Option(help: "The new name for the bundle identifier.")
