@@ -8,6 +8,8 @@ import Foundation
 import Yams
 
 struct SyncUsersCommand: ParsableCommand {
+    typealias UserChange = CollectionDifference<User>.Change
+
     static var configuration = CommandConfiguration(
         commandName: "sync",
         abstract: "Sync information about users on your team with provided configuration file."
@@ -36,12 +38,14 @@ struct SyncUsersCommand: ParsableCommand {
         let usersInFile = try readUsers(from: config)
 
         _ = usersInAppStoreConnect()
-            .flatMap { users -> AnyPublisher<CollectionDifference<User>, Error> in
+            .flatMap { users -> AnyPublisher<UserChange, Error> in
                 let changes = usersInFile.difference(from: users) { lhs, rhs -> Bool in
                     lhs.username == rhs.username
                 }
 
-                return Just(changes).setFailureType(to: Error.self).eraseToAnyPublisher()
+                return Publishers.Sequence(sequence: changes)
+                    .setFailureType(to: Error.self)
+                    .eraseToAnyPublisher()
             }
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,
@@ -76,19 +80,16 @@ struct SyncUsersCommand: ParsableCommand {
     }
 }
 
-//TODO: move this to Renderers?
-extension Renderers {
+private extension Renderers {
     struct UserChangesRenderer: Renderer {
         let dryRun: Bool
 
-        func render(_ input: CollectionDifference<User>) {
-            for change in input {
-                switch change {
-                case .insert(_, let user, _):
-                    print("+\(user.username)")
-                case .remove(_, let user, _):
-                    print("-\(user.username)")
-                }
+        func render(_ input: SyncUsersCommand.UserChange) {
+            switch input {
+            case .insert(_, let user, _):
+                print("+\(user.username)")
+            case .remove(_, let user, _):
+                print("-\(user.username)")
             }
         }
     }
