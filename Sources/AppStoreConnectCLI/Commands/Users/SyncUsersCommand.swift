@@ -44,14 +44,35 @@ struct SyncUsersCommand: ParsableCommand {
                     lhs.username == rhs.username
                 }
 
-                return Publishers.Sequence(sequence: changes)
-                    .setFailureType(to: Error.self)
-                    .eraseToAnyPublisher()
+                if self.dryRun {
+                    return Publishers.Sequence(sequence: changes)
+                        .setFailureType(to: Error.self)
+                        .eraseToAnyPublisher()
+                } else {
+                    return self.sync(users: changes, client: client)
+                        .eraseToAnyPublisher()
+                }
             }
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,
                 receiveValue: Renderers.UserChangesRenderer(dryRun: dryRun).render
             )
+    }
+
+    private func sync(users changes: CollectionDifference<User>, client: HTTPClient) -> AnyPublisher<UserChange, Error> {
+        let invitationRequests = changes
+            .compactMap { change -> AnyPublisher<UserChange, Error>? in
+                guard case .insert(_, let user, _) = change else {
+                    return nil
+                }
+
+                return client
+                    .request(APIEndpoint.invite(user: user))
+                    .map { _ in change }
+                    .eraseToAnyPublisher()
+            }
+
+        return Publishers.ConcatenateMany(invitationRequests).eraseToAnyPublisher()
     }
 
     private func readUsers(from filePath: String) throws -> [User] {
