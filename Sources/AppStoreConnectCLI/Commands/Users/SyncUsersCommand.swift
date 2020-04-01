@@ -29,8 +29,8 @@ struct SyncUsersCommand: ParsableCommand {
     var dryRun: Bool
 
     func run() throws {
-        guard dryRun else {
-            fatalError("not implemented without --dry-run flag")
+        if dryRun {
+            print("## Dry run ##")
         }
 
         let usersInFile = try readUsers(from: config)
