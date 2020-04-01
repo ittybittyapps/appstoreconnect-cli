@@ -19,14 +19,13 @@ extension Build: TableInfoProvider {
     }
 
     var tableRow: [CustomStringConvertible] {
-        let dateFormatter = DateFormatter()
         return [
-           id,
-           dateFormatter.formatDateToString(attributes?.uploadedDate),
-           dateFormatter.formatDateToString(attributes?.expirationDate),
-           attributes?.expired?.toYesNo() ?? "",
-           attributes?.minOsVersion ?? "",
-           attributes?.version ?? ""
+            id,
+            attributes?.uploadedDate?.formattedDate ?? "",
+            attributes?.expirationDate?.formattedDate ?? "",
+            attributes?.expired?.toYesNo() ?? "",
+            attributes?.minOsVersion ?? "",
+            attributes?.version ?? ""
         ]
     }
 }
