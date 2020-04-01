@@ -22,3 +22,23 @@ extension OutputFormat: ExpressibleByArgument {
     }
 }
 
+// TODO: move to other file or even share code with `OutputFormat`?
+
+enum InputFormat: String, CaseIterable, Codable {
+    case csv
+    case json
+    case yaml
+}
+
+extension InputFormat: CustomStringConvertible {
+    var description: String {
+        self.rawValue
+    }
+}
+
+extension InputFormat: ExpressibleByArgument {
+    init?(argument: String) {
+        self.init(rawValue: argument.lowercased())
+    }
+}
+
