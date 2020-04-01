@@ -36,8 +36,9 @@ struct SyncUsersCommand: ParsableCommand {
         }
 
         let usersInFile = try readUsers(from: config)
+        let client = HTTPClient(configuration: APIConfiguration.load(from: authOptions))
 
-        _ = usersInAppStoreConnect()
+        _ = usersInAppStoreConnect(client)
             .flatMap { users -> AnyPublisher<UserChange, Error> in
                 let changes = usersInFile.difference(from: users) { lhs, rhs -> Bool in
                     lhs.username == rhs.username
@@ -72,8 +73,8 @@ struct SyncUsersCommand: ParsableCommand {
         }
     }
 
-    private func usersInAppStoreConnect() -> AnyPublisher<[User], Error> {
-        HTTPClient(configuration: APIConfiguration.load(from: authOptions))
+    private func usersInAppStoreConnect(_ client: HTTPClient) -> AnyPublisher<[User], Error> {
+        client
             .request(.users())
             .map(User.fromAPIResponse)
             .eraseToAnyPublisher()
