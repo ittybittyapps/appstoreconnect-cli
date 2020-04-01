@@ -54,7 +54,6 @@ struct SyncUsersCommand: ParsableCommand {
             )
     }
 
-    //TODO: genericise this:
     private func readUsers(from filePath: String) throws -> [User] {
         guard let fileContents = try? String(contentsOfFile: config, encoding: .utf8) else {
             fatalError("Could not read file: \(filePath)")
