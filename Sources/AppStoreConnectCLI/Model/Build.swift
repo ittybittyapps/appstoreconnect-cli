@@ -12,8 +12,9 @@ extension Build: TableInfoProvider {
             TextTableColumn(header: "ID"),
             TextTableColumn(header: "Uploaded Date"),
             TextTableColumn(header: "Expiration Date"),
+            TextTableColumn(header: "Expired"),
             TextTableColumn(header: "Min OS Version"),
-            TextTableColumn(header: "Version")
+            TextTableColumn(header: "Version"),
         ]
     }
 
@@ -23,6 +24,7 @@ extension Build: TableInfoProvider {
            id,
            dateFormatter.formatDateToString(attributes?.uploadedDate),
            dateFormatter.formatDateToString(attributes?.expirationDate),
+           attributes?.expired?.toYesNo() ?? "",
            attributes?.minOsVersion ?? "",
            attributes?.version ?? ""
         ]
