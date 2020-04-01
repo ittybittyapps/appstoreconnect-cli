@@ -31,3 +31,17 @@ extension UserInvitation: TableInfoProvider {
         ]
     }
 }
+
+extension APIEndpoint where T == UserInvitationResponse {
+    static func invite(user: User) -> Self {
+        invite(
+            userWithEmail: user.username,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            roles: user.roles,
+            allAppsVisible: user.allAppsVisible,
+            provisioningAllowed: user.provisioningAllowed,
+            appsVisibleIds: user.allAppsVisible ? [] : user.visibleApps
+        )
+    }
+}
