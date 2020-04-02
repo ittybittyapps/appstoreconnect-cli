@@ -51,7 +51,7 @@ struct ListUserInvitationsCommand: ParsableCommand {
         )
 
         _ = api.request(request)
-            .map { $0.data }
+            .map(\.data)
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,
                 receiveValue: Renderers.ResultRenderer(format: outputFormat).render
