@@ -53,13 +53,13 @@ extension HTTPClient {
     ///
     /// This is an App Store Connect internal identifier
     func invitationIdentifier(matching email: String) throws -> AnyPublisher<String, Error> {
-        let request = APIEndpoint.invitedUsers(
+        let endpoint = APIEndpoint.invitedUsers(
             filter: [
                 ListInvitedUsers.Filter.email([email])
             ]
         )
 
-        return self.request(request)
+        return self.request(endpoint)
             .map { $0.data.filter { $0.attributes?.email == email } }
             .compactMap { response -> String? in
                 if response.count == 1 {
