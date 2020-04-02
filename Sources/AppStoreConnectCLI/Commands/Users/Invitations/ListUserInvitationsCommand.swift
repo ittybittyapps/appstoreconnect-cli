@@ -45,12 +45,12 @@ struct ListUserInvitationsCommand: ParsableCommand {
     public func run() throws {
         let api = HTTPClient(configuration: APIConfiguration.load(from: authOptions))
 
-        let request = APIEndpoint.invitedUsers(
+        let endpoint = APIEndpoint.invitedUsers(
             limit: limit.map { [ListInvitedUsers.Limit.visibleApps($0)] } ?? [],
             filter: filters
         )
 
-        _ = api.request(request)
+        _ = api.request(endpoint)
             .map(\.data)
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,
