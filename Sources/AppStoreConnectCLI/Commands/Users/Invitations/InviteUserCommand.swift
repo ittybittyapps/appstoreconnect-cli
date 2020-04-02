@@ -9,8 +9,8 @@ struct InviteUserCommand: ParsableCommand {
         commandName: "invite",
         abstract: "Invite a user with assigned user roles to join your team.")
 
-    @Option(default: "config/auth.yml", help: "The APIConfiguration.")
-    var auth: String
+    @OptionGroup()
+    var authOptions: AuthOptions
 
     @Argument(help: "The email address of a pending user invitation. The email address must be valid to activate the account. It can be any email address, not necessarily one associated with an Apple ID.")
     var email: String
@@ -38,39 +38,23 @@ struct InviteUserCommand: ParsableCommand {
     var outputFormat: OutputFormat?
 
     public func run() throws {
+        let api = HTTPClient(configuration: APIConfiguration.load(from: authOptions))
+
         if allAppsVisible {
-            inviteUserToTeam()
+            inviteUserToTeam(by: api)
             return
         }
 
         if !bundleIds.isEmpty {
-            getResourceIdsFrom(bundleIds: bundleIds) {
-                self.inviteUserToTeam(with: $0)
+            ListApps.getResourceIdsFrom(bundleIds: bundleIds, by: api) {
+                self.inviteUserToTeam(with: $0, by: api)
             }
         }
 
         fatalError("Invalid Input: If you set allAppsVisible to false, you must provide at least one value for the visibleApps relationship.")
     }
 
-    func getResourceIdsFrom(bundleIds: [String],
-                            completionHandler: @escaping (_ resourceIds: [String]) -> Void) {
-        let api = try! HTTPClient(authenticationYmlPath: auth)
-
-        let getAppResourceIdRequest = APIEndpoint.apps(
-            filters: [ListApps.Filter.bundleId(bundleIds)]
-        )
-
-        _ = api.request(getAppResourceIdRequest)
-            .map { $0.data }
-            .sink(
-                receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: { completionHandler($0.map { $0.id }) }
-            )
-    }
-
-    func inviteUserToTeam(with appsVisibleIds: [String] = [])  {
-        let api = try! HTTPClient(authenticationYmlPath: auth)
-
+    func inviteUserToTeam(with appsVisibleIds: [String] = [], by api: HTTPClient) {
         let request = APIEndpoint.invite(
             userWithEmail: email,
             firstName: firstName,
