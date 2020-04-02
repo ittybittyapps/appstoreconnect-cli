@@ -23,7 +23,7 @@ struct ListBuildsCommand: ParsableCommand {
         let api = HTTPClient(configuration: APIConfiguration.load(from: authOptions))
 
         _ = api
-            .getResourceIdsFrom(bundleIds: [bundleId], by: api)
+            .getResourceIdsFrom(bundleIds: [bundleId])
             .flatMap { (resoureceIds: [String]) -> AnyPublisher<BuildsResponse, Error> in
                 guard let appId = resoureceIds.first else {
                     fatalError("Can't find a related app with input bundleID")
