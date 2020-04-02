@@ -46,9 +46,11 @@ struct InviteUserCommand: ParsableCommand {
         }
 
         if !bundleIds.isEmpty {
-            ListApps.getResourceIdsFrom(bundleIds: bundleIds, by: api) {
-                self.inviteUserToTeam(with: $0, by: api)
-            }
+            _ = api
+                .getResourceIdsFrom(bundleIds: bundleIds, by: api)
+                .sink(receiveCompletion: Renderers.CompletionRenderer().render) {
+                    self.inviteUserToTeam(with: $0, by: api)
+                }
         }
 
         fatalError("Invalid Input: If you set allAppsVisible to false, you must provide at least one value for the visibleApps relationship.")
