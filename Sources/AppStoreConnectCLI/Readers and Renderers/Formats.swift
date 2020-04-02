@@ -23,7 +23,6 @@ extension OutputFormat: ExpressibleByArgument {
 }
 
 enum InputFormat: String, CaseIterable, Codable {
-    case csv
     case json
     case yaml
 }
