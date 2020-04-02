@@ -31,7 +31,7 @@ let package = Package(
         ),
         .package(
             url: "https://github.com/dehesa/CodableCSV.git",
-            from: "0.5.1"
+            from: "0.5.2"
         )
     ],
     targets: [
