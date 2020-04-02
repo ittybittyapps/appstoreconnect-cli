@@ -1,7 +1,8 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
-import Foundation
 import AppStoreConnect_Swift_SDK
+import Combine
+import Foundation
 import SwiftyTextTable
 
 struct User: ResultRenderable {
@@ -87,4 +88,29 @@ extension User: TableInfoProvider {
             visibleApps?.joined(separator: ", ") ?? ""
         ]
     }
+}
+
+extension HTTPClient {
+
+    /// Find the opaque internal identifier for this user; search by email adddress.
+    ///
+    /// This is an App Store Connect internal identifier
+    func userIdentifier(matching email: String) -> AnyPublisher<String, Error> {
+        let endpoint = APIEndpoint.users(
+            filter: [
+                ListUsers.Filter.username([email])
+            ]
+        )
+
+        return self.request(endpoint)
+            .map { $0.data.filter { $0.attributes?.username == email } }
+            .compactMap { response -> String? in
+                if response.count == 1 {
+                    return response.first?.id
+                }
+                fatalError("User with email address '\(email)' not unique or not found")
+            }
+            .eraseToAnyPublisher()
+    }
+
 }
