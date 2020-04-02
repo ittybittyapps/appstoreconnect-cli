@@ -95,7 +95,7 @@ extension Array: ResultRenderable where Element: TableInfoProvider & Codable {
         let rows = self.map { $0.tableRow.map { "\($0)" } }
         let wholeTable = [headers] + rows
 
-        return try! CSVWriter.serialize(rows: wholeTable, into: String.self)
+        return try! CSVWriter.encode(rows: wholeTable, into: String.self)
     }
 
     func renderAsTable() -> String {
@@ -111,7 +111,7 @@ extension ResultRenderable where Self: TableInfoProvider {
         let row = self.tableRow.map { "\($0)" }
         let wholeTable = [headers] + [row]
 
-        return try! CSVWriter.serialize(rows: wholeTable, into: String.self)
+        return try! CSVWriter.encode(rows: wholeTable, into: String.self)
     }
 
     func renderAsTable() -> String {
