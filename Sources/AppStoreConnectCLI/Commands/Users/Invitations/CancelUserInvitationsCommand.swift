@@ -19,11 +19,11 @@ struct CancelUserInvitationsCommand: ParsableCommand {
     public func run() throws {
         let api = HTTPClient(configuration: APIConfiguration.load(from: authOptions))
 
+        let cancelInvitation = { api.request(APIEndpoint.cancel(userInvitationWithId: $0)) }
+
         _ = try api
             .invitationIdentifier(matching: email)
-            .flatMap { internalId in
-                api.request(APIEndpoint.cancel(userInvitationWithId: internalId))
-            }
+            .flatMap(cancelInvitation)
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,
                 receiveValue: { _ in }
