@@ -35,7 +35,8 @@ struct SyncUsersCommand: ParsableCommand {
             print("## Dry run ##")
         }
 
-        let usersInFile = try readUsers(from: config)
+        let usersInFile = Readers.FileReader<[User]>(format: inputFormat).read(filePath: config)
+
         let client = HTTPClient(configuration: APIConfiguration.load(from: authOptions))
 
         _ = usersInAppStoreConnect(client)
@@ -73,24 +74,6 @@ struct SyncUsersCommand: ParsableCommand {
             }
 
         return Publishers.ConcatenateMany(invitationRequests).eraseToAnyPublisher()
-    }
-
-    private func readUsers(from filePath: String) throws -> [User] {
-        guard let fileContents = try? String(contentsOfFile: config, encoding: .utf8) else {
-            fatalError("Could not read file: \(filePath)")
-        }
-
-        switch inputFormat {
-        case .csv:
-            fatalError("CSV not implemented yet")
-        case .json:
-            guard let data = fileContents.data(using: .utf8) else {
-                fatalError("Could not read file contents: \(filePath)")
-            }
-            return try JSONDecoder().decode([User].self, from: data)
-        case .yaml:
-            return try YAMLDecoder().decode([User].self, from: fileContents)
-        }
     }
 
     private func usersInAppStoreConnect(_ client: HTTPClient) -> AnyPublisher<[User], Error> {

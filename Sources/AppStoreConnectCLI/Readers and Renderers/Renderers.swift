@@ -46,6 +46,9 @@ enum Renderers {
     }
 }
 
+/// Conformers to this protocol can be rendered as results in various formats.
+///
+/// By also conforming to `TableInfoProvider`, conformers gain default implementations of all these functions.
 protocol ResultRenderable: Codable {
     /// Renders the receiver as a CSV string.
     func renderAsCSV() -> String
