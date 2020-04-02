@@ -26,25 +26,16 @@ struct ListBuildsCommand: ParsableCommand {
                 fatalError("Can't find a related app with input bundleID")
             }
 
-            let request = APIEndpoint.builds(ofAppWithId: appId)
+            let request = APIEndpoint.builds(
+                filter: [ListBuilds.Filter.app([appId])],
+                sort: [ListBuilds.Sort.uploadedDateAscending]
+            )
 
             _ = api.request(request)
                 .map { $0.data }
                 .sink(
                     receiveCompletion: Renderers.CompletionRenderer().render,
-                    receiveValue: { (builds: [Build]) in
-                        // Sort by uploaded date
-                        var builds = builds
-                        builds.sort {
-                            if let date1 = $0.attributes?.uploadedDate,
-                                let date2 = $1.attributes?.uploadedDate {
-                                return date1 > date2
-                            }
-                            return false
-                        }
-
-                        Renderers.ResultRenderer(format: self.outputFormat).render(builds)
-                    }
+                    receiveValue: Renderers.ResultRenderer(format: self.outputFormat).render
                 )
         }
     }

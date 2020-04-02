@@ -50,13 +50,9 @@ extension Device: TableInfoProvider {
     }
 
     var tableRow: [CustomStringConvertible] {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "dd/MM/yyyy"
         return [
             id,
-            addedDate != nil
-                ? formatter.string(from: addedDate!)
-                : "",
+            addedDate?.formattedDate ?? "",
             name ?? "",
             deviceClass?.rawValue ?? "",
             model ?? "",
