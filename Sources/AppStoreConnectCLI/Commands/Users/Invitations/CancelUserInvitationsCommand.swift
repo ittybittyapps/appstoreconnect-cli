@@ -21,7 +21,7 @@ struct CancelUserInvitationsCommand: ParsableCommand {
 
         let cancelInvitation = { api.request(APIEndpoint.cancel(userInvitationWithId: $0)) }
 
-        _ = try api
+        _ = api
             .invitationIdentifier(matching: email)
             .flatMap(cancelInvitation)
             .sink(

@@ -52,7 +52,7 @@ extension HTTPClient {
     /// Find the opaque internal identifier for this invitation; search by email adddress.
     ///
     /// This is an App Store Connect internal identifier
-    func invitationIdentifier(matching email: String) throws -> AnyPublisher<String, Error> {
+    func invitationIdentifier(matching email: String) -> AnyPublisher<String, Error> {
         let endpoint = APIEndpoint.invitedUsers(
             filter: [
                 ListInvitedUsers.Filter.email([email])
