@@ -20,17 +20,11 @@ enum Readers {
 
         func read(filePath: String) -> T {
             switch format {
-            case .csv:
-                return readCSV(from: filePath)
             case .json:
                 return readJSON(from: filePath)
             case .yaml:
                 return readYAML(from: filePath)
             }
-        }
-
-        private func readCSV<T: Decodable>(from filePath: String) -> T {
-            fatalError("Not implemented")
         }
 
         private func readJSON<T: Decodable>(from filePath: String) -> T {
