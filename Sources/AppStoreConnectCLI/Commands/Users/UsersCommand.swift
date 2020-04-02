@@ -10,7 +10,7 @@ struct UsersCommand: ParsableCommand {
         subcommands: [
             InviteUserCommand.self,
             ListUserInvitationsCommand.self,
-            // TODO: CancelUserInvitationCommand.self, // Cancel a pending invitation for a user to join your team.
+            CancelUserInvitationsCommand.self,
             // TODO: ListInvitedUserVisibleAppsCommand.self, // Get a list of apps that will be visible to a user with a pending invitation.
             ListUsersCommand.self,
             GetUserInfoCommand.self,
