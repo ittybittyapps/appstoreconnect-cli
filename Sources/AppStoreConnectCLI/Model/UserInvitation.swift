@@ -1,6 +1,7 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
 import Foundation
+import Combine
 import SwiftyTextTable
 import AppStoreConnect_Swift_SDK
 
@@ -44,4 +45,29 @@ extension APIEndpoint where T == UserInvitationResponse {
             appsVisibleIds: user.allAppsVisible ? [] : user.visibleApps
         )
     }
+}
+
+extension HTTPClient {
+
+    /// Find the opaque internal identifier for this invitation; search by email adddress.
+    ///
+    /// This is an App Store Connect internal identifier
+    func invitationIdentifier(matching email: String) throws -> AnyPublisher<String, Error> {
+        let request = APIEndpoint.invitedUsers(
+            filter: [
+                ListInvitedUsers.Filter.email([email])
+            ]
+        )
+
+        return self.request(request)
+            .map { $0.data.filter { $0.attributes?.email == email } }
+            .compactMap { response -> String? in
+                if response.count == 1 {
+                    return response.first?.id
+                }
+                fatalError("User with email address '\(email)' not unique or not found")
+            }
+            .eraseToAnyPublisher()
+    }
+
 }
