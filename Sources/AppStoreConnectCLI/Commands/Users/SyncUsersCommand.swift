@@ -61,19 +61,27 @@ struct SyncUsersCommand: ParsableCommand {
     }
 
     private func sync(users changes: CollectionDifference<User>, client: HTTPClient) -> AnyPublisher<UserChange, Error> {
-        let invitationRequests = changes
+        let requests = changes
             .compactMap { change -> AnyPublisher<UserChange, Error>? in
-                guard case .insert(_, let user, _) = change else {
-                    return nil
-                }
+                switch change {
+                case .insert(_, let user, _):
+                    return client
+                        .request(APIEndpoint.invite(user: user))
+                        .map { _ in change }
+                        .eraseToAnyPublisher()
 
-                return client
-                    .request(APIEndpoint.invite(user: user))
-                    .map { _ in change }
-                    .eraseToAnyPublisher()
+                case .remove(_, let user, _):
+                    let removeUser = { client.request(APIEndpoint.remove(userWithId: $0)) }
+
+                    return client
+                        .userIdentifier(matching: user.username)
+                        .flatMap(removeUser)
+                        .map { _ in change }
+                        .eraseToAnyPublisher()
+                }
             }
 
-        return Publishers.ConcatenateMany(invitationRequests).eraseToAnyPublisher()
+        return Publishers.ConcatenateMany(requests).eraseToAnyPublisher()
     }
 
     private func usersInAppStoreConnect(_ client: HTTPClient) -> AnyPublisher<[User], Error> {
