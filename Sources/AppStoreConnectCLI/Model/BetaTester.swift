@@ -12,10 +12,7 @@ extension BetaTester: TableInfoProvider {
             TextTableColumn(header: "Email"),
             TextTableColumn(header: "First Name"),
             TextTableColumn(header: "Last Name"),
-            TextTableColumn(header: "Invite Type"),
-            TextTableColumn(header: "App Ids"),
-            TextTableColumn(header: "Beta Group Ids"),
-            TextTableColumn(header: "Build Ids")
+            TextTableColumn(header: "Invite Type")
         ]
     }
 
@@ -24,10 +21,7 @@ extension BetaTester: TableInfoProvider {
             attributes?.email ?? "",
             attributes?.firstName ?? "",
             attributes?.lastName ?? "",
-            betaInviteType,
-            appsId.joined(separator: ", "),
-            betaGroupsIds.joined(separator: ", "),
-            buildsIds.joined(separator: ", "),
+            betaInviteType
         ]
     }
 
