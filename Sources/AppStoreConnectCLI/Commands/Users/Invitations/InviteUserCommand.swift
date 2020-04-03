@@ -47,7 +47,7 @@ struct InviteUserCommand: ParsableCommand {
 
         if !bundleIds.isEmpty {
             _ = api
-                .getResourceIdsFrom(bundleIds: bundleIds)
+                .getAppResourceIdsFrom(bundleIds: bundleIds)
                 .sink(receiveCompletion: Renderers.CompletionRenderer().render) {
                     self.inviteUserToTeam(with: $0, by: api)
                 }

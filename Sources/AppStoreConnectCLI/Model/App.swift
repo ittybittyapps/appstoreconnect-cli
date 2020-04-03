@@ -49,7 +49,9 @@ extension App: TableInfoProvider {
 }
 
 extension HTTPClient {
-    func getResourceIdsFrom(bundleIds: [String]) -> AnyPublisher<[String], Error> {
+
+    /// Find the opaque internal identifier for an application that related to this bundle ID.
+    func getAppResourceIdsFrom(bundleIds: [String]) -> AnyPublisher<[String], Error> {
         let getAppResourceIdRequest = APIEndpoint.apps(
             filters: [ListApps.Filter.bundleId(bundleIds)]
         )
