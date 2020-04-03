@@ -8,7 +8,20 @@ import Foundation
 import Yams
 
 struct SyncUsersCommand: ParsableCommand {
-    typealias UserChange = CollectionDifference<User>.Change
+
+    enum Operation {
+        /// Don't do anything with this User
+        case ignore(username: String)
+
+        /// Add user to UserInvitations resource
+        case invite(User)
+
+        /// Remove the user from Users resource
+        case remove(username: String)
+
+        /// Remove the user from UserInvitations resource
+        case uninvite(username: String)
+    }
 
     static var configuration = CommandConfiguration(
         commandName: "sync",
@@ -39,12 +52,42 @@ struct SyncUsersCommand: ParsableCommand {
 
         let client = HTTPClient(configuration: APIConfiguration.load(from: authOptions))
 
-        _ = usersInAppStoreConnect(client)
-            .flatMap { users -> AnyPublisher<UserChange, Error> in
-                let changes = usersInFile.difference(from: users) { lhs, rhs -> Bool in
-                    lhs.username == rhs.username
+        _ = Publishers
+            .CombineLatest(
+                usersInAppStoreConnect(client),
+                invitationsInAppStoreConnect(client)
+            )
+            .map { existingUsers, pendingInvites -> [Operation] in
+                let newInvites = usersInFile.map { user -> Operation in
+                    if existingUsers.contains(where: { $0.username == user.username} ) ||
+                        pendingInvites.contains(where: { $0.attributes?.email == user.username} ) {
+                        // user exists in API and in input file
+                        return .ignore(username: user.username)
+                    } else {
+                        // not in API or pending invitation, and in input file
+                        return .invite(user)
+                    }
                 }
 
+                let removals = existingUsers
+                    .filter { user in
+                        // user not in input file, but is in API list of users
+                        usersInFile.contains(where: { $0.username == user.username }) == false
+                    }.map {
+                        Operation.remove(username: $0.username)
+                    }
+
+                let uninvites = pendingInvites
+                    .filter { invitation in
+                        // user not in input file, but is in API list of invitations
+                        usersInFile.contains(where: { $0.username == invitation.attributes?.email }) == false
+                    }.compactMap {
+                        $0.attributes?.email.map { Operation.uninvite(username: $0) }
+                    }
+
+                return newInvites + removals + uninvites
+            }
+            .flatMap { changes -> AnyPublisher<Operation, Error> in
                 if self.dryRun {
                     return Publishers.Sequence(sequence: changes)
                         .setFailureType(to: Error.self)
@@ -60,23 +103,37 @@ struct SyncUsersCommand: ParsableCommand {
             )
     }
 
-    private func sync(users changes: CollectionDifference<User>, client: HTTPClient) -> AnyPublisher<UserChange, Error> {
-        let requests = changes
-            .compactMap { change -> AnyPublisher<UserChange, Error>? in
-                switch change {
-                case .insert(_, let user, _):
-                    return client
-                        .request(APIEndpoint.invite(user: user))
-                        .map { _ in change }
+    private func sync(users operations: [Operation], client: HTTPClient) -> AnyPublisher<Operation, Error> {
+        let requests = operations
+            .compactMap { operation -> AnyPublisher<Operation, Error>? in
+                switch operation {
+                case .ignore:
+                    return Just(operation)
+                        .setFailureType(to: Error.self)
                         .eraseToAnyPublisher()
 
-                case .remove(_, let user, _):
+                case .invite(let user):
+                    return client
+                        .request(APIEndpoint.invite(user: user))
+                        .map { _ in operation }
+                        .eraseToAnyPublisher()
+
+                case .remove(let username):
                     let removeUser = { client.request(APIEndpoint.remove(userWithId: $0)) }
 
                     return client
-                        .userIdentifier(matching: user.username)
+                        .userIdentifier(matching: username)
                         .flatMap(removeUser)
-                        .map { _ in change }
+                        .map { _ in operation }
+                        .eraseToAnyPublisher()
+
+                case .uninvite(let username):
+                    let uninviteUser = { client.request(APIEndpoint.cancel(userInvitationWithId: $0)) }
+
+                    return client
+                        .invitationIdentifier(matching: username)
+                        .flatMap(uninviteUser)
+                        .map { _ in operation }
                         .eraseToAnyPublisher()
                 }
             }
@@ -90,18 +147,30 @@ struct SyncUsersCommand: ParsableCommand {
             .map(User.fromAPIResponse)
             .eraseToAnyPublisher()
     }
+
+    private func invitationsInAppStoreConnect(_ client: HTTPClient) -> AnyPublisher<[UserInvitation], Error> {
+        client
+            .request(.invitedUsers())
+            .map(\.data)
+            .eraseToAnyPublisher()
+    }
 }
 
 private extension Renderers {
+
     struct UserChangesRenderer: Renderer {
         let dryRun: Bool
 
-        func render(_ input: SyncUsersCommand.UserChange) {
+        func render(_ input: SyncUsersCommand.Operation) {
             switch input {
-            case .insert(_, let user, _):
-                print("+\(user.username)")
-            case .remove(_, let user, _):
-                print("-\(user.username)")
+            case .ignore(let username):
+                print("ignored \(username)")
+            case .invite(let user):
+                print("invited \(user.username)")
+            case .remove(let username):
+                print("removed \(username)")
+            case .uninvite(let username):
+                print("uninvited \(username)")
             }
         }
     }
