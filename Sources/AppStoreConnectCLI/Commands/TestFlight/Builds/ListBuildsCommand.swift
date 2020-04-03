@@ -2,6 +2,7 @@
 
 import ArgumentParser
 import AppStoreConnect_Swift_SDK
+import Combine
 import Foundation
 
 struct ListBuildsCommand: ParsableCommand {
@@ -21,22 +22,24 @@ struct ListBuildsCommand: ParsableCommand {
     func run() throws {
         let api = HTTPClient(configuration: APIConfiguration.load(from: authOptions))
 
-        ListApps.getResourceIdsFrom(bundleIds: [bundleId], by: api) {
-            guard let appId = $0.first else {
-                fatalError("Can't find a related app with input bundleID")
-            }
+        _ = api
+            .getAppResourceIdsFrom(bundleIds: [bundleId])
+            .flatMap { (resoureceIds: [String]) -> AnyPublisher<BuildsResponse, Error> in
+                guard let appId = resoureceIds.first else {
+                    fatalError("Can't find a related app with input bundleID")
+                }
 
-            let request = APIEndpoint.builds(
-                filter: [ListBuilds.Filter.app([appId])],
-                sort: [ListBuilds.Sort.uploadedDateAscending]
-            )
-
-            _ = api.request(request)
-                .map { $0.data }
-                .sink(
-                    receiveCompletion: Renderers.CompletionRenderer().render,
-                    receiveValue: Renderers.ResultRenderer(format: self.outputFormat).render
+                let endpoint = APIEndpoint.builds(
+                    filter: [ListBuilds.Filter.app([appId])],
+                    sort: [ListBuilds.Sort.uploadedDateAscending]
                 )
-        }
+
+                return api.request(endpoint).eraseToAnyPublisher()
+            }
+            .map { $0.data }
+            .sink(
+                receiveCompletion: Renderers.CompletionRenderer().render,
+                receiveValue: Renderers.ResultRenderer(format: self.outputFormat).render
+            )
     }
 }

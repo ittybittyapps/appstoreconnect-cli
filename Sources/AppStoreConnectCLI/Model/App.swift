@@ -1,7 +1,8 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
-import Foundation
 import AppStoreConnect_Swift_SDK
+import Combine
+import Foundation
 import SwiftyTextTable
 
 struct App: ResultRenderable {
@@ -44,5 +45,20 @@ extension App: TableInfoProvider {
             primaryLocale ?? "",
             sku ?? "",
         ]
+    }
+}
+
+extension HTTPClient {
+
+    /// Find the opaque internal identifier for an application that related to this bundle ID.
+    func getAppResourceIdsFrom(bundleIds: [String]) -> AnyPublisher<[String], Error> {
+        let getAppResourceIdRequest = APIEndpoint.apps(
+            filters: [ListApps.Filter.bundleId(bundleIds)]
+        )
+
+        return self.request(getAppResourceIdRequest)
+            .map { $0.data }
+            .compactMap { $0.map { $0.id } }
+            .eraseToAnyPublisher()
     }
 }
