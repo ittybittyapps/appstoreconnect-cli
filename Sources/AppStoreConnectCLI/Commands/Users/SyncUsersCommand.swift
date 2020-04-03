@@ -48,8 +48,6 @@ struct SyncUsersCommand: ParsableCommand {
             print("## Dry run ##")
         }
 
-        let usersInFile = Readers.FileReader<[User]>(format: inputFormat).read(filePath: config)
-
         let client = HTTPClient(configuration: APIConfiguration.load(from: authOptions))
 
         _ = Publishers
@@ -57,36 +55,7 @@ struct SyncUsersCommand: ParsableCommand {
                 usersInAppStoreConnect(client),
                 invitationsInAppStoreConnect(client)
             )
-            .map { existingUsers, pendingInvites -> [Operation] in
-                let newInvites = usersInFile.map { user -> Operation in
-                    if existingUsers.contains(where: { $0.username == user.username} ) ||
-                        pendingInvites.contains(where: { $0.attributes?.email == user.username} ) {
-                        // user exists in API and in input file
-                        return .ignore(username: user.username)
-                    } else {
-                        // not in API or pending invitation, and in input file
-                        return .invite(user)
-                    }
-                }
-
-                let removals = existingUsers
-                    .filter { user in
-                        // user not in input file, but is in API list of users
-                        usersInFile.contains(where: { $0.username == user.username }) == false
-                    }.map {
-                        Operation.remove(username: $0.username)
-                    }
-
-                let uninvites = pendingInvites
-                    .filter { invitation in
-                        // user not in input file, but is in API list of invitations
-                        usersInFile.contains(where: { $0.username == invitation.attributes?.email }) == false
-                    }.compactMap {
-                        $0.attributes?.email.map { Operation.uninvite(username: $0) }
-                    }
-
-                return newInvites + removals + uninvites
-            }
+            .map(changeOperations(existingUsers:pendingInvites:))
             .flatMap { changes -> AnyPublisher<Operation, Error> in
                 if self.dryRun {
                     return Publishers.Sequence(sequence: changes)
@@ -101,6 +70,39 @@ struct SyncUsersCommand: ParsableCommand {
                 receiveCompletion: Renderers.CompletionRenderer().render,
                 receiveValue: Renderers.UserChangesRenderer(dryRun: dryRun).render
             )
+    }
+
+    private func changeOperations(existingUsers: [User], pendingInvites: [UserInvitation]) -> [Operation] {
+        let usersInFile = Readers.FileReader<[User]>(format: inputFormat).read(filePath: config)
+
+        let newInvites = usersInFile.map { user -> Operation in
+            if existingUsers.contains(where: { $0.username == user.username} ) ||
+                pendingInvites.contains(where: { $0.attributes?.email == user.username} ) {
+                // user exists in API and in input file
+                return .ignore(username: user.username)
+            } else {
+                // not in API or pending invitation, and in input file
+                return .invite(user)
+            }
+        }
+
+        let removals = existingUsers
+            .filter { user in
+                // user not in input file, but is in API list of users
+                usersInFile.contains(where: { $0.username == user.username }) == false
+            }.map {
+                Operation.remove(username: $0.username)
+            }
+
+        let uninvites = pendingInvites
+            .filter { invitation in
+                // user not in input file, but is in API list of invitations
+                usersInFile.contains(where: { $0.username == invitation.attributes?.email }) == false
+            }.compactMap {
+                $0.attributes?.email.map { Operation.uninvite(username: $0) }
+            }
+
+        return newInvites + removals + uninvites
     }
 
     private func sync(users operations: [Operation], client: HTTPClient) -> AnyPublisher<Operation, Error> {
