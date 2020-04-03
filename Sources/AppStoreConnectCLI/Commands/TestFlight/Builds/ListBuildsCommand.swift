@@ -29,10 +29,12 @@ struct ListBuildsCommand: ParsableCommand {
                     fatalError("Can't find a related app with input bundleID")
                 }
 
-                return api.request(APIEndpoint.builds(
+                let endpoint = APIEndpoint.builds(
                     filter: [ListBuilds.Filter.app([appId])],
                     sort: [ListBuilds.Sort.uploadedDateAscending]
-                )).eraseToAnyPublisher()
+                )
+
+                return api.request(endpoint).eraseToAnyPublisher()
             }
             .map { $0.data }
             .sink(
