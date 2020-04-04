@@ -20,22 +20,6 @@ struct User: ResultRenderable {
 // MARK: - API conveniences
 
 extension User {
-    static func fromAPIUser(_ apiUser: AppStoreConnect_Swift_SDK.User) -> User? {
-        guard let attributes = apiUser.attributes,
-              let username = attributes.username else {
-            // TODO: Error handling
-            return nil
-        }
-        let visibleApps = apiUser.relationships?.visibleApps?.data?.map { $0.type }
-        return User(username: username,
-                    firstName: attributes.firstName ?? "",
-                    lastName: attributes.lastName ?? "",
-                    roles: attributes.roles ?? [],
-                    provisioningAllowed: attributes.provisioningAllowed ?? false,
-                    allAppsVisible: attributes.allAppsVisible ?? false,
-                    visibleApps: visibleApps)
-    }
-
     static func fromAPIResponse(_ response: UsersResponse) -> [User] {
         let users: [AppStoreConnect_Swift_SDK.User] = response.data
 
