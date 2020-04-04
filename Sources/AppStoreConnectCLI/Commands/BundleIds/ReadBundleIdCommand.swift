@@ -5,23 +5,20 @@ import ArgumentParser
 import Combine
 import Foundation
 
-struct ReadBundleIdCommand: ParsableCommand {
+struct ReadBundleIdCommand: CommonParsableCommand {
     public static var configuration = CommandConfiguration(
         commandName: "read",
         abstract: "Get information about a specific bundle ID."
     )
 
     @OptionGroup()
-    var authOptions: AuthOptions
-
-    @Option(help: "Return exportable results in provided format (\(OutputFormat.allCases.map { $0.rawValue }.joined(separator: ", "))).")
-    var outputFormat: OutputFormat?
+    var common: CommonOptions
 
     @Argument(help: "The reverse-DNS bundle ID identifier to read. Must be unique. (eg. com.example.app)")
     var identifier: String
 
     func run() throws {
-        let api = HTTPClient(configuration: APIConfiguration.load(from: authOptions))
+        let api = makeClient()
 
         _ = try api
             .internalId(matching: identifier)
@@ -31,7 +28,7 @@ struct ReadBundleIdCommand: ParsableCommand {
             .map(BundleId.init)
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.ResultRenderer(format: outputFormat).render
+                receiveValue: Renderers.ResultRenderer(format: common.outputFormat).render
             )
     }
 }

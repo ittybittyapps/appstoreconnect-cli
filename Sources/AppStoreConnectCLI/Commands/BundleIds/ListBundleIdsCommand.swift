@@ -4,63 +4,26 @@ import AppStoreConnect_Swift_SDK
 import ArgumentParser
 import Foundation
 
-struct ListBundleIdsCommand: ParsableCommand {
+struct ListBundleIdsCommand: CommonParsableCommand {
     public static var configuration = CommandConfiguration(
         commandName: "list",
         abstract: "Find and list bundle IDs that are registered to your team."
     )
 
     @OptionGroup()
-    var authOptions: AuthOptions
+    var common: CommonOptions
 
     @Option(help: "Limit the number of resources (maximum 200).")
     var limit: Int?
 
-    @Option(help: "Return exportable results in provided format (\(OutputFormat.allCases.map { $0.rawValue }.joined(separator: ", "))).")
-    var outputFormat: OutputFormat?
-
-    @Option(parsing: .upToNextOption, help: "Filter the results by reverse-DNS bundle ID identifier (eg. com.example.app)")
-    var filterIdentifier: [String]
-
-    @Option(parsing: .upToNextOption, help: "Filter the results by app name")
-    var filterName: [String]
-
-    @Option(
-        parsing: .upToNextOption,
-        help: ArgumentHelp(stringLiteral: "Filter the results by platform (\(Platform.allCases.map { $0.rawValue.lowercased() }.joined(separator: ", "))).")
-    )
-    var filterPlatform: [Platform]
-
-    @Option(parsing: .upToNextOption, help: "Filter the results by seed ID")
-    var filterSeedId: [String]
-
-    private var filters: [BundleIds.Filter]? {
-        var filters = [BundleIds.Filter]()
-
-        if filterIdentifier.isEmpty == false {
-            filters += [BundleIds.Filter.identifier(filterIdentifier)]
-        }
-
-        if filterName.isEmpty == false {
-            filters += [BundleIds.Filter.name(filterName)]
-        }
-
-        if filterPlatform.isEmpty == false {
-            filters += [BundleIds.Filter.platform(filterPlatform)]
-        }
-
-        if filterSeedId.isEmpty == false {
-            filters += [BundleIds.Filter.seedId(filterSeedId)]
-        }
-
-        return filters
-    }
+    @OptionGroup()
+    var filters: FilterOptions
 
     func run() throws {
-        let api = HTTPClient(configuration: APIConfiguration.load(from: authOptions))
+        let api = makeClient()
 
         let request = APIEndpoint.listBundleIds(
-            filter: filters,
+            filter: [BundleIds.Filter](filters),
             limit: limit
         )
 
@@ -68,7 +31,50 @@ struct ListBundleIdsCommand: ParsableCommand {
             .map { $0.data.map(BundleId.init) }
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.ResultRenderer(format: outputFormat).render
+                receiveValue: Renderers.ResultRenderer(format: common.outputFormat).render
             )
+    }
+}
+
+extension ListBundleIdsCommand {
+    struct FilterOptions: ParsableArguments {
+        @Option(parsing: .upToNextOption, help: "Filter the results by reverse-DNS bundle ID identifier (eg. com.example.app)")
+        var filterIdentifier: [String]
+
+        @Option(parsing: .upToNextOption, help: "Filter the results by app name")
+        var filterName: [String]
+
+        @Option(
+            parsing: .upToNextOption,
+            help: "Filter the results by platform (\(Platform.allCases.description))."
+        )
+        var filterPlatform: [Platform]
+
+        @Option(parsing: .upToNextOption, help: "Filter the results by seed ID")
+        var filterSeedId: [String]
+    }
+}
+
+extension Array where Element == BundleIds.Filter {
+    init?(_ options: ListBundleIdsCommand.FilterOptions) {
+        var filters = [Element]()
+
+        if options.filterIdentifier.isEmpty == false {
+            filters.append(.identifier(options.filterIdentifier))
+        }
+
+        if options.filterName.isEmpty == false {
+            filters.append(.name(options.filterName))
+        }
+
+        if options.filterPlatform.isEmpty == false {
+            filters.append(.platform(options.filterPlatform))
+        }
+
+        if options.filterSeedId.isEmpty == false {
+            filters.append(.seedId(options.filterSeedId))
+        }
+
+        self.init(filters)
     }
 }

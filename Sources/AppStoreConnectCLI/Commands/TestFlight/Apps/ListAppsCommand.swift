@@ -4,21 +4,18 @@ import AppStoreConnect_Swift_SDK
 import ArgumentParser
 import Foundation
 
-struct ListAppsCommand: ParsableCommand {
+struct ListAppsCommand: CommonParsableCommand {
 
     static var configuration = CommandConfiguration(
         commandName: "list",
         abstract: "Find and list apps added in App Store Connect"
     )
 
-    @Option(default: "config/auth.yml", help: "The APIConfiguration.")
-    var auth: String
+    @OptionGroup()
+    var common: CommonOptions
 
     @Option(help: "Limit the number of resources (maximum 200).")
     var limit: Int?
-
-    @Option(help: "Return exportable results in provided format (\(OutputFormat.allCases.map { $0.rawValue }.joined(separator: ", "))).")
-    var outputFormat: OutputFormat?
 
     @Option(parsing: .upToNextOption, help: "Filter the results by the specified bundle IDs")
     var filterBundleIds: [String]
@@ -48,7 +45,7 @@ struct ListAppsCommand: ParsableCommand {
     }
 
     func run() throws {
-        let api = try HTTPClient(authenticationYmlPath: auth)
+        let api = makeClient()
 
         let limits = limit.map { [ListApps.Limit.apps($0)] }
 
@@ -61,7 +58,7 @@ struct ListAppsCommand: ParsableCommand {
             .map { $0.data.map(App.init) }
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.ResultRenderer(format: outputFormat).render
+                receiveValue: Renderers.ResultRenderer(format: common.outputFormat).render
             )
     }
 }

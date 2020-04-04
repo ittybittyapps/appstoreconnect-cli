@@ -5,15 +5,15 @@ import ArgumentParser
 import Combine
 import Foundation
 
-public struct ListUsersCommand: ParsableCommand {
+public struct ListUsersCommand: CommonParsableCommand {
     public static var configuration = CommandConfiguration(
         commandName: "list",
         abstract: "Get a list of the users on your team.")
 
     public init() {}
 
-    @Option(default: "config/auth.yml", help: "The APIConfiguration.")
-    var auth: String
+    @OptionGroup()
+    var common: CommonOptions
 
     @Option(help: "Limit the number of users to return (maximum 200).")
     var limit: Int?
@@ -47,11 +47,8 @@ public struct ListUsersCommand: ParsableCommand {
     @Flag(help: "Include visible apps in results.")
     var includeVisibleApps: Bool
 
-    @Option(help: "Return exportable results in provided format (\(OutputFormat.allCases.map { $0.rawValue }.joined(separator: ", "))).")
-    var outputFormat: OutputFormat?
-
     public func run() throws {
-        let api = try HTTPClient(authenticationYmlPath: auth)
+        let api = makeClient()
 
         var filters = [ListUsers.Filter]()
 
@@ -81,7 +78,7 @@ public struct ListUsersCommand: ParsableCommand {
             .map(User.fromAPIResponse)
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.ResultRenderer(format: outputFormat).render
+                receiveValue: Renderers.ResultRenderer(format: common.outputFormat).render
             )
     }
 }

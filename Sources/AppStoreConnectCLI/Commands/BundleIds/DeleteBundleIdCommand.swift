@@ -5,20 +5,21 @@ import ArgumentParser
 import Combine
 import Foundation
 
-struct DeleteBundleIdCommand: ParsableCommand {
+struct DeleteBundleIdCommand: CommonParsableCommand {
+
     public static var configuration = CommandConfiguration(
         commandName: "delete",
         abstract: "Delete a bundle ID that is used for app development."
     )
 
     @OptionGroup()
-    var authOptions: AuthOptions
+    var common: CommonOptions
 
     @Argument(help: "The reverse-DNS bundle ID identifier to delete. Must be unique. (eg. com.example.app)")
     var identifier: String
 
     func run() throws {
-        let api = HTTPClient(configuration: APIConfiguration.load(from: authOptions))
+        let api = makeClient()
 
         _ = try api
             .internalId(matching: identifier)

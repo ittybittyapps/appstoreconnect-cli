@@ -4,22 +4,19 @@ import ArgumentParser
 import AppStoreConnect_Swift_SDK
 import Foundation
 
-struct GetBuildInfoCommand: ParsableCommand {
+struct GetBuildInfoCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "info",
         abstract: "Get information about a specific build.")
 
     @OptionGroup()
-    var authOptions: AuthOptions
+    var common: CommonOptions
 
     @Argument(help: "An opaque resource ID that uniquely identifies the build")
     var buildId: String
 
-    @Option(help: "Return exportable results in provided format (\(OutputFormat.allCases.map { $0.rawValue }.joined(separator: ", "))).")
-    var outputFormat: OutputFormat?
-
     func run() throws {
-        let api = HTTPClient(configuration: APIConfiguration.load(from: authOptions))
+        let api = makeClient()
 
         let request = APIEndpoint.build(withId: buildId)
 
@@ -27,7 +24,7 @@ struct GetBuildInfoCommand: ParsableCommand {
             .map { $0.data }
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.ResultRenderer(format: self.outputFormat).render
+                receiveValue: Renderers.ResultRenderer(format: common.outputFormat).render
             )
     }
 }
