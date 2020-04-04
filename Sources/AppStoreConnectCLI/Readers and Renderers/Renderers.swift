@@ -28,10 +28,10 @@ enum Renderers {
     struct ResultRenderer<T: ResultRenderable>: Renderer {
         typealias Input = T
 
-        let format: OutputFormat?
+        let format: OutputFormat
 
         func render(_ input: T) {
-            switch format ?? .table {
+            switch format {
             case .csv:
                 print(input.renderAsCSV())
             case .json:
