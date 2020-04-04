@@ -20,10 +20,22 @@ struct User: ResultRenderable {
 // MARK: - API conveniences
 
 extension User {
-    static func fromAPIResponse(_ response: UsersResponse) -> [User] {
+    init(attributes: AppStoreConnect_Swift_SDK.User.Attributes, visibleApps: [AppStoreConnect_Swift_SDK.App]? = nil) {
+        self.username = attributes.username ?? ""
+        self.firstName = attributes.firstName ?? ""
+        self.lastName = attributes.lastName ?? ""
+        self.roles = attributes.roles ?? []
+        self.provisioningAllowed = attributes.provisioningAllowed ?? false
+        self.allAppsVisible = attributes.allAppsVisible ?? false
+        self.visibleApps = visibleApps?.compactMap{ $0.attributes?.bundleId }
+    }
+}
+
+extension Array where Element == User {
+    init(_ response: UsersResponse) {
         let users: [AppStoreConnect_Swift_SDK.User] = response.data
 
-        return users.compactMap { (user: AppStoreConnect_Swift_SDK.User) -> User in
+        let sequence = users.compactMap { (user: AppStoreConnect_Swift_SDK.User) -> User in
             let userVisibleAppIds = user.relationships?.visibleApps?.data?.compactMap { $0.id }
             let userVisibleApps = response.include?.filter {
                 userVisibleAppIds?.contains($0.id) ?? false
@@ -33,16 +45,8 @@ extension User {
 
             return User(attributes: attributes, visibleApps: userVisibleApps)
         }
-    }
 
-    init(attributes: AppStoreConnect_Swift_SDK.User.Attributes, visibleApps: [AppStoreConnect_Swift_SDK.App]? = nil) {
-        self.username = attributes.username ?? ""
-        self.firstName = attributes.firstName ?? ""
-        self.lastName = attributes.lastName ?? ""
-        self.roles = attributes.roles ?? []
-        self.provisioningAllowed = attributes.provisioningAllowed ?? false
-        self.allAppsVisible = attributes.allAppsVisible ?? false
-        self.visibleApps = visibleApps?.compactMap{ $0.attributes?.bundleId }
+        self.init(sequence)
     }
 }
 

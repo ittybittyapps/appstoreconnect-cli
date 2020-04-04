@@ -103,7 +103,7 @@ struct SyncUsersCommand: ParsableCommand {
     private func usersInAppStoreConnect(_ client: HTTPClient) -> AnyPublisher<[User], Error> {
         client
             .request(.users())
-            .map(User.fromAPIResponse)
+            .map(Array<User>.init)
             .eraseToAnyPublisher()
     }
 

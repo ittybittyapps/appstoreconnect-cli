@@ -78,7 +78,7 @@ public struct ListUsersCommand: ParsableCommand {
             next: nil)
 
         _ = api.request(request)
-            .map(User.fromAPIResponse)
+            .map(Array<User>.init)
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,
                 receiveValue: Renderers.ResultRenderer(format: outputFormat).render

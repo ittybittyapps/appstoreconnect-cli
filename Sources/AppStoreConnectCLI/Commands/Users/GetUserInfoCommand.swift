@@ -29,7 +29,7 @@ struct GetUserInfoCommand: ParsableCommand {
         let request = APIEndpoint.users(filter: filters)
 
         _ = api.request(request)
-            .map(User.fromAPIResponse)
+            .map(Array<User>.init)
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,
                 receiveValue: Renderers.ResultRenderer(format: outputFormat).render
