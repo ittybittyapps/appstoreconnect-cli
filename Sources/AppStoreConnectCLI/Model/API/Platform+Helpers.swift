@@ -14,3 +14,9 @@ extension Platform: CaseIterable, ExpressibleByArgument {
         self.init(rawValue: argument.uppercased())
     }
 }
+
+extension Array where Element == Platform {
+    var description: String {
+        map { $0.rawValue.lowercased() }.joined(separator: ", ")
+    }
+}
