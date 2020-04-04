@@ -50,22 +50,17 @@ struct SyncUsersCommand: ParsableCommand {
 
         let client = HTTPClient(configuration: APIConfiguration.load(from: authOptions))
 
+        let action: SyncAction = self.dryRun
+            ? DryRunSync()
+            : Sync(client: client)
+
         _ = Publishers
             .CombineLatest(
                 usersInAppStoreConnect(client),
                 invitationsInAppStoreConnect(client)
             )
             .map(changeOperations(existingUsers:pendingInvites:))
-            .flatMap { changes -> AnyPublisher<Operation, Error> in
-                if self.dryRun {
-                    return Publishers.Sequence(sequence: changes)
-                        .setFailureType(to: Error.self)
-                        .eraseToAnyPublisher()
-                } else {
-                    return self.sync(users: changes, client: client)
-                        .eraseToAnyPublisher()
-                }
-            }
+            .flatMap(action.execute)
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,
                 receiveValue: Renderers.UserChangesRenderer(dryRun: dryRun).render
@@ -105,9 +100,41 @@ struct SyncUsersCommand: ParsableCommand {
         return newInvites + removals + uninvites
     }
 
-    private func sync(users operations: [Operation], client: HTTPClient) -> AnyPublisher<Operation, Error> {
+    private func usersInAppStoreConnect(_ client: HTTPClient) -> AnyPublisher<[User], Error> {
+        client
+            .request(.users())
+            .map(User.fromAPIResponse)
+            .eraseToAnyPublisher()
+    }
+
+    private func invitationsInAppStoreConnect(_ client: HTTPClient) -> AnyPublisher<[UserInvitation], Error> {
+        client
+            .request(.invitedUsers())
+            .map(\.data)
+            .eraseToAnyPublisher()
+    }
+}
+
+private protocol SyncAction {
+    typealias Result = SyncUsersCommand.Operation // TODO: define an actual result type.
+
+    func execute(with operations: [SyncUsersCommand.Operation]) -> AnyPublisher<Self.Result, Error>
+}
+
+private struct DryRunSync: SyncAction {
+    func execute(with operations: [SyncUsersCommand.Operation]) -> AnyPublisher<Self.Result, Error> {
+        Publishers.Sequence(sequence: operations)
+           .setFailureType(to: Error.self)
+           .eraseToAnyPublisher()
+    }
+}
+
+private struct Sync: SyncAction {
+    let client: HTTPClient
+
+    func execute(with operations: [SyncUsersCommand.Operation]) -> AnyPublisher<Self.Result, Error> {
         let requests = operations
-            .compactMap { operation -> AnyPublisher<Operation, Error>? in
+            .compactMap { operation -> AnyPublisher<SyncUsersCommand.Operation, Error>? in
                 switch operation {
                 case .ignore:
                     return Just(operation)
@@ -121,7 +148,7 @@ struct SyncUsersCommand: ParsableCommand {
                         .eraseToAnyPublisher()
 
                 case .remove(let username):
-                    let removeUser = { client.request(APIEndpoint.remove(userWithId: $0)) }
+                    let removeUser = { self.client.request(APIEndpoint.remove(userWithId: $0)) }
 
                     return client
                         .userIdentifier(matching: username)
@@ -130,7 +157,7 @@ struct SyncUsersCommand: ParsableCommand {
                         .eraseToAnyPublisher()
 
                 case .uninvite(let username):
-                    let uninviteUser = { client.request(APIEndpoint.cancel(userInvitationWithId: $0)) }
+                    let uninviteUser = { self.client.request(APIEndpoint.cancel(userInvitationWithId: $0)) }
 
                     return client
                         .invitationIdentifier(matching: username)
@@ -141,20 +168,6 @@ struct SyncUsersCommand: ParsableCommand {
             }
 
         return Publishers.ConcatenateMany(requests).eraseToAnyPublisher()
-    }
-
-    private func usersInAppStoreConnect(_ client: HTTPClient) -> AnyPublisher<[User], Error> {
-        client
-            .request(.users())
-            .map(User.fromAPIResponse)
-            .eraseToAnyPublisher()
-    }
-
-    private func invitationsInAppStoreConnect(_ client: HTTPClient) -> AnyPublisher<[UserInvitation], Error> {
-        client
-            .request(.invitedUsers())
-            .map(\.data)
-            .eraseToAnyPublisher()
     }
 }
 
