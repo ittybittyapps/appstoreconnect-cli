@@ -37,6 +37,6 @@ struct CommonOptions: ParsableArguments {
     @OptionGroup()
     var authOptions: AuthOptions
 
-    @Option(default: .table, help: "Return exportable results in provided format \(OutputFormat.allCases.description).")
+    @Flag(default: .table, help: "Display results in specified format.")
     var outputFormat: OutputFormat
 }
