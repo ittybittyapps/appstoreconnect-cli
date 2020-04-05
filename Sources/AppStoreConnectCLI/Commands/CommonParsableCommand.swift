@@ -7,11 +7,11 @@ import Foundation
 protocol CommonParsableCommand: ParsableCommand {
     var common: CommonOptions { get }
 
-    func makeClient() -> HTTPClient
+    func makeClient() throws -> HTTPClient
 }
 
 extension CommonParsableCommand {
-    func makeClient() -> HTTPClient {
+    func makeClient() throws -> HTTPClient {
         HTTPClient(configuration: APIConfiguration.load(from: common.authOptions))
     }
 }

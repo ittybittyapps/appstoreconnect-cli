@@ -48,7 +48,7 @@ struct ListDevicesCommand: CommonParsableCommand {
     var filterUDID: [String]
 
     func run() throws {
-        let api = makeClient()
+        let api = try makeClient()
 
         var filters = [Devices.Filter]()
 

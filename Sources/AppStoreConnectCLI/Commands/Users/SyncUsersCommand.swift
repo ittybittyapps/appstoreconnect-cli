@@ -7,7 +7,7 @@ import Combine
 import Foundation
 import Yams
 
-struct SyncUsersCommand: ParsableCommand {
+struct SyncUsersCommand: CommonParsableCommand {
     typealias UserChange = CollectionDifference<User>.Change
 
     static var configuration = CommandConfiguration(
@@ -16,7 +16,7 @@ struct SyncUsersCommand: ParsableCommand {
     )
 
     @OptionGroup()
-    var authOptions: AuthOptions
+    var common: CommonOptions
 
     @Argument(help: "Path to the file containing the information about users. Specify format with --input-format")
     var config: String
@@ -37,7 +37,7 @@ struct SyncUsersCommand: ParsableCommand {
 
         let usersInFile = Readers.FileReader<[User]>(format: inputFormat).read(filePath: config)
 
-        let client = HTTPClient(configuration: APIConfiguration.load(from: authOptions))
+        let client = try makeClient()
 
         _ = usersInAppStoreConnect(client)
             .flatMap { users -> AnyPublisher<UserChange, Error> in

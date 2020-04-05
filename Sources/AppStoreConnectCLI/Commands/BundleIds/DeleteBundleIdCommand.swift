@@ -19,7 +19,7 @@ struct DeleteBundleIdCommand: CommonParsableCommand {
     var identifier: String
 
     func run() throws {
-        let api = makeClient()
+        let api = try makeClient()
 
         _ = try api
             .internalId(matching: identifier)

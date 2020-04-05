@@ -17,7 +17,7 @@ struct CancelUserInvitationsCommand: CommonParsableCommand {
     var email: String
 
     public func run() throws {
-        let api = makeClient()
+        let api = try makeClient()
 
         let cancelInvitation = { api.request(APIEndpoint.cancel(userInvitationWithId: $0)) }
 

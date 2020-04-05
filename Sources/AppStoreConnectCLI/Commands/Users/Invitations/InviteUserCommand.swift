@@ -35,7 +35,7 @@ struct InviteUserCommand: CommonParsableCommand {
     var bundleIds: [String]
 
     public func run() throws {
-        let api = makeClient()
+        let api = try makeClient()
 
         if allAppsVisible {
             inviteUserToTeam(by: api)
