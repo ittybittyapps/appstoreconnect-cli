@@ -5,17 +5,15 @@ import ArgumentParser
 import Combine
 import Foundation
 
-struct ModifyBundleIdCommand: ParsableCommand {
+struct ModifyBundleIdCommand: CommonParsableCommand {
+
     public static var configuration = CommandConfiguration(
         commandName: "modify",
         abstract: "Update a specific bundle ID's name."
     )
 
     @OptionGroup()
-    var authOptions: AuthOptions
-
-    @Option(help: "Return exportable results in provided format (\(OutputFormat.allCases.map { $0.rawValue }.joined(separator: ", "))).")
-    var outputFormat: OutputFormat?
+    var common: CommonOptions
 
     @Option(help: "The reverse-DNS bundle ID identifier. (eg. com.example.app)")
     var identifier: String
@@ -24,7 +22,7 @@ struct ModifyBundleIdCommand: ParsableCommand {
     var name: String
 
     func run() throws {
-        let api = HTTPClient(configuration: APIConfiguration.load(from: authOptions))
+        let api = makeClient()
 
         _ = try api
             .internalId(matching: identifier)
@@ -34,7 +32,7 @@ struct ModifyBundleIdCommand: ParsableCommand {
             .map(BundleId.init)
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.ResultRenderer(format: outputFormat).render
+                receiveValue: Renderers.ResultRenderer(format: common.outputFormat).render
             )
     }
 }

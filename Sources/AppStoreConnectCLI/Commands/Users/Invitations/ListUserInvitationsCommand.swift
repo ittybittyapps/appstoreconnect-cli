@@ -4,14 +4,14 @@ import AppStoreConnect_Swift_SDK
 import ArgumentParser
 import Foundation
 
-struct ListUserInvitationsCommand: ParsableCommand {
+struct ListUserInvitationsCommand: CommonParsableCommand {
     public static var configuration = CommandConfiguration(
         commandName: "list-invitations",
         abstract: "Get a list of pending invitations to join your team."
     )
 
     @OptionGroup()
-    var authOptions: AuthOptions
+    var common: CommonOptions
 
     @Option(help: "Limit the number of users to return (maximum 200).")
     var limit: Int?
@@ -24,9 +24,6 @@ struct ListUserInvitationsCommand: ParsableCommand {
 
     @Flag(help: "Include visible apps in results.")
     var includeVisibleApps: Bool
-
-    @Option(default: .table, help: "Return exportable results in provided format (\(OutputFormat.allCases.map { $0.rawValue }.joined(separator: ", "))).")
-    var outputFormat: OutputFormat
 
     private var filters: [ListInvitedUsers.Filter]? {
         var filters = [ListInvitedUsers.Filter]()
@@ -43,7 +40,7 @@ struct ListUserInvitationsCommand: ParsableCommand {
     }
 
     public func run() throws {
-        let api = HTTPClient(configuration: APIConfiguration.load(from: authOptions))
+        let api = makeClient()
 
         let endpoint = APIEndpoint.invitedUsers(
             limit: limit.map { [ListInvitedUsers.Limit.visibleApps($0)] } ?? [],
@@ -54,7 +51,7 @@ struct ListUserInvitationsCommand: ParsableCommand {
             .map(\.data)
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.ResultRenderer(format: outputFormat).render
+                receiveValue: Renderers.ResultRenderer(format: common.outputFormat).render
             )
     }
 }

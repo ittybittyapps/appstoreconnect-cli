@@ -4,13 +4,13 @@ import ArgumentParser
 import AppStoreConnect_Swift_SDK
 import Foundation
 
-struct CreateBetaTesterCommand: ParsableCommand {
+struct CreateBetaTesterCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "create",
         abstract: "Create a beta tester")
 
-    @Option(default: "config/auth.yml", help: "The APIConfiguration.")
-    var auth: String
+    @OptionGroup()
+    var common: CommonOptions
 
     @Argument(help: "The beta tester's email address, used for sending beta testing invitations.")
     var email: String
@@ -24,11 +24,8 @@ struct CreateBetaTesterCommand: ParsableCommand {
     @Argument(help: "Array of opaque resource ID that uniquely identifies the resources.")
     var buildIds: [String]
 
-    @Option(help: "Return exportable results in provided format (\(OutputFormat.allCases.map { $0.rawValue }.joined(separator: ", "))).")
-    var outputFormat: OutputFormat?
-
     func run() throws {
-        let api = try HTTPClient(authenticationYmlPath: auth)
+        let api = makeClient()
 
         let request = APIEndpoint.create(
             betaTesterWithEmail: email,
@@ -41,7 +38,7 @@ struct CreateBetaTesterCommand: ParsableCommand {
             .map{ $0.data }
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.ResultRenderer(format: outputFormat).render
+                receiveValue: Renderers.ResultRenderer(format: common.outputFormat).render
             )
     }
 }

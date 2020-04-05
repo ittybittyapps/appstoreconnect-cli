@@ -4,11 +4,13 @@ import AppStoreConnect_Swift_SDK
 import ArgumentParser
 import Foundation
 
-struct RemoveUserVisibleAppsCommand: ParsableCommand {
-
+struct RemoveUserVisibleAppsCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "remove-apps",
         abstract: "Remove a user on your team's access to one or more apps.")
+
+    @OptionGroup()
+    var common: CommonOptions
 
     @Argument(help: "The username of the user to modify.")
     var username: String

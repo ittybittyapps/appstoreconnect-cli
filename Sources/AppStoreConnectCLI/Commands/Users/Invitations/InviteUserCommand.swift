@@ -4,13 +4,13 @@ import AppStoreConnect_Swift_SDK
 import ArgumentParser
 import Foundation
 
-struct InviteUserCommand: ParsableCommand {
+struct InviteUserCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "invite",
         abstract: "Invite a user with assigned user roles to join your team.")
 
     @OptionGroup()
-    var authOptions: AuthOptions
+    var common: CommonOptions
 
     @Argument(help: "The email address of a pending user invitation. The email address must be valid to activate the account. It can be any email address, not necessarily one associated with an Apple ID.")
     var email: String
@@ -34,11 +34,8 @@ struct InviteUserCommand: ParsableCommand {
             help: "Array of bundle IDs that uniquely identifies the apps.")
     var bundleIds: [String]
 
-    @Option(help: "Return exportable results in provided format (\(OutputFormat.allCases.map { $0.rawValue }.joined(separator: ", "))).")
-    var outputFormat: OutputFormat?
-
     public func run() throws {
-        let api = HTTPClient(configuration: APIConfiguration.load(from: authOptions))
+        let api = makeClient()
 
         if allAppsVisible {
             inviteUserToTeam(by: api)
@@ -70,7 +67,7 @@ struct InviteUserCommand: ParsableCommand {
             .map { $0.data }
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.ResultRenderer(format: outputFormat).render
+                receiveValue: Renderers.ResultRenderer(format: common.outputFormat).render
             )
     }
 }

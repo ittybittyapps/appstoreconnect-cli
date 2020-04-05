@@ -1,7 +1,20 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
-import Foundation
+import AppStoreConnect_Swift_SDK
 import ArgumentParser
+import Foundation
+
+protocol CommonParsableCommand: ParsableCommand {
+    var common: CommonOptions { get }
+
+    func makeClient() -> HTTPClient
+}
+
+extension CommonParsableCommand {
+    func makeClient() -> HTTPClient {
+        HTTPClient(configuration: APIConfiguration.load(from: common.authOptions))
+    }
+}
 
 struct AuthOptions: ParsableArguments {
     @Option(default: "config/auth.yml", help: "The APIConfiguration.")
@@ -20,4 +33,10 @@ struct AuthOptions: ParsableArguments {
     var privateKeyFilePath: String?
 }
 
+struct CommonOptions: ParsableArguments {
+    @OptionGroup()
+    var authOptions: AuthOptions
 
+    @Option(default: .table, help: "Return exportable results in provided format \(OutputFormat.allCases.description).")
+    var outputFormat: OutputFormat
+}

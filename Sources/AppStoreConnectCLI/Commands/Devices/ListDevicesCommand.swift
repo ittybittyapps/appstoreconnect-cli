@@ -7,13 +7,13 @@ import Foundation
 import SwiftyTextTable
 import Yams
 
-struct ListDevicesCommand: ParsableCommand {
+struct ListDevicesCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "list",
         abstract: "Find and list devices")
 
-    @Option(default: "config/auth.yml", help: "The APIConfiguration.")
-    var auth: String
+    @OptionGroup()
+    var common: CommonOptions
 
     @Option(help: "Limit the number of devices to return (maximum 200).")
     var limit: Int?
@@ -47,13 +47,8 @@ struct ListDevicesCommand: ParsableCommand {
     )
     var filterUDID: [String]
 
-    @Option(help: "Return exportable results in provided format (\(OutputFormat.allCases.map { $0.rawValue }.joined(separator: ", "))).")
-    var outputFormat: OutputFormat?
-
     func run() throws {
-        let authYml = try String(contentsOfFile: auth)
-        let configuration: APIConfiguration = try YAMLDecoder().decode(from: authYml)
-        let api = HTTPClient(configuration: configuration)
+        let api = makeClient()
 
         var filters = [Devices.Filter]()
 
@@ -87,7 +82,7 @@ struct ListDevicesCommand: ParsableCommand {
             .map { $0.data.map(Device.fromAPIDevice) }
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.ResultRenderer(format: outputFormat).render
+                receiveValue: Renderers.ResultRenderer(format: common.outputFormat).render
             )
     }
 }

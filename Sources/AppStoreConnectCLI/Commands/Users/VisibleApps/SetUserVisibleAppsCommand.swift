@@ -4,11 +4,13 @@ import AppStoreConnect_Swift_SDK
 import ArgumentParser
 import Foundation
 
-struct SetUserVisibleAppsCommand: ParsableCommand {
-
+struct SetUserVisibleAppsCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "set-apps",
         abstract: "Set the list of apps a user on your team can see.")
+
+    @OptionGroup()
+    var common: CommonOptions
 
     @Argument(help: "The username of the user to modify.")
     var username: String
