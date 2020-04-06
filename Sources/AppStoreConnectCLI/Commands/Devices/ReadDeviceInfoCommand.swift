@@ -20,7 +20,7 @@ struct ReadDeviceInfoCommand: CommonParsableCommand {
     var deviceId: String
 
     func run() throws {
-        let api = makeClient()
+        let api = try makeClient()
 
         let request = APIEndpoint.readDeviceInformation(id: deviceId)
 

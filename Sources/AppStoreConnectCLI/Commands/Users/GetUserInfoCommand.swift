@@ -21,7 +21,7 @@ struct GetUserInfoCommand: CommonParsableCommand {
     func run() throws {
         let filters: [ListUsers.Filter] = [.username([email])]
 
-        let api = makeClient()
+        let api = try makeClient()
 
         let request = APIEndpoint.users(filter: filters)
 

@@ -20,7 +20,7 @@ struct ListBundleIdsCommand: CommonParsableCommand {
     var filters: FilterOptions
 
     func run() throws {
-        let api = makeClient()
+        let api = try makeClient()
 
         let request = APIEndpoint.listBundleIds(
             filter: [BundleIds.Filter](filters),

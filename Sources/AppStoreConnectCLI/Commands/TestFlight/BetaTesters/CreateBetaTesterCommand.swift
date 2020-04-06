@@ -25,7 +25,7 @@ struct CreateBetaTesterCommand: CommonParsableCommand {
     var buildIds: [String]
 
     func run() throws {
-        let api = makeClient()
+        let api = try makeClient()
 
         let request = APIEndpoint.create(
             betaTesterWithEmail: email,

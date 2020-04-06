@@ -17,7 +17,7 @@ struct ListBuildsCommand: CommonParsableCommand {
     var bundleId: String
 
     func run() throws {
-        let api = makeClient()
+        let api = try makeClient()
 
         _ = api
             .getAppResourceIdsFrom(bundleIds: [bundleId])
