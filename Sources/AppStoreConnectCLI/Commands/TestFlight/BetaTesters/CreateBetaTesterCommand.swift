@@ -2,6 +2,7 @@
 
 import ArgumentParser
 import AppStoreConnect_Swift_SDK
+import Combine
 import Foundation
 
 struct CreateBetaTesterCommand: CommonParsableCommand {
@@ -26,56 +27,63 @@ struct CreateBetaTesterCommand: CommonParsableCommand {
 
     @Option(help: "Names of TestFlight beta tester group that the tester will be assigned to")
     var groupNames: [String]
+    
     func run() throws {
         let api = try makeClient()
 
         if !buildIds.isEmpty {
-            let endpoint = APIEndpoint.create(
-                betaTesterWithEmail: email,
-                firstName: firstName,
-                lastName: lastName,
-                buildIds: buildIds
+            return assignTesterToBuildIdsBy(api)
+        }
+
+        guard !groupNames.isEmpty else {
+            fatalError("Invalid input, one or more build Id or beta group name is required when creating a tester")
+        }
+
+        let endpoint = APIEndpoint.betaGroups(
+            filter: [ListBetaGroups.Filter.name(groupNames)]
+        )
+
+        _ = api.request(endpoint)
+            .flatMap {
+                api
+                    .request(self.convertGroupsToEndpoint(groups: $0.data))
+                    .eraseToAnyPublisher()
+            }
+            .map { $0.data }
+            .sink(
+                receiveCompletion: Renderers.CompletionRenderer().render,
+                receiveValue: Renderers.ResultRenderer(format: common.outputFormat).render
             )
-            createTesters(through: endpoint, by: api)
-            return
-        }
-
-        if !groupNames.isEmpty {
-            let endpoint = APIEndpoint.betaGroups(filter: [ListBetaGroups.Filter.name(groupNames)])
-
-            _ = api.request(endpoint)
-                .map { $0.data }
-                .sink(
-                    receiveCompletion: Renderers.CompletionRenderer().render,
-                    receiveValue: {
-                        let groupIds = $0.map { $0.id }
-
-                        if groupIds.isEmpty {
-                            fatalError("Invalid input, couldn't find any beta group with input names.")
-                        }
-
-                        let endpoint = APIEndpoint.create(
-                            betaTesterWithEmail: self.email,
-                            firstName: self.firstName,
-                            lastName: self.lastName,
-                            betaGroupIds: groupIds
-                        )
-                        self.createTesters(through: endpoint, by: api)
-                    }
-                )
-            return
-        }
-
-        fatalError("Invalid input, one or more build Id or beta group name is required when creating a tester")
     }
 
-    func createTesters(through endpoint: APIEndpoint<BetaTesterResponse>,
-                       by api: HTTPClient) {
+    private func assignTesterToBuildIdsBy(_ api: HTTPClient) {
+        let endpoint = APIEndpoint.create(
+            betaTesterWithEmail: email,
+            firstName: firstName,
+            lastName: lastName,
+            buildIds: buildIds
+        )
+
         _ = api.request(endpoint)
             .map { $0.data }
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,
                 receiveValue: Renderers.ResultRenderer(format: common.outputFormat).render
             )
+    }
+
+    private func convertGroupsToEndpoint(groups: [BetaGroup]) -> APIEndpoint<BetaTesterResponse> {
+        let groupIds = groups.map { $0.id }
+
+        if groupIds.isEmpty {
+            fatalError("Invalid input, couldn't find any beta group with input names.")
+        }
+
+        return APIEndpoint.create(
+            betaTesterWithEmail: email,
+            firstName: firstName,
+            lastName: lastName,
+            betaGroupIds: groupIds
+        )
     }
 }
