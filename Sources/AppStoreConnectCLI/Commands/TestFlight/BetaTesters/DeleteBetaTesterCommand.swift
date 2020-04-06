@@ -18,8 +18,8 @@ struct DeleteBetaTesterCommand: CommonParsableCommand {
     @Flag(help: "Remove a beta tester’s ability to test all apps.")
     var all: Bool
 
-//    @Option(help: "The bundle ID of an application. (eg. com.example.app)")
-//    var bundleId: String
+    @Option(help: "The bundle ID of an application. (eg. com.example.app)")
+    var bundleId: String
 //
 //    @Option(help: "The ID of one build of an application")
 //    var buildId: String
@@ -41,10 +41,23 @@ struct DeleteBetaTesterCommand: CommonParsableCommand {
                 receiveCompletion: Renderers.CompletionRenderer().render,
                 receiveValue: { _ in }
             )
+            return
         }
 
         // Remove a specific beta tester's access to test any builds of one or more apps.
-//        APIEndpoint.remove(accessOfBetaTesterWithId: <#T##String#>, toAppsWithIds: <#T##[String]#>)
+        if !bundleId.isEmpty {
+            _ = api
+                .betaTesterIdentifier(matching: email)
+                .combineLatest(api.getAppResourceIdsFrom(bundleIds: [bundleId]))
+                .flatMap {
+                    api.request(APIEndpoint.remove(accessOfBetaTesterWithId: $0, toAppsWithIds: $1))
+                }
+                .sink(
+                    receiveCompletion: Renderers.CompletionRenderer().render,
+                    receiveValue: { _ in }
+                )
+            return
+        }
 
         // Remove access to test a specific build from one or more individually assigned testers.
 //        APIEndpoint.remove(individualTestersWithIds: <#T##[String]#>, fromBuildWithId: <#T##String#>)
