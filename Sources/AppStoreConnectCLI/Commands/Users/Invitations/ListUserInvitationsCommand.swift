@@ -40,7 +40,7 @@ struct ListUserInvitationsCommand: CommonParsableCommand {
     }
 
     public func run() throws {
-        let api = makeClient()
+        let api = try makeClient()
 
         let endpoint = APIEndpoint.invitedUsers(
             limit: limit.map { [ListInvitedUsers.Limit.visibleApps($0)] } ?? [],

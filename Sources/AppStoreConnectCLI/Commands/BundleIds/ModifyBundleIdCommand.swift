@@ -22,7 +22,7 @@ struct ModifyBundleIdCommand: CommonParsableCommand {
     var name: String
 
     func run() throws {
-        let api = makeClient()
+        let api = try makeClient()
 
         _ = try api
             .internalId(matching: identifier)
