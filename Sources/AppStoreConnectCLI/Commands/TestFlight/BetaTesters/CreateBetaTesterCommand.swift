@@ -27,63 +27,64 @@ struct CreateBetaTesterCommand: CommonParsableCommand {
 
     @Option(help: "Names of TestFlight beta tester group that the tester will be assigned to")
     var groupNames: [String]
-    
+
+    private enum CommandError: Error, CustomStringConvertible {
+        case invalidInput, couldntFindBetaGroup
+
+        var description: String {
+            switch self {
+            case .invalidInput:
+                return "Invalid input, one or more build Id or beta group name is required when creating a tester"
+
+            case .couldntFindBetaGroup:
+                return "Couldn't find any beta group with input names."
+            }
+        }
+    }
+
     func run() throws {
         let api = try makeClient()
 
-        if !buildIds.isEmpty {
-            return assignTesterToBuildIdsBy(api)
+        let request: AnyPublisher<BetaTesterResponse, Error>
+
+        let createWithBuildIds = { ids -> APIEndpoint<BetaTesterResponse> in
+            .create(betaTesterWithEmail: self.email, firstName: self.firstName, lastName: self.lastName, buildIds: ids)
         }
 
-        guard !groupNames.isEmpty else {
-            fatalError("Invalid input, one or more build Id or beta group name is required when creating a tester")
+        let createWithGroupIds = { ids -> APIEndpoint<BetaTesterResponse> in
+            .create(betaTesterWithEmail: self.email, firstName: self.firstName, lastName: self.lastName, betaGroupIds: ids)
         }
 
-        let endpoint = APIEndpoint.betaGroups(
-            filter: [ListBetaGroups.Filter.name(groupNames)]
-        )
+        switch (buildIds, groupNames) {
+            case (let buildIds, _) where !buildIds.isEmpty:
+                let endpoint = createWithBuildIds(buildIds)
+                request = api.request(endpoint).eraseToAnyPublisher()
 
-        _ = api.request(endpoint)
-            .flatMap {
-                api
-                    .request(self.convertGroupsToEndpoint(groups: $0.data))
+            case (_, let groupNames) where !groupNames.isEmpty:
+                let endpoint = APIEndpoint.betaGroups(filter: [ListBetaGroups.Filter.name(groupNames)])
+
+                let groupIds = api.request(endpoint).map { $0.data.map(\.id) }
+
+                request = groupIds
+                    .flatMap { (groupIds: [String]) -> AnyPublisher<BetaTesterResponse, Error> in
+                        guard !groupIds.isEmpty else {
+                            return Fail(error: CommandError.couldntFindBetaGroup).eraseToAnyPublisher()
+                        }
+
+                        let endpoint = createWithGroupIds(groupIds)
+
+                        return api.request(endpoint).eraseToAnyPublisher()
+                    }
                     .eraseToAnyPublisher()
-            }
-            .map { $0.data }
-            .sink(
-                receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.ResultRenderer(format: common.outputFormat).render
-            )
-    }
-
-    private func assignTesterToBuildIdsBy(_ api: HTTPClient) {
-        let endpoint = APIEndpoint.create(
-            betaTesterWithEmail: email,
-            firstName: firstName,
-            lastName: lastName,
-            buildIds: buildIds
-        )
-
-        _ = api.request(endpoint)
-            .map { $0.data }
-            .sink(
-                receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.ResultRenderer(format: common.outputFormat).render
-            )
-    }
-
-    private func convertGroupsToEndpoint(groups: [BetaGroup]) -> APIEndpoint<BetaTesterResponse> {
-        let groupIds = groups.map { $0.id }
-
-        if groupIds.isEmpty {
-            fatalError("Invalid input, couldn't find any beta group with input names.")
+            case (_, _):
+                request = Fail(error: CommandError.invalidInput as Error).eraseToAnyPublisher()
         }
 
-        return APIEndpoint.create(
-            betaTesterWithEmail: email,
-            firstName: firstName,
-            lastName: lastName,
-            betaGroupIds: groupIds
-        )
+        _ = request
+            .map(\.data)
+            .sink(
+                receiveCompletion: Renderers.CompletionRenderer().render,
+                receiveValue: Renderers.ResultRenderer(format: common.outputFormat).render
+            )
     }
 }
