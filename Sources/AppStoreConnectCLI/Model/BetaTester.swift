@@ -45,22 +45,33 @@ extension BetaTester: TableInfoProvider {
 
 extension HTTPClient {
 
+    private enum BetaTesterError: Error, CustomStringConvertible {
+        case couldntFindBetaTester
+
+        var description: String {
+            switch self {
+                case .couldntFindBetaTester:
+                    return "Couldn't find beta tester with input email or tester email not unique"
+            }
+        }
+    }
+
     /// Find the opaque internal identifier for this tester; search by email adddress.
     ///
     /// This is an App Store Connect internal identifier
-    func betaTesterIdentifier(matching email: String) -> AnyPublisher<String, Error> {
+    func betaTesterIdentifier(matching email: String) throws -> AnyPublisher<String, Error> {
         let endpoint = APIEndpoint.betaTesters(
             filter: [ListBetaTesters.Filter.email([email])]
         )
 
         return self.request(endpoint)
-            .map { $0.data.map { $0.id } }
-            .compactMap { response -> String? in
-                if response.count == 1 {
-                    return response.first
+            .tryMap { response throws -> String in
+                let testerIds = response.data.map(\.id)
+                guard testerIds.count == 1, let id = testerIds.first else {
+                    throw BetaTesterError.couldntFindBetaTester
                 }
 
-                fatalError("Tester with email \(email) not unique or not found")
+                return id
             }
             .eraseToAnyPublisher()
     }

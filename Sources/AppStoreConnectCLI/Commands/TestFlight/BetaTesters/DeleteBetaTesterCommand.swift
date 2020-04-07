@@ -73,7 +73,7 @@ struct DeleteBetaTesterCommand: CommonParsableCommand {
         switch DeleteStrategy(all, bundleId, betaGroupName, buildId) {
             // Remove a beta tester's ability to test all apps.
             case .all:
-                request = api
+                request = try api
                     .betaTesterIdentifier(matching: email)
                     .flatMap {
                         api.request(APIEndpoint.delete(betaTesterWithId: $0)).eraseToAnyPublisher()
@@ -82,7 +82,7 @@ struct DeleteBetaTesterCommand: CommonParsableCommand {
 
             // Remove a specific beta tester's access to test any builds of one or more apps.
             case .removeFromApp(let bundleId):
-                request = api
+                request = try api
                     .betaTesterIdentifier(matching: email)
                     .combineLatest(api.getAppResourceIdsFrom(bundleIds: [bundleId]))
                     .flatMap {
@@ -92,7 +92,7 @@ struct DeleteBetaTesterCommand: CommonParsableCommand {
 
             // Remove a specific beta tester from one or more beta groups, revoking their access to test builds associated with those groups.
             case .removeFromGroup(let betaGroupName):
-                request = api
+                request = try api
                     .betaTesterIdentifier(matching: email)
                     .combineLatest(try api.betaGroupIdentifier(matching: betaGroupName))
                     .flatMap {
@@ -105,7 +105,7 @@ struct DeleteBetaTesterCommand: CommonParsableCommand {
 
             // Remove access to test a specific build from one or more individually assigned testers.
             case .removeFromBuild(let buildId):
-                request = api
+                request = try api
                     .betaTesterIdentifier(matching: email)
                     .flatMap {
                         api.request(APIEndpoint.remove(
