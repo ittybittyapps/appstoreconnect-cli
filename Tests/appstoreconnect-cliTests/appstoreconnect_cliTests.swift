@@ -26,7 +26,7 @@ final class appstoreconnect_cliTests: XCTestCase {
         let data = pipe.fileHandleForReading.readDataToEndOfFile()
         let output = String(data: data, encoding: .utf8)
 
-        XCTAssertEqual(output, "Hello, world!\n")
+        XCTAssertTrue(output!.hasPrefix("OVERVIEW: A utility for interacting with the AppStore Connect API."))
     }
 
     /// Returns path to the built products directory.
