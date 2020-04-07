@@ -10,7 +10,7 @@ public struct TestFlightBetaTestersCommand: ParsableCommand {
         subcommands: [
              CreateBetaTesterCommand.self,
              DeleteBetaTesterCommand.self,
-            // ListBetaTestersCommand.self,
+             ListBetaTestersCommand.self
             // GetBetaTesterInfoCommand.self,
         ])
 
