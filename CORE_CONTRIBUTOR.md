@@ -34,5 +34,5 @@ We work in a high-trust environment which implies that anyone and everyone is ab
 
 We want to keep _AppStoreConnect CLI_ focused and robust. Avoid adding new dependencies to the code base unless absolutely necessary.
 
-[vision]: https://github.com/ittybittyapps/appstoreconnect-cli/VISION.md
-[code-of-conduct]: https://github.com/ittybittyapps/appstoreconnect-cli/CODE_OF_CONDUCT.md
+[vision]: https://github.com/ittybittyapps/appstoreconnect-cli/blob/master/VISION.md
+[code-of-conduct]: https://github.com/ittybittyapps/appstoreconnect-cli/blob/master/CODE_OF_CONDUCT.md
