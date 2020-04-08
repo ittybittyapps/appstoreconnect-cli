@@ -1,24 +1,37 @@
-![App Store Connect CLI - Interact with the App Store Connect API from the command line.](https://user-images.githubusercontent.com/1712450/77729642-4c204080-7053-11ea-9c0b-e21218c70c8c.png)
+![App Store Connect CLI - Interact with the App Store Connect API from the command line.](.github/logo.png)
+# AppStoreConnection CLI
 
+An easy to use command-line tool for interacting with the Apple AppStore Connect API.
 
-## Authentication
-The default location for an `auth.yml` file is `config/auth.yml`. It's format should look like:
+AppStoreConnect CLI lets you interact with the AppStore Connect from the command line.
 
-```yml
-issuerID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-privateKeyID: xxxxxxxxxx
-privateKey: AAAAAAAAAAAAAAAAAAAAAA/BBBBBBBBB/C
+- Manage Users and access.
+- Manage TestFlight Users, Beta Groups, and Builds.
+- TODO: Provision Devices, Certificates, and Bundle IDs.
+- TODO: Download reports.
+
+## Installation
+
+### TODO: Using [Homebrew](http://brew.sh/):
+
+```bash
+brew install appstoreconnect-cli
 ```
 
-If you choose not to put the auth file here you can specify it but using the auth argument:
+### TODO: Using [Mint](https://github.com/yonaskolb/mint):
 
-`appstoreconnect-cli [other-args] auth path/to/auth.yml`
+```bash
+mint install ittybittyapps/appstoreconnect-cli
+```
 
-## Running (Debug)
-The tool can be run by invoking the command:
+### TODO: Using a pre-built binary:
 
-`swift run appstoreconnect-cli [args]`
+You can also install AppStoreConnect-CLI by downloading binaries from the
+[latest GitHub release](https://github.com/ittybittyapps/appstoreconnect-cli/releases/latest).
 
-A convenience script can also invoke this for you by running:
+### Using Swift Package Manager:
 
-`./appstoreconnect-cli [args]`
+
+
+## Usage
+
