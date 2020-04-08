@@ -8,7 +8,7 @@ Before submitting a new GitHub issue, please make sure to:
 - Read other documentation in this repo.
 - Search the [existing issues][issues] for similar issues.
 
-If the above doesn't help, please [submit an issue][issues] via GitHub.
+If the above doesn't help, please [submit an issue][new-issue] via GitHub.
 
 **Note**: If you want to report a regression (something that has worked before, but broke with a new release), please label your issue with the `regression` label. This enables us to quickly detect and fix regressions.
 
@@ -70,6 +70,7 @@ All contributions to this project are also under this license as per [GitHub's T
 <!-- Links: -->
 [readme]: https://github.com/ittybittyapps/appstoreconnect-cli#readme
 [issues]: https://github.com/ittybittyapps/appstoreconnect-cli/issues
+[new-issue]: https://github.com/ittybittyapps/appstoreconnect-cli/issues/new/choose
 [github-terms-contribution]: https://help.github.com/en/github/site-policy/github-terms-of-service#6-contributions-under-repository-license
 [code-of-conduct]: CODE_OF_CONDUCT.md
 [core-contributor]: CORE_CONTRIBUTOR.md
