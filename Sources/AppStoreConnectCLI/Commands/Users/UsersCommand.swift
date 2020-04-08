@@ -6,7 +6,7 @@ import Foundation
 struct UsersCommand: ParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "users",
-        abstract: "User commands",
+        abstract: "Manage users on your App Store Connect team.",
         subcommands: [
             InviteUserCommand.self,
             ListUserInvitationsCommand.self,
