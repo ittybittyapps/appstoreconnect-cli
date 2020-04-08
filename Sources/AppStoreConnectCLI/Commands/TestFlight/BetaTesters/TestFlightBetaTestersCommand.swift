@@ -9,7 +9,7 @@ public struct TestFlightBetaTestersCommand: ParsableCommand {
         abstract: "People who can install and test prerelease builds.",
         subcommands: [
              CreateBetaTesterCommand.self,
-            // DeleteBetaTesterCommand.self,
+             DeleteBetaTesterCommand.self,
             // ListBetaTestersCommand.self,
             // GetBetaTesterInfoCommand.self,
         ])
