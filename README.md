@@ -3,6 +3,9 @@
 
 An easy to use command-line tool for interacting with the Apple AppStore Connect API.
 
+[![MIT License](https://img.shields.io/badge/license-MIT-green.svg?style=flat)][license]
+[![PRs Welcome!](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)][contributing]
+
 AppStoreConnect CLI lets you interact with the AppStore Connect from the command line.
 
 - Manage Users and access.
