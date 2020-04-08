@@ -5,13 +5,14 @@ import Foundation
 
 public struct AppStoreConnectCLI: ParsableCommand {
     public static var configuration = CommandConfiguration(
-        commandName: "appstoreconnect-cli",
+        commandName: "asc",
         abstract: "A utility for interacting with the AppStore Connect API.",
         subcommands: [
             BundleIdsCommand.self,
-            // CertificatesCommand.self,
+            CertificatesCommand.self,
             DevicesCommand.self,
-            // ProfilesCommand.self,
+            ProfilesCommand.self,
+            ReportsCommand.self,
             TestFlightCommand.self,
             UsersCommand.self,
         ])

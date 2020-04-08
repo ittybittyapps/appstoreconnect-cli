@@ -6,7 +6,7 @@ import Foundation
 struct DevicesCommand: ParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "devices",
-        abstract: "Device commands",
+        abstract: "Register devices for development and testing.",
         subcommands: [
             ListDevicesCommand.self,
             ReadDeviceInfoCommand.self,

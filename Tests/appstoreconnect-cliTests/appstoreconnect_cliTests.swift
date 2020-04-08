@@ -12,7 +12,7 @@ final class appstoreconnect_cliTests: XCTestCase {
             return
         }
 
-        let fooBinary = productsDirectory.appendingPathComponent("appstoreconnect-cli")
+        let fooBinary = productsDirectory.appendingPathComponent("asc")
 
         let process = Process()
         process.executableURL = fooBinary
