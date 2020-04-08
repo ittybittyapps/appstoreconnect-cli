@@ -96,4 +96,23 @@ The API private key is expected to be named `AuthKey_<api-key-id>.p8` and locate
 
 The API private key can also be stored in the environment variable `APPSTORE_CONNECT_API_KEY`.
 
+## Contribute to _AppStoreConnect CLI_
+
+Read the [Contribution Guide][contributing] for more information on how to contribute to _AppStoreConnect CLI_.
+
+## Code of Conduct
+
+Help us keep our project diverse, open and inclusive. Please read and follow our [Code of Conduct][code-of-conduct].
+
+## License
+
+This project is licensed under the terms of the MIT license. See the [LICENSE][license] file.
+
+> This project is in no way affiliated with [Apple Inc][apple]. This project is open source under the MIT license, which means you have full access to the source code and can modify it to fit your own needs. _AppStoreConnect CLI_ runs on your own computer or server and does not communicate with any service other than the [Apple AppStore Connect API][appstore-connect-api]. You are responsible for how you use _AppStoreConnect CLI_.
+
 [docs-api-key]: https://developer.apple.com/documentation/appstoreconnectapi/creating_api_keys_for_app_store_connect_api
+[license]: LICENSE
+[contributing]: CONTRIBUTING.md
+[code-of-conduct]: CODE_OF_CONDUCT.md
+[apple]: https://apple.com
+[appstore-connect-api]: https://developer.apple.com/app-store-connect/api/
