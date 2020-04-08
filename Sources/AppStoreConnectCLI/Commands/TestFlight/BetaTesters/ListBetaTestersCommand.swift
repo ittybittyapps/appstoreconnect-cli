@@ -31,8 +31,10 @@ struct ListBetaTestersCommand: CommonParsableCommand {
         case listByGroup(betaGroupName: String)
         case listByBuild(buildId: String)
 
-        init(_ bundleId: String, _ betaGroupName: String, _ buildId: String) {
-            switch (bundleId, betaGroupName, buildId) {
+        typealias ListOptions = (bundleId: String, betaGroupName: String, buildId: String)
+
+        init(options: ListOptions) {
+            switch (options.bundleId, options.betaGroupName, options.buildId) {
                 case (let bundleId, _, _) where !bundleId.isEmpty:
                     self = .listByApp(bundleId: bundleId)
                 case (_, let betaGroupName, _) where !betaGroupName.isEmpty:
@@ -50,7 +52,7 @@ struct ListBetaTestersCommand: CommonParsableCommand {
 
         let request: AnyPublisher<BetaTestersResponse, Error>
 
-        switch ListStrategy(bundleId, betaGroupName, buildId) {
+        switch ListStrategy(options: (bundleId, betaGroupName, buildId)) {
             case .all:
                 request = api.request(APIEndpoint.betaTesters()).eraseToAnyPublisher()
 
@@ -67,13 +69,13 @@ struct ListBetaTestersCommand: CommonParsableCommand {
                 request = try api.betaGroupIdentifier(matching: betaGroupName)
                     .flatMap {
                         api.request(APIEndpoint.betaTesters(
-                            filter: [ListBetaTesters.Filter.betaGroups([$0])])
-                        )
+                            filter: [ListBetaTesters.Filter.betaGroups([$0])]
+                        ))
                     }
                     .eraseToAnyPublisher()
             case .listByBuild(let buildId):
                 request = api.request(APIEndpoint.betaTesters(
-                    filter: [ListBetaTesters.Filter.builds([buildId])]
+                        filter: [ListBetaTesters.Filter.builds([buildId])]
                     ))
                     .eraseToAnyPublisher()
 
