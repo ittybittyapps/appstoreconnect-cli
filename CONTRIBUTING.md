@@ -75,7 +75,6 @@ All contributions to this project are also under this license as per [GitHub's T
 [code-of-conduct]: CODE_OF_CONDUCT.md
 [core-contributor]: CORE_CONTRIBUTOR.md
 [license]: LICENSE
-[vision]: VISION.md
 [apple]: https://apple.com
 [appstore-connect-api]: https://developer.apple.com/app-store-connect/api/
 [good-first-issue]: https://github.com/ittybittyapps/appstoreconnect-cli/labels/good%20first%20issue
