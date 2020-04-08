@@ -13,6 +13,7 @@ public struct TestFlightBetaTestersCommand: ParsableCommand {
              ListBetaTestersCommand.self,
              ListBetaTesterByBuildsCommand.self
             // GetBetaTesterInfoCommand.self,
+             InviteBetaTesterCommand.self
         ])
 
     public init() {
