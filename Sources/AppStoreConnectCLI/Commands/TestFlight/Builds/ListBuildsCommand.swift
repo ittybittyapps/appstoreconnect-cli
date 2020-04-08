@@ -25,7 +25,7 @@ struct ListBuildsCommand: CommonParsableCommand {
                 api.request(APIEndpoint.builds(
                     filter: [ListBuilds.Filter.app([$0])],
                     sort: [ListBuilds.Sort.uploadedDateAscending]
-                )).eraseToAnyPublisher()
+                ))
             }
             .map { $0.data }
             .sink(
