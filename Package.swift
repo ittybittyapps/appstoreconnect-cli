@@ -8,6 +8,12 @@ let package = Package(
     platforms: [
         .macOS(.v10_15)
     ],
+    products: [
+        .executable(
+            name: "asc",
+            targets: ["appstoreconnect-cli"]
+        )
+    ],
     dependencies: [
         .package(
             url: "https://github.com/johnsundell/files.git",
