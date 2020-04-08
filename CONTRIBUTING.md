@@ -55,9 +55,9 @@ After your contribution is merged, it’s not immediately available to all users
 
 Help us keep this project diverse, open and inclusive. Please read and follow our [Code of Conduct][code-of-conduct].
 
-## Above All, Thanks for Your Contributions
+## Thanks for Your Contributions
 
-Thank you for reading to the end, and for taking the time to contribute to the project! 
+Thank you for taking the time to contribute to the project!
 
 ## License
 
