@@ -81,8 +81,10 @@ extension HTTPClient {
             .compactMap { $0.map { $0.id } }
             .eraseToAnyPublisher()
     }
-
-    /// Find a opaque internal identifier for an application that related to this bundle ID.
+    
+    /// Find one opaque internal identifier for an application that related to this bundle ID.
+    ///
+    /// This is an App Store Connect internal identifier; not the reverse-DNS bundleId identifier. Use this for reading, modifying and deleting app resources.
     func appResourceId(matching bundleId: String) -> AnyPublisher<String, Error> {
         let getAppResourceIdRequest = APIEndpoint.apps(
             filters: [ListApps.Filter.bundleId([bundleId])]

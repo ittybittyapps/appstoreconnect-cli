@@ -20,18 +20,12 @@ struct ListBuildsCommand: CommonParsableCommand {
         let api = try makeClient()
 
         _ = api
-            .getAppResourceIdsFrom(bundleIds: [bundleId])
-            .flatMap { (resoureceIds: [String]) -> AnyPublisher<BuildsResponse, Error> in
-                guard let appId = resoureceIds.first else {
-                    fatalError("Can't find a related app with input bundleID")
-                }
-
-                let endpoint = APIEndpoint.builds(
-                    filter: [ListBuilds.Filter.app([appId])],
+            .appResourceIdMatching(bundleId: bundleId)
+            .flatMap {
+                api.request(APIEndpoint.builds(
+                    filter: [ListBuilds.Filter.app([$0])],
                     sort: [ListBuilds.Sort.uploadedDateAscending]
-                )
-
-                return api.request(endpoint).eraseToAnyPublisher()
+                )).eraseToAnyPublisher()
             }
             .map { $0.data }
             .sink(
