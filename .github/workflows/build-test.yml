@@ -1,4 +1,4 @@
-name: Swift
+name: Build and Test
 env:
   DEVELOPER_DIR: /Applications/Xcode_11.4.app/Contents/Developer
 on:
@@ -9,9 +9,7 @@ on:
 
 jobs:
   build:
-
     runs-on: macos-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Build
