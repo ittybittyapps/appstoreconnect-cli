@@ -26,8 +26,7 @@ extension HTTPClient {
 
         return self.request(endpoint)
             .tryMap { response throws -> String in
-                let groupIds = response.data.map(\.id)
-                guard groupIds.count == 1, let id = groupIds.first else {
+                guard response.data.count == 1, let id = response.data.first?.id else {
                     throw BetaGroupError.couldntFindBetaGroup
                 }
 

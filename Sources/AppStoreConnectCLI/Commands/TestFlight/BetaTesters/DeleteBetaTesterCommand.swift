@@ -37,7 +37,7 @@ struct DeleteBetaTesterCommand: CommonParsableCommand {
         var description: String {
             switch self {
                 case .invalidInput:
-                    return "Invalid input, one of these options or flag is required when deleting a tester"
+                    return "Invalid input, one of these options(--bundleId, --beta-group-name, --build-Id) or flag(--all) is required when deleting a tester"
             }
         }
     }
@@ -49,8 +49,10 @@ struct DeleteBetaTesterCommand: CommonParsableCommand {
         case removeFromBuild(buildId: String)
         case error(error: Error)
 
-        init(_ all: Bool, _ bundleId: String, _ betaGroupName: String, _ buildId: String) {
-            switch (all, bundleId, betaGroupName, buildId) {
+        typealias DeleteOptions = (all: Bool, bundleId: String, betaGroupName: String, buildId: String)
+
+        init(options: DeleteOptions) {
+            switch (options.all, options.bundleId, options.betaGroupName, options.buildId) {
                 case (true, _, _, _):
                     self = .all
                 case (false, let bundleId, _, _) where !bundleId.isEmpty:
@@ -70,7 +72,7 @@ struct DeleteBetaTesterCommand: CommonParsableCommand {
 
         let request: AnyPublisher<Void, Error>
 
-        switch DeleteStrategy(all, bundleId, betaGroupName, buildId) {
+        switch DeleteStrategy(options: (all, bundleId, betaGroupName, buildId)) {
             // Remove a beta tester's ability to test all apps.
             case .all:
                 request = try api

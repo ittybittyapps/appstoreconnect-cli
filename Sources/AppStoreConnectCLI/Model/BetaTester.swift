@@ -66,8 +66,7 @@ extension HTTPClient {
 
         return self.request(endpoint)
             .tryMap { response throws -> String in
-                let testerIds = response.data.map(\.id)
-                guard testerIds.count == 1, let id = testerIds.first else {
+                guard response.data.count == 1, let id = response.data.first?.id else {
                     throw BetaTesterError.couldntFindBetaTester
                 }
 
