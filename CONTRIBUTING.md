@@ -65,7 +65,7 @@ This project is licensed under the terms of the MIT license. See the [LICENSE][l
 
 All contributions to this project are also under this license as per [GitHub's Terms of Service][github-terms-contribution].
 
-> This project is in no way affiliated with [Apple Inc][apple]. This project is open source under the MIT license, which means you have full access to the source code and can modify it to fit your own needs. _AppStoreConnect CLI_ runs on your own computer or server and does not communicate with any service other than the [Apple AppStore Connect API](appstore-connect-api). You are responsible for how you use _AppStoreConnect CLI_.
+> This project is in no way affiliated with [Apple Inc][apple]. This project is open source under the MIT license, which means you have full access to the source code and can modify it to fit your own needs. _AppStoreConnect CLI_ runs on your own computer or server and does not communicate with any service other than the [Apple AppStore Connect API][appstore-connect-api]. You are responsible for how you use _AppStoreConnect CLI_.
 
 <!-- Links: -->
 [readme]: https://github.com/ittybittyapps/appstoreconnect-cli#readme
