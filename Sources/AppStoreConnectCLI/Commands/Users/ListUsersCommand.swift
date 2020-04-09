@@ -74,7 +74,6 @@ public struct ListUsersCommand: CommonParsableCommand {
             filter: filters,
             next: nil)
 
-
         _ = api.request(request)
             .map(User.fromAPIResponse)
             .sink(

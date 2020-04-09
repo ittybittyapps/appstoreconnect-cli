@@ -13,7 +13,7 @@ struct ListUserInvitationsCommand: CommonParsableCommand {
     @OptionGroup()
     var common: CommonOptions
 
-    @Option(help: "Limit the number visible apps to return (maximum 200).")
+    @Option(help: "Limit the number visible apps to return (maximum 50).")
     var limit: Int?
 
     @Option(parsing: .upToNextOption, help: "Filter the results by the specified username")
