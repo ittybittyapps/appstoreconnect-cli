@@ -15,7 +15,7 @@ public struct ListUsersCommand: CommonParsableCommand {
     @OptionGroup()
     var common: CommonOptions
 
-    @Option(help: "Limit the number of users to return (maximum 200).")
+    @Option(help: "Limit the number visible apps to return (maximum 50).")
     var limit: Int?
 
     @Option(
@@ -69,10 +69,11 @@ public struct ListUsersCommand: CommonParsableCommand {
             include: includeVisibleApps
                 ? [ListUsers.Include.visibleApps]
                 : nil,
-            limit: nil, // Limit of visibleApps if included, not limit of users
+            limit: limit.map { [ListUsers.Limit.visibleApps($0)] } ?? [], // Limit of visibleApps if included, not limit of users
             sort: [sort].compactMap { $0 },
             filter: filters,
             next: nil)
+
 
         _ = api.request(request)
             .map(User.fromAPIResponse)
