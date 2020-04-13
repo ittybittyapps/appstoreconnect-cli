@@ -16,7 +16,7 @@ public struct ListUsersCommand: CommonParsableCommand {
     var common: CommonOptions
 
     @Option(help: "Limit the number visible apps to return (maximum 50).")
-    var limit: Int?
+    var limitVisibleApps: Int?
 
     @Option(
         parsing: SingleValueParsingStrategy.unconditional,
@@ -69,7 +69,7 @@ public struct ListUsersCommand: CommonParsableCommand {
             include: includeVisibleApps
                 ? [ListUsers.Include.visibleApps]
                 : nil,
-            limit: limit.map { [ListUsers.Limit.visibleApps($0)] } ?? [], // Limit of visibleApps if included, not limit of users
+            limit: limitVisibleApps.map { [ListUsers.Limit.visibleApps($0)] } ?? [],
             sort: [sort].compactMap { $0 },
             filter: filters,
             next: nil)

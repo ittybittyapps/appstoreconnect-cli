@@ -14,7 +14,7 @@ struct ListUserInvitationsCommand: CommonParsableCommand {
     var common: CommonOptions
 
     @Option(help: "Limit the number visible apps to return (maximum 50).")
-    var limit: Int?
+    var limitVisibleApps: Int?
 
     @Option(parsing: .upToNextOption, help: "Filter the results by the specified username")
     var filterEmail: [String]
@@ -43,7 +43,7 @@ struct ListUserInvitationsCommand: CommonParsableCommand {
         let api = try makeClient()
 
         let endpoint = APIEndpoint.invitedUsers(
-            limit: limit.map { [ListInvitedUsers.Limit.visibleApps($0)] } ?? [],
+            limit: limitVisibleApps.map { [ListInvitedUsers.Limit.visibleApps($0)] } ?? [],
             filter: filters
         )
 
