@@ -13,16 +13,13 @@ struct ListBetaTestersCommand: CommonParsableCommand {
     @OptionGroup()
     var common: CommonOptions
 
-    @Option(default: "",
-            help: "The bundle ID of an application. (eg. com.example.app)")
+    @Option(help: "The bundle ID of an application. (eg. com.example.app)")
     var bundleId: String?
 
-    @Option(default: "",
-            help: "The name of the beta group")
+    @Option(help: "The name of the beta group")
     var betaGroupName: String?
 
-    @Option(default: "",
-            help: "The ID of one build of an application")
+    @Option(help: "The ID of one build of an application")
     var buildId: String?
 
     private enum ListStrategy {

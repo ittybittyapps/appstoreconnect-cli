@@ -47,7 +47,7 @@ extension BetaTester: TableInfoProvider {
             lastName,
             inviteType,
             betaGroups.compactMap { $0.attributes?.name }.joined(separator: ", ") ,
-            apps.compactMap { $0.name }.joined(separator: ", ")
+            apps.compactMap { $0.bundleId }.joined(separator: ", ")
         ]
     }
 }
