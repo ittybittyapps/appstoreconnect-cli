@@ -69,7 +69,7 @@ public struct ListUsersCommand: CommonParsableCommand {
             include: includeVisibleApps
                 ? [ListUsers.Include.visibleApps]
                 : nil,
-            limit: limitVisibleApps.map { [ListUsers.Limit.visibleApps($0)] } ?? [],
+            limit: limitVisibleApps.map { [ListUsers.Limit.visibleApps($0)] },
             sort: [sort].compactMap { $0 },
             filter: filters,
             next: nil)
