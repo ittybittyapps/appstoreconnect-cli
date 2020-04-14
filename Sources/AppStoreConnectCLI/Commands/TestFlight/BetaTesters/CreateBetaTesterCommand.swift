@@ -84,7 +84,7 @@ struct CreateBetaTesterCommand: CommonParsableCommand {
             .map(\.data)
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.ResultRenderer(format: common.outputFormat).render
+                receiveValue: { _ in }
             )
     }
 }
