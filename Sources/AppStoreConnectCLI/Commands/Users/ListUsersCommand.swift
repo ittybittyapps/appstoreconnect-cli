@@ -70,8 +70,8 @@ public struct ListUsersCommand: CommonParsableCommand {
         let limits = [
           limitUsers.map(ListUsers.Limit.users),
           limitVisibleApps.map(ListUsers.Limit.visibleApps)
-          ]
-          .compactMap { $0 }
+        ]
+        .compactMap { $0 }
 
         let request = APIEndpoint.users(
             fields: nil,
