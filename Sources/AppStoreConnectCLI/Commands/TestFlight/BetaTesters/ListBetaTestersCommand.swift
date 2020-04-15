@@ -87,8 +87,9 @@ struct ListBetaTestersCommand: CommonParsableCommand {
         }
 
         _ = request
-            .map(\.data)
-            .flatMap { api.fromAPIBetaTesters(betaTesters: $0) }
+            .map { response in
+                response.data.map { BetaTester.init($0, response.include) }
+            }
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,
                 receiveValue: Renderers.ResultRenderer(format: common.outputFormat).render
