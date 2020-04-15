@@ -15,24 +15,21 @@ struct BundleId: ResultRenderable {
 // MARK: - API conveniences
 
 extension BundleId {
-    init(_ apiBundleId: AppStoreConnect_Swift_SDK.BundleId) {
-        let attributes = apiBundleId.attributes
+    init(_ attributes: AppStoreConnect_Swift_SDK.BundleId.Attributes) {
         self.init(
-            identifier: attributes?.identifier,
-            name: attributes?.name,
-            platform: attributes?.platform,
-            seedId: attributes?.seedId
+            identifier: attributes.identifier,
+            name: attributes.name,
+            platform: attributes.platform,
+            seedId: attributes.seedId
         )
     }
 
-    init(response: AppStoreConnect_Swift_SDK.BundleIdResponse) {
-        let attributes = response.data.attributes
-        self.init(
-            identifier: attributes?.identifier,
-            name: attributes?.name,
-            platform: attributes?.platform,
-            seedId: attributes?.seedId
-        )
+    init(_ apiBundleId: AppStoreConnect_Swift_SDK.BundleId) {
+        self.init(apiBundleId.attributes!)
+    }
+
+    init(_ response: AppStoreConnect_Swift_SDK.BundleIdResponse) {
+        self.init(response.data)
     }
 }
 
