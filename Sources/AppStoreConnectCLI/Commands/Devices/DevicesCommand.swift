@@ -9,10 +9,10 @@ struct DevicesCommand: ParsableCommand {
         abstract: "Register devices for development and testing.",
         subcommands: [
             ListDevicesCommand.self,
+            ModifyDeviceCommand.self,
             ReadDeviceInfoCommand.self,
+            RegisterDeviceCommand.self
             /* TODO
-            RegisterDeviceCommand.self, // Register a new device for app development.
-            UpdateDeviceCommand.self, // Update the name or status of a specific device.
             SyncDevicesCommand.self, // Synchronise devices with configuration file
             */
         ],

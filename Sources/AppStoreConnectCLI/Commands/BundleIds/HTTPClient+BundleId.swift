@@ -17,9 +17,7 @@ extension HTTPClient {
         }
     }
 
-    /// Find the opaque internal identifier for a bundle ID matching `identifier`.
-    ///
-    ///  not the reverse-DNS bundleId identifier. Use this for reading, modifying and deleting bundleId resources.
+    /// Find the opaque internal identifier for a bundle ID matching `identifier`.  Use this for reading, modifying and deleting BundleId resources.
     /// - parameter identifier: The  reverse-DNS style Bundle Identifier.
     /// - returns: The App Store Connect API resource identifier for the Bundle Identifier.
     func bundleIdResourceId(matching identifier: String) throws -> AnyPublisher<String, Error> {
