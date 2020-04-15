@@ -41,10 +41,10 @@ extension BundleId {
 extension BundleId: TableInfoProvider {
     static func tableColumns() -> [TextTableColumn] {
         return [
-            TextTableColumn(header: "identifier"),
-            TextTableColumn(header: "name"),
-            TextTableColumn(header: "platform"),
-            TextTableColumn(header: "seedId")
+            TextTableColumn(header: "Identifier"),
+            TextTableColumn(header: "Name"),
+            TextTableColumn(header: "Platform"),
+            TextTableColumn(header: "Seed ID")
         ]
     }
 
