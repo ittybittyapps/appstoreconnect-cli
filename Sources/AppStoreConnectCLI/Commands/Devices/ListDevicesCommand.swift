@@ -4,13 +4,11 @@ import AppStoreConnect_Swift_SDK
 import ArgumentParser
 import Combine
 import Foundation
-import SwiftyTextTable
-import Yams
 
 struct ListDevicesCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "list",
-        abstract: "Find and list devices")
+        abstract: "Find and list devices.")
 
     @OptionGroup()
     var common: CommonOptions
@@ -19,30 +17,47 @@ struct ListDevicesCommand: CommonParsableCommand {
     var limit: Int?
 
     @Option(
-        parsing: SingleValueParsingStrategy.unconditional,
-        help: "Sort the results using the provided key (\(Devices.Sort.allCases.map { $0.rawValue }.joined(separator: ", "))).\nThe `-` prefix indicates descending order."
+        parsing: .unconditional,
+        help: ArgumentHelp(
+            "Sort the results using the provided key \(Devices.Sort.allCases).",
+            discussion: "The `-` prefix indicates descending order."
+        )
     )
     var sort: Devices.Sort?
 
     @Option(
         parsing: .upToNextOption,
-        help: "Filter the results by the specified device name.",
+        help: ArgumentHelp(
+            "Filter the results by the specified device name.",
+            valueName: "name"
+        ),
         transform: { $0.lowercased() }
     )
     var filterName: [String]
 
     @Option(
         parsing: .upToNextOption,
-        help: ArgumentHelp(stringLiteral: "Filter the results by the specified device platform (\(BundleIdPlatform.allCases.map { $0.rawValue.lowercased() }.joined(separator: ", "))).")
+        help: ArgumentHelp(
+            "Filter the results by the specified device platform \(Platform.allCases).",
+            valueName: "platform"
+        )
     )
-    var filterPlatform: [BundleIdPlatform]
+    var filterPlatform: [Platform]
 
-    @Option(help: "Filter the results by the specified device status (\(DeviceStatus.allCases.map { $0.rawValue.lowercased() }.joined(separator: ", "))).")
+    @Option(
+        help: ArgumentHelp(
+            "Filter the results by the specified device status \(DeviceStatus.allCases).",
+            valueName: "status"
+        )
+    )
     var filterStatus: DeviceStatus?
 
     @Option(
         parsing: .upToNextOption,
-        help: "Filter the results by the specified device udid.",
+        help: ArgumentHelp(
+            "Filter the results by the specified device udid.",
+            valueName: "udid"
+        ),
         transform: { $0.lowercased() }
     )
     var filterUDID: [String]
@@ -53,7 +68,7 @@ struct ListDevicesCommand: CommonParsableCommand {
         var filters = [Devices.Filter]()
 
         if !filterName.isEmpty {
-            filters.append(Devices.Filter.name(filterName))
+            filters.append(.name(filterName))
         }
 
         if !filterPlatform.isEmpty {
@@ -61,28 +76,25 @@ struct ListDevicesCommand: CommonParsableCommand {
             // rather than a Platform, so there is no support for
             // tvOs or watchOs.
             // This appears to be an API issue.
-            filters.append(Devices.Filter.platform(filterPlatform.map { $0 == .iOS ? Platform.ios : Platform.macOs}))
+            filters.append(.platform(filterPlatform))
         }
 
         if !filterUDID.isEmpty {
-            filters.append(Devices.Filter.udid(filterUDID))
+            filters.append(.udid(filterUDID))
         }
 
         if let filterStatus = filterStatus {
-            filters.append(Devices.Filter.status([filterStatus]))
+            filters.append(.status([filterStatus]))
         }
 
-        let request = APIEndpoint.listDevices(fields: nil,
-                                              filter: filters,
-                                              sort: [sort].compactMap { $0 },
-                                              limit: limit,
-                                              next: nil)
+        let request = APIEndpoint.listDevices(
+            filter: filters,
+            sort: [sort].compactMap { $0 },
+            limit: limit
+        )
 
-        let _ = api.request(request)
-            .map { $0.data.map(Device.fromAPIDevice) }
-            .sink(
-                receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.ResultRenderer(format: common.outputFormat).render
-            )
+        _ = api.request(request)
+            .map { $0.data.map(Device.init) }
+            .renderResult(format: common.outputFormat)
     }
 }

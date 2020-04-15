@@ -5,12 +5,11 @@ import AppStoreConnect_Swift_SDK
 import SwiftyTextTable
 
 struct Device: ResultRenderable {
-    var id: String
+    var udid: String?
     var addedDate: Date?
     var name: String?
     var deviceClass: DeviceClass?
     var model: String?
-    var udid: String?
     var platform: BundleIdPlatform?
     var status: DeviceStatus?
 }
@@ -20,16 +19,24 @@ struct Device: ResultRenderable {
 // MARK: - API conveniences
 
 extension Device {
-    static func fromAPIDevice(_ apiDevice: AppStoreConnect_Swift_SDK.Device) -> Device {
-        let attributes = apiDevice.attributes
-        return Device(id: apiDevice.id,
-                      addedDate: attributes.addedDate,
-                      name: attributes.name,
-                      deviceClass: attributes.deviceClass,
-                      model: attributes.model,
-                      udid: attributes.udid,
-                      platform: attributes.platform,
-                      status: attributes.status)
+    init( _ attributes: AppStoreConnect_Swift_SDK.Device.Attributes) {
+        self.init(
+            udid: attributes.udid,
+            addedDate: attributes.addedDate,
+            name: attributes.name,
+            deviceClass: attributes.deviceClass,
+            model: attributes.model,
+            platform: attributes.platform,
+            status: attributes.status
+        )
+    }
+
+    init(_ apiDevice: AppStoreConnect_Swift_SDK.Device) {
+        self.init(apiDevice.attributes)
+    }
+
+    init(_ response: AppStoreConnect_Swift_SDK.DeviceResponse) {
+        self.init(response.data)
     }
 }
 
@@ -38,12 +45,11 @@ extension Device {
 extension Device: TableInfoProvider {
     static func tableColumns() -> [TextTableColumn] {
         return [
-            TextTableColumn(header: "ID"),
-            TextTableColumn(header: "Date Added"),
+            TextTableColumn(header: "UDID"),
             TextTableColumn(header: "Name"),
+            TextTableColumn(header: "Date Added"),
             TextTableColumn(header: "Device Class"),
             TextTableColumn(header: "Model"),
-            TextTableColumn(header: "UDID"),
             TextTableColumn(header: "Platform"),
             TextTableColumn(header: "Status"),
         ]
@@ -51,14 +57,13 @@ extension Device: TableInfoProvider {
 
     var tableRow: [CustomStringConvertible] {
         return [
-            id,
-            addedDate?.formattedDate ?? "",
-            name ?? "",
-            deviceClass?.rawValue ?? "",
-            model ?? "",
-            udid ?? "",
-            platform?.rawValue ?? "",
-            status?.rawValue ?? ""
-        ]
+          udid,
+          name,
+          addedDate?.formattedDate,
+          deviceClass?.rawValue,
+          model,
+          platform?.rawValue,
+          status?.rawValue
+        ].map { $0 ?? "" }
     }
 }

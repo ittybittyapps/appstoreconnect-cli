@@ -23,9 +23,7 @@ struct DeleteBundleIdCommand: CommonParsableCommand {
 
         _ = try api
             .bundleIdResourceId(matching: identifier)
-            .flatMap { internalId in
-                api.request(APIEndpoint.delete(bundleWithId: internalId))
-            }
+            .flatMap { api.request(APIEndpoint.delete(bundleWithId: $0)) }
             .renderResult(format: common.outputFormat)
     }
 }

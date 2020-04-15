@@ -7,7 +7,7 @@ import Foundation
 extension BundleIdPlatform: CaseIterable, ExpressibleByArgument, CustomStringConvertible {
     public typealias AllCases = [BundleIdPlatform]
     public static var allCases: AllCases {
-        return [.iOS, .macOS, .universal]
+        [.iOS, .macOS, .universal]
     }
 
     public init?(argument: String) {
@@ -15,6 +15,6 @@ extension BundleIdPlatform: CaseIterable, ExpressibleByArgument, CustomStringCon
     }
 
     public var description: String {
-        return self.rawValue.lowercased()
+        rawValue.lowercased()
     }
 }
