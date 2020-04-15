@@ -20,7 +20,8 @@ struct RegisterBundleIdCommand: CommonParsableCommand {
     var name: String
 
     @Option(
-        help: "The platform of the bundle identifier (\(BundleIdPlatform.allCases.map { $0.rawValue.lowercased() }.joined(separator: ", ")))."
+        default: .universal,
+        help: "The platform of the bundle identifier \(BundleIdPlatform.allCases)."
     )
     var platform: BundleIdPlatform
 
