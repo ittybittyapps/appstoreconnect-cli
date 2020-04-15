@@ -22,9 +22,7 @@ struct ReadBundleIdCommand: CommonParsableCommand {
 
         _ = try api
             .bundleIdResourceId(matching: identifier)
-            .flatMap { internalId in
-                api.request(APIEndpoint.readBundleIdInformation(id: internalId))
-            }
+            .flatMap { api.request(APIEndpoint.readBundleIdInformation(id: $0)) }
             .map(BundleId.init)
             .renderResult(format: common.outputFormat)
     }

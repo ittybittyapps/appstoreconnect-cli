@@ -26,9 +26,7 @@ struct ModifyBundleIdCommand: CommonParsableCommand {
 
         _ = try api
             .bundleIdResourceId(matching: identifier)
-            .flatMap { internalId in
-                api.request(APIEndpoint.modifyBundleId(id: internalId, name: self.name))
-            }
+            .flatMap { api.request(APIEndpoint.modifyBundleId(id: $0, name: self.name)) }
             .map(BundleId.init)
             .renderResult(format: common.outputFormat)            
     }
