@@ -21,14 +21,11 @@ struct ReadBundleIdCommand: CommonParsableCommand {
         let api = try makeClient()
 
         _ = try api
-            .internalId(matching: identifier)
+            .bundleIdResourceId(matching: identifier)
             .flatMap { internalId in
                 api.request(APIEndpoint.readBundleIdInformation(id: internalId)).eraseToAnyPublisher()
             }
-            .map(BundleId.init)
-            .sink(
-                receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.ResultRenderer(format: common.outputFormat).render
-            )
+        .map(BundleId.init)
+        .renderResult(format: common.outputFormat)
     }
 }

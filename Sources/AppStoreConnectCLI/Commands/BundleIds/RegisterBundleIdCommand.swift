@@ -13,14 +13,15 @@ struct RegisterBundleIdCommand: CommonParsableCommand {
     @OptionGroup()
     var common: CommonOptions
 
-    @Option(help: "The reverse-DNS bundle ID identifier. Must be unique. (eg. com.example.app)")
+    @Argument(help: "The reverse-DNS bundle ID identifier. Must be unique. (eg. com.example.app)")
     var identifier: String
 
-    @Option(help: "The new name for the bundle identifier.")
+    @Argument(help: "The new name for the bundle identifier.")
     var name: String
 
     @Option(
-        help: "The platform of the bundle identifier (\(BundleIdPlatform.allCases.map { $0.rawValue.lowercased() }.joined(separator: ", ")))."
+        default: .universal,
+        help: "The platform of the bundle identifier \(BundleIdPlatform.allCases)."
     )
     var platform: BundleIdPlatform
 
@@ -30,10 +31,7 @@ struct RegisterBundleIdCommand: CommonParsableCommand {
         let request = APIEndpoint.registerNewBundleId(id: identifier, name: name, platform: platform)
 
         _ = api.request(request)
-            .map(BundleId.init(response:))
-            .sink(
-                receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.ResultRenderer(format: common.outputFormat).render
-            )
+            .map(BundleId.init)
+            .renderResult(format: common.outputFormat)
     }
 }

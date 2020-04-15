@@ -29,10 +29,7 @@ struct ListBundleIdsCommand: CommonParsableCommand {
 
         _ = api.request(request)
             .map { $0.data.map(BundleId.init) }
-            .sink(
-                receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.ResultRenderer(format: common.outputFormat).render
-            )
+            .renderResult(format: common.outputFormat)            
     }
 }
 
