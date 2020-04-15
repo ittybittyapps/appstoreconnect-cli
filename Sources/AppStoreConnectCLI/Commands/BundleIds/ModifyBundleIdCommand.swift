@@ -15,10 +15,10 @@ struct ModifyBundleIdCommand: CommonParsableCommand {
     @OptionGroup()
     var common: CommonOptions
 
-    @Option(help: "The reverse-DNS bundle ID identifier. (eg. com.example.app)")
+    @Argument(help: "The reverse-DNS bundle ID identifier. (eg. com.example.app)")
     var identifier: String
 
-    @Option(help: "The new name for the bundle identifier.")
+    @Argument(help: "The new name for the bundle identifier.")
     var name: String
 
     func run() throws {
