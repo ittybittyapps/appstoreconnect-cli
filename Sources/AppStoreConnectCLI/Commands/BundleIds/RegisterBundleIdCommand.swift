@@ -31,10 +31,7 @@ struct RegisterBundleIdCommand: CommonParsableCommand {
         let request = APIEndpoint.registerNewBundleId(id: identifier, name: name, platform: platform)
 
         _ = api.request(request)
-            .map(BundleId.init(response:))
-            .sink(
-                receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.ResultRenderer(format: common.outputFormat).render
-            )
+            .map(BundleId.init)
+            .renderResult(format: common.outputFormat)
     }
 }

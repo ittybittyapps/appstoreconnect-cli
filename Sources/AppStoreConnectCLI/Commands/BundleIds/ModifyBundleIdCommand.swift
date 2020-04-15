@@ -30,9 +30,6 @@ struct ModifyBundleIdCommand: CommonParsableCommand {
                 api.request(APIEndpoint.modifyBundleId(id: internalId, name: self.name)).eraseToAnyPublisher()
             }
             .map(BundleId.init)
-            .sink(
-                receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.ResultRenderer(format: common.outputFormat).render
-            )
+            .renderResult(format: common.outputFormat)            
     }
 }
