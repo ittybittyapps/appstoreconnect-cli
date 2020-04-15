@@ -57,13 +57,13 @@ extension Device: TableInfoProvider {
 
     var tableRow: [CustomStringConvertible] {
         return [
-            udid ?? "",
-            name ?? "",
-            addedDate?.formattedDate ?? "",
-            deviceClass?.rawValue ?? "",
-            model ?? "",
-            platform?.rawValue ?? "",
-            status?.rawValue ?? ""
-        ]
+          udid,
+          name,
+          addedDate?.formattedDate,
+          deviceClass?.rawValue,
+          model,
+          platform?.rawValue,
+          status?.rawValue
+        ].map { $0 ?? "" }
     }
 }
