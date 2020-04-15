@@ -18,6 +18,9 @@ public struct ListUsersCommand: CommonParsableCommand {
     @Option(help: "Limit the number visible apps to return (maximum 50).")
     var limitVisibleApps: Int?
 
+    @Option(help: "Limit the number of users to return (maximum 200).")
+    var limitUsers: Int?
+
     @Option(
         parsing: SingleValueParsingStrategy.unconditional,
         help: "Sort the results using the provided key (\(ListUsers.Sort.allCases.map { $0.rawValue }.joined(separator: ", "))).\nThe `-` prefix indicates descending order."
@@ -64,12 +67,18 @@ public struct ListUsersCommand: CommonParsableCommand {
             filters.append(ListUsers.Filter.visibleApps(filterVisibleApps.compactMap { $0 }))
         }
 
+        let limits = [
+          limitUsers.map(ListUsers.Limit.users),
+          limitVisibleApps.map(ListUsers.Limit.visibleApps)
+          ]
+          .compactMap { $0 }
+
         let request = APIEndpoint.users(
             fields: nil,
             include: includeVisibleApps
                 ? [ListUsers.Include.visibleApps]
                 : nil,
-            limit: limitVisibleApps.map { [ListUsers.Limit.visibleApps($0)] },
+            limit: limits,
             sort: [sort].compactMap { $0 },
             filter: filters,
             next: nil)
