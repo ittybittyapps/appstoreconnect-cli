@@ -22,7 +22,7 @@ struct DeleteBundleIdCommand: CommonParsableCommand {
         let api = try makeClient()
 
         _ = try api
-            .internalId(matching: identifier)
+            .bundleIdResourceId(matching: identifier)
             .flatMap { internalId in
                 api.request(APIEndpoint.delete(bundleWithId: internalId)).eraseToAnyPublisher()
             }

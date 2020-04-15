@@ -57,28 +57,3 @@ extension BundleId: TableInfoProvider {
         ]
     }
 }
-
-extension HTTPClient {
-
-    /// Find the opaque internal identifier for this bundle ID.
-    ///
-    /// This is an App Store Connect internal identifier; not the reverse-DNS bundleId identifier. Use this for reading, modifying and deleting bundleId resources.
-    func internalId(matching identifier: String) throws -> AnyPublisher<String, Error> {
-        let request = APIEndpoint.listBundleIds(
-            filter: [
-                BundleIds.Filter.identifier([identifier])
-            ]
-        )
-
-        return self.request(request)
-            .map { $0.data.filter { $0.attributes?.identifier == identifier } }
-            .compactMap { response -> String? in
-                if response.count == 1 {
-                    return response.first?.id
-                }
-                fatalError("Bundle ID identifier '\(identifier)' not unique or not found")
-            }
-            .eraseToAnyPublisher()
-    }
-
-}
