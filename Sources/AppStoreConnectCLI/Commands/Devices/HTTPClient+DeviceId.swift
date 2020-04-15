@@ -17,7 +17,7 @@ extension HTTPClient {
         }
     }
 
-    /// Find the opaque internal identifier for a Deviec  matching `udid`. Use this for reading, modifying and deleting Device resources.
+    /// Find the opaque internal resource identifier for a Device  matching `udid`. Use this for reading, modifying and deleting Device resources.
     ///
     /// - parameter udid: The  device UDID string.
     /// - returns: The App Store Connect API resource identifier for the Device UDID.
