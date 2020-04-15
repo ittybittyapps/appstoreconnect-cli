@@ -1,11 +1,11 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
-import Foundation
+import AppStoreConnect_Swift_SDK
 import CodableCSV
 import Combine
+import Foundation
 import SwiftyTextTable
 import Yams
-import AppStoreConnect_Swift_SDK
 
 protocol Renderer {
     associatedtype Input
@@ -13,14 +13,25 @@ protocol Renderer {
     func render(_ input: Input)
 }
 
+private final class StandardErrorOutputStream: TextOutputStream {
+    func write(_ string: String) {
+        FileHandle.standardError.write(Data(string.utf8))
+    }
+}
+
 enum Renderers {
+
+    static func null(_ input: Void) {}
+
+    private static var errorOutput = StandardErrorOutputStream()
+
     struct CompletionRenderer: Renderer {
         func render(_ input: Subscribers.Completion<Error>) {
             switch input {
                 case .finished:
                     break
                 case .failure(let error):
-                    print("Completed with error: \(error)")
+                    print("Error: \(error.localizedDescription)", to: &errorOutput)
             }
         }
     }
