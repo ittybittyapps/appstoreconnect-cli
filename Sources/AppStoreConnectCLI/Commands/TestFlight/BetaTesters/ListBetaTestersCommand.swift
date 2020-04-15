@@ -14,13 +14,13 @@ struct ListBetaTestersCommand: CommonParsableCommand {
     var common: CommonOptions
 
     @Option(help: "The bundle ID of an application. (eg. com.example.app)")
-    var bundleId: String?
+    var filterBundleId: String?
 
     @Option(help: "The name of the beta group")
-    var betaGroupName: String?
+    var filterGroupName: String?
 
     @Option(help: "The ID of one build of an application")
-    var buildId: String?
+    var filterBuildId: String?
 
     private enum ListStrategy {
         case all
@@ -51,7 +51,7 @@ struct ListBetaTestersCommand: CommonParsableCommand {
 
         let includes = [ListBetaTesters.Include.apps, ListBetaTesters.Include.betaGroups]
 
-        switch ListStrategy(options: (bundleId, betaGroupName, buildId)) {
+        switch ListStrategy(options: (filterBundleId, filterGroupName, filterBuildId)) {
             case .all:
                 request = api
                     .request(APIEndpoint.betaTesters(include: includes))
