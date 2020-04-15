@@ -28,8 +28,8 @@ struct ModifyDeviceCommand: CommonParsableCommand {
 
         _ = try api
             .deviceUDIDResourceId(matching: udid)
-            .flatMap { identifier in
-                api.request(APIEndpoint.modifyRegisteredDevice(id: identifier, name: self.name, status: self.status))
+            .flatMap {
+                api.request(APIEndpoint.modifyRegisteredDevice(id: $0, name: self.name, status: self.status))
             }
             .map(Device.init)
             .renderResult(format: common.outputFormat)
