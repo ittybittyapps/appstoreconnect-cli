@@ -19,7 +19,7 @@ extension HTTPClient {
 
     /// Find the opaque internal resource identifier for a Device  matching `udid`. Use this for reading, modifying and deleting Device resources.
     ///
-    /// - parameter udid: The  device UDID string.
+    /// - parameter udid: The device UDID string.
     /// - returns: The App Store Connect API resource identifier for the Device UDID.
     func deviceUDIDResourceId(matching udid: String) throws -> AnyPublisher<String, Error> {
         let request = APIEndpoint.listDevices(
