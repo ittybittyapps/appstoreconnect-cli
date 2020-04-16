@@ -19,6 +19,10 @@ struct ListBetaTestersCommand: CommonParsableCommand {
     @Option(help: "The name of the beta group")
     var filterGroupName: String?
 
+    @Option(default: 10,
+            help: "Number of included related resources to return.")
+    var relatedResourcesLimit: Int
+
     private enum ListBetaTesterError: Error, CustomStringConvertible {
         case multipleFilters
 
@@ -58,11 +62,13 @@ struct ListBetaTestersCommand: CommonParsableCommand {
         let request: AnyPublisher<BetaTestersResponse, Error>
 
         let includes = [ListBetaTesters.Include.apps, ListBetaTesters.Include.betaGroups]
+        let limits = [ListBetaTesters.Limit.apps(relatedResourcesLimit),
+                      ListBetaTesters.Limit.betaGroups(relatedResourcesLimit)]
 
         switch ListStrategy(options: (filterBundleId, filterGroupName)) {
             case .all:
                 request = api
-                    .request(APIEndpoint.betaTesters(include: includes))
+                    .request(APIEndpoint.betaTesters(include: includes, limit: limits))
                     .eraseToAnyPublisher()
 
             case .listByApp(let bundleId):
@@ -71,7 +77,8 @@ struct ListBetaTestersCommand: CommonParsableCommand {
                     .flatMap {
                         api.request(APIEndpoint.betaTesters(
                             filter: [.apps($0)],
-                            include: includes
+                            include: includes,
+                            limit: limits
                         ))
                     }
                     .eraseToAnyPublisher()
@@ -81,7 +88,8 @@ struct ListBetaTestersCommand: CommonParsableCommand {
                     .flatMap {
                         api.request(APIEndpoint.betaTesters(
                             filter: [.betaGroups([$0])],
-                            include: includes
+                            include: includes,
+                            limit: limits
                         ))
                     }
                     .eraseToAnyPublisher()
