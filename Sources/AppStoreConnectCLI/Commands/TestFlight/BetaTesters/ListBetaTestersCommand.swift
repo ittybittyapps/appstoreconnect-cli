@@ -19,15 +19,29 @@ struct ListBetaTestersCommand: CommonParsableCommand {
     @Option(help: "The name of the beta group")
     var filterGroupName: String?
 
+    private enum ListBetaTesterError: Error, CustomStringConvertible {
+        case multipleFilters
+
+        var description: String {
+            switch self {
+                case .multipleFilters:
+                    return "Only one relationship filter can be applied"
+            }
+        }
+    }
+
     private enum ListStrategy {
         case all
         case listByApp(bundleId: String)
         case listByGroup(betaGroupName: String)
+        case listByAppAndGroup
 
         typealias ListOptions = (bundleId: String?, betaGroupName: String?)
 
         init(options: ListOptions) {
             switch (options.bundleId, options.betaGroupName) {
+                case let(.some(bundleId), .some(betaGroup)) where !bundleId.isEmpty && !betaGroup.isEmpty:
+                    self = .listByAppAndGroup
                 case let(.some(bundleId), _) where !bundleId.isEmpty:
                     self = .listByApp(bundleId: bundleId)
                 case let(_, .some(betaGroupName)) where !betaGroupName.isEmpty:
@@ -56,7 +70,7 @@ struct ListBetaTestersCommand: CommonParsableCommand {
                     .getAppResourceIdsFrom(bundleIds: [bundleId])
                     .flatMap {
                         api.request(APIEndpoint.betaTesters(
-                            filter: [ListBetaTesters.Filter.apps($0)],
+                            filter: [.apps($0)],
                             include: includes
                         ))
                     }
@@ -66,11 +80,13 @@ struct ListBetaTestersCommand: CommonParsableCommand {
                 request = try api.betaGroupIdentifier(matching: betaGroupName)
                     .flatMap {
                         api.request(APIEndpoint.betaTesters(
-                            filter: [ListBetaTesters.Filter.betaGroups([$0])],
+                            filter: [.betaGroups([$0])],
                             include: includes
                         ))
                     }
                     .eraseToAnyPublisher()
+            case .listByAppAndGroup:
+                throw ListBetaTesterError.multipleFilters
         }
 
         _ = request
