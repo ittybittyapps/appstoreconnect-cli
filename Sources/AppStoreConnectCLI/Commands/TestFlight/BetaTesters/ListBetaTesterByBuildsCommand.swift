@@ -42,7 +42,7 @@ struct ListBetaTesterByBuildsCommand: CommonParsableCommand {
                 }
 
                 if !preReleaseVersions.isEmpty {
-                    filters.append(.version(preReleaseVersions))
+                    filters.append(.preReleaseVersionVersion(preReleaseVersions))
                 }
 
                 return api.request(APIEndpoint.builds(filter: filters))
