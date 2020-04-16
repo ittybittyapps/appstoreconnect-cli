@@ -19,26 +19,20 @@ struct ListBetaTestersCommand: CommonParsableCommand {
     @Option(help: "The name of the beta group")
     var filterGroupName: String?
 
-    @Option(help: "The ID of one build of an application")
-    var filterBuildId: String?
-
     private enum ListStrategy {
         case all
         case listByApp(bundleId: String)
         case listByGroup(betaGroupName: String)
-        case listByBuild(buildId: String)
 
-        typealias ListOptions = (bundleId: String?, betaGroupName: String?, buildId: String?)
+        typealias ListOptions = (bundleId: String?, betaGroupName: String?)
 
         init(options: ListOptions) {
-            switch (options.bundleId, options.betaGroupName, options.buildId) {
-                case let(.some(bundleId), _, _) where !bundleId.isEmpty:
+            switch (options.bundleId, options.betaGroupName) {
+                case let(.some(bundleId), _) where !bundleId.isEmpty:
                     self = .listByApp(bundleId: bundleId)
-                case let(_, .some(betaGroupName), _) where !betaGroupName.isEmpty:
+                case let(_, .some(betaGroupName)) where !betaGroupName.isEmpty:
                     self = .listByGroup(betaGroupName: betaGroupName)
-                case let(_, _, .some(buildId)) where !buildId.isEmpty:
-                    self = .listByBuild(buildId: buildId)
-                case (_, _, _):
+                case (_, _):
                     self = .all
             }
         }
@@ -51,7 +45,7 @@ struct ListBetaTestersCommand: CommonParsableCommand {
 
         let includes = [ListBetaTesters.Include.apps, ListBetaTesters.Include.betaGroups]
 
-        switch ListStrategy(options: (filterBundleId, filterGroupName, filterBuildId)) {
+        switch ListStrategy(options: (filterBundleId, filterGroupName)) {
             case .all:
                 request = api
                     .request(APIEndpoint.betaTesters(include: includes))
@@ -76,13 +70,6 @@ struct ListBetaTestersCommand: CommonParsableCommand {
                             include: includes
                         ))
                     }
-                    .eraseToAnyPublisher()
-            
-            case .listByBuild(let buildId):
-                request = api.request(APIEndpoint.betaTesters(
-                        filter: [ListBetaTesters.Filter.builds([buildId])],
-                        include: includes
-                    ))
                     .eraseToAnyPublisher()
         }
 
