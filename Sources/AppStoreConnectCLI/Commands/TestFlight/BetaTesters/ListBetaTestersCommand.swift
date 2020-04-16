@@ -88,11 +88,8 @@ struct ListBetaTestersCommand: CommonParsableCommand {
 
         _ = request
             .map { response in
-                response.data.map { BetaTester.init($0, response.include) }
+                response.data.map { BetaTester.init($0, response.included) }
             }
-            .sink(
-                receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.ResultRenderer(format: common.outputFormat).render
-            )
+            .renderResult(format: common.outputFormat)
     }
 }

@@ -41,7 +41,7 @@ extension User {
 
         return users.compactMap { (user: AppStoreConnect_Swift_SDK.User) -> User in
             let userVisibleAppIds = user.relationships?.visibleApps?.data?.compactMap { $0.id }
-            let userVisibleApps = response.include?.filter {
+            let userVisibleApps = response.included?.filter {
                 userVisibleAppIds?.contains($0.id) ?? false
             }
 
