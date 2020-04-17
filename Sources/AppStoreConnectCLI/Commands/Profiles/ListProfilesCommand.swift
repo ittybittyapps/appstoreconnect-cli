@@ -104,7 +104,7 @@ struct ListProfilesCommand: CommonParsableCommand {
 private extension Publisher where Output == [Profile], Failure == Error {
     func saveProfile(downloadPath: String?) -> AnyPublisher<Output, Failure> {
         tryMap { profiles -> Output in
-            if let path = downloadPath else {
+            if let path = downloadPath {
 
                 let folder = try Folder(path: path)
                 for profile in profiles {
