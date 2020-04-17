@@ -55,7 +55,7 @@ extension Profile: TableInfoProvider {
         return [
             uuid ?? "",
             name ?? "",
-            platform ?? "",
+            platform?.rawValue ?? "",
             profileState?.rawValue ?? "",
             profileType?.rawValue ?? "",
             createdDate?.formattedDate ?? "",
