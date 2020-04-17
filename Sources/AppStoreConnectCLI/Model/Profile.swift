@@ -26,7 +26,7 @@ extension Profile {
             platform: attributes.platform,
             profileContent: attributes.profileContent,
             uuid: attributes.uuid,
-            createdDate: attributes.createdDate, // FIXME
+            createdDate: attributes.createdDate,
             profileState: attributes.profileState,
             profileType: attributes.profileType,
             expirationDate: attributes.expirationDate
