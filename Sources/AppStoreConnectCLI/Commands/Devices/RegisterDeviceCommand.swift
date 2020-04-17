@@ -24,7 +24,7 @@ struct RegisterDeviceCommand: CommonParsableCommand {
     var platform: Platform
 
     func run() throws {
-        let api = try makeClient()
+        let api = try makeService()
 
         _ = api.request(APIEndpoint.registerNewDevice(name: name, platform: platform, udid: udid))
             .map(Device.init)

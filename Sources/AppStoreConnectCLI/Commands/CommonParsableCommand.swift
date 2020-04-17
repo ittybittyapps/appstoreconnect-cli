@@ -7,11 +7,11 @@ import Foundation
 protocol CommonParsableCommand: ParsableCommand {
     var common: CommonOptions { get }
 
-    func makeClient() throws -> AppStoreConnectService
+    func makeService() throws -> AppStoreConnectService
 }
 
 extension CommonParsableCommand {
-    func makeClient() throws -> AppStoreConnectService {
+    func makeService() throws -> AppStoreConnectService {
         AppStoreConnectService(configuration: try APIConfiguration(common.authOptions))
     }
 }

@@ -51,7 +51,7 @@ public struct ListUsersCommand: CommonParsableCommand {
     var includeVisibleApps: Bool
 
     public func run() throws {
-        let api = try makeClient()
+        let api = try makeService()
 
         var filters = [ListUsers.Filter]()
 

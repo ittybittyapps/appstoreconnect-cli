@@ -37,7 +37,7 @@ struct SyncUsersCommand: CommonParsableCommand {
 
         let usersInFile = Readers.FileReader<[User]>(format: inputFormat).read(filePath: config)
 
-        let client = try makeClient()
+        let client = try makeService()
 
         _ = usersInAppStoreConnect(client)
             .flatMap { users -> AnyPublisher<UserChange, Error> in

@@ -26,7 +26,7 @@ struct RegisterBundleIdCommand: CommonParsableCommand {
     var platform: BundleIdPlatform
 
     func run() throws {
-        let api = try makeClient()
+        let api = try makeService()
 
         let request = APIEndpoint.registerNewBundleId(id: identifier, name: name, platform: platform)
 
