@@ -4,29 +4,20 @@ import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
 
-class AppStoreConnectService {
-    private let provider: APIProvider
-
-    init(configuration: APIConfiguration) {
-        provider = APIProvider(configuration: configuration)
-    }
-
-    func listUsers(with options: ListUsersOptions) -> AnyPublisher<[User], Error> {
-        ListUsersOperation(options: options).execute(using: provider)
-    }
-
+// This functionality is temporarily duplicated until we only need it in one spot
+extension APIProvider {
     /// Make a request for something `Decodable`.
     ///
     /// - Parameters:
     ///   - endpoint: The API endpoint to request
     /// - Returns: `Deferred<Future<T, Error>>` that executes once subscribed to (cold observable)
-    func request<T: Decodable>(_ endpoint: APIEndpoint<T>) -> Deferred<Future<T, Error>> {
-        return Deferred() { [provider] in
+    func request<T: Decodable>(_ endpoint: APIEndpoint<T>) -> Deferred<Future<T, Swift.Error>> {
+        return Deferred() {
             // We use dispatch group to make this blocking - due to the nature of the app as a CLI tool it is necessary for API calls to be blocking
             let dispatchGroup = DispatchGroup()
-            return Future<T, Error> { promise in
+            return Future<T, Swift.Error> { promise in
                 dispatchGroup.enter()
-                provider.request(endpoint) { result in
+                self.request(endpoint) { result in
                     switch result {
                         case .success(let response):
                             promise(.success(response))
@@ -45,13 +36,13 @@ class AppStoreConnectService {
     /// - Parameters:
     ///   - endpoint: The API endpoint to request
     /// - Returns: `Deferred<Future<Void, Error>>` that executes once subscribed to (cold observable)
-    func request(_ endpoint: APIEndpoint<Void>) -> Deferred<Future<Void, Error>> {
-        return Deferred() { [provider] in
+    func request(_ endpoint: APIEndpoint<Void>) -> Deferred<Future<Void, Swift.Error>> {
+        return Deferred() {
             // We use dispatch group to make this blocking - due to the nature of the app as a CLI tool it is necessary for API calls to be blocking
             let dispatchGroup = DispatchGroup()
-            return Future<Void, Error> { promise in
+            return Future<Void, Swift.Error> { promise in
                 dispatchGroup.enter()
-                provider.request(endpoint) { result in
+                self.request(endpoint) { result in
                     switch result {
                         case .success:
                             promise(.success(()))

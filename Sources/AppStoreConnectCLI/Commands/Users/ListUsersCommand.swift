@@ -53,7 +53,7 @@ public struct ListUsersCommand: CommonParsableCommand {
     public func run() throws {
         let service = try makeService()
 
-        let options = AppStoreConnectService.ListUsersOptions(
+        let options = ListUsersOptions(
             limitVisibleApps: limitVisibleApps,
             limitUsers: limitUsers,
             sort: sort,
