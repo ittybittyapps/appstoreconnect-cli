@@ -6,10 +6,10 @@ import Foundation
 
 extension HTTPClient {
 
-    private enum BetaTesterError: Error, LocalizedError {
+    private enum BetaTesterError: LocalizedError {
         case couldntFindBetaTester(email: String)
 
-        var description: String {
+        var failureReason: String? {
             switch self {
                 case .couldntFindBetaTester(let email):
                     return "Couldn't find beta tester with input email  \(email) or email not unique"

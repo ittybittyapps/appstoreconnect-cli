@@ -29,14 +29,11 @@ struct ListBetaTesterByBuildsCommand: CommonParsableCommand {
     )
     var versions: [String]
 
-    private enum CommandError: Error, LocalizedError {
-        case noAppsFound(bundleId: String)
+    private enum CommandError: LocalizedError {
         case noBuildsFound(preReleaseVersions: [String], versions: [String])
 
-        var errorDescription: String? {
+        var failureReason: String? {
             switch self {
-            case .noAppsFound(let bundleId):
-                return "No apps were found matching \(bundleId)"
             case .noBuildsFound(let preReleaseVersions, let versions):
                 return "No builds were found matching preReleaseVersions \(preReleaseVersions) and versions \(versions)"
             }
@@ -48,11 +45,7 @@ struct ListBetaTesterByBuildsCommand: CommonParsableCommand {
 
         _  = api
             .getAppResourceIdsFrom(bundleIds: [bundleId])
-            .flatMap { [versions, preReleaseVersions, bundleId] appIds -> AnyPublisher<BuildsResponse, Error> in
-                guard !appIds.isEmpty else {
-                    let error = CommandError.noAppsFound(bundleId: bundleId)
-                    return Fail(error: error as Error).eraseToAnyPublisher()
-                }
+            .flatMap { [versions, preReleaseVersions] appIds -> AnyPublisher<BuildsResponse, Error> in
 
                 var filters: [ListBuilds.Filter] = [.app(appIds)]
 

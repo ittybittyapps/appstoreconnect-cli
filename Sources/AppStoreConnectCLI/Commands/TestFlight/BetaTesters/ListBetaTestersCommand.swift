@@ -23,10 +23,10 @@ struct ListBetaTestersCommand: CommonParsableCommand {
             help: "Number of included related resources to return.")
     var relatedResourcesLimit: Int
 
-    private enum ListBetaTesterError: Error, CustomStringConvertible {
+    private enum ListBetaTesterError: LocalizedError {
         case multipleFilters
 
-        var description: String {
+        var failureReason: String? {
             switch self {
                 case .multipleFilters:
                     return "Only one relationship filter can be applied"
