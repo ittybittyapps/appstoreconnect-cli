@@ -48,7 +48,7 @@ extension App: TableInfoProvider {
     }
 }
 
-extension HTTPClient {
+extension AppStoreConnectService {
 
     private enum AppError: LocalizedError {
         case couldntFindApp(bundleId: [String])

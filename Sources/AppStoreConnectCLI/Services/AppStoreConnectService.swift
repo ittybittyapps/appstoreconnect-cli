@@ -4,7 +4,7 @@ import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
 
-class HTTPClient {
+class AppStoreConnectService {
     private let provider: APIProvider
 
     init(configuration: APIConfiguration) {

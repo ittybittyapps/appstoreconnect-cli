@@ -60,7 +60,7 @@ struct SyncUsersCommand: CommonParsableCommand {
             )
     }
 
-    private func sync(users changes: CollectionDifference<User>, client: HTTPClient) -> AnyPublisher<UserChange, Error> {
+    private func sync(users changes: CollectionDifference<User>, client: AppStoreConnectService) -> AnyPublisher<UserChange, Error> {
         let requests = changes
             .compactMap { change -> AnyPublisher<UserChange, Error>? in
                 switch change {
@@ -84,7 +84,7 @@ struct SyncUsersCommand: CommonParsableCommand {
         return Publishers.ConcatenateMany(requests).eraseToAnyPublisher()
     }
 
-    private func usersInAppStoreConnect(_ client: HTTPClient) -> AnyPublisher<[User], Error> {
+    private func usersInAppStoreConnect(_ client: AppStoreConnectService) -> AnyPublisher<[User], Error> {
         client
             .request(.users())
             .map(User.fromAPIResponse)

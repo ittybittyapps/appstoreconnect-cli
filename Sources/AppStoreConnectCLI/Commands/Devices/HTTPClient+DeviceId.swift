@@ -4,7 +4,7 @@ import AppStoreConnect_Swift_SDK
 import Foundation
 import Combine
 
-extension HTTPClient {
+extension AppStoreConnectService {
 
     enum DeviceIDError: Error, LocalizedError {
         case notUnique(String)

@@ -90,7 +90,7 @@ extension User: TableInfoProvider {
     }
 }
 
-extension HTTPClient {
+extension AppStoreConnectService {
 
     /// Find the opaque internal identifier for this user; search by email adddress.
     ///

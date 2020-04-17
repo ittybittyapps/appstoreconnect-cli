@@ -47,7 +47,7 @@ extension APIEndpoint where T == UserInvitationResponse {
     }
 }
 
-extension HTTPClient {
+extension AppStoreConnectService {
 
     /// Find the opaque internal identifier for this invitation; search by email adddress.
     ///
