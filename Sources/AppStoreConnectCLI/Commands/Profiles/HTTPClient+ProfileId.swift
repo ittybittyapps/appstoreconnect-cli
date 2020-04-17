@@ -24,7 +24,7 @@ extension HTTPClient {
     ///
     /// - parameter udid: The device UUID string.
     /// - returns: The App Store Connect API resource identifier for the Profile UUID.
-    func profileResourceId(matching uuid: String) throws -> AnyPublisher<String, Error> {
+    func profileResourceId(matching uuid: String) -> AnyPublisher<String, Error> {
         let request = APIEndpoint.listProfiles(
             filter: [
                 .id([uuid])
