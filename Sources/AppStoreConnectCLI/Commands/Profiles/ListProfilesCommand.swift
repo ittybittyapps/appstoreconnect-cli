@@ -4,6 +4,7 @@ import AppStoreConnect_Swift_SDK
 import ArgumentParser
 import Combine
 import Foundation
+import Files
 
 struct ListProfilesCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
@@ -53,6 +54,17 @@ struct ListProfilesCommand: CommonParsableCommand {
     )
     var filterProfileType: [ProfileType]
 
+    @Option(help:
+        ArgumentHelp(
+            "If set, the provisioning profiles will be saved as files to this path.",
+            discussion: "Profiles will be saved to files with names of the pattern '<UUID>.\(profileExtension)'.",
+            valueName: "path"
+        )
+    )
+    var downloadPath: String?
+
+    static let profileExtension = "mobileprovision"
+
     func run() throws {
         let api = try makeClient()
 
@@ -82,8 +94,29 @@ struct ListProfilesCommand: CommonParsableCommand {
             limit: limits
         )
 
-        _ = api.request(request)            
+        _ = api.request(request)
             .map { $0.data.map(Profile.init) }
+            .saveProfile(downloadPath: self.downloadPath) // FIXME: This feels like a hack.
             .renderResult(format: common.outputFormat)
+    }
+}
+
+private extension Publisher where Output == [Profile], Failure == Error {
+    func saveProfile(downloadPath: String?) -> AnyPublisher<Output, Failure> {
+        tryMap { profiles -> Output in
+            if let path = downloadPath else {
+
+                let folder = try Folder(path: path)
+                for profile in profiles {
+                    let file = try folder.createFile(
+                        named: "\(profile.uuid!).\(ListProfilesCommand.profileExtension)",
+                        contents: Data(base64Encoded: profile.profileContent!)!
+                    )
+                    Swift.print("📥 Profile '\(profile.name!)' downloaded to: \(file.path)")
+                }
+            }
+
+            return profiles
+        }.eraseToAnyPublisher()
     }
 }
