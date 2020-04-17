@@ -24,8 +24,8 @@ let package = Package(
             from: "0.0.2"
         ),
         .package(
-            url: "https://github.com/AvdLee/appstoreconnect-swift-sdk.git",
-            from: "1.0.3"
+            url: "https://github.com/ittybittyapps/appstoreconnect-swift-sdk.git",
+            .branch("fix/profile-parsing")
         ),
         .package(
             url: "https://github.com/jpsim/Yams.git",
