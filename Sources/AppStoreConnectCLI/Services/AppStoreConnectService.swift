@@ -51,7 +51,9 @@ class AppStoreConnectService {
             next: nil
         )
 
-        return request(endpoint).map(User.fromAPIResponse).eraseToAnyPublisher()
+        return request(endpoint)
+            .map(User.fromAPIResponse)
+            .eraseToAnyPublisher()
     }
 
     /// Make a request for something `Decodable`.
