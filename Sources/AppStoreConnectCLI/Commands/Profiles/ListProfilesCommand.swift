@@ -82,8 +82,7 @@ struct ListProfilesCommand: CommonParsableCommand {
             limit: limits
         )
 
-        _ = api.request(request)
-            .print()
+        _ = api.request(request)            
             .map { $0.data.map(Profile.init) }
             .renderResult(format: common.outputFormat)
     }
