@@ -6,13 +6,13 @@ import Foundation
 
 extension HTTPClient {
 
-    private enum BetaTesterError: Error, CustomStringConvertible {
-        case couldntFindBetaTester
+    private enum BetaTesterError: Error, LocalizedError {
+        case couldntFindBetaTester(email: String)
 
         var description: String {
             switch self {
-                case .couldntFindBetaTester:
-                    return "Couldn't find beta tester with input email or tester email not unique"
+                case .couldntFindBetaTester(let email):
+                    return "Couldn't find beta tester with input email  \(email) or email not unique"
             }
         }
     }
@@ -28,7 +28,7 @@ extension HTTPClient {
         return self.request(endpoint)
             .tryMap { response throws -> String in
                 guard response.data.count == 1, let id = response.data.first?.id else {
-                    throw BetaTesterError.couldntFindBetaTester
+                    throw BetaTesterError.couldntFindBetaTester(email: email)
                 }
 
                 return id

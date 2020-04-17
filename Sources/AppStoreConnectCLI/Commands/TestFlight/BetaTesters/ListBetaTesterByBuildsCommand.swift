@@ -29,12 +29,31 @@ struct ListBetaTesterByBuildsCommand: CommonParsableCommand {
     )
     var versions: [String]
 
+    private enum CommandError: Error, LocalizedError {
+        case noAppsFound(bundleId: String)
+        case noBuildsFound(preReleaseVersions: [String], versions: [String])
+
+        var errorDescription: String? {
+            switch self {
+            case .noAppsFound(let bundleId):
+                return "No apps were found matching \(bundleId)"
+            case .noBuildsFound(let preReleaseVersions, let versions):
+                return "No builds were found matching preReleaseVersions \(preReleaseVersions) and versions \(versions)"
+            }
+        }
+    }
+
     func run() throws {
         let api = try makeClient()
 
         _  = api
             .getAppResourceIdsFrom(bundleIds: [bundleId])
-            .flatMap { [versions, preReleaseVersions] appIds -> AnyPublisher<BuildsResponse, Error> in
+            .flatMap { [versions, preReleaseVersions, bundleId] appIds -> AnyPublisher<BuildsResponse, Error> in
+                guard !appIds.isEmpty else {
+                    let error = CommandError.noAppsFound(bundleId: bundleId)
+                    return Fail(error: error as Error).eraseToAnyPublisher()
+                }
+
                 var filters: [ListBuilds.Filter] = [.app(appIds)]
 
                 if !versions.isEmpty {
@@ -48,12 +67,16 @@ struct ListBetaTesterByBuildsCommand: CommonParsableCommand {
                 return api.request(APIEndpoint.builds(filter: filters))
                     .eraseToAnyPublisher()
             }
-            .flatMap {
-                api.request(APIEndpoint.betaTesters(
-                        filter: [.builds($0.data.map(\.id))],
-                        include: [.apps, .betaGroups]
-                    )
-                )
+            .flatMap { [versions, preReleaseVersions] buildResponse -> AnyPublisher<BetaTestersResponse, Error> in
+                guard !buildResponse.data.isEmpty else {
+                    let error = CommandError.noBuildsFound(preReleaseVersions: preReleaseVersions, versions: versions)
+                    return Fail(error: error as Error).eraseToAnyPublisher()
+                }
+
+                let endpoint = APIEndpoint.betaTesters(filter: [.builds(buildResponse.data.map(\.id))],
+                                                       include: [.apps, .betaGroups])
+
+                return api.request(endpoint).eraseToAnyPublisher()
             }
             .map { response in
                 response.data.map { BetaTester.init($0, response.included) }
