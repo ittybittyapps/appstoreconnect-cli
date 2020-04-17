@@ -52,11 +52,14 @@ extension AppStoreConnectService {
 
     private enum AppError: LocalizedError {
         case couldntFindApp(bundleId: [String])
+        case bundleIdNotUnique(bundleId: String)
 
         var failureReason: String? {
             switch self {
-                case .couldntFindApp(let bundleId):
-                    return "No apps were found matching \(bundleId)"
+                case .couldntFindApp(let bundleIds):
+                    return "No apps were found matching \(bundleIds)"
+                case .bundleIdNotUnique(let bundleId):
+                    return "BundleId \(bundleId) is not unique"
             }
         }
     }
@@ -76,6 +79,27 @@ extension AppStoreConnectService {
                 return response.data
             }
             .compactMap { $0.map { $0.id } }
+            .eraseToAnyPublisher()
+    }
+
+    /// Find a opaque internal identifier for an application that related to this bundle ID.
+    func appResourceId(matching bundleId: String) -> AnyPublisher<String, Error> {
+        let getAppResourceIdRequest = APIEndpoint.apps(
+            filters: [ListApps.Filter.bundleId([bundleId])]
+        )
+
+        return self.request(getAppResourceIdRequest)
+            .tryMap { (response: AppsResponse) throws -> String in
+                guard !response.data.isEmpty else {
+                    throw AppError.couldntFindApp(bundleId: [bundleId])
+                }
+
+                guard response.data.count == 1, let app = response.data.first else {
+                    throw AppError.bundleIdNotUnique(bundleId: bundleId)
+                }
+
+                return app.id
+            }
             .eraseToAnyPublisher()
     }
 }
