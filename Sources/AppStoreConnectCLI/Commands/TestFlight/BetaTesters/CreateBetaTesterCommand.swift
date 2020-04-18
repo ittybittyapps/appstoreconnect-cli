@@ -7,8 +7,8 @@ import Foundation
 
 struct CreateBetaTesterCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
-        commandName: "create",
-        abstract: "Create a beta tester")
+        commandName: "invite",
+        abstract: "Create a beta tester and assign to a group")
 
     @OptionGroup()
     var common: CommonOptions
@@ -16,28 +16,26 @@ struct CreateBetaTesterCommand: CommonParsableCommand {
     @Argument(help: "The beta tester's email address, used for sending beta testing invitations.")
     var email: String
 
-    @Option(help: "The beta tester's first name.")
+    @Argument(help: "The beta tester's first name.")
     var firstName: String?
 
-    @Option(help: "The beta tester's last name.")
+    @Argument(help: "The beta tester's last name.")
     var lastName: String?
 
-    @Option(help: "Array of opaque resource ID that uniquely identifies the builds for an application.")
-    var buildIds: [String]
+    @Argument(help: "The bundle ID of an application. (eg. com.example.app)")
+    var bundleId: String
 
-    @Option(help: "Names of TestFlight beta tester group that the tester will be assigned to")
-    var groupNames: [String]
+    @Option(parsing: .upToNextOption,
+            help: "Names of TestFlight beta tester group that the tester will be assigned to")
+    var groups: [String]
 
-    private enum CommandError: Error, CustomStringConvertible {
-        case invalidInput, couldntFindBetaGroup
+    enum CommandError: LocalizedError {
+        case noGroupsExist(groupNames: [String], bundleId: String)
 
-        var description: String {
+        var failureReason: String? {
             switch self {
-            case .invalidInput:
-                return "Invalid input, one or more build Id or beta group name is required when creating a tester"
-
-            case .couldntFindBetaGroup:
-                return "Couldn't find any beta group with input names."
+                case .noGroupsExist(let groupNames, let bundleId):
+                    return "No Beta Group \"\(groupNames)\" exists for application with Bundle ID \"\(bundleId)\"."
             }
         }
     }
@@ -45,42 +43,42 @@ struct CreateBetaTesterCommand: CommonParsableCommand {
     func run() throws {
         let api = try makeClient()
 
-        let request: AnyPublisher<BetaTesterResponse, Error>
+        _ = api
+            // Find app resource id matching bundleId
+            .appResourceId(matching: bundleId)
+            // Find beta groups matching app resource Id
+            .flatMap {
+                api.request(APIEndpoint.betaGroups(forAppWithId: $0)).eraseToAnyPublisher()
+            }
+            // Check if input group names are belong to the app, else throw Error
+            .tryMap { [groups, bundleId] (response: BetaGroupsResponse) -> AnyPublisher<[String], Error> in
+                let groupNamesInApp = Set(response.data.compactMap { $0.attributes?.name })
+                let inputGroupNames = Set(groups)
 
-        let createWithBuildIds = { ids -> APIEndpoint<BetaTesterResponse> in
-            .create(betaTesterWithEmail: self.email, firstName: self.firstName, lastName: self.lastName, buildIds: ids)
-        }
+                guard inputGroupNames.isSubset(of: groupNamesInApp) else {
+                    throw CommandError.noGroupsExist(groupNames: groups, bundleId: bundleId)
+                }
 
-        let createWithGroupIds = { ids -> APIEndpoint<BetaTesterResponse> in
-            .create(betaTesterWithEmail: self.email, firstName: self.firstName, lastName: self.lastName, betaGroupIds: ids)
-        }
+                return try api.betaGroupIdentifiers(matching: groups)
+            }
+            .flatMap { $0 }
+            // Invite tester to the input groups
+            .flatMap { [email, firstName, lastName] (groupIds: [String]) -> AnyPublisher<BetaTesterResponse, Error> in
+                let endpoint = APIEndpoint.create(betaTesterWithEmail: email,
+                                                  firstName: firstName,
+                                                  lastName: lastName,
+                                                  betaGroupIds: groupIds)
 
-        switch (buildIds, groupNames) {
-            case (let buildIds, _) where !buildIds.isEmpty:
-                let endpoint = createWithBuildIds(buildIds)
-                request = api.request(endpoint).eraseToAnyPublisher()
-
-            case (_, let groupNames) where !groupNames.isEmpty:
-                let endpoint = APIEndpoint.betaGroups(filter: [ListBetaGroups.Filter.name(groupNames)])
-
-                let groupIds = api.request(endpoint).map { $0.data.map(\.id) }
-
-                request = groupIds
-                    .flatMap { (groupIds: [String]) -> AnyPublisher<BetaTesterResponse, Error> in
-                        guard !groupIds.isEmpty else {
-                            return Fail(error: CommandError.couldntFindBetaGroup).eraseToAnyPublisher()
-                        }
-
-                        let endpoint = createWithGroupIds(groupIds)
-
-                        return api.request(endpoint).eraseToAnyPublisher()
-                    }
+                return api.request(endpoint).eraseToAnyPublisher()
+            }
+            // Get invited tester info
+            .flatMap {
+                api.request(APIEndpoint.betaTester(
+                        withId: $0.data.id,
+                        include: [GetBetaTester.Include.betaGroups, GetBetaTester.Include.apps]
+                    ))
                     .eraseToAnyPublisher()
-            case (_, _):
-                request = Fail(error: CommandError.invalidInput as Error).eraseToAnyPublisher()
-        }
-
-        _ = request
+            }
             .map { BetaTester.init($0.data, $0.included) }
             .renderResult(format: common.outputFormat)
     }
