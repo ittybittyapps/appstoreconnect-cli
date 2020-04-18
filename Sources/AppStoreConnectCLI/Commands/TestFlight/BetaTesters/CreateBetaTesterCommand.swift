@@ -35,7 +35,7 @@ struct CreateBetaTesterCommand: CommonParsableCommand {
         var failureReason: String? {
             switch self {
                 case .noGroupsExist(let groupNames, let bundleId):
-                    return "No Beta Group \"\(groupNames)\" exists for application with Bundle ID \"\(bundleId)\"."
+                    return "One or more of beta groups \"\(groupNames)\" don't exist or don't belongs to application with Bundle ID \"\(bundleId)\"."
             }
         }
     }
@@ -64,12 +64,16 @@ struct CreateBetaTesterCommand: CommonParsableCommand {
             .flatMap { $0 }
             // Invite tester to the input groups
             .flatMap { [email, firstName, lastName] (groupIds: [String]) -> AnyPublisher<BetaTesterResponse, Error> in
-                let endpoint = APIEndpoint.create(betaTesterWithEmail: email,
-                                                  firstName: firstName,
-                                                  lastName: lastName,
-                                                  betaGroupIds: groupIds)
+                // A tester can only be invite to one group at a time
+                let requests = groupIds.map { (groupId: String) -> AnyPublisher<BetaTesterResponse, Error> in
+                    let endpoint = APIEndpoint.create(betaTesterWithEmail: email,
+                                                      firstName: firstName,
+                                                      lastName: lastName,
+                                                      betaGroupIds: [groupId])
+                    return api.request(endpoint).eraseToAnyPublisher()
+                }
 
-                return api.request(endpoint).eraseToAnyPublisher()
+                return Publishers.ConcatenateMany(requests).last().eraseToAnyPublisher()
             }
             // Get invited tester info
             .flatMap {

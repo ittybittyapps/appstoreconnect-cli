@@ -84,18 +84,12 @@ extension AppStoreConnectService {
     }
 
     func betaGroupIdentifiers(matching names: [String]) throws -> AnyPublisher<[String], Error> {
-        let endpoint = APIEndpoint.betaGroups(
-            filter: [ListBetaGroups.Filter.name(names)]
-        )
 
-        return self.request(endpoint)
-            .tryMap { response throws -> [String] in
-                guard !response.data.isEmpty else {
-                    throw BetaGroupError.couldntFindBetaGroup(groupNames: names)
-                }
+        // Find group by name sequentially
+        let requests = try names.map { (name: String) throws in
+            return try self.betaGroupIdentifier(matching: name)
+        }
 
-                return response.data.map { $0.id }
-            }
-            .eraseToAnyPublisher()
+        return Publishers.MergeMany(requests).reduce([]) { $0 + [$1] }.eraseToAnyPublisher()
     }
 }
