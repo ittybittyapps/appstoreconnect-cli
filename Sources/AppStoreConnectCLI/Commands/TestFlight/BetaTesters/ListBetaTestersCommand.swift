@@ -94,12 +94,13 @@ struct ListBetaTestersCommand: CommonParsableCommand {
                     }
                     .eraseToAnyPublisher()
             case .listByAppAndGroup:
-                throw ListBetaTesterError.multipleFilters
+                request = Fail(error: ListBetaTesterError.multipleFilters)
+                    .eraseToAnyPublisher()
         }
 
         _ = request
             .map { response in
-                response.data.map { BetaTester.init($0, response.included) }
+                response.data.map { BetaTester($0, response.included) }
             }
             .renderResult(format: common.outputFormat)
     }

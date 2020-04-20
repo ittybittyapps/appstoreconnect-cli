@@ -72,7 +72,7 @@ struct ListBetaTesterByBuildsCommand: CommonParsableCommand {
                 return api.request(endpoint).eraseToAnyPublisher()
             }
             .map { response in
-                response.data.map { BetaTester.init($0, response.included) }
+                response.data.map { BetaTester($0, response.included) }
             }
             .renderResult(format: common.outputFormat)
     }

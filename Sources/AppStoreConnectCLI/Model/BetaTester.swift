@@ -13,12 +13,14 @@ struct BetaTester: ResultRenderable {
     let betaGroups: [String]?
     let apps: [String]?
 
-    init(email: String?,
+    init(
+        email: String?,
          firstName: String?,
          lastName: String?,
          inviteType: BetaInviteType?,
          betaGroups: [String]?,
-         apps: [String]?) {
+         apps: [String]?
+    ) {
         self.email = email
         self.firstName = firstName
         self.lastName = lastName
@@ -46,12 +48,14 @@ struct BetaTester: ResultRenderable {
         }
 
         // Find tester related beta groups and apps in included data
-        let betaGroupsNames = relationships?.betaGroups?.data?.compactMap { group -> [BetaGroup]? in
+        let betaGroupsNames = relationships?.betaGroups?.data?
+            .compactMap { group -> [BetaGroup]? in
                 includedBetaGroups?.filter { $0.id == group.id }
             }
             .flatMap { $0.compactMap { $0.attributes?.name } }
 
-        let appsBundleIds = relationships?.apps?.data?.compactMap { app -> [AppStoreConnect_Swift_SDK.App]? in
+        let appsBundleIds = relationships?.apps?.data?
+            .compactMap { app -> [AppStoreConnect_Swift_SDK.App]? in
                 includedApps?.filter { app.id == $0.id }
             }
             .flatMap { $0.compactMap { $0.attributes?.bundleId } }
