@@ -5,10 +5,10 @@ import Combine
 import Foundation
 
 extension HTTPClient {
-    private enum BetaGroupError: Error, CustomStringConvertible {
+    private enum BetaGroupError: LocalizedError {
         case couldntFindBetaGroup
 
-        var description: String {
+        var failureReason: String? {
             switch self {
                 case .couldntFindBetaGroup:
                     return "Couldn't find beta group with input name or group name not unique"

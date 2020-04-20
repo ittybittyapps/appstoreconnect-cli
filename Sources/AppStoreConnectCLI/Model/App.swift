@@ -50,6 +50,17 @@ extension App: TableInfoProvider {
 
 extension HTTPClient {
 
+    private enum AppError: LocalizedError {
+        case couldntFindApp(bundleId: [String])
+
+        var failureReason: String? {
+            switch self {
+                case .couldntFindApp(let bundleId):
+                    return "No apps were found matching \(bundleId)"
+            }
+        }
+    }
+
     /// Find the opaque internal identifier for an application that related to this bundle ID.
     func getAppResourceIdsFrom(bundleIds: [String]) -> AnyPublisher<[String], Error> {
         let getAppResourceIdRequest = APIEndpoint.apps(
@@ -57,7 +68,13 @@ extension HTTPClient {
         )
 
         return self.request(getAppResourceIdRequest)
-            .map { $0.data }
+            .tryMap { (response: AppsResponse) throws -> [AppStoreConnect_Swift_SDK.App] in
+                guard !response.data.isEmpty else {
+                    throw AppError.couldntFindApp(bundleId: bundleIds)
+                }
+
+                return response.data
+            }
             .compactMap { $0.map { $0.id } }
             .eraseToAnyPublisher()
     }
