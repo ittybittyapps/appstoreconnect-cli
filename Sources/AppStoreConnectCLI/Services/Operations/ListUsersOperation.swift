@@ -48,9 +48,3 @@ struct ListUsersOperation: APIOperation {
             .eraseToAnyPublisher()
     }
 }
-
-private extension Collection {
-    func nilIfEmpty() -> Self? {
-        isEmpty ? nil : self
-    }
-}
