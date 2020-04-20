@@ -10,15 +10,15 @@ struct BetaTester: ResultRenderable {
     let firstName: String?
     let lastName: String?
     let inviteType: String?
-    let betaGroups: [BetaGroup]?
-    let apps: [App]?
+    let betaGroups: [String]?
+    let apps: [String]?
 
     init(email: String?,
          firstName: String?,
          lastName: String?,
          inviteType: BetaInviteType?,
-         betaGroups: [BetaGroup]?,
-         apps: [App]?) {
+         betaGroups: [String]?,
+         apps: [String]?) {
         self.email = email
         self.firstName = firstName
         self.lastName = lastName
@@ -45,28 +45,23 @@ struct BetaTester: ResultRenderable {
             return nil
         }
 
-        let betaGroupsInTester = relationships?.betaGroups?.data?.compactMap { group -> [BetaGroup]? in
+        // Find tester related beta groups and apps in included data
+        let betaGroupsNames = relationships?.betaGroups?.data?.compactMap { group -> [BetaGroup]? in
                 includedBetaGroups?.filter { $0.id == group.id }
             }
-            .flatMap { $0 }
+            .flatMap { $0.compactMap { $0.attributes?.name } }
 
-        let appsInTester = relationships?.apps?.data?.compactMap { app -> [AppStoreConnect_Swift_SDK.App]? in
+        let appsBundleIds = relationships?.apps?.data?.compactMap { app -> [AppStoreConnect_Swift_SDK.App]? in
                 includedApps?.filter { app.id == $0.id }
             }
-            .flatMap { $0 }
-            .map {
-                App(bundleId: $0.attributes?.bundleId,
-                    name: $0.attributes?.name,
-                    primaryLocale: $0.attributes?.primaryLocale,
-                    sku: $0.attributes?.sku)
-            }
+            .flatMap { $0.compactMap { $0.attributes?.bundleId } }
 
         self.init(email: attributes?.email,
                   firstName: attributes?.firstName,
                   lastName: attributes?.lastName,
                   inviteType: attributes?.inviteType,
-                  betaGroups: betaGroupsInTester,
-                  apps: appsInTester)
+                  betaGroups: betaGroupsNames,
+                  apps: appsBundleIds)
     }
 }
 
@@ -84,12 +79,12 @@ extension BetaTester: TableInfoProvider {
 
     var tableRow: [CustomStringConvertible] {
         return [
-            email,
-            firstName,
-            lastName,
-            inviteType,
-            betaGroups?.compactMap { $0.attributes?.name }.joined(separator: ", "),
-            apps?.compactMap { $0.bundleId }.joined(separator: ", ")
-        ].map { $0 ?? "" }
+            email ?? "",
+            firstName ?? "",
+            lastName ?? "",
+            inviteType ?? "",
+            betaGroups?.joined(separator: ", ") ?? [],
+            apps?.joined(separator: ", ") ?? []
+        ]
     }
 }
