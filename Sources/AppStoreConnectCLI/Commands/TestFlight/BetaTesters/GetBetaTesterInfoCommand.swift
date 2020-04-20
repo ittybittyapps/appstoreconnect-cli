@@ -16,21 +16,42 @@ struct GetBetaTesterInfoCommand: CommonParsableCommand {
     @Argument(help: "The Beta tester's email address")
     var email: String
 
+    @Option(help: "Number of included app resources to return.")
+    var limitApps: Int?
+
+    @Option(help: "Number of included build resources to return.")
+    var limitBuilds: Int?
+
+    @Option(help: "Number of included beta group resources to return.")
+    var limitBetaGroups: Int?
+
     func run() throws {
         let api = try makeClient()
 
+        var limits: [GetBetaTester.Limit] = []
+
+        if let limitApps = limitApps {
+            limits.append(GetBetaTester.Limit.apps(limitApps))
+        }
+
+        if let limitBuilds = limitBuilds {
+            limits.append(GetBetaTester.Limit.builds(limitBuilds))
+        }
+
+        if let limitBetaGroups = limitBetaGroups {
+            limits.append(GetBetaTester.Limit.betaGroups(limitBetaGroups))
+        }
+
         _ = try api
-            .betaTesterIdentifier(matching: email)
+            .betaTesterResourceId(matching: email)
             .flatMap {
                 api.request(APIEndpoint.betaTester(
                     withId: $0,
-                    include: [GetBetaTester.Include.apps, GetBetaTester.Include.betaGroups]
+                    include: [GetBetaTester.Include.apps, GetBetaTester.Include.betaGroups],
+                    limit: limits
                 ))
             }
-            .map(\.data)
-            .sink(
-                receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.ResultRenderer(format: self.common.outputFormat).render
-            )
+            .map { BetaTester.init($0.data, $0.included) }
+            .renderResult(format: common.outputFormat)
     }
 }

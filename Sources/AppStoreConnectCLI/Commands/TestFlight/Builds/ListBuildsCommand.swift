@@ -20,7 +20,7 @@ struct ListBuildsCommand: CommonParsableCommand {
         let api = try makeClient()
 
         _ = api
-            .appResourceIdMatching(bundleId: bundleId)
+            .appResourceId(matching: bundleId)
             .flatMap {
                 api.request(APIEndpoint.builds(
                     filter: [ListBuilds.Filter.app([$0])],

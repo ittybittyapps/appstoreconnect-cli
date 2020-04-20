@@ -23,8 +23,8 @@ struct InviteBetaTesterCommand: CommonParsableCommand {
         let api = try makeClient()
 
         _ = api
-            .appResourceIdMatching(bundleId: bundleId)
-            .combineLatest(try api.betaTesterIdentifier(matching: email))
+            .appResourceId(matching: bundleId)
+            .combineLatest(try api.betaTesterResourceId(matching: email))
             .flatMap {
                 api.request(APIEndpoint.send(invitationForAppWithId: $0, toBetaTesterWithId: $1))
             }

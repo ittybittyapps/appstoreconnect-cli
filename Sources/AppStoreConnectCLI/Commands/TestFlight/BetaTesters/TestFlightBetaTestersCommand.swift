@@ -11,7 +11,7 @@ public struct TestFlightBetaTestersCommand: ParsableCommand {
              CreateBetaTesterCommand.self,
              DeleteBetaTesterCommand.self,
              ListBetaTestersCommand.self,
-             ListBetaTesterByBuildsCommand.self
+             ListBetaTesterByBuildsCommand.self,
              GetBetaTesterInfoCommand.self,
              InviteBetaTesterCommand.self
         ])
