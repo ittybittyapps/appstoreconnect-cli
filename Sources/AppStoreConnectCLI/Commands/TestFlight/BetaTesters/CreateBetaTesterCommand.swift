@@ -8,7 +8,7 @@ import Foundation
 struct CreateBetaTesterCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "invite",
-        abstract: "Create a beta tester and assign to a group")
+        abstract: "Create a beta tester and assign to one or more groups")
 
     @OptionGroup()
     var common: CommonOptions
