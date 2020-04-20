@@ -20,7 +20,7 @@ struct ListUsersOperation: APIOperation {
         typealias Filter = ListUsers.Filter
 
         let filter: [Filter]? = {
-            let roles = options.filterRole.map({ $0.rawValue }).nilIfEmpty().map(Filter.roles)
+            let roles = options.filterRole.map(\.rawValue).nilIfEmpty().map(Filter.roles)
             let usernames = options.filterUsername.nilIfEmpty().map(Filter.username)
             let visibleApps = options.filterVisibleApps.nilIfEmpty().map(Filter.visibleApps)
 
