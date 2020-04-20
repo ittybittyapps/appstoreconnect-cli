@@ -15,6 +15,10 @@ class AppStoreConnectService {
         ListUsersOperation(options: options).execute(using: provider)
     }
 
+    func getUserInfo(with options: GetUserInfoOptions) -> AnyPublisher<User, Error> {
+        GetUserInfoOperation(options: options).execute(using: provider)
+    }
+
     /// Make a request for something `Decodable`.
     ///
     /// - Parameters:
