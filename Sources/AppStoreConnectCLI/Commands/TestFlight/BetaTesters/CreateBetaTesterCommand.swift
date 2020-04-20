@@ -29,13 +29,13 @@ struct CreateBetaTesterCommand: CommonParsableCommand {
             help: "Names of TestFlight beta tester group that the tester will be assigned to")
     var groups: [String]
 
-    enum CommandError: LocalizedError {
+    private enum CommandError: LocalizedError {
         case noGroupsExist(groupNames: [String], bundleId: String)
 
         var failureReason: String? {
             switch self {
                 case .noGroupsExist(let groupNames, let bundleId):
-                    return "One or more of beta groups \"\(groupNames)\" don't exist or don't belongs to application with Bundle ID \"\(bundleId)\"."
+                    return "One or more of beta groups \"\(groupNames)\" don't exist or don't belongs to application with bundle Id \"\(bundleId)\"."
             }
         }
     }
@@ -73,17 +73,20 @@ struct CreateBetaTesterCommand: CommonParsableCommand {
                     return api.request(endpoint).eraseToAnyPublisher()
                 }
 
-                return Publishers.ConcatenateMany(requests).last().eraseToAnyPublisher()
+                return Publishers.ConcatenateMany(requests)
+                    .last()
+                    .eraseToAnyPublisher()
             }
             // Get invited tester info
             .flatMap {
                 api.request(APIEndpoint.betaTester(
                         withId: $0.data.id,
-                        include: [GetBetaTester.Include.betaGroups, GetBetaTester.Include.apps]
+                        include: [GetBetaTester.Include.betaGroups,
+                                  GetBetaTester.Include.apps]
                     ))
                     .eraseToAnyPublisher()
             }
-            .map { BetaTester.init($0.data, $0.included) }
+            .map { BetaTester($0.data, $0.included) }
             .renderResult(format: common.outputFormat)
     }
 }

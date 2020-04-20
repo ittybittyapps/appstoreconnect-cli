@@ -84,7 +84,6 @@ extension AppStoreConnectService {
     }
 
     func betaGroupIdentifiers(matching names: [String]) throws -> AnyPublisher<[String], Error> {
-
         // Find group by name sequentially
         let requests = try names.map { (name: String) throws in
             return try self.betaGroupIdentifier(matching: name)
