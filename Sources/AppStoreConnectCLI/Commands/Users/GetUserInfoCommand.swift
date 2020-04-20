@@ -19,10 +19,8 @@ struct GetUserInfoCommand: CommonParsableCommand {
         let service = try makeService()
         let options = GetUserInfoOptions(email: email)
 
-        _ = service.getUserInfo(with: options)
-            .sink(
-                receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.ResultRenderer(format: common.outputFormat).render
-            )
+        _ = service
+            .getUserInfo(with: options)
+            .renderResult(format: common.outputFormat)
     }
 }

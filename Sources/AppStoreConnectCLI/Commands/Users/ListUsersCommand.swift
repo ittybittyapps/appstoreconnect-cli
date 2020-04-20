@@ -63,10 +63,8 @@ public struct ListUsersCommand: CommonParsableCommand {
             includeVisibleApps: includeVisibleApps
         )
 
-        _ = service.listUsers(with: options)
-            .sink(
-                receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.ResultRenderer(format: common.outputFormat).render
-            )
+        _ = service
+            .listUsers(with: options)
+            .renderResult(format: common.outputFormat)
     }
 }
