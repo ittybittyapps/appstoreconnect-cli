@@ -4,6 +4,11 @@ import AppStoreConnect_Swift_SDK
 import Combine
 
 struct ListUsersOperation: APIOperation {
+
+    struct ListUsersDependencies {
+        let users: (APIEndpoint<UsersResponse>) -> Deferred<Future<UsersResponse, Error>>
+    }
+
     private let endpoint: APIEndpoint<UsersResponse>
 
     init(options: ListUsersOptions) {
@@ -37,8 +42,8 @@ struct ListUsersOperation: APIOperation {
         )
     }
 
-    func execute(using provider: APIProvider) -> AnyPublisher<[User], Error> {
-        provider.request(endpoint)
+    func execute(with dependencies: ListUsersDependencies) -> AnyPublisher<[User], Error> {
+        dependencies.users(endpoint)
             .map(User.fromAPIResponse)
             .eraseToAnyPublisher()
     }

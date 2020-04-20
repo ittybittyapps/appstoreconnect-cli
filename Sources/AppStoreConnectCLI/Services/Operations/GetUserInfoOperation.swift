@@ -5,6 +5,11 @@ import Combine
 import Foundation
 
 struct GetUserInfoOperation: APIOperation {
+
+    struct GetUserInfoDependencies {
+        let usersResponse: (APIEndpoint<UsersResponse>) -> Deferred<Future<UsersResponse, Error>>
+    }
+
     enum GetUserInfoError: LocalizedError {
         case couldNotFindUser(email: String)
 
@@ -25,8 +30,8 @@ struct GetUserInfoOperation: APIOperation {
         email = options.email
     }
 
-    func execute(using provider: APIProvider) -> AnyPublisher<User, Error> {
-        provider.request(endpoint)
+    func execute(with dependencies: GetUserInfoDependencies) -> AnyPublisher<User, Error> {
+        dependencies.usersResponse(endpoint)
             .tryMap { [email] response in
                 let users = User.fromAPIResponse(response)
                 guard let user = users.first, users.count == 1 else {
@@ -37,4 +42,5 @@ struct GetUserInfoOperation: APIOperation {
             }
             .eraseToAnyPublisher()
     }
+
 }

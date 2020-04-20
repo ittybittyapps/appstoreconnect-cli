@@ -12,11 +12,17 @@ class AppStoreConnectService {
     }
 
     func listUsers(with options: ListUsersOptions) -> AnyPublisher<[User], Error> {
-        ListUsersOperation(options: options).execute(using: provider)
+        let dependencies = ListUsersOperation.Dependencies(users: request)
+        let operation = ListUsersOperation(options: options)
+
+        return operation.execute(with: dependencies)
     }
 
     func getUserInfo(with options: GetUserInfoOptions) -> AnyPublisher<User, Error> {
-        GetUserInfoOperation(options: options).execute(using: provider)
+        let dependencies = GetUserInfoOperation.Dependencies(usersResponse: request)
+        let operation = GetUserInfoOperation(options: options)
+
+        return operation.execute(with: dependencies)
     }
 
     /// Make a request for something `Decodable`.
