@@ -5,10 +5,10 @@ import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
 
-struct CreateBetaTesterCommand: CommonParsableCommand {
+struct InviteBetaTesterCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "invite",
-        abstract: "Create a beta tester and assign to one or more groups")
+        abstract: "Invite a beta tester and assign them to one or more groups")
 
     @OptionGroup()
     var common: CommonOptions
@@ -44,24 +44,22 @@ struct CreateBetaTesterCommand: CommonParsableCommand {
         let service = try makeService()
 
         _ = api
-            // Find app resource id matching bundle Id
             .appResourceId(matching: bundleId)
-            // Find beta groups matching app resource Id
             .flatMap {
-                api.request(APIEndpoint.betaGroups(forAppWithId: $0)).eraseToAnyPublisher()
+                api.request(APIEndpoint.betaGroups(forAppWithId: $0))
             }
-            // Check if input group names are belong to the app, else throws error
-            .tryMap { [groups, bundleId] (response: BetaGroupsResponse) -> AnyPublisher<[String], Error> in
+            // Check if input group names are belong to the app
+            .flatMap { [groups, bundleId] (response) -> AnyPublisher<[String], Error> in
                 let groupNamesInApp = Set(response.data.compactMap { $0.attributes?.name })
                 let inputGroupNames = Set(groups)
 
-                guard inputGroupNames.isSubset(of: groupNamesInApp) else {
-                    throw CommandError.noGroupsExist(groupNames: groups, bundleId: bundleId)
-                }
+//                guard inputGroupNames.isSubset(of: groupNamesInApp) else {
+//                    throw CommandError.noGroupsExist(groupNames: groups, bundleId: bundleId)
+//                }
 
-                return try api.betaGroupIdentifiers(matching: groups)
+                return try! api.betaGroupIdentifiers(matching: groups)
             }
-            .flatMap { $0 }
+//            .flatMap { $0 }
             // Invite tester to the input groups
             .flatMap { [email, firstName, lastName] (groupIds: [String]) -> AnyPublisher<BetaTesterResponse, Error> in
                 // A tester can only be invite to one group at a time
