@@ -63,32 +63,33 @@ extension AppStoreConnectService {
     /// Find the opaque internal identifier for this beta group; search by group name.
     ///
     /// This is an App Store Connect internal identifier
-    func betaGroupIdentifier(matching name: String) throws -> AnyPublisher<String, Error> {
+    func betaGroupIdentifier(matching name: String) -> AnyPublisher<String, Error> {
         let endpoint = APIEndpoint.betaGroups(
             filter: [ListBetaGroups.Filter.name([name])]
         )
 
         return self.request(endpoint)
-            .tryMap { response throws -> String in
+            .flatMap { response -> AnyPublisher<String, Error> in
                 guard !response.data.isEmpty else {
-                    throw BetaGroupError.couldntFindBetaGroup(groupNames: [name])
+                    let error = BetaGroupError.couldntFindBetaGroup(groupNames: [name])
+                    return Fail(error: error).eraseToAnyPublisher()
                 }
 
                 guard response.data.count == 1, let id = response.data.first?.id else {
-                    throw BetaGroupError.betaGroupNotUnique(groupNames: [name])
+                    let error = BetaGroupError.betaGroupNotUnique(groupNames: [name])
+                    return Fail(error: error).eraseToAnyPublisher()
                 }
 
-                return id
+                return Result.Publisher(id).eraseToAnyPublisher()
             }
             .eraseToAnyPublisher()
     }
 
-    func betaGroupIdentifiers(matching names: [String]) throws -> AnyPublisher<[String], Error> {
-        // Find group by name sequentially
-        let requests = try names.map { (name: String) throws in
-            return try self.betaGroupIdentifier(matching: name)
-        }
+    func betaGroupIdentifiers(matching names: [String]) -> AnyPublisher<[String], Error> {
+        let requests = names.map { self.betaGroupIdentifier(matching: $0) }
 
-        return Publishers.MergeMany(requests).reduce([]) { $0 + [$1] }.eraseToAnyPublisher()
+        return Publishers.MergeMany(requests)
+            .reduce([]) { $0 + [$1] }
+            .eraseToAnyPublisher()
     }
 }

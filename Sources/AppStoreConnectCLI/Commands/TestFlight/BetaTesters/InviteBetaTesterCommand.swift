@@ -53,13 +53,13 @@ struct InviteBetaTesterCommand: CommonParsableCommand {
                 let groupNamesInApp = Set(response.data.compactMap { $0.attributes?.name })
                 let inputGroupNames = Set(groups)
 
-//                guard inputGroupNames.isSubset(of: groupNamesInApp) else {
-//                    throw CommandError.noGroupsExist(groupNames: groups, bundleId: bundleId)
-//                }
+                guard inputGroupNames.isSubset(of: groupNamesInApp) else {
+                    let error = CommandError.noGroupsExist(groupNames: groups, bundleId: bundleId)
+                    return Fail(error: error).eraseToAnyPublisher()
+                }
 
-                return try! api.betaGroupIdentifiers(matching: groups)
+                return api.betaGroupIdentifiers(matching: groups)
             }
-//            .flatMap { $0 }
             // Invite tester to the input groups
             .flatMap { [email, firstName, lastName] (groupIds: [String]) -> AnyPublisher<BetaTesterResponse, Error> in
                 // A tester can only be invite to one group at a time
