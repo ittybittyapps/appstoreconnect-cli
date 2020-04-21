@@ -31,8 +31,14 @@ enum Renderers {
                 case .finished:
                     break
                 case .failure(let error):
-                    print("Error: \(error.localizedDescription)", to: &errorOutput)
+                    ErrorRenderer().render(error)
             }
+        }
+    }
+
+    struct ErrorRenderer: Renderer {
+        func render(_ input: Error) {
+            print("Error: \(input.localizedDescription)", to: &errorOutput)
         }
     }
 
