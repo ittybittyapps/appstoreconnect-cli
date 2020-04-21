@@ -1,16 +1,16 @@
-   prefix ?= /usr/local
-   bindir = $(prefix)/bin
+prefix ?= /usr/local
+bindir = $(prefix)/bin
 
-   build:
-      swift build -c release --disable-sandbox
+build:
+	swift build -c release --disable-sandbox
   
-   install: build
-	install ".build/release/appstoreconnect-cli" "$(bindir)"
+install: build
+	install ".build/release/asc" "$(bindir)"
 
-   uninstall:
-        rm -rf "$(bindir)/appstoreconnect-cli"
+uninstall:
+	rm -rf "$(bindir)/asc"
    
-   clean:
-        rm -rf .build
+clean:
+	rm -rf .build
 
-   .PHONY: build install uninstall clean
+.PHONY: build install uninstall clean
