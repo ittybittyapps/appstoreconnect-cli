@@ -6,7 +6,7 @@ import Combine
 struct ListUsersOperation: APIOperation {
 
     struct ListUsersDependencies {
-        let users: (APIEndpoint<UsersResponse>) -> Deferred<Future<UsersResponse, Error>>
+        let users: (APIEndpoint<UsersResponse>) -> Future<UsersResponse, Error>
     }
 
     private let endpoint: APIEndpoint<UsersResponse>

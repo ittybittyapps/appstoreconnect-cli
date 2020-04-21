@@ -7,7 +7,7 @@ import Foundation
 struct GetUserInfoOperation: APIOperation {
 
     struct GetUserInfoDependencies {
-        let usersResponse: (APIEndpoint<UsersResponse>) -> Deferred<Future<UsersResponse, Error>>
+        let usersResponse: (APIEndpoint<UsersResponse>) -> Future<UsersResponse, Error>
     }
 
     enum GetUserInfoError: LocalizedError {

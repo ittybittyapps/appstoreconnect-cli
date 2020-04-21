@@ -59,14 +59,12 @@ private extension Dependencies {
     }
     """.data(using: .utf8)!
 
-    static let noUsers = Self.init(
+    static let noUsers = Self(
         usersResponse: { _ in
-            Deferred {
-                Future<UsersResponse, Error> { promise in
-                    let usersResponse = try! jsonDecoder
-                        .decode(UsersResponse.self, from: noUsersResponse)
-                    promise(.success(usersResponse))
-                }
+            Future<UsersResponse, Error> { promise in
+                let usersResponse = try! jsonDecoder
+                    .decode(UsersResponse.self, from: noUsersResponse)
+                promise(.success(usersResponse))
             }
         }
     )

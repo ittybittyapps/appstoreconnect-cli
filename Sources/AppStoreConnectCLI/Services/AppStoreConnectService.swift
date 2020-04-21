@@ -29,24 +29,22 @@ class AppStoreConnectService {
     ///
     /// - Parameters:
     ///   - endpoint: The API endpoint to request
-    /// - Returns: `Deferred<Future<T, Error>>` that executes once subscribed to (cold observable)
-    func request<T: Decodable>(_ endpoint: APIEndpoint<T>) -> Deferred<Future<T, Error>> {
-        return Deferred() { [provider] in
-            // We use dispatch group to make this blocking - due to the nature of the app as a CLI tool it is necessary for API calls to be blocking
-            let dispatchGroup = DispatchGroup()
-            return Future<T, Error> { promise in
-                dispatchGroup.enter()
-                provider.request(endpoint) { result in
-                    switch result {
-                        case .success(let response):
-                            promise(.success(response))
-                        case .failure(let error):
-                            promise(.failure(error))
-                    }
-                    dispatchGroup.leave()
+    /// - Returns: `Future<T, Error>` that executes immediately (hot observable)
+    func request<T: Decodable>(_ endpoint: APIEndpoint<T>) -> Future<T, Error> {
+        // We use dispatch group to make this blocking - due to the nature of the app as a CLI tool it is necessary for API calls to be blocking
+        let dispatchGroup = DispatchGroup()
+        return Future<T, Error> { [provider] promise in
+            dispatchGroup.enter()
+            provider.request(endpoint) { result in
+                switch result {
+                    case .success(let response):
+                        promise(.success(response))
+                    case .failure(let error):
+                        promise(.failure(error))
                 }
-                dispatchGroup.wait()
+                dispatchGroup.leave()
             }
+            dispatchGroup.wait()
         }
     }
 
@@ -54,24 +52,22 @@ class AppStoreConnectService {
     ///
     /// - Parameters:
     ///   - endpoint: The API endpoint to request
-    /// - Returns: `Deferred<Future<Void, Error>>` that executes once subscribed to (cold observable)
-    func request(_ endpoint: APIEndpoint<Void>) -> Deferred<Future<Void, Error>> {
-        return Deferred() { [provider] in
-            // We use dispatch group to make this blocking - due to the nature of the app as a CLI tool it is necessary for API calls to be blocking
-            let dispatchGroup = DispatchGroup()
-            return Future<Void, Error> { promise in
-                dispatchGroup.enter()
-                provider.request(endpoint) { result in
-                    switch result {
-                        case .success:
-                            promise(.success(()))
-                        case .failure(let error):
-                            promise(.failure(error))
-                    }
-                    dispatchGroup.leave()
+    /// - Returns: `Future<Void, Error>` that executes immediately (hot observable)
+    func request(_ endpoint: APIEndpoint<Void>) -> Future<Void, Error> {
+        // We use dispatch group to make this blocking - due to the nature of the app as a CLI tool it is necessary for API calls to be blocking
+        let dispatchGroup = DispatchGroup()
+        return Future<Void, Error> { [provider] promise in
+            dispatchGroup.enter()
+            provider.request(endpoint) { result in
+                switch result {
+                    case .success:
+                        promise(.success(()))
+                    case .failure(let error):
+                        promise(.failure(error))
                 }
-                dispatchGroup.wait()
+                dispatchGroup.leave()
             }
+            dispatchGroup.wait()
         }
     }
 }
