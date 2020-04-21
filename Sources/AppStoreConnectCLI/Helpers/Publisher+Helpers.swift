@@ -40,7 +40,7 @@ extension Publisher where Output: Renderable, Failure == Error {
     func renderResult(format: OutputFormat) -> AnyCancellable {
         self.sink(
             receiveCompletion: Renderers.CompletionRenderer().render,
-            receiveValue: Renderers.DefaultRenderer<Output>(format: format).render
+            receiveValue: Renderers.DefaultRenderer(format: format).render
         )
     }
 }

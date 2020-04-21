@@ -2,7 +2,7 @@
 
 import Foundation
 
-extension Result where Success: Renderable, Failure == Error {
+extension Result {
     func render(format: OutputFormat) {
         Renderers.ResultRenderer(format: format).render(self)
     }

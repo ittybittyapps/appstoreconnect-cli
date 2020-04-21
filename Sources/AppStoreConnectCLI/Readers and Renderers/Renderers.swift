@@ -36,15 +36,17 @@ enum Renderers {
         }
     }
 
-    struct ResultRenderer<T: Renderable>: Renderer {
+    struct ResultRenderer<T, U: Error>: Renderer {
         let format: OutputFormat
 
-        func render(_ input: Result<T, Error>) {
+        func render(_ input: Result<T, U>) {
             switch input {
-            case .success(let success):
+            case .success(let success as Renderable):
                 Renderers.DefaultRenderer(format: format).render(success)
             case .failure(let error):
                 Renderers.ErrorRenderer().render(error)
+            default:
+                Renderers.null(())
             }
         }
     }
@@ -55,10 +57,10 @@ enum Renderers {
         }
     }
 
-    struct DefaultRenderer<T: Renderable>: Renderer {
+    struct DefaultRenderer: Renderer {
         let format: OutputFormat
 
-        func render(_ input: T) {
+        func render(_ input: Renderable) {
             switch format {
             case .csv:
                 print(input.renderAsCSV())
