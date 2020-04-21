@@ -40,18 +40,17 @@ struct ListUserInvitationsCommand: CommonParsableCommand {
     }
 
     public func run() throws {
-        let api = try makeService()
+        let service = try makeService()
 
         let endpoint = APIEndpoint.invitedUsers(
             limit: limitVisibleApps.map { [ListInvitedUsers.Limit.visibleApps($0)] },
             filter: filters
         )
 
-        _ = api.request(endpoint)
+        let result = service.request(endpoint)
             .map(\.data)
-            .sink(
-                receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.DefaultRenderer(format: common.outputFormat).render
-            )
+            .awaitResult()
+
+        result.render(format: common.outputFormat)
     }
 }

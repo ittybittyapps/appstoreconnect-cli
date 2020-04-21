@@ -61,11 +61,8 @@ private extension GetUserInfoOperationTests.Dependencies {
 
     static let noUsers = Self(
         usersResponse: { _ in
-            Future<UsersResponse, Error> { promise in
-                let usersResponse = try! jsonDecoder
-                    .decode(UsersResponse.self, from: noUsersResponse)
-                promise(.success(usersResponse))
-            }
+            let response = try! jsonDecoder.decode(UsersResponse.self, from: noUsersResponse)
+            return Future<UsersResponse, Error> { $0(.success(response)) }
         }
     )
 }

@@ -24,10 +24,12 @@ struct RegisterDeviceCommand: CommonParsableCommand {
     var platform: Platform
 
     func run() throws {
-        let api = try makeService()
+        let service = try makeService()
 
-        _ = api.request(APIEndpoint.registerNewDevice(name: name, platform: platform, udid: udid))
+        let result = service.request(APIEndpoint.registerNewDevice(name: name, platform: platform, udid: udid))
             .map(Device.init)
-            .renderResult(format: common.outputFormat)
+            .awaitResult()
+
+        result.render(format: common.outputFormat)
     }
 }

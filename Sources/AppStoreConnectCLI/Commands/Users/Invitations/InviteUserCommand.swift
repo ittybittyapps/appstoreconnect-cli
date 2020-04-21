@@ -35,25 +35,25 @@ struct InviteUserCommand: CommonParsableCommand {
     var bundleIds: [String]
 
     public func run() throws {
-        let api = try makeService()
+        let service = try makeService()
 
         if allAppsVisible {
-            inviteUserToTeam(by: api)
+            inviteUserToTeam(by: service)
             return
         }
 
         if !bundleIds.isEmpty {
-            _ = api
+            _ = service
                 .getAppResourceIdsFrom(bundleIds: bundleIds)
                 .sink(receiveCompletion: Renderers.CompletionRenderer().render) {
-                    self.inviteUserToTeam(with: $0, by: api)
+                    self.inviteUserToTeam(with: $0, by: service)
                 }
         }
 
         fatalError("Invalid Input: If you set allAppsVisible to false, you must provide at least one value for the visibleApps relationship.")
     }
 
-    func inviteUserToTeam(with appsVisibleIds: [String] = [], by api: AppStoreConnectService) {
+    func inviteUserToTeam(with appsVisibleIds: [String] = [], by service: AppStoreConnectService) {
         let request = APIEndpoint.invite(
             userWithEmail: email,
             firstName: firstName,
@@ -63,11 +63,10 @@ struct InviteUserCommand: CommonParsableCommand {
             provisioningAllowed: provisioningAllowed,
             appsVisibleIds: appsVisibleIds) // appsVisibleIds should be empty when allAppsVisible is true
 
-        _ = api.request(request)
+        let result = service.request(request)
             .map { $0.data }
-            .sink(
-                receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.DefaultRenderer(format: common.outputFormat).render
-            )
+            .awaitResult()
+
+        result.render(format: common.outputFormat)
     }
 }

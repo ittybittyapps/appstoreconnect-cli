@@ -57,7 +57,7 @@ struct ListBetaTestersCommand: CommonParsableCommand {
     }
 
     func run() throws {
-        let api = try makeService()
+        let service = try makeService()
 
         let request: AnyPublisher<BetaTestersResponse, Error>
 
@@ -67,15 +67,15 @@ struct ListBetaTestersCommand: CommonParsableCommand {
 
         switch ListStrategy(options: (filterBundleId, filterGroupName)) {
             case .all:
-                request = api
+                request = service
                     .request(APIEndpoint.betaTesters(include: includes, limit: limits))
                     .eraseToAnyPublisher()
 
             case .listByApp(let bundleId):
-                request = api
+                request = service
                     .getAppResourceIdsFrom(bundleIds: [bundleId])
                     .flatMap {
-                        api.request(APIEndpoint.betaTesters(
+                        service.request(APIEndpoint.betaTesters(
                             filter: [.apps($0)],
                             include: includes,
                             limit: limits
@@ -84,9 +84,9 @@ struct ListBetaTestersCommand: CommonParsableCommand {
                     .eraseToAnyPublisher()
 
             case .listByGroup(let betaGroupName):
-                request = try api.betaGroupIdentifier(matching: betaGroupName)
+                request = try service.betaGroupIdentifier(matching: betaGroupName)
                     .flatMap {
-                        api.request(APIEndpoint.betaTesters(
+                        service.request(APIEndpoint.betaTesters(
                             filter: [.betaGroups([$0])],
                             include: includes,
                             limit: limits
@@ -98,10 +98,12 @@ struct ListBetaTestersCommand: CommonParsableCommand {
                     .eraseToAnyPublisher()
         }
 
-        _ = request
+        let result = request
             .map { response in
                 response.data.map { BetaTester($0, response.included) }
             }
-            .renderResult(format: common.outputFormat)
+            .awaitResult()
+
+        result.render(format: common.outputFormat)
     }
 }

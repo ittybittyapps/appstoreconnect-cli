@@ -24,15 +24,17 @@ struct ModifyDeviceCommand: CommonParsableCommand {
     var status: DeviceStatus
 
     func run() throws {
-        let api = try makeService()
+        let service = try makeService()
 
-        _ = try api
+        let result = try service
             .deviceUDIDResourceId(matching: udid)
             .flatMap {
-                api.request(APIEndpoint.modifyRegisteredDevice(id: $0, name: self.name, status: self.status))
+                service.request(APIEndpoint.modifyRegisteredDevice(id: $0, name: self.name, status: self.status))
             }
             .map(Device.init)
-            .renderResult(format: common.outputFormat)
+            .awaitResult()
+
+        result.render(format: common.outputFormat)
     }
 
 }

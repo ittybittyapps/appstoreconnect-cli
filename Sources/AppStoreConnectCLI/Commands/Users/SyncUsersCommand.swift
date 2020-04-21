@@ -37,9 +37,9 @@ struct SyncUsersCommand: CommonParsableCommand {
 
         let usersInFile = Readers.FileReader<[User]>(format: inputFormat).read(filePath: config)
 
-        let client = try makeService()
+        let service = try makeService()
 
-        _ = usersInAppStoreConnect(client)
+        let result = usersInAppStoreConnect(service)
             .flatMap { users -> AnyPublisher<UserChange, Error> in
                 let changes = usersInFile.difference(from: users) { lhs, rhs -> Bool in
                     lhs.username == rhs.username
@@ -50,30 +50,29 @@ struct SyncUsersCommand: CommonParsableCommand {
                         .setFailureType(to: Error.self)
                         .eraseToAnyPublisher()
                 } else {
-                    return self.sync(users: changes, client: client)
+                    return self.sync(users: changes, service: service)
                         .eraseToAnyPublisher()
                 }
             }
-            .sink(
-                receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.UserChangesRenderer(dryRun: dryRun).render
-            )
+            .awaitResult()
+
+        result.render(format: common.outputFormat)
     }
 
-    private func sync(users changes: CollectionDifference<User>, client: AppStoreConnectService) -> AnyPublisher<UserChange, Error> {
+    private func sync(users changes: CollectionDifference<User>, service: AppStoreConnectService) -> AnyPublisher<UserChange, Error> {
         let requests = changes
             .compactMap { change -> AnyPublisher<UserChange, Error>? in
                 switch change {
                 case .insert(_, let user, _):
-                    return client
+                    return service
                         .request(APIEndpoint.invite(user: user))
                         .map { _ in change }
                         .eraseToAnyPublisher()
 
                 case .remove(_, let user, _):
-                    let removeUser = { client.request(APIEndpoint.remove(userWithId: $0)) }
+                    let removeUser = { service.request(APIEndpoint.remove(userWithId: $0)) }
 
-                    return client
+                    return service
                         .userIdentifier(matching: user.username)
                         .flatMap(removeUser)
                         .map { _ in change }

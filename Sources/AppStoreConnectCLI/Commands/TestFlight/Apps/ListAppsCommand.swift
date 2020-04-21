@@ -45,7 +45,7 @@ struct ListAppsCommand: CommonParsableCommand {
     }
 
     func run() throws {
-        let api = try makeService()
+        let service = try makeService()
 
         let limits = limit.map { [ListApps.Limit.apps($0)] }
 
@@ -54,11 +54,10 @@ struct ListAppsCommand: CommonParsableCommand {
             limits: limits
         )
 
-        _ = api.request(request)
+        let result = service.request(request)
             .map { $0.data.map(App.init) }
-            .sink(
-                receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.DefaultRenderer(format: common.outputFormat).render
-            )
+            .awaitResult()
+
+        result.render(format: common.outputFormat)
     }
 }

@@ -41,9 +41,9 @@ struct ListBetaTesterByBuildsCommand: CommonParsableCommand {
     }
 
     func run() throws {
-        let api = try makeService()
+        let service = try makeService()
 
-        _  = api
+        let result = service
             .getAppResourceIdsFrom(bundleIds: [bundleId])
             .flatMap { [versions, preReleaseVersions] appIds -> AnyPublisher<BuildsResponse, Error> in
 
@@ -57,7 +57,7 @@ struct ListBetaTesterByBuildsCommand: CommonParsableCommand {
                     filters.append(.preReleaseVersionVersion(preReleaseVersions))
                 }
 
-                return api.request(APIEndpoint.builds(filter: filters))
+                return service.request(APIEndpoint.builds(filter: filters))
                     .eraseToAnyPublisher()
             }
             .flatMap { [versions, preReleaseVersions] buildResponse -> AnyPublisher<BetaTestersResponse, Error> in
@@ -69,12 +69,14 @@ struct ListBetaTesterByBuildsCommand: CommonParsableCommand {
                 let endpoint = APIEndpoint.betaTesters(filter: [.builds(buildResponse.data.map(\.id))],
                                                        include: [.apps, .betaGroups])
 
-                return api.request(endpoint).eraseToAnyPublisher()
+                return service.request(endpoint).eraseToAnyPublisher()
             }
             .map { response in
                 response.data.map { BetaTester($0, response.included) }
             }
-            .renderResult(format: common.outputFormat)
+            .awaitResult()
+
+        result.render(format: common.outputFormat)
     }
 
 }

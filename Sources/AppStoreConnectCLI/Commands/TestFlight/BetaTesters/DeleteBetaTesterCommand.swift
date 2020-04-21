@@ -68,37 +68,37 @@ struct DeleteBetaTesterCommand: CommonParsableCommand {
     }
 
     func run() throws {
-        let api = try makeService()
+        let service = try makeService()
 
         let request: AnyPublisher<Void, Error>
 
         switch DeleteStrategy(options: (all, bundleId, betaGroupName, buildId)) {
             // Remove a beta tester's ability to test all apps.
             case .all:
-                request = try api
+                request = try service
                     .betaTesterResourceId(matching: email)
                     .flatMap {
-                        api.request(APIEndpoint.delete(betaTesterWithId: $0)).eraseToAnyPublisher()
+                        service.request(APIEndpoint.delete(betaTesterWithId: $0)).eraseToAnyPublisher()
                     }
                     .eraseToAnyPublisher()
 
             // Remove a specific beta tester's access to test any builds of one or more apps.
             case .removeFromApp(let bundleId):
-                request = try api
+                request = try service
                     .betaTesterResourceId(matching: email)
-                    .combineLatest(api.getAppResourceIdsFrom(bundleIds: [bundleId]))
+                    .combineLatest(service.getAppResourceIdsFrom(bundleIds: [bundleId]))
                     .flatMap {
-                        api.request(APIEndpoint.remove(accessOfBetaTesterWithId: $0, toAppsWithIds: $1))
+                        service.request(APIEndpoint.remove(accessOfBetaTesterWithId: $0, toAppsWithIds: $1))
                     }
                     .eraseToAnyPublisher()
 
             // Remove a specific beta tester from one or more beta groups, revoking their access to test builds associated with those groups.
             case .removeFromGroup(let betaGroupName):
-                request = try api
+                request = try service
                     .betaTesterResourceId(matching: email)
-                    .combineLatest(try api.betaGroupIdentifier(matching: betaGroupName))
+                    .combineLatest(try service.betaGroupIdentifier(matching: betaGroupName))
                     .flatMap {
-                        api.request(APIEndpoint.remove(
+                        service.request(APIEndpoint.remove(
                             betaTestersWithIds: [$0],
                             fromBetaGroupWithId: $1
                         ))
@@ -107,10 +107,10 @@ struct DeleteBetaTesterCommand: CommonParsableCommand {
 
             // Remove access to test a specific build from one or more individually assigned testers.
             case .removeFromBuild(let buildId):
-                request = try api
+                request = try service
                     .betaTesterResourceId(matching: email)
                     .flatMap {
-                        api.request(APIEndpoint.remove(
+                        service.request(APIEndpoint.remove(
                             individualTestersWithIds: [$0],
                             fromBuildWithId: buildId
                         ))
@@ -121,10 +121,7 @@ struct DeleteBetaTesterCommand: CommonParsableCommand {
                 request = Fail(error: error).eraseToAnyPublisher()
         }
 
-        _ = request
-            .sink(
-                receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: { _ in }
-            )
+        let result = request.awaitResult()
+        result.render(format: common.outputFormat)
     }
 }

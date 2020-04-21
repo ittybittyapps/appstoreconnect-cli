@@ -17,9 +17,9 @@ struct ListBuildsCommand: CommonParsableCommand {
     var bundleId: String
 
     func run() throws {
-        let api = try makeService()
+        let service = try makeService()
 
-        _ = api
+        let result = service
             .getAppResourceIdsFrom(bundleIds: [bundleId])
             .flatMap { (resoureceIds: [String]) -> AnyPublisher<BuildsResponse, Error> in
                 guard let appId = resoureceIds.first else {
@@ -31,12 +31,11 @@ struct ListBuildsCommand: CommonParsableCommand {
                     sort: [ListBuilds.Sort.uploadedDateAscending]
                 )
 
-                return api.request(endpoint).eraseToAnyPublisher()
+                return service.request(endpoint).eraseToAnyPublisher()
             }
             .map { $0.data }
-            .sink(
-                receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.DefaultRenderer(format: common.outputFormat).render
-            )
+            .awaitResult()
+
+        result.render(format: common.outputFormat)
     }
 }

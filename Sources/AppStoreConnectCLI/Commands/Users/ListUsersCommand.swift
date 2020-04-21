@@ -63,8 +63,10 @@ public struct ListUsersCommand: CommonParsableCommand {
             includeVisibleApps: includeVisibleApps
         )
 
-        _ = service
+        let result = service
             .listUsers(with: options)
-            .renderResult(format: common.outputFormat)
+            .awaitResult()
+
+        result.render(format: common.outputFormat)
     }
 }
