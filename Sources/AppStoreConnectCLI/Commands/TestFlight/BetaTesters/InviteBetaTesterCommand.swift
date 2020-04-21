@@ -48,7 +48,7 @@ struct InviteBetaTesterCommand: CommonParsableCommand {
             .flatMap {
                 api.request(APIEndpoint.betaGroups(forAppWithId: $0))
             }
-            // Check if input group names are belong to the app
+            // Check if input group names are belong to the input app
             .flatMap { [groups, bundleId] (response) -> AnyPublisher<[String], Error> in
                 let groupNamesInApp = Set(response.data.compactMap { $0.attributes?.name })
                 let inputGroupNames = Set(groups)
@@ -60,9 +60,7 @@ struct InviteBetaTesterCommand: CommonParsableCommand {
 
                 return api.betaGroupIdentifiers(matching: groups)
             }
-            // Invite tester to the input groups
             .flatMap { [email, firstName, lastName] (groupIds: [String]) -> AnyPublisher<BetaTesterResponse, Error> in
-                // A tester can only be invite to one group at a time
                 let requests = groupIds.map { (groupId: String) -> AnyPublisher<BetaTesterResponse, Error> in
                     let endpoint = APIEndpoint.create(betaTesterWithEmail: email,
                                                       firstName: firstName,
@@ -71,11 +69,11 @@ struct InviteBetaTesterCommand: CommonParsableCommand {
                     return api.request(endpoint).eraseToAnyPublisher()
                 }
 
+                // A tester can only be invite to one group at a time
                 return Publishers.ConcatenateMany(requests)
                     .last()
                     .eraseToAnyPublisher()
             }
-            // Get invited tester info
             .flatMap {
                 api.request(APIEndpoint.betaTester(
                         withId: $0.data.id,
