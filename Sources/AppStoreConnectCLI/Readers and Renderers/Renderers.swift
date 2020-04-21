@@ -29,9 +29,22 @@ enum Renderers {
         func render(_ input: Subscribers.Completion<Error>) {
             switch input {
                 case .finished:
-                    break
+                    Renderers.null(())
                 case .failure(let error):
                     ErrorRenderer().render(error)
+            }
+        }
+    }
+
+    struct ResultRenderer<T: Renderable>: Renderer {
+        let format: OutputFormat
+
+        func render(_ input: Result<T, Error>) {
+            switch input {
+            case .success(let success):
+                Renderers.DefaultRenderer(format: format).render(success)
+            case .failure(let error):
+                Renderers.ErrorRenderer().render(error)
             }
         }
     }
@@ -43,8 +56,6 @@ enum Renderers {
     }
 
     struct DefaultRenderer<T: Renderable>: Renderer {
-        typealias Input = T
-
         let format: OutputFormat
 
         func render(_ input: T) {
