@@ -34,8 +34,8 @@ struct CreateBetaTesterCommand: CommonParsableCommand {
 
         var failureReason: String? {
             switch self {
-                case .noGroupsExist(let groupNames, let bundleId):
-                    return "One or more of beta groups \"\(groupNames)\" don't exist or don't belongs to application with bundle Id \"\(bundleId)\"."
+            case .noGroupsExist(let groupNames, let bundleId):
+                return "One or more of beta groups \"\(groupNames)\" don't exist or don't belong to application with bundle ID \"\(bundleId)\"."
             }
         }
     }
@@ -44,13 +44,13 @@ struct CreateBetaTesterCommand: CommonParsableCommand {
         let service = try makeService()
 
         _ = api
-            // Find app resource id matching bundleId
+            // Find app resource id matching bundle Id
             .appResourceId(matching: bundleId)
             // Find beta groups matching app resource Id
             .flatMap {
                 api.request(APIEndpoint.betaGroups(forAppWithId: $0)).eraseToAnyPublisher()
             }
-            // Check if input group names are belong to the app, else throw Error
+            // Check if input group names are belong to the app, else throws error
             .tryMap { [groups, bundleId] (response: BetaGroupsResponse) -> AnyPublisher<[String], Error> in
                 let groupNamesInApp = Set(response.data.compactMap { $0.attributes?.name })
                 let inputGroupNames = Set(groups)
