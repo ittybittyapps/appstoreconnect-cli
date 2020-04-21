@@ -41,7 +41,7 @@ struct ListBetaTesterByBuildsCommand: CommonParsableCommand {
     }
 
     func run() throws {
-        let api = try makeClient()
+        let api = try makeService()
 
         _  = api
             .getAppResourceIdsFrom(bundleIds: [bundleId])

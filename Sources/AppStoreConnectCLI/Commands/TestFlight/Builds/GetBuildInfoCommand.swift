@@ -16,7 +16,7 @@ struct GetBuildInfoCommand: CommonParsableCommand {
     var buildId: String
 
     func run() throws {
-        let api = try makeClient()
+        let api = try makeService()
 
         let request = APIEndpoint.build(withId: buildId)
 

@@ -31,7 +31,7 @@ struct ReadDeviceInfoCommand: CommonParsableCommand {
     var udid: String
 
     func run() throws {
-        let api = try makeClient()
+        let api = try makeService()
 
         let request = APIEndpoint.listDevices(
             filter: [.udid([udid])]

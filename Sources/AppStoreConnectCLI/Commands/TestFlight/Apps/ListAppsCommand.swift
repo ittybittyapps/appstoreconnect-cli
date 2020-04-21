@@ -45,7 +45,7 @@ struct ListAppsCommand: CommonParsableCommand {
     }
 
     func run() throws {
-        let api = try makeClient()
+        let api = try makeService()
 
         let limits = limit.map { [ListApps.Limit.apps($0)] }
 

@@ -35,7 +35,7 @@ struct InviteUserCommand: CommonParsableCommand {
     var bundleIds: [String]
 
     public func run() throws {
-        let api = try makeClient()
+        let api = try makeService()
 
         if allAppsVisible {
             inviteUserToTeam(by: api)
@@ -53,7 +53,7 @@ struct InviteUserCommand: CommonParsableCommand {
         fatalError("Invalid Input: If you set allAppsVisible to false, you must provide at least one value for the visibleApps relationship.")
     }
 
-    func inviteUserToTeam(with appsVisibleIds: [String] = [], by api: HTTPClient) {
+    func inviteUserToTeam(with appsVisibleIds: [String] = [], by api: AppStoreConnectService) {
         let request = APIEndpoint.invite(
             userWithEmail: email,
             firstName: firstName,

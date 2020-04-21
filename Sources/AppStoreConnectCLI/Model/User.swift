@@ -90,9 +90,9 @@ extension User: TableInfoProvider {
     }
 }
 
-extension HTTPClient {
+extension AppStoreConnectService {
 
-    /// Find the opaque internal identifier for this user; search by email adddress.
+    /// Find the opaque internal identifier for this user; search by email address.
     ///
     /// This is an App Store Connect internal identifier
     func userIdentifier(matching email: String) -> AnyPublisher<String, Error> {

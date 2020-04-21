@@ -24,7 +24,7 @@ struct ModifyDeviceCommand: CommonParsableCommand {
     var status: DeviceStatus
 
     func run() throws {
-        let api = try makeClient()
+        let api = try makeService()
 
         _ = try api
             .deviceUDIDResourceId(matching: udid)

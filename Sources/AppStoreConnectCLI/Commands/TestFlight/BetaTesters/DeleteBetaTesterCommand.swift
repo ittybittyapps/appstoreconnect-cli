@@ -68,7 +68,7 @@ struct DeleteBetaTesterCommand: CommonParsableCommand {
     }
 
     func run() throws {
-        let api = try makeClient()
+        let api = try makeService()
 
         let request: AnyPublisher<Void, Error>
 

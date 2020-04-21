@@ -4,7 +4,7 @@ import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
 
-extension HTTPClient {
+extension AppStoreConnectService {
     private enum BetaGroupError: LocalizedError {
         case couldntFindBetaGroup
 
