@@ -6,11 +6,11 @@ import Combine
 import Foundation
 import XCTest
 
-typealias Dependencies = GetUserInfoOperation.Dependencies
-typealias Options = GetUserInfoOperation.Options
-typealias OperationError = GetUserInfoOperation.GetUserInfoError
-
 final class GetUserInfoOperationTests: XCTestCase {
+    typealias Dependencies = GetUserInfoOperation.Dependencies
+    typealias Options = GetUserInfoOperation.Options
+    typealias OperationError = GetUserInfoOperation.GetUserInfoError
+
     func testCouldNotFindUserError() {
         let dependencies: Dependencies = .noUsers
         let options = Options(email: "bob@bob.com")
@@ -41,7 +41,7 @@ final class GetUserInfoOperationTests: XCTestCase {
     }
 }
 
-private extension Dependencies {
+private extension GetUserInfoOperationTests.Dependencies {
     static let jsonDecoder = JSONDecoder()
 
     static let noUsersResponse = """
