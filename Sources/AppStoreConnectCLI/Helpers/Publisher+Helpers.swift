@@ -35,11 +35,12 @@ extension Publisher {
         return result
     }
 }
-extension Publisher where Output: ResultRenderable, Failure == Error {
+
+extension Publisher where Output: Renderable, Failure == Error {
     func renderResult(format: OutputFormat) -> AnyCancellable {
         self.sink(
             receiveCompletion: Renderers.CompletionRenderer().render,
-            receiveValue: Renderers.ResultRenderer<Output>(format: format).render
+            receiveValue: Renderers.DefaultRenderer<Output>(format: format).render
         )
     }
 }

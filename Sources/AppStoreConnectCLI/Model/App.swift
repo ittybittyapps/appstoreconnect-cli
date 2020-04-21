@@ -5,7 +5,7 @@ import Combine
 import Foundation
 import SwiftyTextTable
 
-struct App: ResultRenderable {
+struct App: Renderable {
     var bundleId: String?
     var name: String?
     var primaryLocale: String?

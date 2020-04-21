@@ -5,7 +5,7 @@ import Combine
 import SwiftyTextTable
 import AppStoreConnect_Swift_SDK
 
-extension UserInvitation: ResultRenderable { }
+extension UserInvitation: Renderable { }
 
 extension UserInvitation: TableInfoProvider {
     static func tableColumns() -> [TextTableColumn] {

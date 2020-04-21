@@ -58,7 +58,7 @@ struct ListAppsCommand: CommonParsableCommand {
             .map { $0.data.map(App.init) }
             .sink(
                 receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.ResultRenderer(format: common.outputFormat).render
+                receiveValue: Renderers.DefaultRenderer(format: common.outputFormat).render
             )
     }
 }

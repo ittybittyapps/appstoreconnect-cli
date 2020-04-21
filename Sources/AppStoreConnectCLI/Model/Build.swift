@@ -4,7 +4,7 @@ import AppStoreConnect_Swift_SDK
 import Foundation
 import SwiftyTextTable
 
-extension Build: ResultRenderable { }
+extension Build: Renderable { }
 
 extension Build: TableInfoProvider {
     static func tableColumns() -> [TextTableColumn] {

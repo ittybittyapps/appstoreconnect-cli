@@ -42,7 +42,7 @@ enum Renderers {
         }
     }
 
-    struct ResultRenderer<T: ResultRenderable>: Renderer {
+    struct DefaultRenderer<T: Renderable>: Renderer {
         typealias Input = T
 
         let format: OutputFormat
@@ -66,7 +66,7 @@ enum Renderers {
 /// Conformers to this protocol can be rendered as results in various formats.
 ///
 /// By also conforming to `TableInfoProvider`, conformers gain default implementations of all these functions.
-protocol ResultRenderable: Codable {
+protocol Renderable: Codable {
     /// Renders the receiver as a CSV string.
     func renderAsCSV() -> String
 
@@ -80,7 +80,7 @@ protocol ResultRenderable: Codable {
     func renderAsTable() -> String
 }
 
-extension ResultRenderable {
+extension Renderable {
     func renderAsJSON() -> String {
         let jsonEncoder = JSONEncoder()
         jsonEncoder.outputFormatting = [.prettyPrinted, .sortedKeys]
@@ -106,7 +106,7 @@ protocol TableInfoProvider {
 
 }
 
-extension Array: ResultRenderable where Element: TableInfoProvider & Codable {
+extension Array: Renderable where Element: TableInfoProvider & Codable {
     func renderAsCSV() -> String {
         let headers = Element.tableColumns().map { $0.header }
         let rows = self.map { $0.tableRow.map { "\($0)" } }
@@ -122,7 +122,7 @@ extension Array: ResultRenderable where Element: TableInfoProvider & Codable {
     }
 }
 
-extension ResultRenderable where Self: TableInfoProvider {
+extension Renderable where Self: TableInfoProvider {
     func renderAsCSV() -> String {
         let headers = Self.tableColumns().map { $0.header }
         let row = self.tableRow.map { "\($0)" }

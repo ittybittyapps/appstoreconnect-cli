@@ -4,7 +4,7 @@ import Foundation
 import AppStoreConnect_Swift_SDK
 import SwiftyTextTable
 
-struct Device: ResultRenderable {
+struct Device: Renderable {
     var udid: String?
     var addedDate: Date?
     var name: String?

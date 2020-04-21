@@ -5,7 +5,7 @@ import Combine
 import Foundation
 import SwiftyTextTable
 
-struct User: ResultRenderable {
+struct User: Renderable {
     var username: String
     var firstName: String
     var lastName: String

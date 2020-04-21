@@ -5,7 +5,7 @@ import Combine
 import Foundation
 import SwiftyTextTable
 
-struct BetaTester: ResultRenderable {
+struct BetaTester: Renderable {
     let email: String?
     let firstName: String?
     let lastName: String?
