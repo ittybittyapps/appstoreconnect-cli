@@ -24,16 +24,10 @@ struct CreateCertificateCommand: CommonParsableCommand {
 
         let csrContent = try String(contentsOfFile: csrFile, encoding: .utf8)
 
-        let endpoint = APIEndpoint.create(
-            certificateWithCertificateType: certificateType,
-            csrContent: csrContent
-        )
+        let options = CreateCertificateOptions(certificateType: certificateType, csrContent: csrContent)
 
-        let certificate = try service
-            .request(endpoint)
-            .map { Certificate($0.data) }
-            .await()
-
+        let certificate = try service.createCertificate(with: options).await()
+        
         certificate.render(format: common.outputFormat)
     }
 }
