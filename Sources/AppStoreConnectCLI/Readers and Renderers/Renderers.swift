@@ -87,6 +87,10 @@ extension ResultRenderable {
         let yaml = try! yamlEncoder.encode(self)
         return yaml
     }
+
+    func render(format: OutputFormat) {
+        Renderers.ResultRenderer(format: format).render(self)
+    }
 }
 
 /// Provides the necessary info to be able to render a table with SwiftyTable
