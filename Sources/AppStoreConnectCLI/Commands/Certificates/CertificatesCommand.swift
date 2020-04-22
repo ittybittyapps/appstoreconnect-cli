@@ -8,7 +8,7 @@ struct CertificatesCommand: ParsableCommand {
         commandName: "certificates",
         abstract: "Create, download, and revoke signing certificates for app development and distribution.",
         subcommands: [
-            /* TODO */
+            CreateCertificateCommand.self
         ]
         // defaultSubcommand: ListCertificatesCommand.self
     )
