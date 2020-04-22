@@ -13,29 +13,7 @@ protocol Renderer {
     func render(_ input: Input)
 }
 
-private final class StandardErrorOutputStream: TextOutputStream {
-    func write(_ string: String) {
-        FileHandle.standardError.write(Data(string.utf8))
-    }
-}
-
 enum Renderers {
-
-    static func null(_ input: Void) {}
-
-    private static var errorOutput = StandardErrorOutputStream()
-
-    struct CompletionRenderer: Renderer {
-        func render(_ input: Subscribers.Completion<Error>) {
-            switch input {
-                case .finished:
-                    break
-                case .failure(let error):
-                    print("Error: \(error.localizedDescription)", to: &errorOutput)
-            }
-        }
-    }
-
     struct ResultRenderer<T: ResultRenderable>: Renderer {
         typealias Input = T
 
