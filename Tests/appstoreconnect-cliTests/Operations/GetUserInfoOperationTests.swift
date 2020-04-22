@@ -13,31 +13,21 @@ final class GetUserInfoOperationTests: XCTestCase {
 
     func testCouldNotFindUserError() {
         let dependencies: Dependencies = .noUsers
-        let options = Options(email: "bob@bob.com")
+        let email = "bob@bob.com"
+        let options = Options(email: email)
         let operation = GetUserInfoOperation(options: options)
+        let expectedError = OperationError.couldNotFindUser(email: email)
 
-        let expectation = XCTestExpectation(description: "Publisher will complete")
-        var operationError: Error?
+        let result = Result {
+            try operation.execute(with: dependencies).await()
+        }
 
-        _ = operation
-            .execute(with: dependencies)
-            .sink(
-                receiveCompletion: { completion in
-                    if case .failure(let error) = completion {
-                        operationError = error
-                    }
-
-                    expectation.fulfill()
-                },
-                receiveValue: { _ in
-                    XCTFail("Expected no values")
-                }
-            )
-
-        XCTAssertEqual(
-            operationError?.localizedDescription,
-            OperationError.couldNotFindUser(email: "bob@bob.com").localizedDescription
-        )
+        switch result {
+        case .failure(let error as OperationError):
+            XCTAssertEqual(error.localizedDescription, expectedError.localizedDescription)
+        default:
+            XCTFail("Expected failure with: \(expectedError), got: \(result)")
+        }
     }
 }
 
