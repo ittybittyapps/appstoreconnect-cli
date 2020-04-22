@@ -98,10 +98,12 @@ struct ListBetaTestersCommand: CommonParsableCommand {
                     .eraseToAnyPublisher()
         }
 
-        _ = request
+        let betaTesters = try request
             .map { response in
                 response.data.map { BetaTester($0, response.included) }
             }
-            .renderResult(format: common.outputFormat)
+            .await()
+
+        betaTesters.render(format: common.outputFormat)
     }
 }

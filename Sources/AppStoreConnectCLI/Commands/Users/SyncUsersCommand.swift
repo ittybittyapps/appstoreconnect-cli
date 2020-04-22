@@ -39,7 +39,7 @@ struct SyncUsersCommand: CommonParsableCommand {
 
         let client = try makeService()
 
-        _ = usersInAppStoreConnect(client)
+        let change = try usersInAppStoreConnect(client)
             .flatMap { users -> AnyPublisher<UserChange, Error> in
                 let changes = usersInFile.difference(from: users) { lhs, rhs -> Bool in
                     lhs.username == rhs.username
@@ -54,10 +54,9 @@ struct SyncUsersCommand: CommonParsableCommand {
                         .eraseToAnyPublisher()
                 }
             }
-            .sink(
-                receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.UserChangesRenderer(dryRun: dryRun).render
-            )
+            .await()
+
+        Renderers.UserChangesRenderer(dryRun: dryRun).render(change)
     }
 
     private func sync(users changes: CollectionDifference<User>, client: AppStoreConnectService) -> AnyPublisher<UserChange, Error> {

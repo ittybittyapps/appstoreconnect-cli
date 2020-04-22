@@ -20,16 +20,18 @@ struct ListBundleIdsCommand: CommonParsableCommand {
     var filters: FilterOptions
 
     func run() throws {
-        let api = try makeService()
+        let service = try makeService()
 
         let request = APIEndpoint.listBundleIds(
             filter: [BundleIds.Filter](filters),
             limit: limit
         )
 
-        _ = api.request(request)
+        let bundleId = try service.request(request)
             .map { $0.data.map(BundleId.init) }
-            .renderResult(format: common.outputFormat)            
+            .await()
+
+        bundleId.render(format: common.outputFormat)
     }
 }
 
