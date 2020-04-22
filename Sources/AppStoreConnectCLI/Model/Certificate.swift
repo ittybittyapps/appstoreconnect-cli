@@ -14,12 +14,17 @@ struct Certificate: ResultRenderable {
 
 extension Certificate {
     init(_ certificate: AppStoreConnect_Swift_SDK.Certificate) {
-        let attributes = certificate.attributes
-        self.init(name: attributes.name,
-                  type: attributes.certificateType,
-                  content: attributes.certificateContent,
-                  platform: attributes.platform,
-                  expirationDate: attributes.expirationDate)
+        self.init(certificate.attributes)
+    }
+
+    init(_ attributes: AppStoreConnect_Swift_SDK.Certificate.Attributes) {
+        self.init(
+            name: attributes.name,
+            type: attributes.certificateType,
+            content: attributes.certificateContent,
+            platform: attributes.platform,
+            expirationDate: attributes.expirationDate
+        )
     }
 }
 
