@@ -8,7 +8,7 @@ enum PublisherAwaitError: LocalizedError {
     case expectedOutput
     case expectedSingleOutput(outputCount: Int)
 
-    var failureReason: String? {
+    var errorDescription: String? {
         switch self {
         case .timedOut(let timeout):
             return "Expected publisher output but timed out with timeout: \(timeout)"
