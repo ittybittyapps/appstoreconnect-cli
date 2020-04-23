@@ -40,7 +40,6 @@ struct ListDownloadCertificate: CommonParsableCommand {
     enum CommandError: LocalizedError {
         case invalidPath(String)
         case invalidContent
-        case notFound
 
         var errorDescription: String? {
             switch self {
@@ -48,68 +47,45 @@ struct ListDownloadCertificate: CommonParsableCommand {
                 return "Download failed, please check the path \(path) you input and try again"
             case .invalidContent:
                 return "The certificate in the response doesn't have a proper content"
-            case .notFound:
-                return "Unable to find certificate with input filters."
             }
         }
     }
 
     func run() throws {
-        let api = try makeService()
+        let service = try makeService()
 
-        var filters = [Certificates.Filter]()
-
-        if let filterSerial = filterSerial {
-            filters.append(.serialNumber([filterSerial]))
-        }
-
-        if let filterType = filterType {
-            filters.append(.certificateType(filterType))
-        }
-
-        if let filterDisplayName = filterDisplayName {
-            filters.append(.displayName([filterDisplayName]))
-        }
-
-        let endpoint = APIEndpoint.listDownloadCertificates(
-            filter: filters,
-            sort: [sort].compactMap { $0 },
+        let options = ListCertificatesOptions(
+            filterSerial: filterSerial,
+            sort: sort,
+            filterType: filterType,
+            filterDisplayName: filterDisplayName,
             limit: limit
         )
 
-        _ = api
-            .request(endpoint)
-            .map { $0.data.map(Certificate.init) }
-            .sink(
-                receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: { [common, downloadPath] (certificates: [Certificate]) in
-                    guard !certificates.isEmpty else {
-                        print(CommandError.notFound.errorDescription!)
-                        return
-                    }
+        let certificates = try service
+            .listCertificate(with: options)
+            .await()
 
-                    if let downloadPath = downloadPath {
-                        _ = certificates.map { (certificate: Certificate) in
-                            guard let content = certificate.content else {
-                                print(CommandError.invalidContent.errorDescription!)
-                                return
-                            }
-
-                            let filePath = "\(downloadPath)/\(certificate.serialNumber ?? "serial").cer"
-                            let result = FileManager
-                                .default
-                                .createFile(atPath: filePath, contents: Data(base64Encoded: content))
-
-                            result ?
-                                print("📥 Certificate '\(certificate.name ?? "")' downloaded to: \(filePath)")
-                                :
-                                print(CommandError.invalidPath(filePath).errorDescription!)
-                        }
-                    }
-
-                    Renderers.ResultRenderer(format: common.outputFormat).render(certificates)
+        if let downloadPath = downloadPath {
+            try certificates.forEach { (certificate: Certificate) in
+                guard let content = certificate.content else {
+                    throw CommandError.invalidContent
                 }
-            )
+
+                let filePath = "\(downloadPath)/\(certificate.serialNumber ?? "serial").cer"
+
+                guard FileManager
+                    .default
+                    .createFile(atPath: filePath,
+                                contents: Data(base64Encoded: content)) else {
+                                    throw CommandError.invalidPath(filePath)
+                    }
+
+                print("📥 Certificate '\(certificate.name ?? "")' downloaded to: \(filePath)")
+            }
+        }
+
+        certificates.render(format: common.outputFormat)
     }
 
 }
