@@ -11,11 +11,11 @@ struct ListCertificatesOpertaion: APIOperation {
     }
 
     enum ListCertificatesError: LocalizedError {
-        case couldNotCertificate
+        case couldNotFindCertificate
 
         var failureReason: String? {
             switch self {
-            case .couldNotCertificate:
+            case .couldNotFindCertificate:
                 return "Couldn't find certificate with input filters"
             }
         }
@@ -52,7 +52,7 @@ struct ListCertificatesOpertaion: APIOperation {
             .certificatesResponse(endpoint)
             .tryMap { (response: CertificatesResponse) -> [Certificate] in
                 guard !response.data.isEmpty else {
-                    throw ListCertificatesError.couldNotCertificate
+                    throw ListCertificatesError.couldNotFindCertificate
                 }
 
                 return response.data.map(Certificate.init)
