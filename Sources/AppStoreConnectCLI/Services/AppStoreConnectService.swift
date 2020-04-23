@@ -33,7 +33,7 @@ class AppStoreConnectService {
     }
 
     func createBetaGroup(with options: CreateBetaGroupOptions) -> AnyPublisher<BetaGroup, Error> {
-        let dependencies = CreateBetaGroupOperation.Dependencies()
+        let dependencies = CreateBetaGroupOperation.Dependencies(createBetaGroup: request)
         let operation = CreateBetaGroupOperation(options: options)
 
         return operation.execute(with: dependencies)

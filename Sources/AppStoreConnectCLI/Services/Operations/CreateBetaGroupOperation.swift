@@ -5,11 +5,23 @@ import Combine
 import Foundation
 
 struct CreateBetaGroupOperation: APIOperation {
-    struct CreateBetaGroupDependencies {}
+    struct CreateBetaGroupDependencies {
+        let createBetaGroup: (APIEndpoint<BetaGroupResponse>) -> Future<BetaGroupResponse, Error>
+    }
 
-    init(options: CreateBetaGroupOptions) {}
+    private let endpoint: APIEndpoint<BetaGroupResponse>
+
+    init(options: CreateBetaGroupOptions) {
+        endpoint = APIEndpoint.create(
+            betaGroupForAppWithId: options.appBundleId,
+            name: options.groupName
+        )
+    }
 
     func execute(with dependencies: CreateBetaGroupDependencies) -> AnyPublisher<BetaGroup, Error> {
-        Empty().eraseToAnyPublisher()
+        dependencies
+            .createBetaGroup(endpoint)
+            .map(\.data)
+            .eraseToAnyPublisher()
     }
 }
