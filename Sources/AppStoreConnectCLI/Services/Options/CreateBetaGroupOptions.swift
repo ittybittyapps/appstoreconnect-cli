@@ -3,4 +3,6 @@
 import Foundation
 
 struct CreateBetaGroupOptions {
+    let appBundleId: String
+    let groupName: String
 }
