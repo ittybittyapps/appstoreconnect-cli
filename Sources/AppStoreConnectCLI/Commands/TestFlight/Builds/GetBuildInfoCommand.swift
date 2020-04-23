@@ -16,15 +16,14 @@ struct GetBuildInfoCommand: CommonParsableCommand {
     var buildId: String
 
     func run() throws {
-        let api = try makeService()
+        let service = try makeService()
 
         let request = APIEndpoint.build(withId: buildId)
 
-        _ = api.request(request)
+        let build = try service.request(request)
             .map { $0.data }
-            .sink(
-                receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: Renderers.ResultRenderer(format: common.outputFormat).render
-            )
+            .await()
+
+        build.render(format: common.outputFormat)
     }
 }

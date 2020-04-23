@@ -17,16 +17,13 @@ struct CancelUserInvitationsCommand: CommonParsableCommand {
     var email: String
 
     public func run() throws {
-        let api = try makeService()
+        let service = try makeService()
 
-        let cancelInvitation = { api.request(APIEndpoint.cancel(userInvitationWithId: $0)) }
+        let cancelInvitation = { service.request(APIEndpoint.cancel(userInvitationWithId: $0)) }
 
-        _ = try api
+        try service
             .invitationIdentifier(matching: email)
             .flatMap(cancelInvitation)
-            .sink(
-                receiveCompletion: Renderers.CompletionRenderer().render,
-                receiveValue: { _ in }
-            )
+            .await()
     }
 }

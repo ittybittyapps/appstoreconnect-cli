@@ -43,7 +43,7 @@ struct CreateBetaTesterCommand: CommonParsableCommand {
     }
 
     func run() throws {
-        let api = try makeService()
+        let service = try makeService()
 
         let request: AnyPublisher<BetaTesterResponse, Error>
 
@@ -58,12 +58,12 @@ struct CreateBetaTesterCommand: CommonParsableCommand {
         switch (buildIds, groupNames) {
             case (let buildIds, _) where !buildIds.isEmpty:
                 let endpoint = createWithBuildIds(buildIds)
-                request = api.request(endpoint).eraseToAnyPublisher()
+                request = service.request(endpoint).eraseToAnyPublisher()
 
             case (_, let groupNames) where !groupNames.isEmpty:
                 let endpoint = APIEndpoint.betaGroups(filter: [ListBetaGroups.Filter.name(groupNames)])
 
-                let groupIds = api.request(endpoint).map { $0.data.map(\.id) }
+                let groupIds = service.request(endpoint).map { $0.data.map(\.id) }
 
                 request = groupIds
                     .flatMap { (groupIds: [String]) -> AnyPublisher<BetaTesterResponse, Error> in
@@ -73,15 +73,17 @@ struct CreateBetaTesterCommand: CommonParsableCommand {
 
                         let endpoint = createWithGroupIds(groupIds)
 
-                        return api.request(endpoint).eraseToAnyPublisher()
+                        return service.request(endpoint).eraseToAnyPublisher()
                     }
                     .eraseToAnyPublisher()
             case (_, _):
                 request = Fail(error: CommandError.invalidInput as Error).eraseToAnyPublisher()
         }
 
-        _ = request
+        let betaTester = try request
             .map { BetaTester($0.data, $0.included) }
-            .renderResult(format: common.outputFormat)
+            .await()
+
+        betaTester.render(format: common.outputFormat)
     }
 }

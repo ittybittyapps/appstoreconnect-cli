@@ -31,13 +31,13 @@ struct ReadDeviceInfoCommand: CommonParsableCommand {
     var udid: String
 
     func run() throws {
-        let api = try makeService()
+        let service = try makeService()
 
         let request = APIEndpoint.listDevices(
             filter: [.udid([udid])]
         )
 
-        _ = api.request(request)
+        let device = try service.request(request)
             .map(\.data)
             .tryMap { devices -> AppStoreConnect_Swift_SDK.Device in
                 guard let device = devices.first(where: { $0.attributes.udid == self.udid }) else {
@@ -47,7 +47,9 @@ struct ReadDeviceInfoCommand: CommonParsableCommand {
                 return device
             }
             .map(Device.init)
-            .renderResult(format: common.outputFormat)
+            .await()
+
+        device.render(format: common.outputFormat)
     }
 
 }
