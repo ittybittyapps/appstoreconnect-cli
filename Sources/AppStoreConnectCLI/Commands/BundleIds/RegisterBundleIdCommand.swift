@@ -26,12 +26,14 @@ struct RegisterBundleIdCommand: CommonParsableCommand {
     var platform: BundleIdPlatform
 
     func run() throws {
-        let api = try makeService()
+        let service = try makeService()
 
         let request = APIEndpoint.registerNewBundleId(id: identifier, name: name, platform: platform)
 
-        _ = api.request(request)
+        let bundleId = try service.request(request)
             .map(BundleId.init)
-            .renderResult(format: common.outputFormat)
+            .await()
+
+        bundleId.render(format: common.outputFormat)
     }
 }

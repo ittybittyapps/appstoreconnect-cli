@@ -20,7 +20,7 @@ struct CreateCertificateCommand: CommonParsableCommand {
     var csrFile: String
 
     func run() throws {
-        let api = try makeService()
+        let service = try makeService()
 
         let csrContent = try String(contentsOfFile: csrFile, encoding: .utf8)
 
@@ -29,9 +29,11 @@ struct CreateCertificateCommand: CommonParsableCommand {
             csrContent: csrContent
         )
 
-        _ = api
+        let certificate = try service
             .request(endpoint)
             .map { Certificate($0.data) }
-            .renderResult(format: common.outputFormat)
+            .await()
+
+        certificate.render(format: common.outputFormat)
     }
 }

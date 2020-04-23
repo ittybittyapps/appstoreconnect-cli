@@ -22,12 +22,14 @@ struct ModifyBundleIdCommand: CommonParsableCommand {
     var name: String
 
     func run() throws {
-        let api = try makeService()
+        let service = try makeService()
 
-        _ = try api
+        let bundleId = try service
             .bundleIdResourceId(matching: identifier)
-            .flatMap { api.request(APIEndpoint.modifyBundleId(id: $0, name: self.name)) }
+            .flatMap { service.request(APIEndpoint.modifyBundleId(id: $0, name: self.name)) }
             .map(BundleId.init)
-            .renderResult(format: common.outputFormat)            
+            .await()
+
+        bundleId.render(format: common.outputFormat)
     }
 }

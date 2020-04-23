@@ -63,7 +63,7 @@ struct ListDevicesCommand: CommonParsableCommand {
     var filterUDID: [String]
 
     func run() throws {
-        let api = try makeService()
+        let service = try makeService()
 
         var filters = [Devices.Filter]()
 
@@ -93,8 +93,10 @@ struct ListDevicesCommand: CommonParsableCommand {
             limit: limit
         )
 
-        _ = api.request(request)
+        let devices = try service.request(request)
             .map { $0.data.map(Device.init) }
-            .renderResult(format: common.outputFormat)
+            .await()
+
+        devices.render(format: common.outputFormat)
     }
 }

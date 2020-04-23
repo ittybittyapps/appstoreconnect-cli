@@ -19,11 +19,10 @@ struct DeleteBundleIdCommand: CommonParsableCommand {
     var identifier: String
 
     func run() throws {
-        let api = try makeService()
+        let service = try makeService()
+        let resourceId = try service.bundleIdResourceId(matching: identifier).await()
+        let deleteBundleId = APIEndpoint.delete(bundleWithId: resourceId)
 
-        _ = try api
-            .bundleIdResourceId(matching: identifier)
-            .flatMap { api.request(APIEndpoint.delete(bundleWithId: $0)) }
-            .renderResult(format: common.outputFormat)
+        try service.request(deleteBundleId).await()
     }
 }
