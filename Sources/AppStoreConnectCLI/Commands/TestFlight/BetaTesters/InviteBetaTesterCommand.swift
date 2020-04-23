@@ -32,7 +32,7 @@ struct InviteBetaTesterCommand: CommonParsableCommand {
     private enum CommandError: LocalizedError {
         case noGroupsExist(groupNames: [String], bundleId: String)
 
-        var failureReason: String? {
+        var errorDescription: String? {
             switch self {
             case .noGroupsExist(let groupNames, let bundleId):
                 return "One or more of beta groups \"\(groupNames)\" don't exist or don't belong to application with bundle ID \"\(bundleId)\"."
@@ -43,46 +43,51 @@ struct InviteBetaTesterCommand: CommonParsableCommand {
     func run() throws {
         let service = try makeService()
 
-        _ = api
-            .appResourceId(matching: bundleId)
-            .flatMap {
-                api.request(APIEndpoint.betaGroups(forAppWithId: $0))
-            }
-            // Check if input group names are belong to the input app
-            .flatMap { [groups, bundleId] (response) -> AnyPublisher<[String], Error> in
-                let groupNamesInApp = Set(response.data.compactMap { $0.attributes?.name })
-                let inputGroupNames = Set(groups)
+        let appId = try service.appResourceId(matching: bundleId).await()
 
-                guard inputGroupNames.isSubset(of: groupNamesInApp) else {
-                    let error = CommandError.noGroupsExist(groupNames: groups, bundleId: bundleId)
-                    return Fail(error: error).eraseToAnyPublisher()
-                }
+        let betaGroups = try service.request(APIEndpoint.betaGroups(forAppWithId: appId)).map { $0.data }.await()
 
-                return api.betaGroupIdentifiers(matching: groups)
-            }
-            .flatMap { [email, firstName, lastName] (groupIds: [String]) -> AnyPublisher<BetaTesterResponse, Error> in
-                let requests = groupIds.map { (groupId: String) -> AnyPublisher<BetaTesterResponse, Error> in
-                    let endpoint = APIEndpoint.create(betaTesterWithEmail: email,
-                                                      firstName: firstName,
-                                                      lastName: lastName,
-                                                      betaGroupIds: [groupId])
-                    return api.request(endpoint).eraseToAnyPublisher()
-                }
+        let groupNamesInApp = Set(betaGroups.compactMap { $0.attributes?.name })
+        let inputGroupNames = Set(groups)
 
-                // A tester can only be invite to one group at a time
-                return Publishers.ConcatenateMany(requests)
-                    .last()
-                    .eraseToAnyPublisher()
-            }
-            .flatMap {
-                api.request(APIEndpoint.betaTester(
-                        withId: $0.data.id,
-                        include: [GetBetaTester.Include.betaGroups,
-                                  GetBetaTester.Include.apps]
-                    ))
-                    .eraseToAnyPublisher()
-            }
-            .map { BetaTester($0.data, $0.included) }
-            .renderResult(format: common.outputFormat)
+        guard inputGroupNames.isSubset(of: groupNamesInApp) else {
+            throw CommandError.noGroupsExist(groupNames: groups, bundleId: bundleId)
+        }
+
+        let groupIds = try service
+            .betaGroupIdentifiers(matching: groups)
+            .await()
+
+        let createBetaTesterRequests = groupIds.map {
+            service
+                .request(
+                    APIEndpoint.create(
+                        betaTesterWithEmail: email,
+                        firstName: firstName,
+                        lastName: lastName,
+                        betaGroupIds: [$0])
+                )
+                .eraseToAnyPublisher()
+        }
+
+        let testerId = try Publishers
+            .ConcatenateMany(createBetaTesterRequests)
+            .last()
+            .await()
+            .data
+            .id
+
+        let betaTesterResponse = try service
+            .request(
+                APIEndpoint.betaTester(
+                    withId: testerId,
+                    include: [GetBetaTester.Include.betaGroups,
+                              GetBetaTester.Include.apps])
+            )
+            .await()
+
+        let betaTester = BetaTester(betaTesterResponse.data, betaTesterResponse.included)
+
+        betaTester.render(format: common.outputFormat)
     }
 }
