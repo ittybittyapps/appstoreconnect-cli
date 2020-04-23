@@ -21,8 +21,8 @@ enum PublisherAwaitError: LocalizedError {
 }
 
 extension Publisher {
-    func await(timeout: DispatchTime = .now() + 30) throws -> Output {
-        let allOutput = try awaitMany()
+    func await(timeout: DispatchTime = .distantFuture) throws -> Output {
+        let allOutput = try awaitMany(timeout: timeout)
 
         guard let output = allOutput.first, allOutput.count == 1 else {
             throw PublisherAwaitError.expectedSingleOutput(outputCount: allOutput.count)
@@ -31,7 +31,7 @@ extension Publisher {
         return output
     }
 
-    func awaitMany(timeout: DispatchTime = .now() + 30) throws -> [Output] {
+    func awaitMany(timeout: DispatchTime = .distantFuture) throws -> [Output] {
         var result: Result<[Output], Failure>?
 
         let dispatchQueue = DispatchQueue.global(qos: .userInteractive)
