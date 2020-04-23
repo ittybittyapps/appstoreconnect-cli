@@ -7,6 +7,8 @@ struct BetaGroupCommand: ParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "betagroup",
         abstract: "",
-        subcommands: []
+        subcommands: [
+            CreateBetaGroupCommand.self
+        ]
     )
 }
