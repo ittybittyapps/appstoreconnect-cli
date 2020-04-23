@@ -66,7 +66,7 @@ struct ListProfilesCommand: CommonParsableCommand {
     static let profileExtension = "mobileprovision"
 
     func run() throws {
-        let api = try makeClient()
+        let api = try makeService()
 
         var filters = [Profiles.Filter]()
 
@@ -94,10 +94,12 @@ struct ListProfilesCommand: CommonParsableCommand {
             limit: limits
         )
 
-        _ = api.request(request)
+        let profiles = try api.request(request)
             .map { $0.data.map(Profile.init) }
             .saveProfile(downloadPath: self.downloadPath) // FIXME: This feels like a hack.
-            .renderResult(format: common.outputFormat)
+            .await()
+
+        profiles.render(format: common.outputFormat)
     }
 }
 

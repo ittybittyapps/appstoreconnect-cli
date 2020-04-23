@@ -16,12 +16,11 @@ struct DeleteProfileCommand: CommonParsableCommand {
     var uuid: String
 
     func run() throws {
-        let api = try makeClient()
+        let api = try makeService()
 
-        _ = api.profileResourceId(matching: uuid)
-            .flatMap {
-                api.request(APIEndpoint.delete(profileWithId: $0))
-            }
-            .renderResult(format: common.outputFormat)
+        try api
+            .profileResourceId(matching: uuid)
+            .flatMap { api.request(APIEndpoint.delete(profileWithId: $0)) }
+            .await()
     }
 }
