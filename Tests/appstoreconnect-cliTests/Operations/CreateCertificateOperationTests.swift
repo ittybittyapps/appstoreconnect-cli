@@ -19,22 +19,17 @@ final class CreateCertificateOperationTests: XCTestCase {
         let operation = CreateCertificateOperation(options: options)
 
         let result = Result {
-            operation.execute(with: dependencies)
+            try operation.execute(with: dependencies).await()
         }
 
         switch result {
-            case .success(let publisher):
-                _ = publisher.sink(
-                receiveCompletion: { _ in },
-                receiveValue: { certificate in
-                    XCTAssertEqual(certificate.name, "Mac Installer Distribution: Hello")
-                    XCTAssertEqual(certificate.platform, BundleIdPlatform.macOS)
-                    XCTAssertEqual(certificate.content, "MIIFpDCCBIygAwIBAgIIbgb/7NS42MgwDQ")
-                })
+            case .success(let certificate):
+                XCTAssertEqual(certificate.name, "Mac Installer Distribution: Hello")
+                XCTAssertEqual(certificate.platform, BundleIdPlatform.macOS)
+                XCTAssertEqual(certificate.content, "MIIFpDCCBIygAwIBAgIIbgb/7NS42MgwDQ")
             default:
                 XCTFail("Error happened when parsing create certificate response")
         }
-
     }
 }
 
