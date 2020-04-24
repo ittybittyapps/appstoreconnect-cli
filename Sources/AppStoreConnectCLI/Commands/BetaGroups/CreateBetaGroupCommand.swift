@@ -17,10 +17,9 @@ struct CreateBetaGroupCommand: CommonParsableCommand {
         The reverse-DNS bundle ID of the app which the group should be associated with. \
         Must be unique. (eg. com.example.app)
         """
-    )
-    var appBundleId: String
+    ) var appBundleId: String
 
-    @Argument(help: "The name for the created beta group")
+    @Argument(help: "The name for the beta group")
     var groupName: String
 
     @Flag(

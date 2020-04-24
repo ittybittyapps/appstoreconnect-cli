@@ -29,7 +29,9 @@ struct GetAppsOperation: APIOperation {
         self.options = options
     }
 
-    func execute(with dependencies: GetAppsDependencies) -> AnyPublisher<[AppStoreConnect_Swift_SDK.App], Error> {
+    func execute(
+        with dependencies: GetAppsDependencies
+    ) -> AnyPublisher<[AppStoreConnect_Swift_SDK.App], Error> {
         let bundleIds = options.bundleIds
         let endpoint = APIEndpoint.apps(filters: [.bundleId(bundleIds)])
 
