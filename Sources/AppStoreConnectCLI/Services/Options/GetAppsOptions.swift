@@ -2,6 +2,6 @@
 
 import Foundation
 
-struct GetAppIdsOptions {
+struct GetAppsOptions {
     let bundleIds: [String]
 }

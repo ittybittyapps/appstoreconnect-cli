@@ -4,8 +4,8 @@ import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
 
-struct GetAppIdsOperation: APIOperation {
-    struct GetAppIdsDependencies {
+struct GetAppsOperation: APIOperation {
+    struct GetAppsDependencies {
         let apps: (APIEndpoint<AppsResponse>) -> Future<AppsResponse, Error>
     }
 
@@ -23,18 +23,18 @@ struct GetAppIdsOperation: APIOperation {
         }
     }
 
-    private let options: GetAppIdsOptions
+    private let options: GetAppsOptions
 
-    init(options: GetAppIdsOptions) {
+    init(options: GetAppsOptions) {
         self.options = options
     }
 
-    func execute(with dependencies: GetAppIdsDependencies) -> AnyPublisher<[String], Error> {
+    func execute(with dependencies: GetAppsDependencies) -> AnyPublisher<[AppStoreConnect_Swift_SDK.App], Error> {
         let bundleIds = options.bundleIds
         let endpoint = APIEndpoint.apps(filters: [.bundleId(bundleIds)])
 
         return dependencies.apps(endpoint)
-            .tryMap { (response: AppsResponse) throws -> [String] in
+            .tryMap { (response: AppsResponse) throws -> [AppStoreConnect_Swift_SDK.App] in
                 guard !response.data.isEmpty else {
                     throw GetAppIdsError.couldntFindAnyAppsMatching(bundleIds: bundleIds)
                 }
@@ -47,7 +47,7 @@ struct GetAppIdsOperation: APIOperation {
                     throw GetAppIdsError.appsDoNotExist(bundleIds: Array(nonExistentBundleIds))
                 }
 
-                return response.data.map { $0.id }
+                return response.data
             }
             .eraseToAnyPublisher()
     }
