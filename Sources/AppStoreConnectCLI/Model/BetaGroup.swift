@@ -5,7 +5,7 @@ import Combine
 import Foundation
 import SwiftyTextTable
 
-struct BetaGroup: TableInfoProvider, ResultRenderable {
+struct BetaGroup: TableInfoProvider, ResultRenderable, Equatable {
     let appBundleId: String?
     let appName: String?
     let groupName: String?
