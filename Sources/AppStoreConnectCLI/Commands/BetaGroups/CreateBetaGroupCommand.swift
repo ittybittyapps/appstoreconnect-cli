@@ -23,7 +23,7 @@ struct CreateBetaGroupCommand: CommonParsableCommand {
     var groupName: String
 
     @Flag(
-        name: .customLong("publicLink"),
+        name: .customLong("public-link"),
         inversion: .prefixedNo,
         help: """
         Specifies whether or not a public link should be enabled. \
@@ -36,7 +36,11 @@ struct CreateBetaGroupCommand: CommonParsableCommand {
 
     func run() throws {
         let service = try makeService()
-        let options = CreateBetaGroupOptions(appBundleId: appBundleId, groupName: groupName)
+
+        let options = CreateBetaGroupOptions(
+            appBundleId: appBundleId,
+            groupName: groupName,
+            publicLinkEnabled: publicLinkEnabled)
         let betaGroup = try service.createBetaGroup(with: options).await()
 
         betaGroup.render(format: common.outputFormat)

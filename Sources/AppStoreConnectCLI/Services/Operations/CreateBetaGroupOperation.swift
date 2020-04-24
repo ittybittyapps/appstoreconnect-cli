@@ -10,19 +10,19 @@ struct CreateBetaGroupOperation: APIOperation {
         let createBetaGroup: (APIEndpoint<BetaGroupResponse>) -> Future<BetaGroupResponse, Error>
     }
 
-    private let groupName: String
+    private let options: CreateBetaGroupOptions
     private let getAppsOperation: GetAppsOperation
 
     init(options: CreateBetaGroupOptions) {
-        groupName = options.groupName
-        getAppsOperation = GetAppsOperation(options: .init(bundleIds: [options.appBundleId]))
+        self.options = options
+        self.getAppsOperation = GetAppsOperation(options: .init(bundleIds: [options.appBundleId]))
     }
 
     private typealias AppAttributes = AppStoreConnect_Swift_SDK.App.Attributes
     private typealias BetaGroupAttributes = AppStoreConnect_Swift_SDK.BetaGroup.Attributes
 
     func execute(with dependencies: CreateBetaGroupDependencies) -> AnyPublisher<BetaGroup, Error> {
-        let groupName = self.groupName
+        let options = self.options
 
         let app = getAppsOperation
             .execute(with: .init(apps: dependencies.apps))
@@ -30,7 +30,11 @@ struct CreateBetaGroupOperation: APIOperation {
 
         let appAndGroupAttributes = app
             .flatMap { app -> AnyPublisher<(AppAttributes?, BetaGroupAttributes?), Error> in
-                let endpoint = APIEndpoint.create(betaGroupForAppWithId: app.id, name: groupName)
+                let endpoint = APIEndpoint.create(
+                    betaGroupForAppWithId: app.id,
+                    name: options.groupName,
+                    publicLinkEnabled: options.publicLinkEnabled)
+
                 let betaGroupResponse = dependencies.createBetaGroup(endpoint)
 
                 return betaGroupResponse
