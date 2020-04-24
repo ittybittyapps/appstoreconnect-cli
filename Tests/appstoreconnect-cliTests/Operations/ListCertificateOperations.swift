@@ -7,8 +7,8 @@ import Foundation
 import XCTest
 
 final class ListCertificateOperationsTests: XCTestCase {
-    typealias Dependencies = ListCertificatesOpertaion.Dependencies
-    typealias OperationError = ListCertificatesOpertaion.ListCertificatesError
+    typealias Dependencies = ListCertificatesOperation.Dependencies
+    typealias OperationError = ListCertificatesOperation.ListCertificatesError
 
     func testCouldNotFindCertificate() {
         let dependencies: Dependencies = .noCertificate
@@ -22,7 +22,7 @@ final class ListCertificateOperationsTests: XCTestCase {
 
         let expectedError = OperationError.couldNotFindCertificate
 
-        let operation = ListCertificatesOpertaion(options: options)
+        let operation = ListCertificatesOperation(options: options)
 
         let result = Result {
             try operation.execute(with: dependencies).await()

@@ -4,7 +4,7 @@ import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
 
-struct ListCertificatesOpertaion: APIOperation {
+struct ListCertificatesOperation: APIOperation {
 
     struct ListCertificatesDependencies {
         let certificatesResponse: (APIEndpoint<CertificatesResponse>) -> Future<CertificatesResponse, Error>
