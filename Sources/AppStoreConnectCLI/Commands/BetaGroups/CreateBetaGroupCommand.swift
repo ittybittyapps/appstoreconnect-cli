@@ -22,4 +22,12 @@ struct CreateBetaGroupCommand: CommonParsableCommand {
 
     @Argument(help: "The name for the created beta group")
     var groupName: String
+
+    func run() throws {
+        let service = try makeService()
+        let options = CreateBetaGroupOptions(appBundleId: appBundleId, groupName: groupName)
+        let betaGroup = try service.createBetaGroup(with: options).await()
+
+        betaGroup.render(format: common.outputFormat)
+    }
 }

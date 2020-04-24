@@ -40,7 +40,7 @@ struct BetaTester: ResultRenderable {
             return nil
         }
 
-        let includedBetaGroups = includes?.compactMap { relationship -> BetaGroup? in
+        let includedBetaGroups = includes?.compactMap { relationship -> AppStoreConnect_Swift_SDK.BetaGroup? in
             if case let .betaGroup(betaGroup) = relationship {
                 return betaGroup
             }
@@ -49,7 +49,7 @@ struct BetaTester: ResultRenderable {
 
         // Find tester related beta groups and apps in included data
         let betaGroupsNames = relationships?.betaGroups?.data?
-            .compactMap { group -> [BetaGroup]? in
+            .compactMap { group -> [AppStoreConnect_Swift_SDK.BetaGroup]? in
                 includedBetaGroups?.filter { $0.id == group.id }
             }
             .flatMap { $0.compactMap { $0.attributes?.name } }

@@ -11,23 +11,46 @@ struct CreateBetaGroupOperation: APIOperation {
     }
 
     private let groupName: String
-    private let getAppIdsOperation: GetAppIdsOperation
+    private let getAppsOperation: GetAppsOperation
 
     init(options: CreateBetaGroupOptions) {
         groupName = options.groupName
-        getAppIdsOperation = GetAppIdsOperation(options: .init(bundleIds: [options.appBundleId]))
+        getAppsOperation = GetAppsOperation(options: .init(bundleIds: [options.appBundleId]))
     }
 
+    private typealias AppAttributes = AppStoreConnect_Swift_SDK.App.Attributes
+    private typealias BetaGroupAttributes = AppStoreConnect_Swift_SDK.BetaGroup.Attributes
+
     func execute(with dependencies: CreateBetaGroupDependencies) -> AnyPublisher<BetaGroup, Error> {
-        let appId = getAppIdsOperation
+        let groupName = self.groupName
+
+        let app = getAppsOperation
             .execute(with: .init(apps: dependencies.apps))
             .compactMap(\.first)
 
-        let createBetaGroupEndpoint = appId.map { appId -> APIEndpoint<BetaGroupResponse> in
-            .create(betaGroupForAppWithId: appId, name: self.groupName)
-        }
+        let appAndGroupAttributes = app
+            .flatMap { app -> AnyPublisher<(AppAttributes?, BetaGroupAttributes?), Error> in
+                let endpoint = APIEndpoint.create(betaGroupForAppWithId: app.id, name: groupName)
+                let betaGroupResponse = dependencies.createBetaGroup(endpoint)
 
-        let betaGroup = createBetaGroupEndpoint.flatMap(dependencies.createBetaGroup).map(\.data)
+                return betaGroupResponse
+                    .map({ (app.attributes, $0.data.attributes) })
+                    .eraseToAnyPublisher()
+            }
+
+        let betaGroup = appAndGroupAttributes.map { appAttributes, groupAttributes -> BetaGroup in
+            BetaGroup(
+                appBundleId: appAttributes?.bundleId,
+                appName: appAttributes?.name,
+                groupName: groupAttributes?.name,
+                isInternal: groupAttributes?.isInternalGroup,
+                publicLink: groupAttributes?.publicLink,
+                publicLinkEnabled: groupAttributes?.publicLinkEnabled,
+                publicLinkLimit: groupAttributes?.publicLinkLimit,
+                publicLinkLimitEnabled: groupAttributes?.publicLinkEnabled,
+                creationDate: groupAttributes?.createdDate
+            )
+        }
 
         return betaGroup.eraseToAnyPublisher()
     }
