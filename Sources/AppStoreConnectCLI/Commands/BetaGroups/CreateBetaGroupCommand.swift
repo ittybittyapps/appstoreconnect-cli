@@ -23,6 +23,18 @@ struct CreateBetaGroupCommand: CommonParsableCommand {
     @Argument(help: "The name for the created beta group")
     var groupName: String
 
+    @Flag(
+        name: .customLong("publicLink"),
+        inversion: .prefixedNo,
+        help: """
+        Specifies whether or not a public link should be enabled. \
+        Enabling a link allows you to invite anyone outside of your team to beta test your app. \
+        When you share this link, testers will be able to install the beta version of your app \
+        on their devices in TestFlight and share the link with others. \
+        Defaults to false.
+        """
+    ) var publicLinkEnabled: Bool
+
     func run() throws {
         let service = try makeService()
         let options = CreateBetaGroupOptions(appBundleId: appBundleId, groupName: groupName)
