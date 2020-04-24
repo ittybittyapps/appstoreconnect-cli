@@ -6,15 +6,23 @@ import Combine
 import Foundation
 import XCTest
 
+private enum TestError: LocalizedError {
+    case createError
+
+    var localizedDescription: String {
+        return "Error when create certificate"
+    }
+}
+
 final class CreateCertificateOperationTests: XCTestCase {
     typealias Dependencies = CreateCertificateOperation.Dependencies
 
-    func testCreateCertificate_success() {
-        let dependencies: Dependencies = .createdSuccess
+    let options = CreateCertificateOptions(
+        certificateType: .iOSDevelopment,
+        csrContent: "")
 
-        let options = CreateCertificateOptions(
-            certificateType: .iOSDevelopment,
-            csrContent: "")
+    func testExecute_success() {
+        let dependencies: Dependencies = .createdSuccess
 
         let operation = CreateCertificateOperation(options: options)
 
@@ -29,6 +37,25 @@ final class CreateCertificateOperationTests: XCTestCase {
                 XCTAssertEqual(certificate.content, "MIIFpDCCBIygAwIBAgIIbgb/7NS42MgwDQ")
             default:
                 XCTFail("Error happened when parsing create certificate response")
+        }
+    }
+
+    func testExecute_propagatesUpstreamErrors() {
+        let dependencies: Dependencies = .createdFailed
+
+        let operation = CreateCertificateOperation(options: options)
+
+        let result = Result {
+            try operation.execute(with: dependencies).await()
+        }
+
+        let expectedError = TestError.createError
+
+        switch result {
+            case .failure(let error as TestError):
+                XCTAssertEqual(expectedError.localizedDescription, error.localizedDescription)
+            default:
+                XCTFail("Expected failure with: \(expectedError), got: \(result)")
         }
     }
 }
@@ -74,6 +101,14 @@ private extension CreateCertificateOperationTests.Dependencies {
                 let certificateResponse = try! jsonDecoder
                     .decode(CertificateResponse.self, from: createdSuccessResponse)
                 promise(.success(certificateResponse))
+            }
+        }
+    )
+
+    static let createdFailed = Self(
+        certificateResponse: { _ in
+            Future<CertificateResponse, Error> { promise in
+                promise(.failure(TestError.createError))
             }
         }
     )
