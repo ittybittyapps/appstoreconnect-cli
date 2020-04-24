@@ -19,10 +19,11 @@ AppStoreConnect CLI lets you interact with the AppStore Connect from the command
 
 ## Installation
 
-### TODO: Using [Homebrew](http://brew.sh/):
+### Using [Homebrew](http://brew.sh/):
 
 ```sh
-brew install appstoreconnect-cli
+brew tap ittybittyapps/appstoreconnect-cli
+brew install --HEAD appstoreconnect-cli
 ```
 
 ### Using [Mint](https://github.com/yonaskolb/mint):
