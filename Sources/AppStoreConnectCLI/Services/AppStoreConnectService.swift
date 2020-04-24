@@ -25,6 +25,13 @@ class AppStoreConnectService {
         return operation.execute(with: dependencies)
     }
 
+    func createCertificate(with options: CreateCertificateOptions) -> AnyPublisher<Certificate, Error> {
+        let dependencies = CreateCertificateOperation.Dependencies(certificateResponse: request)
+        let operation = CreateCertificateOperation(options: options)
+
+        return operation.execute(with: dependencies)
+    }
+
     /// Make a request for something `Decodable`.
     ///
     /// - Parameters:
