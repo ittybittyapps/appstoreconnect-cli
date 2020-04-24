@@ -34,13 +34,21 @@ struct CreateBetaGroupCommand: CommonParsableCommand {
         """
     ) var publicLinkEnabled: Bool
 
+    @Option(help: """
+        The maximum number of testers that can join this beta group using the public link. \
+        Values must be between 1 and 10,000. Optional.
+        """
+    ) var publicLinkLimit: Int?
+
     func run() throws {
         let service = try makeService()
 
         let options = CreateBetaGroupOptions(
             appBundleId: appBundleId,
             groupName: groupName,
-            publicLinkEnabled: publicLinkEnabled)
+            publicLinkEnabled: publicLinkEnabled,
+            publicLinkLimit: publicLinkLimit)
+
         let betaGroup = try service.createBetaGroup(with: options).await()
 
         betaGroup.render(format: common.outputFormat)

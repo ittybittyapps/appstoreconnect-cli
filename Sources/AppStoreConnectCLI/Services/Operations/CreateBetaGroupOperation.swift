@@ -33,7 +33,10 @@ struct CreateBetaGroupOperation: APIOperation {
                 let endpoint = APIEndpoint.create(
                     betaGroupForAppWithId: app.id,
                     name: options.groupName,
-                    publicLinkEnabled: options.publicLinkEnabled)
+                    publicLinkEnabled: options.publicLinkEnabled,
+                    publicLinkLimit: options.publicLinkLimit,
+                    publicLinkLimitEnabled: options.publicLinkLimit != nil
+                )
 
                 let betaGroupResponse = dependencies.createBetaGroup(endpoint)
 
