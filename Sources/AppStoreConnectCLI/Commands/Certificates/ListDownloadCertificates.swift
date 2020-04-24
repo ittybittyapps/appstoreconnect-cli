@@ -64,7 +64,7 @@ struct ListDownloadCertificates: CommonParsableCommand {
         )
 
         let certificates = try service
-            .listCertificate(with: options)
+            .listCertificates(with: options)
             .await()
 
         if let downloadPath = downloadPath {

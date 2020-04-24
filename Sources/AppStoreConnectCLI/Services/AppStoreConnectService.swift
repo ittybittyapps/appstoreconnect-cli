@@ -25,7 +25,7 @@ class AppStoreConnectService {
         return operation.execute(with: dependencies)
     }
 
-    func listCertificate(with options: ListCertificatesOptions) -> AnyPublisher<[Certificate], Error> {
+    func listCertificates(with options: ListCertificatesOptions) -> AnyPublisher<[Certificate], Error> {
         let dependencies = ListCertificatesOpertaion.Dependencies(certificatesResponse: request)
         let operation = ListCertificatesOpertaion(options: options)
 
