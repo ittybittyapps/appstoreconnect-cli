@@ -6,14 +6,6 @@ import Combine
 import Foundation
 import XCTest
 
-private enum TestError: LocalizedError {
-    case createError
-
-    var localizedDescription: String {
-        return "Error when create certificate"
-    }
-}
-
 final class CreateCertificateOperationTests: XCTestCase {
     typealias Dependencies = CreateCertificateOperation.Dependencies
 
@@ -49,11 +41,11 @@ final class CreateCertificateOperationTests: XCTestCase {
             try operation.execute(with: dependencies).await()
         }
 
-        let expectedError = TestError.createError
+        let expectedError = TestError.somethingBadHappened
 
         switch result {
             case .failure(let error as TestError):
-                XCTAssertEqual(expectedError.localizedDescription, error.localizedDescription)
+                XCTAssertEqual(expectedError, error)
             default:
                 XCTFail("Expected failure with: \(expectedError), got: \(result)")
         }
@@ -61,14 +53,6 @@ final class CreateCertificateOperationTests: XCTestCase {
 }
 
 private extension CreateCertificateOperationTests.Dependencies {
-    static let jsonDecoder: JSONDecoder = {
-        let jsonDecoder = JSONDecoder()
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX"
-        jsonDecoder.dateDecodingStrategy = .formatted(dateFormatter)
-
-        return jsonDecoder
-    }()
 
     static let createdSuccessResponse = """
     {
@@ -108,7 +92,7 @@ private extension CreateCertificateOperationTests.Dependencies {
     static let createdFailed = Self(
         certificateResponse: { _ in
             Future<CertificateResponse, Error> { promise in
-                promise(.failure(TestError.createError))
+                promise(.failure(TestError.somethingBadHappened))
             }
         }
     )
