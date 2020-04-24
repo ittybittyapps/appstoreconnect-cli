@@ -13,7 +13,7 @@ struct ListCertificatesOpertaion: APIOperation {
     enum ListCertificatesError: LocalizedError {
         case couldNotFindCertificate
 
-        var failureReason: String? {
+        var errorDescription: String? {
             switch self {
             case .couldNotFindCertificate:
                 return "Couldn't find certificate with input filters"

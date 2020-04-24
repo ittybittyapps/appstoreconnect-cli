@@ -4,6 +4,7 @@ import AppStoreConnect_Swift_SDK
 import ArgumentParser
 import Combine
 import Foundation
+import Files
 
 struct ListDownloadCertificates: CommonParsableCommand {
     static var configuration = CommandConfiguration(
@@ -44,7 +45,7 @@ struct ListDownloadCertificates: CommonParsableCommand {
         var errorDescription: String? {
             switch self {
             case .invalidPath(let path):
-                return "Download failed, please check the path \(path) you input and try again"
+                return "Download failed, please check the path '\(path)' you input and try again"
             case .invalidContent:
                 return "The certificate in the response doesn't have a proper content"
             }
@@ -72,16 +73,17 @@ struct ListDownloadCertificates: CommonParsableCommand {
                     throw CommandError.invalidContent
                 }
 
-                let filePath = "\(downloadPath)/\(certificate.serialNumber ?? "serial").cer"
+                do {
+                    let folder = try Folder(path: downloadPath)
 
-                guard FileManager
-                    .default
-                    .createFile(atPath: filePath,
-                                contents: Data(base64Encoded: content)) else {
-                                    throw CommandError.invalidPath(filePath)
-                    }
-
-                print("📥 Certificate '\(certificate.name ?? "")' downloaded to: \(filePath)")
+                    let file = try folder.createFile(
+                        named: "\(certificate.serialNumber ?? "serial").cer",
+                        contents: Data(base64Encoded: content)
+                    )
+                    print("📥 Certificate '\(certificate.name ?? "")' downloaded to: \(file.path)")
+                } catch {
+                    throw CommandError.invalidPath(downloadPath)
+                }
             }
         }
 
