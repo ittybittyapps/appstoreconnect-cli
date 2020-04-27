@@ -5,7 +5,7 @@ import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
 
-struct GetBuildReadCommand: CommonParsableCommand {
+struct ReadBuildCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "read",
         abstract: "Get information about a specific build.")
@@ -63,7 +63,7 @@ struct GetBuildReadCommand: CommonParsableCommand {
 
             let endpoint = APIEndpoint.builds(
               filter: filters,
-              include: [.app]
+              include: [.app, .betaAppReviewSubmission,.buildBetaDetail, .preReleaseVersion]
             )
 
             return service.request(endpoint).eraseToAnyPublisher()

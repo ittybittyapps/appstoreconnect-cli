@@ -37,11 +37,20 @@ extension BuildDetailsInfo: TableInfoProvider {
        return [
             TextTableColumn(header: "Bundle Id"),
             TextTableColumn(header: "App Name"),
+            //TextTableColumn(header: "Platform"),  - TODO from PrereleaseVersion
+            //TextTableColumn(header: "Version"), - TODO from PrereleaseVersion
+            TextTableColumn(header: "Build Number"),
+            //TextTableColumn(header: "Beta Review state"), - TODO from betaAppReviewSubmission
+            TextTableColumn(header: "Processing State"),
+            //TextTableColumn(header: "External build state"), - TODO from BuildBetaDetail
+            //TextTableColumn(header: "Internal build state"), - TODO from BuildBetaDetail
+            //TextTableColumn(header: "Auto Notify"), - TODO from BuildBetaDetail
+            TextTableColumn(header: "Min OS Version"),
             TextTableColumn(header: "Uploaded Date"),
             TextTableColumn(header: "Expiration Date"),
-            TextTableColumn(header: "Expired"),
-            TextTableColumn(header: "Min OS Version"),
-            TextTableColumn(header: "Version")
+            TextTableColumn(header: "Expired")
+            //TextTableColumn(header: "Uses Non Exempt Encryption"), - TODO ??
+            //TextTableColumn(header: "Beta Groups"), - TODO ??
         ]
     }
 
@@ -49,11 +58,12 @@ extension BuildDetailsInfo: TableInfoProvider {
         return [
             app?.attributes?.bundleId,
             app?.attributes?.name,
+            attributes?.version,
+            attributes?.processingState,
+            attributes?.minOsVersion,
             attributes?.uploadedDate?.formattedDate,
             attributes?.expirationDate?.formattedDate,
-            attributes?.expired?.toYesNo(),
-            attributes?.minOsVersion,
-            attributes?.version
+            attributes?.expired?.toYesNo()
         ]
         .map { $0 ?? "" }
     }

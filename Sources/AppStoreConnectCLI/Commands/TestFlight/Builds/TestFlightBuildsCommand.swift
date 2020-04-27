@@ -9,7 +9,7 @@ public struct TestFlightBuildsCommand: ParsableCommand {
         abstract: "Information about app builds.",
         subcommands: [
              ListBuildsCommand.self,
-             GetBuildReadCommand.self,
+             ReadBuildCommand.self,
             // ModifyBuildCommand.self,
             // More...
         ])
