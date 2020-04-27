@@ -45,7 +45,7 @@ struct GetBuildReadCommand: CommonParsableCommand {
     func run() throws {
         let service = try makeService()
 
-        let build = try service
+        let buildResponse = try service
         .getAppResourceIdsFrom(bundleIds: [bundleId])
         .flatMap {(resoureceIds: [String]) -> AnyPublisher<BuildsResponse, Error> in
             guard let appId = resoureceIds.first else {
@@ -62,14 +62,17 @@ struct GetBuildReadCommand: CommonParsableCommand {
             }
 
             let endpoint = APIEndpoint.builds(
-                filter: filters
+              filter: filters,
+              include: [.app]
             )
 
             return service.request(endpoint).eraseToAnyPublisher()
         }
-        .map { $0.data }
         .await()
 
-        build.render(format: common.outputFormat)
+      _ = buildResponse.data.map { build in
+        let buildDetailsInfo = BuildDetailsInfo(build, buildResponse.included)
+        buildDetailsInfo.render(format: common.outputFormat)
+      }
     }
 }
