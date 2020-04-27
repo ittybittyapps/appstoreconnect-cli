@@ -11,7 +11,8 @@ public struct TestFlightCommand: ParsableCommand {
             TestFlightAppsCommand.self,
             TestFlightBetaGroupCommand.self,
             TestFlightBetaTestersCommand.self,
-            TestFlightBuildsCommand.self
+            TestFlightBuildsCommand.self,
+            TestFlightPreReleaseVersionCommand.self,
         ])
 
     public init() {
