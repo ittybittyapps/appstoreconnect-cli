@@ -11,7 +11,9 @@ struct BetaGroupCommand: ParsableCommand {
         one or more builds.
         """,
         subcommands: [
-            CreateBetaGroupCommand.self
-        ]
+            CreateBetaGroupCommand.self,
+            ListBetaGroupsCommand.self
+        ],
+        defaultSubcommand: ListBetaGroupsCommand.self
     )
 }
