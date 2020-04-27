@@ -32,6 +32,15 @@ class AppStoreConnectService {
         return operation.execute(with: dependencies)
     }
 
+    func createBetaGroup(with options: CreateBetaGroupOptions) -> AnyPublisher<BetaGroup, Error> {
+        let dependencies = CreateBetaGroupOperation.Dependencies(
+            apps: request,
+            createBetaGroup: request)
+        let operation = CreateBetaGroupOperation(options: options)
+
+        return operation.execute(with: dependencies)
+    }
+
     /// Make a request for something `Decodable`.
     ///
     /// - Parameters:

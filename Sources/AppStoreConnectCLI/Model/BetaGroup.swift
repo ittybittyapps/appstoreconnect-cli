@@ -3,6 +3,47 @@
 import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
+import SwiftyTextTable
+
+struct BetaGroup: TableInfoProvider, ResultRenderable, Equatable {
+    let appBundleId: String?
+    let appName: String?
+    let groupName: String?
+    let isInternal: Bool?
+    let publicLink: String?
+    let publicLinkEnabled: Bool?
+    let publicLinkLimit: Int?
+    let publicLinkLimitEnabled: Bool?
+    let creationDate: Date?
+
+    static func tableColumns() -> [TextTableColumn] {
+        [
+            TextTableColumn(header: "App Bundle ID"),
+            TextTableColumn(header: "App Name"),
+            TextTableColumn(header: "Group Name"),
+            TextTableColumn(header: "Is Internal"),
+            TextTableColumn(header: "Public Link"),
+            TextTableColumn(header: "Public Link Enabled"),
+            TextTableColumn(header: "Public Link Limit"),
+            TextTableColumn(header: "Public Link Limit Enabled"),
+            TextTableColumn(header: "Creation Date"),
+        ]
+    }
+
+    var tableRow: [CustomStringConvertible] {
+        [
+            appBundleId ?? "",
+            appName ?? "",
+            groupName ?? "",
+            isInternal ?? "",
+            publicLink ?? "",
+            publicLinkEnabled ?? "",
+            publicLinkLimit ?? "",
+            publicLinkEnabled ?? "",
+            creationDate ?? ""
+        ]
+    }
+}
 
 extension AppStoreConnectService {
     private enum BetaGroupError: LocalizedError {
