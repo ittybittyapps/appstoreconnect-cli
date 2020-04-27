@@ -10,6 +10,7 @@ struct Certificate: ResultRenderable {
     let content: String?
     let platform: BundleIdPlatform?
     let expirationDate: Date?
+    let serialNumber: String?
 }
 
 extension Certificate {
@@ -23,7 +24,8 @@ extension Certificate {
             type: attributes.certificateType,
             content: attributes.certificateContent,
             platform: attributes.platform,
-            expirationDate: attributes.expirationDate
+            expirationDate: attributes.expirationDate,
+            serialNumber: attributes.serialNumber
         )
     }
 }
@@ -31,6 +33,7 @@ extension Certificate {
 extension Certificate: TableInfoProvider {
     static func tableColumns() -> [TextTableColumn] {
         [
+            TextTableColumn(header: "SerialNumber"),
             TextTableColumn(header: "Name"),
             TextTableColumn(header: "Type"),
             TextTableColumn(header: "Platform"),
@@ -40,6 +43,7 @@ extension Certificate: TableInfoProvider {
 
     var tableRow: [CustomStringConvertible] {
         [
+            self.serialNumber ?? "",
             self.name ?? "",
             self.type?.rawValue ?? "",
             self.platform?.rawValue ?? "",
