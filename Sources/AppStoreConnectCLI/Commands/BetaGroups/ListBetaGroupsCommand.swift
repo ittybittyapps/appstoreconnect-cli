@@ -13,5 +13,10 @@ struct ListBetaGroupsCommand: CommonParsableCommand {
     var common: CommonOptions
 
     func run() throws {
+        let service = try makeService()
+
+        let betaGroups = try service.listBetaGroups().await()
+
+        betaGroups.render(format: common.outputFormat)
     }
 }
