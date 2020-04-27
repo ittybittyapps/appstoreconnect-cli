@@ -21,19 +21,19 @@ struct BetaGroup: TableInfoProvider, ResultRenderable, Equatable {
         self.appId = appId
     }
 
-    mutating func update(with attributes: AppStoreConnect_Swift_SDK.App.Attributes) {
-        appBundleId = attributes.bundleId
-        appName = attributes.name
+    mutating func update(with attributes: AppStoreConnect_Swift_SDK.App.Attributes?) {
+        appBundleId = attributes?.bundleId
+        appName = attributes?.name
     }
 
-    mutating func update(with attributes: AppStoreConnect_Swift_SDK.BetaGroup.Attributes) {
-        groupName = attributes.name
-        isInternal = attributes.isInternalGroup
-        publicLink = attributes.publicLink
-        publicLinkEnabled = attributes.publicLinkEnabled
-        publicLinkLimit = attributes.publicLinkLimit
-        publicLinkLimitEnabled = attributes.publicLinkLimitEnabled
-        creationDate = attributes.createdDate
+    mutating func update(with attributes: AppStoreConnect_Swift_SDK.BetaGroup.Attributes?) {
+        groupName = attributes?.name
+        isInternal = attributes?.isInternalGroup
+        publicLink = attributes?.publicLink
+        publicLinkEnabled = attributes?.publicLinkEnabled
+        publicLinkLimit = attributes?.publicLinkLimit
+        publicLinkLimitEnabled = attributes?.publicLinkLimitEnabled
+        creationDate = attributes?.createdDate
     }
 
     static func tableColumns() -> [TextTableColumn] {

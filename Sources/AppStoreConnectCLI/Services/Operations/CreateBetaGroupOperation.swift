@@ -6,50 +6,41 @@ import Foundation
 
 struct CreateBetaGroupOperation: APIOperation {
 
-    private let options: CreateBetaGroupOptions
     private let getAppsOperation: GetAppsOperation
+    private let createBetaGroupEndpoint: (_ appId: String) -> APIEndpoint<BetaGroupResponse>
 
     init(options: CreateBetaGroupOptions) {
-        self.options = options
-        self.getAppsOperation = GetAppsOperation(options: .init(bundleIds: [options.appBundleId]))
+        getAppsOperation = GetAppsOperation(options: .init(bundleIds: [options.appBundleId]))
+        createBetaGroupEndpoint = { appId in
+            .create(
+                betaGroupForAppWithId: appId,
+                name: options.groupName,
+                publicLinkEnabled: options.publicLinkEnabled,
+                publicLinkLimit: options.publicLinkLimit,
+                publicLinkLimitEnabled: options.publicLinkLimit != nil
+            )
+        }
     }
 
     private typealias AppAttributes = AppStoreConnect_Swift_SDK.App.Attributes
     private typealias BetaGroupAttributes = AppStoreConnect_Swift_SDK.BetaGroup.Attributes
 
     func execute(with requestor: EndpointRequestor) -> AnyPublisher<BetaGroup, Error> {
-        let options = self.options
-
         let app = getAppsOperation
             .execute(with: requestor)
             .compactMap(\.first)
 
         let betaGroup = app.flatMap { app -> AnyPublisher<BetaGroup, Error> in
-            var betaGroupModel = BetaGroup(appId: app.id)
+            var betaGroup = BetaGroup(appId: app.id)
+            betaGroup.update(with: app.attributes)
 
-            if let appAttributes = app.attributes {
-                betaGroupModel.update(with: appAttributes)
-            }
-
-            let endpoint = APIEndpoint.create(
-                betaGroupForAppWithId: app.id,
-                name: options.groupName,
-                publicLinkEnabled: options.publicLinkEnabled,
-                publicLinkLimit: options.publicLinkLimit,
-                publicLinkLimitEnabled: options.publicLinkLimit != nil
-            )
-
-            let betaGroupResponse = requestor.request(endpoint)
-
-            let betaGroup = betaGroupResponse.map { response -> BetaGroup in
-                if let attributes = response.data.attributes {
-                    betaGroupModel.update(with: attributes)
+            return requestor
+                .request(self.createBetaGroupEndpoint(app.id))
+                .map { response -> BetaGroup in
+                    betaGroup.update(with: response.data.attributes)
+                    return betaGroup
                 }
-
-                return betaGroupModel
-            }
-
-            return betaGroup.eraseToAnyPublisher()
+                .eraseToAnyPublisher()
         }
 
         return betaGroup.eraseToAnyPublisher()
