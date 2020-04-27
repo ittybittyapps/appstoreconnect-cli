@@ -47,18 +47,15 @@ final class CreateBetaGroupOperationTests: XCTestCase {
             )
         )
 
-        let expectedGroup = BetaGroup(
-            appBundleId: "com.example.test",
-            appName: "Test App",
-            groupName: "test-group",
-            isInternal: false,
-            publicLink: nil,
-            publicLinkEnabled: false,
-            publicLinkLimit: nil,
-            publicLinkLimitEnabled: false,
-            // Equivalent to: "2020-04-24T05:40:26.0Z"
-            creationDate: Date(timeIntervalSince1970: 1587706826)
-        )
+        var expectedGroup = BetaGroup(appId: "0123456789")
+        expectedGroup.appBundleId = "com.example.test"
+        expectedGroup.appName = "Test App"
+        expectedGroup.groupName = "test-group"
+        expectedGroup.isInternal = false
+        expectedGroup.publicLinkEnabled = false
+        expectedGroup.publicLinkLimitEnabled = false
+        // Equivalent to: "2020-04-24T05:40:26.0Z"
+        expectedGroup.creationDate = Date(timeIntervalSince1970: 1587706826)
 
         let result = Result { try operation.execute(with: successRequestor).await() }
 

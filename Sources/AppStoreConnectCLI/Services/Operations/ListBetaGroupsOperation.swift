@@ -15,22 +15,18 @@ struct ListBetaGroupsOperation: APIOperation {
         endpoint = .betaGroups()
     }
 
-    func execute(with dependencies: ListBetaGroupsDependencies) -> AnyPublisher<[BetaGroup], Error> {
-        let response = dependencies.betaGroups(endpoint)
+    func execute(with requestor: EndpointRequestor) -> AnyPublisher<[BetaGroup], Error> {
+        let response = requestor.request(endpoint)
 
         let betaGroups = response.map { response in
-            response.data.map {
-                BetaGroup(
-                    appBundleId: nil,
-                    appName: nil,
-                    groupName: $0.attributes?.name,
-                    isInternal: $0.attributes?.isInternalGroup,
-                    publicLink: $0.attributes?.publicLink,
-                    publicLinkEnabled: $0.attributes?.publicLinkEnabled,
-                    publicLinkLimit: $0.attributes?.publicLinkLimit,
-                    publicLinkLimitEnabled: $0.attributes?.publicLinkLimitEnabled,
-                    creationDate: $0.attributes?.createdDate
-                )
+            response.data.map { betaGroupData -> BetaGroup in
+                var betaGroup = BetaGroup(appId: "")
+
+                if let attributes = betaGroupData.attributes {
+                    betaGroup.update(with: attributes)
+                }
+
+                return betaGroup
             }
         }
 

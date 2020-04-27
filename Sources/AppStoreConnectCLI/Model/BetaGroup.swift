@@ -6,18 +6,39 @@ import Foundation
 import SwiftyTextTable
 
 struct BetaGroup: TableInfoProvider, ResultRenderable, Equatable {
-    let appBundleId: String?
-    let appName: String?
-    let groupName: String?
-    let isInternal: Bool?
-    let publicLink: String?
-    let publicLinkEnabled: Bool?
-    let publicLinkLimit: Int?
-    let publicLinkLimitEnabled: Bool?
-    let creationDate: Date?
+    let appId: String
+    var appBundleId: String?
+    var appName: String?
+    var groupName: String?
+    var isInternal: Bool?
+    var publicLink: String?
+    var publicLinkEnabled: Bool?
+    var publicLinkLimit: Int?
+    var publicLinkLimitEnabled: Bool?
+    var creationDate: Date?
+
+    init(appId: String) {
+        self.appId = appId
+    }
+
+    mutating func update(with attributes: AppStoreConnect_Swift_SDK.App.Attributes) {
+        appBundleId = attributes.bundleId
+        appName = attributes.name
+    }
+
+    mutating func update(with attributes: AppStoreConnect_Swift_SDK.BetaGroup.Attributes) {
+        groupName = attributes.name
+        isInternal = attributes.isInternalGroup
+        publicLink = attributes.publicLink
+        publicLinkEnabled = attributes.publicLinkEnabled
+        publicLinkLimit = attributes.publicLinkLimit
+        publicLinkLimitEnabled = attributes.publicLinkLimitEnabled
+        creationDate = attributes.createdDate
+    }
 
     static func tableColumns() -> [TextTableColumn] {
         [
+            TextTableColumn(header: "App ID"),
             TextTableColumn(header: "App Bundle ID"),
             TextTableColumn(header: "App Name"),
             TextTableColumn(header: "Group Name"),
@@ -32,6 +53,7 @@ struct BetaGroup: TableInfoProvider, ResultRenderable, Equatable {
 
     var tableRow: [CustomStringConvertible] {
         [
+            appId,
             appBundleId ?? "",
             appName ?? "",
             groupName ?? "",

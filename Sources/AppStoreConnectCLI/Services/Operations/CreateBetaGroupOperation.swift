@@ -7,9 +7,11 @@ import Foundation
 struct CreateBetaGroupOperation: APIOperation {
 
     private let options: CreateBetaGroupOptions
+    private let getAppsOperation: GetAppsOperation
 
     init(options: CreateBetaGroupOptions) {
         self.options = options
+        self.getAppsOperation = GetAppsOperation(options: .init(bundleIds: [options.appBundleId]))
     }
 
     private typealias AppAttributes = AppStoreConnect_Swift_SDK.App.Attributes
@@ -18,41 +20,36 @@ struct CreateBetaGroupOperation: APIOperation {
     func execute(with requestor: EndpointRequestor) -> AnyPublisher<BetaGroup, Error> {
         let options = self.options
 
-        let app = GetAppsOperation(
-                options: .init(bundleIds: [options.appBundleId])
-            )
+        let app = getAppsOperation
             .execute(with: requestor)
             .compactMap(\.first)
 
-        let appAndGroupAttributes = app
-            .flatMap { app -> AnyPublisher<(AppAttributes?, BetaGroupAttributes?), Error> in
-                let endpoint = APIEndpoint.create(
-                    betaGroupForAppWithId: app.id,
-                    name: options.groupName,
-                    publicLinkEnabled: options.publicLinkEnabled,
-                    publicLinkLimit: options.publicLinkLimit,
-                    publicLinkLimitEnabled: options.publicLinkLimit != nil
-                )
+        let betaGroup = app.flatMap { app -> AnyPublisher<BetaGroup, Error> in
+            var betaGroupModel = BetaGroup(appId: app.id)
 
-                let betaGroupResponse = requestor.request(endpoint)
-
-                return betaGroupResponse
-                    .map({ (app.attributes, $0.data.attributes) })
-                    .eraseToAnyPublisher()
+            if let appAttributes = app.attributes {
+                betaGroupModel.update(with: appAttributes)
             }
 
-        let betaGroup = appAndGroupAttributes.map { appAttributes, groupAttributes -> BetaGroup in
-            BetaGroup(
-                appBundleId: appAttributes?.bundleId,
-                appName: appAttributes?.name,
-                groupName: groupAttributes?.name,
-                isInternal: groupAttributes?.isInternalGroup,
-                publicLink: groupAttributes?.publicLink,
-                publicLinkEnabled: groupAttributes?.publicLinkEnabled,
-                publicLinkLimit: groupAttributes?.publicLinkLimit,
-                publicLinkLimitEnabled: groupAttributes?.publicLinkEnabled,
-                creationDate: groupAttributes?.createdDate
+            let endpoint = APIEndpoint.create(
+                betaGroupForAppWithId: app.id,
+                name: options.groupName,
+                publicLinkEnabled: options.publicLinkEnabled,
+                publicLinkLimit: options.publicLinkLimit,
+                publicLinkLimitEnabled: options.publicLinkLimit != nil
             )
+
+            let betaGroupResponse = requestor.request(endpoint)
+
+            let betaGroup = betaGroupResponse.map { response -> BetaGroup in
+                if let attributes = response.data.attributes {
+                    betaGroupModel.update(with: attributes)
+                }
+
+                return betaGroupModel
+            }
+
+            return betaGroup.eraseToAnyPublisher()
         }
 
         return betaGroup.eraseToAnyPublisher()

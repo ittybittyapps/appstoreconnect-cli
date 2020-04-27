@@ -38,10 +38,9 @@ class AppStoreConnectService {
     }
 
     func listBetaGroups() -> AnyPublisher<[BetaGroup], Error> {
-        let dependencies = ListBetaGroupsOperation.Dependencies(betaGroups: request)
         let operation = ListBetaGroupsOperation(options: ListBetaGroupsOptions())
 
-        return operation.execute(with: dependencies)
+        return operation.execute(with: requestor)
     }
 
     /// Make a request for something `Decodable`.
