@@ -5,27 +5,27 @@ import Foundation
 import SwiftyTextTable
 
 struct PreReleaseVersion: Codable {
-    var app: App
-    var platform: Platform
-    var version: String
-    // TODO: var builds: [Build]?
+    var app: App?
+    var platform: Platform?
+    var version: String?
+    var builds: [Build]?
 }
 
 extension PreReleaseVersion {
     init(_ prereleaseVersion: AppStoreConnect_Swift_SDK.PrereleaseVersion, app: AppStoreConnect_Swift_SDK.App? = nil, builds: [AppStoreConnect_Swift_SDK.Build]? = nil) {
-        self.init(prereleaseVersion.attributes!, app: app, buildAttributes: builds?.map { $0.attributes! } )
+        self.init(prereleaseVersion.attributes!, appAttributes: app?.attributes, buildAttributes: builds?.map { $0.attributes! } )
     }
 
     init(
         _ attributes: AppStoreConnect_Swift_SDK.PrereleaseVersion.Attributes,
-        app: AppStoreConnect_Swift_SDK.App?,
+        appAttributes: AppStoreConnect_Swift_SDK.App.Attributes?,
         buildAttributes: [AppStoreConnect_Swift_SDK.Build.Attributes]?
     ) {
         self.init(
-            app: app.map(App.init)!,
-            platform: attributes.platform!,
-            version: attributes.version!
-            // TODO: builds: buildAttributes?.map(Build.init)
+            app: appAttributes.map(App.init),
+            platform: attributes.platform,
+            version: attributes.version,
+            builds: buildAttributes?.map(Build.init)
         )
     }
 }
@@ -80,8 +80,7 @@ private extension PreReleaseVersionRelationship {
 extension PreReleaseVersion: TableInfoProvider {
     static func tableColumns() -> [TextTableColumn] {
         return [
-            TextTableColumn(header: "App ID"),
-            TextTableColumn(header: "App Bundle ID"),
+            TextTableColumn(header: "App Bundle Id"),
             TextTableColumn(header: "App Name"),
             TextTableColumn(header: "Platform"),
             TextTableColumn(header: "Version"),
@@ -90,10 +89,9 @@ extension PreReleaseVersion: TableInfoProvider {
 
     var tableRow: [CustomStringConvertible] {
         return [
-            app.id,
-            app.bundleId,
-            app.name,
-            platform.description,
+            app?.bundleId,
+            app?.name,
+            platform?.description,
             version
         ].map { $0 ?? "" }
     }
