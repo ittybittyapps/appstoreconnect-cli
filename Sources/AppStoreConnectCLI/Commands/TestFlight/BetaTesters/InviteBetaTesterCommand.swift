@@ -58,35 +58,16 @@ struct InviteBetaTesterCommand: CommonParsableCommand {
             .betaGroupIdentifiers(matching: groups)
             .await()
 
-        let createBetaTesterRequests = groupIds.map {
-            service
-                .request(
-                    APIEndpoint.create(
-                        betaTesterWithEmail: email,
-                        firstName: firstName,
-                        lastName: lastName,
-                        betaGroupIds: [$0])
-                )
-                .eraseToAnyPublisher()
-        }
+        let options = InviteBetaTesterOptions(
+            firstName: firstName,
+            lastName: lastName,
+            email: email,
+            betaGroupIds: groupIds
+        )
 
-        let testerId = try Publishers
-            .ConcatenateMany(createBetaTesterRequests)
-            .last()
+        let betaTester = try service
+            .inviteBetaTesterToGroups(with: options)
             .await()
-            .data
-            .id
-
-        let betaTesterResponse = try service
-            .request(
-                APIEndpoint.betaTester(
-                    withId: testerId,
-                    include: [GetBetaTester.Include.betaGroups,
-                              GetBetaTester.Include.apps])
-            )
-            .await()
-
-        let betaTester = BetaTester(betaTesterResponse.data, betaTesterResponse.included)
 
         betaTester.render(format: common.outputFormat)
     }
