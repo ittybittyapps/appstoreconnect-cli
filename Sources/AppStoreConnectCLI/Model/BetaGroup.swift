@@ -15,7 +15,7 @@ struct BetaGroup: TableInfoProvider, ResultRenderable, Equatable {
     var publicLinkEnabled: Bool?
     var publicLinkLimit: Int?
     var publicLinkLimitEnabled: Bool?
-    var creationDate: Date?
+    var creationDate: String?
 
     init(appId: String) {
         self.appId = appId
@@ -33,7 +33,7 @@ struct BetaGroup: TableInfoProvider, ResultRenderable, Equatable {
         publicLinkEnabled = attributes?.publicLinkEnabled
         publicLinkLimit = attributes?.publicLinkLimit
         publicLinkLimitEnabled = attributes?.publicLinkLimitEnabled
-        creationDate = attributes?.createdDate
+        creationDate = attributes?.createdDate?.formattedDate
     }
 
     static func tableColumns() -> [TextTableColumn] {

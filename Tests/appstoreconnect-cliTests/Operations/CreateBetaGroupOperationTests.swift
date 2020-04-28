@@ -54,8 +54,7 @@ final class CreateBetaGroupOperationTests: XCTestCase {
         expectedGroup.isInternal = false
         expectedGroup.publicLinkEnabled = false
         expectedGroup.publicLinkLimitEnabled = false
-        // Equivalent to: "2020-04-24T05:40:26.0Z"
-        expectedGroup.creationDate = Date(timeIntervalSince1970: 1587706826)
+        expectedGroup.creationDate = "2020-04-24T05:40:26Z"
 
         let result = Result { try operation.execute(with: successRequestor).await() }
 
