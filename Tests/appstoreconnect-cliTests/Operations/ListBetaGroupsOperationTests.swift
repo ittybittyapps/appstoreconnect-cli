@@ -30,6 +30,19 @@ final class ListBetaGroupsOperationTests: XCTestCase {
             XCTFail("Expected success, got: \(error.localizedDescription)")
         }
     }
+
+    func testExecute_propagatesUpstreamErrors() {
+        let operation = Operation(options: Options())
+
+        let result = Result { try operation.execute(with: .failure).await() }
+
+        switch result {
+        case .failure(TestError.somethingBadHappened):
+            break
+        default:
+            XCTFail("Expected \(TestError.somethingBadHappened), got: \(result)")
+        }
+    }
 }
 
 private extension ListBetaGroupsOperationTests.Dependencies {
@@ -92,5 +105,9 @@ private extension ListBetaGroupsOperationTests.Dependencies {
 
     static let success = Self { _ in
         Future { $0(.success(groupsResponse)) }
+    }
+
+    static let failure = Self { _ in
+        Future { $0(.failure(TestError.somethingBadHappened)) }
     }
 }
