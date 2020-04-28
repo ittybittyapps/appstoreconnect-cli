@@ -6,7 +6,6 @@ import Foundation
 
 struct ListBetaGroupsOperation: APIOperation {
     struct ListBetaGroupsDependencies {
-        let apps: (APIEndpoint<AppsResponse>) -> Future<AppsResponse, Error>
         let betaGroups: (APIEndpoint<BetaGroupsResponse>) -> Future<BetaGroupsResponse, Error>
     }
 
@@ -19,26 +18,24 @@ struct ListBetaGroupsOperation: APIOperation {
     func execute(with requestor: EndpointRequestor) -> AnyPublisher<[BetaGroup], Error> {
         let response = requestor.request(endpoint)
 
-        let betaGroups = response.flatMap { response -> AnyPublisher<[BetaGroup], Error> in
-            let seed: [String: AppStoreConnect_Swift_SDK.BetaGroup.Attributes] = [:]
-            let betaGroupAttributes = response.data.reduce(into: seed) { result, data in
-                (data.relationships?.app?.data?.id).map { result[$0] = data.attributes }
-            }
+        let betaGroups = response.map { response -> [BetaGroup] in
+            var betaGroups: [String: BetaGroup] = [:]
 
-            let appIds: [String] = Array(betaGroupAttributes.keys)
-            let appsResponse = requestor.request(.apps(filters: [.id(appIds)]))
-
-            let betaGroups = appsResponse.map { appsResponse in
-                appsResponse.data.map { app -> BetaGroup in
-                    let groupAttributes = betaGroupAttributes[app.id]
+            response.included?.forEach { relationship in
+                if case .app(let app) = relationship {
                     var betaGroup = BetaGroup(appId: app.id)
                     betaGroup.update(with: app.attributes)
-                    betaGroup.update(with: groupAttributes)
-                    return betaGroup
+                    betaGroups[app.id] = betaGroup
                 }
             }
 
-            return betaGroups.eraseToAnyPublisher()
+            response.data.forEach { groupData in
+                if let appId = groupData.relationships?.app?.data?.id {
+                    betaGroups[appId]?.update(with: groupData.attributes)
+                }
+            }
+
+            return Array(betaGroups.values)
         }
 
         return betaGroups.eraseToAnyPublisher()
