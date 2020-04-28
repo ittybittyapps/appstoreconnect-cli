@@ -6,7 +6,7 @@ import Combine
 import Foundation
 import Files
 
-struct ReadDownloadCertificate: CommonParsableCommand {
+struct ReadDownloadCertificateCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
     commandName: "read",
     abstract: "Get information about a certificate and download the certificate data.")
@@ -19,8 +19,6 @@ struct ReadDownloadCertificate: CommonParsableCommand {
 
     @Option(help: "The file download path and name. (eg. ./file.cer)")
     var certificateOutput: String?
-
-    typealias Error = ListDownloadCertificates.CommandError
 
     func run() throws {
         let service = try makeService()
@@ -35,7 +33,7 @@ struct ReadDownloadCertificate: CommonParsableCommand {
 
         if let certificateOutput = certificateOutput {
             guard let content = certificate.content else {
-                throw Error.invalidContent
+                throw CertificatesError.invalidContent
             }
 
             do {
@@ -49,7 +47,7 @@ struct ReadDownloadCertificate: CommonParsableCommand {
 
                 print("📥 Certificate '\(certificate.name ?? "")' downloaded to: \(file.path)")
             } catch {
-                throw Error.invalidPath(certificateOutput)
+                throw CertificatesError.invalidPath(certificateOutput)
             }
         }
 

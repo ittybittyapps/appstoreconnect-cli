@@ -6,7 +6,7 @@ import Combine
 import Foundation
 import Files
 
-struct ListDownloadCertificates: CommonParsableCommand {
+struct ListDownloadCertificatesCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "list",
         abstract: "Find and list certificates and download their data.")
@@ -38,20 +38,6 @@ struct ListDownloadCertificates: CommonParsableCommand {
     @Option(help: "The file download path. (eg. ~/Documents)")
     var downloadPath: String?
 
-    enum CommandError: LocalizedError {
-        case invalidPath(String)
-        case invalidContent
-
-        var errorDescription: String? {
-            switch self {
-            case .invalidPath(let path):
-                return "Download failed, please check the path '\(path)' you input and try again"
-            case .invalidContent:
-                return "The certificate in the response doesn't have a proper content"
-            }
-        }
-    }
-
     func run() throws {
         let service = try makeService()
 
@@ -70,7 +56,7 @@ struct ListDownloadCertificates: CommonParsableCommand {
         if let downloadPath = downloadPath {
             try certificates.forEach { (certificate: Certificate) in
                 guard let content = certificate.content else {
-                    throw CommandError.invalidContent
+                    throw CertificatesError.invalidContent
                 }
 
                 do {
@@ -82,7 +68,7 @@ struct ListDownloadCertificates: CommonParsableCommand {
 
                     print("📥 Certificate '\(certificate.name ?? "")' downloaded to: \(file.path)")
                 } catch {
-                    throw CommandError.invalidPath(downloadPath)
+                    throw CertificatesError.invalidPath(downloadPath)
                 }
             }
         }
