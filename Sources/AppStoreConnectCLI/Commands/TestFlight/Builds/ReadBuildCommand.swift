@@ -63,16 +63,17 @@ struct ReadBuildCommand: CommonParsableCommand {
 
             let endpoint = APIEndpoint.builds(
               filter: filters,
-              include: [.app, .betaAppReviewSubmission,.buildBetaDetail, .preReleaseVersion]
+              include: [.app]
             )
 
             return service.request(endpoint).eraseToAnyPublisher()
         }
         .await()
 
-      _ = buildResponse.data.map { build in
-        let buildDetailsInfo = BuildDetailsInfo(build, buildResponse.included)
+        let buildDetailsInfo = buildResponse.data.map {
+          BuildDetailsInfo($0, buildResponse.included)
+        }
+
         buildDetailsInfo.render(format: common.outputFormat)
-      }
     }
 }
