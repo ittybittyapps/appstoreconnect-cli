@@ -63,7 +63,7 @@ struct ReadBuildCommand: CommonParsableCommand {
 
             let endpoint = APIEndpoint.builds(
               filter: filters,
-              include: [.app]
+              include: [.app, .buildBetaDetail,.preReleaseVersion]
             )
 
             return service.request(endpoint).eraseToAnyPublisher()
