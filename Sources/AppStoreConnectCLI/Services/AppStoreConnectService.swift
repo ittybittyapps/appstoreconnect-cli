@@ -37,8 +37,8 @@ class AppStoreConnectService {
         CreateBetaGroupOperation(options: options).execute(with: requestor)
     }
 
-    func listBetaGroups() -> AnyPublisher<[BetaGroup], Error> {
-        let operation = ListBetaGroupsOperation(options: ListBetaGroupsOptions())
+    func listBetaGroups(with options: ListBetaGroupsOptions) -> AnyPublisher<[BetaGroup], Error> {
+        let operation = ListBetaGroupsOperation(options: options)
 
         return operation.execute(with: requestor)
     }

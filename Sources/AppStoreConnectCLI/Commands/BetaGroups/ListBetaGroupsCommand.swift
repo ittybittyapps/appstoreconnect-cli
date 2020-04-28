@@ -12,10 +12,20 @@ struct ListBetaGroupsCommand: CommonParsableCommand {
     @OptionGroup()
     var common: CommonOptions
 
+    @Option(
+        parsing: .upToNextOption,
+        help: "Filter the results by app ids, these supercede bundle ids"
+    ) var filterAppIds: [String]
+
+    @Option(
+        parsing: .upToNextOption,
+        help: "Filter the results by bundle ids, these are superceded by app ids"
+    ) var filterBundleIds: [String]
+
     func run() throws {
         let service = try makeService()
-
-        let betaGroups = try service.listBetaGroups().await()
+        let options = ListBetaGroupsOptions(appIds: filterAppIds, bundleIds: filterBundleIds)
+        let betaGroups = try service.listBetaGroups(with: options).await()
 
         betaGroups.render(format: common.outputFormat)
     }

@@ -8,11 +8,14 @@ import XCTest
 
 final class ListBetaGroupsOperationTests: XCTestCase {
     typealias Operation = ListBetaGroupsOperation
-    typealias Dependencies = Operation.Dependencies
     typealias Options = Operation.Options
 
+    let successRequestor = OneEndpointTestRequestor(
+        response: { _ in Future { $0(.success(response)) } }
+    )
+
     func testExecute_success() {
-        let operation = Operation(options: Options())
+        let operation = Operation(options: Options(appIds: [], bundleIds: []))
 
         var expectedGroup = BetaGroup(appId: "1234567890")
         expectedGroup.appBundleId = "com.example.test"
@@ -21,7 +24,7 @@ final class ListBetaGroupsOperationTests: XCTestCase {
         expectedGroup.isInternal = true
         expectedGroup.creationDate = "2020-04-08T07:40:14Z"
 
-        let result = Result { try operation.execute(with: .success).await() }
+        let result = Result { try operation.execute(with: successRequestor).await() }
 
         switch result {
         case .success(let betaGroups):
@@ -32,9 +35,10 @@ final class ListBetaGroupsOperationTests: XCTestCase {
     }
 
     func testExecute_propagatesUpstreamErrors() {
-        let operation = Operation(options: Options())
+        let operation = Operation(options: Options(appIds: [], bundleIds: []))
+        let requestor = FailureTestRequestor()
 
-        let result = Result { try operation.execute(with: .failure).await() }
+        let result = Result { try operation.execute(with: requestor).await() }
 
         switch result {
         case .failure(TestError.somethingBadHappened):
@@ -43,10 +47,8 @@ final class ListBetaGroupsOperationTests: XCTestCase {
             XCTFail("Expected \(TestError.somethingBadHappened), got: \(result)")
         }
     }
-}
 
-private extension ListBetaGroupsOperationTests.Dependencies {
-    static let groupsResponse: BetaGroupsResponse = """
+    static let response: BetaGroupsResponse = """
     {
         "data": [
             {
@@ -102,12 +104,4 @@ private extension ListBetaGroupsOperationTests.Dependencies {
     """
     .data(using: .utf8)
     .map({ try! jsonDecoder.decode(BetaGroupsResponse.self, from: $0) })!
-
-    static let success = Self { _ in
-        Future { $0(.success(groupsResponse)) }
-    }
-
-    static let failure = Self { _ in
-        Future { $0(.failure(TestError.somethingBadHappened)) }
-    }
 }

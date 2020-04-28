@@ -3,4 +3,6 @@
 import Foundation
 
 struct ListBetaGroupsOptions {
+    let appIds: [String]
+    let bundleIds: [String]
 }

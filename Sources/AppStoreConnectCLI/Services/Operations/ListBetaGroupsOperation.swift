@@ -12,7 +12,8 @@ struct ListBetaGroupsOperation: APIOperation {
     private let endpoint: APIEndpoint<BetaGroupsResponse>
 
     init(options: ListBetaGroupsOptions) {
-        endpoint = .betaGroups(include: [.app])
+        let filters = options.appIds.isEmpty ? [] : [ListBetaGroups.Filter.app(options.appIds)]
+        endpoint = .betaGroups(filter: filters, include: [.app])
     }
 
     func execute(with requestor: EndpointRequestor) -> AnyPublisher<[BetaGroup], Error> {
