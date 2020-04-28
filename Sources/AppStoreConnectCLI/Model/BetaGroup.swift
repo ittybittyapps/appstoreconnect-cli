@@ -17,6 +17,12 @@ struct BetaGroup: TableInfoProvider, ResultRenderable, Equatable {
     var publicLinkLimitEnabled: Bool?
     var creationDate: String?
 
+    init(app: App) {
+        appId = app.id
+        appBundleId = app.bundleId
+        appName = app.name
+    }
+
     init(appId: String) {
         self.appId = appId
     }

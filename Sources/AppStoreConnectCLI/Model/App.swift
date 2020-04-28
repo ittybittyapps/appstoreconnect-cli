@@ -6,6 +6,7 @@ import Foundation
 import SwiftyTextTable
 
 struct App: ResultRenderable {
+    let id: String
     var bundleId: String?
     var name: String?
     var primaryLocale: String?
@@ -18,6 +19,7 @@ extension App {
     init(_ apiApp: AppStoreConnect_Swift_SDK.App) {
         let attributes = apiApp.attributes
         self.init(
+            id: apiApp.id,
             bundleId: attributes?.bundleId,
             name: attributes?.name,
             primaryLocale: attributes?.primaryLocale,

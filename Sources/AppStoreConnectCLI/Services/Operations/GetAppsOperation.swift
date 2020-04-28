@@ -28,12 +28,12 @@ struct GetAppsOperation: APIOperation {
 
     func execute(
         with requestor: EndpointRequestor
-    ) -> AnyPublisher<[AppStoreConnect_Swift_SDK.App], Error> {
+    ) -> AnyPublisher<[App], Error> {
         let bundleIds = options.bundleIds
         let endpoint = APIEndpoint.apps(filters: [.bundleId(bundleIds)])
 
         return requestor.request(endpoint)
-            .tryMap { (response: AppsResponse) throws -> [AppStoreConnect_Swift_SDK.App] in
+            .tryMap { (response: AppsResponse) throws -> [App] in
                 guard !response.data.isEmpty else {
                     throw GetAppIdsError.couldntFindAnyAppsMatching(bundleIds: bundleIds)
                 }
@@ -46,7 +46,7 @@ struct GetAppsOperation: APIOperation {
                     throw GetAppIdsError.appsDoNotExist(bundleIds: Array(nonExistentBundleIds))
                 }
 
-                return response.data
+                return response.data.map(App.init)
             }
             .eraseToAnyPublisher()
     }

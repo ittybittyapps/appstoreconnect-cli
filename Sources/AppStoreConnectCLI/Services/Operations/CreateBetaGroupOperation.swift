@@ -31,8 +31,7 @@ struct CreateBetaGroupOperation: APIOperation {
             .compactMap(\.first)
 
         let betaGroup = app.flatMap { app -> AnyPublisher<BetaGroup, Error> in
-            var betaGroup = BetaGroup(appId: app.id)
-            betaGroup.update(with: app.attributes)
+            var betaGroup = BetaGroup(app: app)
 
             return requestor
                 .request(self.createBetaGroupEndpoint(app.id))
