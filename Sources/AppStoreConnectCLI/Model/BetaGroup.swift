@@ -47,15 +47,15 @@ struct BetaGroup: TableInfoProvider, ResultRenderable, Equatable {
 
 extension AppStoreConnectService {
     private enum BetaGroupError: LocalizedError {
-        case couldntFindBetaGroup(groupNames: [String])
+        case betaGroupNotFound(groupNames: [String])
         case betaGroupNotUnique(groupNames: [String])
 
         var errorDescription: String? {
             switch self {
-            case .couldntFindBetaGroup(let groupNames):
-                return "Couldn't find beta group with input names \(groupNames)"
+            case .betaGroupNotFound(let groupNames):
+                return "Couldn't find beta group with input names \(groupNames)."
             case .betaGroupNotUnique(let groupNames):
-                return "The group name you input \(groupNames) are not unique"
+                return "The group name you input \(groupNames) are not unique."
             }
         }
     }
@@ -71,7 +71,7 @@ extension AppStoreConnectService {
         return self.request(endpoint)
             .flatMap { response -> AnyPublisher<String, Error> in
                 guard !response.data.isEmpty else {
-                    let error = BetaGroupError.couldntFindBetaGroup(groupNames: [name])
+                    let error = BetaGroupError.betaGroupNotFound(groupNames: [name])
                     return Fail(error: error).eraseToAnyPublisher()
                 }
 

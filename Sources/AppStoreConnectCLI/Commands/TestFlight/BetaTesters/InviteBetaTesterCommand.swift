@@ -26,7 +26,7 @@ struct InviteBetaTesterCommand: CommonParsableCommand {
     var bundleId: String
 
     @Option(parsing: .upToNextOption,
-            help: "Names of TestFlight beta tester group that the tester will be assigned to")
+            help: "Names of TestFlight beta tester group that the tester will be assigned to.")
     var groups: [String]
 
     func run() throws {

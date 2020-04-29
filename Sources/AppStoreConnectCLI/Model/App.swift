@@ -56,7 +56,7 @@ extension AppStoreConnectService {
         var errorDescription: String? {
             switch self {
             case .couldntFindApp(let bundleIds):
-                return "No apps were found matching \(bundleIds)"
+                return "No apps were found matching \(bundleIds)."
             }
         }
     }
