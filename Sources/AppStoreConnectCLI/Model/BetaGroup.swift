@@ -84,12 +84,4 @@ extension AppStoreConnectService {
             }
             .eraseToAnyPublisher()
     }
-
-    func betaGroupIdentifiers(matching names: [String]) -> AnyPublisher<[String], Error> {
-        let requests = names.map { self.betaGroupIdentifier(matching: $0) }
-
-        return Publishers.MergeMany(requests)
-            .reduce([]) { $0 + [$1] }
-            .eraseToAnyPublisher()
-    }
 }

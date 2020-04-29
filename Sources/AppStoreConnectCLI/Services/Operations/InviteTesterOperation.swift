@@ -68,7 +68,7 @@ struct InviteTesterOperation: APIOperation {
                 .eraseToAnyPublisher()
         }
 
-        let testerId = try! Publishers.ConcatenateMany(requests)
+        let testerId = try Publishers.ConcatenateMany(requests)
             .last()
             .await()
             .data
