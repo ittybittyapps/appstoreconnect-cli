@@ -9,6 +9,17 @@ struct ListBetaGroupsOperation: APIOperation {
         let betaGroups: (APIEndpoint<BetaGroupsResponse>) -> Future<BetaGroupsResponse, Error>
     }
 
+    enum ListBetaGroupsError: LocalizedError {
+        case missingAppData(AppStoreConnect_Swift_SDK.BetaGroup)
+
+        var errorDescription: String? {
+            switch self {
+            case .missingAppData(let betaGroup):
+                return "Missing app data for beta group: \(betaGroup)"
+            }
+        }
+    }
+
     private let endpoint: APIEndpoint<BetaGroupsResponse>
 
     init(options: ListBetaGroupsOptions) {
@@ -19,7 +30,7 @@ struct ListBetaGroupsOperation: APIOperation {
     func execute(with requestor: EndpointRequestor) -> AnyPublisher<[BetaGroup], Error> {
         let response = requestor.request(endpoint)
 
-        let betaGroups = response.map { response -> [BetaGroup] in
+        let betaGroups = response.tryMap { response -> [BetaGroup] in
             let apps = response.included?.reduce(
                 into: [String: AppStoreConnect_Swift_SDK.App](),
                 { result, relationship in
@@ -30,12 +41,12 @@ struct ListBetaGroupsOperation: APIOperation {
                 }
             )
 
-            return response.data.compactMap { betaGroupResponse -> BetaGroup? in
+            return try response.data.map { betaGroupResponse -> BetaGroup in
                 guard
                     let appId = betaGroupResponse.relationships?.app?.data?.id,
                     let app = apps?[appId]
                 else {
-                    return nil
+                    throw ListBetaGroupsError.missingAppData(betaGroupResponse)
                 }
 
                 var betaGroup = BetaGroup(appId: appId)
