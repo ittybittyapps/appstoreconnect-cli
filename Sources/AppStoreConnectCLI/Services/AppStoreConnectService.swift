@@ -40,11 +40,15 @@ class AppStoreConnectService {
     }
 
     func inviteBetaTesterToGroups(with options: InviteBetaTesterOptions) throws -> AnyPublisher<BetaTester, Error> {
-        let dependencies = InviteTesterOperation.Dependencies(betaTesterResponse: request)
+        let dependencies = InviteTesterOperation.Dependencies(
+            apps: request,
+            betaGroupsResponse: request,
+            betaTesterResponse: request
+        )
 
         let operation = InviteTesterOperation(options: options)
 
-        return operation.execute(with: dependencies)
+        return try operation.execute(with: dependencies)
     }
 
     func createBetaGroup(with options: CreateBetaGroupOptions) -> AnyPublisher<BetaGroup, Error> {

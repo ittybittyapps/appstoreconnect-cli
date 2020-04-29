@@ -29,40 +29,15 @@ struct InviteBetaTesterCommand: CommonParsableCommand {
             help: "Names of TestFlight beta tester group that the tester will be assigned to")
     var groups: [String]
 
-    private enum CommandError: LocalizedError {
-        case noGroupsExist(groupNames: [String], bundleId: String)
-
-        var errorDescription: String? {
-            switch self {
-            case .noGroupsExist(let groupNames, let bundleId):
-                return "One or more of beta groups \"\(groupNames)\" don't exist or don't belong to application with bundle ID \"\(bundleId)\"."
-            }
-        }
-    }
-
     func run() throws {
         let service = try makeService()
-
-        let appId = try service.appResourceId(matching: bundleId).await()
-
-        let betaGroups = try service.request(APIEndpoint.betaGroups(forAppWithId: appId)).map { $0.data }.await()
-
-        let groupNamesInApp = Set(betaGroups.compactMap { $0.attributes?.name })
-        let inputGroupNames = Set(groups)
-
-        guard inputGroupNames.isSubset(of: groupNamesInApp) else {
-            throw CommandError.noGroupsExist(groupNames: groups, bundleId: bundleId)
-        }
-
-        let groupIds = try service
-            .betaGroupIdentifiers(matching: groups)
-            .await()
 
         let options = InviteBetaTesterOptions(
             firstName: firstName,
             lastName: lastName,
             email: email,
-            betaGroupIds: groupIds
+            bundleId: bundleId,
+            groupNames: groups
         )
 
         let betaTester = try service

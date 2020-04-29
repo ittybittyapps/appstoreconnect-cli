@@ -6,6 +6,7 @@ struct InviteBetaTesterOptions {
     let firstName: String?
     let lastName: String?
     let email: String
-    let betaGroupIds: [String]
+    let bundleId: String
+    let groupNames: [String]
 }
 
