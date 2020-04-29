@@ -3,7 +3,7 @@
 import ArgumentParser
 import Foundation
 
-struct BetaGroupCommand: ParsableCommand {
+struct TestFlightBetaGroupCommand: ParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "betagroup",
         abstract: """
