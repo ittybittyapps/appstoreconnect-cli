@@ -441,6 +441,12 @@ class AppStoreConnectService {
 
         return App(sdkApp)
     }
+   
+    func listPreReleaseVersions(with options: ListPreReleaseVersionsOperation.Options) -> AnyPublisher<[PreReleaseVersion], Error> {
+        return ListPreReleaseVersionsOperation(options: options)
+            .execute(with: .init(preReleaseVersions: request, apps: request))
+    }
+
     /// Make a request for something `Decodable`.
     ///
     /// - Parameters:

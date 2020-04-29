@@ -4,5 +4,8 @@ import ArgumentParser
 import AppStoreConnect_Swift_SDK
 import Foundation
 
-extension ListPrereleaseVersions.Sort: Codable, ExpressibleByArgument {
+extension ListPrereleaseVersions.Sort: Codable, ExpressibleByArgument, CustomStringConvertible {
+    public var description: String {
+        rawValue
+    }
 }
