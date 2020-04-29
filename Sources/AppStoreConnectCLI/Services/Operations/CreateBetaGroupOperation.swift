@@ -6,37 +6,31 @@ import Foundation
 
 struct CreateBetaGroupOperation: APIOperation {
 
-    private let getAppsOperation: GetAppsOperation
-    private let createBetaGroupEndpoint: (_ appId: String) -> APIEndpoint<BetaGroupResponse>
-
-    init(options: CreateBetaGroupOptions) {
-        getAppsOperation = GetAppsOperation(options: .init(bundleIds: [options.appBundleId]))
-        createBetaGroupEndpoint = { appId in
-            .create(
-                betaGroupForAppWithId: appId,
-                name: options.groupName,
-                publicLinkEnabled: options.publicLinkEnabled,
-                publicLinkLimit: options.publicLinkLimit,
-                publicLinkLimitEnabled: options.publicLinkLimit != nil
-            )
-        }
+    struct Options {
+        let app: AppStoreConnect_Swift_SDK.App
+        let groupName: String
+        let publicLinkEnabled: Bool
+        let publicLinkLimit: Int?
     }
 
-    typealias App = AppStoreConnect_Swift_SDK.App
-    typealias BetaGroup = AppStoreConnect_Swift_SDK.BetaGroup
+    private let options: Options
+
+    init(options: Options) {
+        self.options = options
+    }
 
     func execute(with requestor: EndpointRequestor) -> AnyPublisher<ExtendedBetaGroup, Error> {
-        let app = getAppsOperation
-            .execute(with: requestor)
-            .compactMap(\.first)
+        let endpoint = APIEndpoint.create(
+            betaGroupForAppWithId: options.app.id,
+            name: options.groupName,
+            publicLinkEnabled: options.publicLinkEnabled,
+            publicLinkLimit: options.publicLinkLimit,
+            publicLinkLimitEnabled: options.publicLinkLimit != nil
+        )
 
-        let betaGroup = app.flatMap { app -> AnyPublisher<ExtendedBetaGroup, Error> in
-            requestor
-                .request(self.createBetaGroupEndpoint(app.id))
-                .map { ExtendedBetaGroup(app: app, betaGroup: $0.data) }
-                .eraseToAnyPublisher()
-        }
-
-        return betaGroup.eraseToAnyPublisher()
+        return requestor
+            .request(endpoint)
+            .map { ExtendedBetaGroup(app: self.options.app, betaGroup: $0.data) }
+            .eraseToAnyPublisher()
     }
 }

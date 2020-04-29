@@ -33,12 +33,30 @@ class AppStoreConnectService {
         try InviteTesterOperation(options: options).execute(with: requestor)
     }
 
-    func createBetaGroup(with options: CreateBetaGroupOptions) -> AnyPublisher<BetaGroup, Error> {
-        let operation = CreateBetaGroupOperation(options: options)
+    func createBetaGroup(
+        appBundleId: String,
+        groupName: String,
+        publicLinkEnabled: Bool,
+        publicLinkLimit: Int?
+    ) throws -> BetaGroup {
+        let getAppsOptions = GetAppsOptions(bundleIds: [appBundleId])
+        let getAppsOperation = GetAppsOperation(options: getAppsOptions)
+        // We use a force unwrap here as the operation handles errors raised by not finding our app
+        let app = try getAppsOperation.execute(with: requestor).await().first!
 
-        return operation.execute(with: requestor)
-            .map(BetaGroup.init(extendedBetaGroup:))
-            .eraseToAnyPublisher()
+        let createBetaGroupOptions = CreateBetaGroupOperation.Options(
+            app: app,
+            groupName: groupName,
+            publicLinkEnabled: publicLinkEnabled,
+            publicLinkLimit: publicLinkLimit
+        )
+
+        let createBetaGroupOperation = CreateBetaGroupOperation(options: createBetaGroupOptions)
+
+        return try createBetaGroupOperation
+            .execute(with: requestor)
+            .map(BetaGroup.init)
+            .await()
     }
 
     func listBetaGroups(with options: ListBetaGroupsOptions) -> AnyPublisher<[BetaGroup], Error> {

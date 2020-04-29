@@ -10,92 +10,58 @@ final class CreateBetaGroupOperationTests: XCTestCase {
     typealias Operation = CreateBetaGroupOperation
     typealias Options = Operation.Options
 
-    let successRequestor = TwoEndpointTestRequestor(
+    let successRequestor = OneEndpointTestRequestor(
         response: { _ in
-            Future { $0(.success(appsResponse)) }
-        },
-        response2: { _ in
             Future { $0(.success(betaGroupResponse)) }
-        }
-    )
-
-    let appsFailureRequestor = TwoEndpointTestRequestor(
-        response: { _ in
-            Future<AppsResponse, Error> { $0(.failure(TestError.somethingBadHappened)) }
-        },
-        response2: { _ in
-            Future { $0(.success(betaGroupResponse)) }
-        }
-    )
-
-    let betaGroupFailureRequestor = TwoEndpointTestRequestor(
-        response: { _ in
-            Future { $0(.success(appsResponse)) }
-        },
-        response2: { _ in
-            Future<BetaGroupResponse, Error> { $0(.failure(TestError.somethingBadHappened)) }
         }
     )
 
     func testExecute_success() {
-        let operation = Operation(
-            options: .init(
-                appBundleId: "com.example.test",
-                groupName: "test-group",
-                publicLinkEnabled: false,
-                publicLinkLimit: nil
-            )
+        let app = Self.appsResponse.data.first!
+
+        let options = Options(
+            app: app,
+            groupName: "test-group",
+            publicLinkEnabled: false,
+            publicLinkLimit: nil
         )
 
-        var expectedGroup = BetaGroup(appId: "0123456789")
-        expectedGroup.appBundleId = "com.example.test"
-        expectedGroup.appName = "Test App"
-        expectedGroup.groupName = "test-group"
-        expectedGroup.isInternal = false
-        expectedGroup.publicLinkEnabled = false
-        expectedGroup.publicLinkLimitEnabled = false
-        expectedGroup.creationDate = "2020-04-24T05:40:26Z"
+        let operation = Operation(options: options)
 
         let result = Result { try operation.execute(with: successRequestor).await() }
 
         switch result {
-        case .success(let group):
-            XCTAssertEqual(group, expectedGroup)
+        case .success(let extendedBetaGroup):
+            XCTAssertEqual(extendedBetaGroup.app.id, app.id)
+            XCTAssertEqual(extendedBetaGroup.betaGroup.id, "12345678-90ab-cdef-1234-567890abcdef")
         case .failure(let error):
             XCTFail("Expected success, got: \(error)")
         }
     }
 
     func testExecute_propagatesUpstreamErrors() {
-        let operation = Operation(options:
-            .init(
-                appBundleId: "com.example.test",
-                groupName: "test-group",
-                publicLinkEnabled: false,
-                publicLinkLimit: nil
-            )
+        let options = Options(
+            app: Self.appsResponse.data.first!,
+            groupName: "test-group",
+            publicLinkEnabled: false,
+            publicLinkLimit: nil
         )
 
-        let appsResult = Result { try operation.execute(with: appsFailureRequestor).await() }
-        let betaGroupResult = Result { try operation.execute(with: betaGroupFailureRequestor).await() }
+        let operation = Operation(options: options)
 
-        switch (appsResult, betaGroupResult) {
-        case (.failure(let appsError as TestError), .failure(let betaGroupError as TestError)):
-            XCTAssertEqual(appsError, TestError.somethingBadHappened)
-            XCTAssertEqual(betaGroupError, TestError.somethingBadHappened)
+        let result = Result { try operation.execute(with: FailureTestRequestor()).await() }
+
+        switch result {
+        case .failure(TestError.somethingBadHappened):
+            break
         default:
-            XCTFail(
-                """
-                Expected both results to be a failure of type TestError, \
-                got: \(appsResult) \(betaGroupResult)
-                """
-            )
+            XCTFail("Expected TestError.somethingBadHappened, got: \(result)")
         }
     }
 
     func testExecute_populatesEndpointBody() {
-        let noPublicLinkOrLimitOptions = Options(
-            appBundleId: "com.example.test",
+        let options = Options(
+            app: Self.appsResponse.data.first!,
             groupName: "test-group",
             publicLinkEnabled: true,
             publicLinkLimit: 10
@@ -103,15 +69,14 @@ final class CreateBetaGroupOperationTests: XCTestCase {
 
         var betaGroupEndpoint: APIEndpoint<BetaGroupResponse>?
 
-        let requestor = TwoEndpointTestRequestor(
-            response: { _ in Future { $0(.success(Self.appsResponse)) } },
-            response2: { endpoint -> Future<BetaGroupResponse, Error> in
+        let dependencies = OneEndpointTestRequestor(
+            response: { endpoint -> Future<BetaGroupResponse, Error> in
                 betaGroupEndpoint = endpoint
                 return Future { $0(.failure(TestError.somethingBadHappened)) }
             }
         )
 
-        _ = try? Operation(options: noPublicLinkOrLimitOptions).execute(with: requestor).await()
+        _ = try? Operation(options: options).execute(with: dependencies).await()
 
         let bodyJSON = (betaGroupEndpoint?.body)
             .flatMap({ try? JSONSerialization.jsonObject(with: $0, options: []) }) as? [String: Any]

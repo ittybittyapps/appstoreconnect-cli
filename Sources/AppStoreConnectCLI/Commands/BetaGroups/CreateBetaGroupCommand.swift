@@ -43,13 +43,12 @@ struct CreateBetaGroupCommand: CommonParsableCommand {
     func run() throws {
         let service = try makeService()
 
-        let options = CreateBetaGroupOptions(
+        let betaGroup = try service.createBetaGroup(
             appBundleId: appBundleId,
             groupName: groupName,
             publicLinkEnabled: publicLinkEnabled,
-            publicLinkLimit: publicLinkLimit)
-
-        let betaGroup = try service.createBetaGroup(with: options).await()
+            publicLinkLimit: publicLinkLimit
+        )
 
         betaGroup.render(format: common.outputFormat)
     }
