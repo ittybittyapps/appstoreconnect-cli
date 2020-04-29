@@ -20,23 +20,29 @@ struct ListBetaGroupsOperation: APIOperation {
         let response = requestor.request(endpoint)
 
         let betaGroups = response.map { response -> [BetaGroup] in
-            var betaGroups: [String: BetaGroup] = [:]
-
-            response.included?.forEach { relationship in
-                if case .app(let app) = relationship {
-                    var betaGroup = BetaGroup(appId: app.id)
-                    betaGroup.update(with: app.attributes)
-                    betaGroups[app.id] = betaGroup
+            let apps = response.included?.reduce(
+                into: [String: AppStoreConnect_Swift_SDK.App](),
+                { result, relationship in
+                    switch relationship {
+                    case .app(let app): result[app.id] = app
+                    default: break
+                    }
                 }
-            }
+            )
 
-            response.data.forEach { groupData in
-                if let appId = groupData.relationships?.app?.data?.id {
-                    betaGroups[appId]?.update(with: groupData.attributes)
+            return response.data.compactMap { betaGroupResponse -> BetaGroup? in
+                guard
+                    let appId = betaGroupResponse.relationships?.app?.data?.id,
+                    let app = apps?[appId]
+                else {
+                    return nil
                 }
-            }
 
-            return Array(betaGroups.values)
+                var betaGroup = BetaGroup(appId: appId)
+                betaGroup.update(with: app.attributes)
+                betaGroup.update(with: betaGroupResponse.attributes)
+                return betaGroup
+            }
         }
 
         return betaGroups.eraseToAnyPublisher()
