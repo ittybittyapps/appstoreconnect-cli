@@ -39,7 +39,7 @@ class AppStoreConnectService {
         publicLinkEnabled: Bool,
         publicLinkLimit: Int?
     ) throws -> BetaGroup {
-        let getAppsOptions = GetAppsOptions(bundleIds: [appBundleId])
+        let getAppsOptions = GetAppsOperation.Options(bundleIds: [appBundleId])
         let getAppsOperation = GetAppsOperation(options: getAppsOptions)
         // We use a force unwrap here as the operation handles errors raised by not finding our app
         let app = try getAppsOperation.execute(with: requestor).await().first!

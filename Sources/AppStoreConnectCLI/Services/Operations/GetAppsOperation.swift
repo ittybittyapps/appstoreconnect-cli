@@ -6,6 +6,10 @@ import Foundation
 
 struct GetAppsOperation: APIOperation {
 
+    struct Options {
+        let bundleIds: [String]
+    }
+
     enum GetAppIdsError: LocalizedError {
         case couldntFindAnyAppsMatching(bundleIds: [String])
         case appsDoNotExist(bundleIds: [String])
@@ -20,9 +24,9 @@ struct GetAppsOperation: APIOperation {
         }
     }
 
-    private let options: GetAppsOptions
+    private let options: Options
 
-    init(options: GetAppsOptions) {
+    init(options: Options) {
         self.options = options
     }
 
