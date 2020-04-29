@@ -8,8 +8,10 @@ struct ProfilesCommand: ParsableCommand {
         commandName: "profiles",
         abstract: "Create, delete, and download provisioning profiles that enable app installations for development and distribution.",
         subcommands: [
-            /* TODO */
-        ]
-        // defaultSubcommand: ListProfilesCommand.self
+            ListProfilesCommand.self,
+            CreateProfileCommand.self,
+            DeleteProfileCommand.self
+        ],
+        defaultSubcommand: ListProfilesCommand.self
     )
 }

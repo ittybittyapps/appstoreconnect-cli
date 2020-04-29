@@ -11,8 +11,8 @@ AppStoreConnect CLI lets you interact with the AppStore Connect from the command
 
 - Manage Users and access.
 - TODO: Manage TestFlight Users, Beta Groups, and Builds.
-- Manage Devices and Bundle IDs.
-- TODO: Manage Certificates and Profiles 
+- Manage Devices, Profiles and Bundle IDs.
+- TODO: Manage Certificates 
 - TODO: Download reports.
 
 ⚠️ **Note:** _AppStoreConnect CLI_ is under heavy development and not all features are complete.
