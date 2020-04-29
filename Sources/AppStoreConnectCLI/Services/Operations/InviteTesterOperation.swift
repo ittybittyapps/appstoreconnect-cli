@@ -44,9 +44,9 @@ struct InviteTesterOperation: APIOperation {
             .betaGroupsResponse(APIEndpoint.betaGroups(forAppWithId: appId))
             .await()
             .data
-
-        guard options.groupNames.isSubarray(of:
-            betaGroups.compactMap { $0.attributes?.name }) else {
+        
+        guard Set(options.groupNames).isSubset(of:
+            Set(betaGroups.compactMap { $0.attributes?.name })) else {
                 throw InviteTesterError.noGroupsExist(
                     groupNames: options.groupNames,
                     bundleId: options.bundleId
