@@ -17,29 +17,29 @@ struct ReadCertificateOperation: APIOperation {
         var errorDescription: String? {
             switch self {
             case .couldNotFindCertificate(let serial):
-                return "Couldn't find certificate with input '\(serial)'"
+                return "Couldn't find certificate with serial '\(serial)'."
             case .serialNumberNotUnique(let serial):
-                return "The serial number your input '\(serial)' is not unique"
+                return "The serial number your provided '\(serial)' is not unique."
             }
         }
     }
 
-    private let endpoint: APIEndpoint<CertificatesResponse>
-
-    private let serial: String
-
-    init(options: ReadCertificateOptions) {
-        endpoint = APIEndpoint.listDownloadCertificates(
+    private var endpoint: APIEndpoint<CertificatesResponse> {
+        APIEndpoint.listDownloadCertificates(
             filter: [.serialNumber([options.serial])]
         )
+    }
 
-        serial = options.serial
+    private let options: ReadCertificateOptions
+
+    init(options: ReadCertificateOptions) {
+        self.options = options
     }
 
     func execute(with dependencies: ReadCertificateDependencies) -> AnyPublisher<Certificate, Error> {
         dependencies
             .certificatesResponse(endpoint)
-            .tryMap { [serial] (response: CertificatesResponse) -> Certificate in
+            .tryMap { [serial = options.serial] (response: CertificatesResponse) -> Certificate in
                 switch response.data.count {
                 case 0:
                     throw ReadCertificateError.couldNotFindCertificate(serial)
