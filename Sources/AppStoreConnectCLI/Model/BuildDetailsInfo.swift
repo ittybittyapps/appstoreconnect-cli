@@ -55,7 +55,13 @@ extension BuildDetailsInfo {
     let buildBetaDetail = includedBuildBetaDetails?.filter { relationships?.buildBetaDetail?.data?.id == $0.id }.first
     let betaAppReviewSubmission = includedBetaAppReviewSubmissions?.filter { relationships?.betaAppReviewSubmission?.data?.id == $0.id }.first
 
-    self.init(build: build, app: app, prereleaseVersion: prereleaseVersion, buildBetaDetail: buildBetaDetail, betaAppReviewSubmission: betaAppReviewSubmission)
+    self.init(
+              build: build,
+              app: app,
+              prereleaseVersion: prereleaseVersion,
+              buildBetaDetail: buildBetaDetail,
+              betaAppReviewSubmission: betaAppReviewSubmission
+             )
   }
 }
 
@@ -76,10 +82,7 @@ extension BuildDetailsInfo: TableInfoProvider {
             TextTableColumn(header: "Beta Review state"),
             TextTableColumn(header: "External build state"),
             TextTableColumn(header: "Internal build state"),
-            TextTableColumn(header: "Auto Notify"),
-
-
-            //TextTableColumn(header: "Beta Groups"), - TODO ??
+            TextTableColumn(header: "Auto Notify")
         ]
     }
 
