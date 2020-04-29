@@ -50,12 +50,12 @@ extension AppStoreConnectService {
         case couldntFindBetaGroup(groupNames: [String])
         case betaGroupNotUnique(groupNames: [String])
 
-        var failureReason: String? {
+        var errorDescription: String? {
             switch self {
-                case .couldntFindBetaGroup(let groupNames):
-                    return "Couldn't find beta group with input names \(groupNames)"
-                case .betaGroupNotUnique(let groupNames):
-                    return "The group name you input \(groupNames) are not unique"
+            case .couldntFindBetaGroup(let groupNames):
+                return "Couldn't find beta group with input names \(groupNames)"
+            case .betaGroupNotUnique(let groupNames):
+                return "The group name you input \(groupNames) are not unique"
             }
         }
     }

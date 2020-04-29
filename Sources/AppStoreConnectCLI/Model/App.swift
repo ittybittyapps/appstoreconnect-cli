@@ -54,12 +54,12 @@ extension AppStoreConnectService {
         case couldntFindApp(bundleId: [String])
         case bundleIdNotUnique(bundleId: String)
 
-        var failureReason: String? {
+        var errorDescription: String? {
             switch self {
-                case .couldntFindApp(let bundleIds):
-                    return "No apps were found matching \(bundleIds)"
-                case .bundleIdNotUnique(let bundleId):
-                    return "BundleId \(bundleId) is not unique"
+            case .couldntFindApp(let bundleIds):
+                return "No apps were found matching \(bundleIds)"
+            case .bundleIdNotUnique(let bundleId):
+                return "BundleId \(bundleId) is not unique"
             }
         }
     }
