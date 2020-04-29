@@ -59,12 +59,23 @@ class AppStoreConnectService {
             .await()
     }
 
-    func listBetaGroups(with options: ListBetaGroupsOptions) -> AnyPublisher<[BetaGroup], Error> {
-        let operation = ListBetaGroupsOperation(options: options)
+    func listBetaGroups(appIds: [String], bundleIds: [String]) throws -> [BetaGroup] {
+        var appIds = appIds
 
-        return operation.execute(with: requestor)
-            .map { $0.map(BetaGroup.init(extendedBetaGroup:)) }
-            .eraseToAnyPublisher()
+        // Fill out appIds if no appIds are specified but bundleIds are
+        if appIds.isEmpty && !bundleIds.isEmpty {
+            let getAppsOptions = GetAppsOperation.Options(bundleIds: bundleIds)
+            let getAppsOperation = GetAppsOperation(options: getAppsOptions)
+            appIds = try getAppsOperation.execute(with: requestor).await().map(\.id)
+        }
+
+        let listBetaGroupsOptions = ListBetaGroupsOperation.Options(appIds: appIds)
+        let listBetaGroupsOperation = ListBetaGroupsOperation(options: listBetaGroupsOptions)
+
+        return try listBetaGroupsOperation
+            .execute(with: requestor)
+            .map { $0.map(BetaGroup.init) }
+            .await()
     }
 
     /// Make a request for something `Decodable`.

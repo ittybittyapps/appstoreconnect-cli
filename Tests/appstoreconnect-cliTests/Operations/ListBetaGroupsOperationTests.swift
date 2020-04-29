@@ -11,16 +11,17 @@ final class ListBetaGroupsOperationTests: XCTestCase {
     typealias Options = Operation.Options
 
     let successRequestor = OneEndpointTestRequestor(
-        response: { _ in Future { $0(.success(response)) } }
+        response: { _ in Future({ $0(.success(response)) }) }
     )
 
     func testExecute_success() {
-        let operation = Operation(options: Options(appIds: [], bundleIds: []))
+        let operation = Operation(options: Options(appIds: []))
 
         let result = Result { try operation.execute(with: successRequestor).await() }
 
         switch result {
         case .success(let extendedBetaGroups):
+            XCTAssertEqual(extendedBetaGroups.count, 1)
             XCTAssertEqual(extendedBetaGroups.first?.app.id, "1234567890")
             XCTAssertEqual(extendedBetaGroups.first?.betaGroup.id, "12345678-90ab-cdef-1234-567890abcdef")
         case .failure(let error):
@@ -29,10 +30,9 @@ final class ListBetaGroupsOperationTests: XCTestCase {
     }
 
     func testExecute_propagatesUpstreamErrors() {
-        let operation = Operation(options: Options(appIds: [], bundleIds: []))
-        let requestor = FailureTestRequestor()
+        let operation = Operation(options: Options(appIds: []))
 
-        let result = Result { try operation.execute(with: requestor).await() }
+        let result = Result { try operation.execute(with: FailureTestRequestor()).await() }
 
         switch result {
         case .failure(TestError.somethingBadHappened):

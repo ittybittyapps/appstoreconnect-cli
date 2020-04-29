@@ -5,8 +5,9 @@ import Combine
 import Foundation
 
 struct ListBetaGroupsOperation: APIOperation {
-    struct ListBetaGroupsDependencies {
-        let betaGroups: (APIEndpoint<BetaGroupsResponse>) -> Future<BetaGroupsResponse, Error>
+
+    struct Options {
+        let appIds: [String]
     }
 
     enum ListBetaGroupsError: LocalizedError {
@@ -20,14 +21,15 @@ struct ListBetaGroupsOperation: APIOperation {
         }
     }
 
-    private let endpoint: APIEndpoint<BetaGroupsResponse>
+    private let options: Options
 
-    init(options: ListBetaGroupsOptions) {
-        let filters = options.appIds.isEmpty ? [] : [ListBetaGroups.Filter.app(options.appIds)]
-        endpoint = .betaGroups(filter: filters, include: [.app])
+    init(options: Options) {
+        self.options = options
     }
 
     func execute(with requestor: EndpointRequestor) -> AnyPublisher<[ExtendedBetaGroup], Error> {
+        let filters = options.appIds.isEmpty ? [] : [ListBetaGroups.Filter.app(options.appIds)]
+        let endpoint = APIEndpoint.betaGroups(filter: filters, include: [.app])
         let response = requestor.request(endpoint)
 
         let betaGroup = response.tryMap { response -> [ExtendedBetaGroup] in
