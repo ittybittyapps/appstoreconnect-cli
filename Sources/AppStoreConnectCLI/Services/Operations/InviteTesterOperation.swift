@@ -7,41 +7,45 @@ import Foundation
 struct InviteTesterOperation: APIOperation {
 
     struct InviteBetaTesterDependencies {
-        let apps: (APIEndpoint<AppsResponse>) -> Future<AppsResponse, Error>
+        let appsResponse: (APIEndpoint<AppsResponse>) -> Future<AppsResponse, Error>
         let betaGroupsResponse: (APIEndpoint<BetaGroupsResponse>) -> Future<BetaGroupsResponse, Error>
         let betaTesterResponse: (APIEndpoint<BetaTesterResponse>) -> Future<BetaTesterResponse, Error>
     }
 
     private enum InviteTesterError: LocalizedError {
         case noGroupsExist(groupNames: [String], bundleId: String)
+        case noAppExist
 
         var errorDescription: String? {
             switch self {
             case .noGroupsExist(let groupNames, let bundleId):
                 return "One or more of beta groups \"\(groupNames)\" don't exist or don't belong to application with bundle ID \"\(bundleId)\"."
+            case .noAppExist:
+                return "App with provided bundleId doesn't exist."
             }
         }
     }
 
     private let options: InviteBetaTesterOptions
 
-    private let getAppsOperation: GetAppsOperation
-
     init(options: InviteBetaTesterOptions) {
         self.options = options
-
-        self.getAppsOperation = GetAppsOperation(options: .init(bundleIds: [options.bundleId]))
     }
 
     func execute(with dependencies: InviteBetaTesterDependencies) throws -> AnyPublisher<BetaTester, Error> {
-        let appId = try getAppsOperation
-            .execute(with: .init(apps: dependencies.apps))
+        let appIds = try GetAppsOperation(
+                options: .init(bundleIds: [options.bundleId])
+            )
+            .execute(with: .init(apps: dependencies.appsResponse))
             .await()
             .map { $0.id }
-            .first!
+
+        guard let appId = appIds.first else {
+            throw InviteTesterError.noAppExist
+        }
 
         let betaGroups = try dependencies
-            .betaGroupsResponse(APIEndpoint.betaGroups(forAppWithId: appId))
+            .betaGroupsResponse(.betaGroups(forAppWithId: appId))
             .await()
             .data
         

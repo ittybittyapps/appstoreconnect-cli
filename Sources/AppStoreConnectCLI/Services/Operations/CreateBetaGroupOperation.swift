@@ -11,11 +11,9 @@ struct CreateBetaGroupOperation: APIOperation {
     }
 
     private let options: CreateBetaGroupOptions
-    private let getAppsOperation: GetAppsOperation
 
     init(options: CreateBetaGroupOptions) {
         self.options = options
-        self.getAppsOperation = GetAppsOperation(options: .init(bundleIds: [options.appBundleId]))
     }
 
     private typealias AppAttributes = AppStoreConnect_Swift_SDK.App.Attributes
@@ -24,7 +22,9 @@ struct CreateBetaGroupOperation: APIOperation {
     func execute(with dependencies: CreateBetaGroupDependencies) -> AnyPublisher<BetaGroup, Error> {
         let options = self.options
 
-        let app = getAppsOperation
+        let app = GetAppsOperation(
+                options: .init(bundleIds: [options.appBundleId])
+            )
             .execute(with: .init(apps: dependencies.apps))
             .compactMap(\.first)
 
