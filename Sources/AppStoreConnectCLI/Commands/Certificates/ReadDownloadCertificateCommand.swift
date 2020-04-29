@@ -32,26 +32,22 @@ struct ReadDownloadCertificateCommand: CommonParsableCommand {
             .await()
 
         if let certificateOutput = certificateOutput {
-            guard let content = certificate.content else {
-                throw CertificatesError.invalidContent
+            guard let content = certificate.content,
+                let data = Data(base64Encoded: content) else {
+                throw CertificatesError.noContent
             }
 
-            do {
-                let (folderName, fileName) = File.getFolderAndFileName(from: certificateOutput)
+            let (folderName, fileName) = File.folderAndFilename(from: certificateOutput)
 
-                let file = try File.createFile(
-                    in: folderName,
+            let file = try Folder(path: folderName)
+                .createFile(
                     named: fileName,
-                    with: content
+                    contents: data
                 )
 
-                print("📥 Certificate '\(certificate.name ?? "")' downloaded to: \(file.path)")
-            } catch {
-                throw CertificatesError.invalidPath(certificateOutput)
-            }
+            print("📥 Certificate '\(certificate.name ?? "")' downloaded to: \(file.path)")
         }
 
         certificate.render(format: common.outputFormat)
     }
-    
 }

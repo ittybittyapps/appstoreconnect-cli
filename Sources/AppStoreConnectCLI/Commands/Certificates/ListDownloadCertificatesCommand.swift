@@ -55,21 +55,18 @@ struct ListDownloadCertificatesCommand: CommonParsableCommand {
 
         if let downloadPath = downloadPath {
             try certificates.forEach { (certificate: Certificate) in
-                guard let content = certificate.content else {
-                    throw CertificatesError.invalidContent
+                guard let content = certificate.content,
+                    let data = Data(base64Encoded: content) else {
+                    throw CertificatesError.noContent
                 }
 
-                do {
-                    let file = try File.createFile(
-                        in: downloadPath,
+                let file = try Folder(path: downloadPath)
+                    .createFile(
                         named: "\(certificate.serialNumber ?? "serial").cer",
-                        with: content
+                        contents: data
                     )
 
-                    print("📥 Certificate '\(certificate.name ?? "")' downloaded to: \(file.path)")
-                } catch {
-                    throw CertificatesError.invalidPath(downloadPath)
-                }
+                print("📥 Certificate '\(certificate.name ?? "")' downloaded to: \(file.path)")
             }
         }
 

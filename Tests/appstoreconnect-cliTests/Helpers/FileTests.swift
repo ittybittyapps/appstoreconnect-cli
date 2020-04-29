@@ -8,7 +8,7 @@ import XCTest
 final class FilesTests: XCTestCase {
     func testGetFolderAndFileName_withSlash_returnCorrectName() {
         let (folderName, fileName) = File
-            .getFolderAndFileName(
+            .folderAndFilename(
                 from: "/user/documents/foo.cer"
             )
 
@@ -17,11 +17,11 @@ final class FilesTests: XCTestCase {
     }
     func testGetFolderAndFileName_withoutSlash_returnCorrectName() {
         let (folderName, fileName) = File
-            .getFolderAndFileName(
+            .folderAndFilename(
                 from: "bar.cer"
             )
 
-        XCTAssertEqual(folderName, ".")
+        XCTAssertEqual(folderName, "")
         XCTAssertEqual(fileName, "bar.cer")
     }
 }
