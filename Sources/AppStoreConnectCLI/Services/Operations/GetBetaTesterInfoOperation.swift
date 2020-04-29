@@ -15,8 +15,7 @@ struct GetBetaTesterInfoOperation: APIOperation {
     init(options: GetBetaTesterInfoOptions) {
         endpoint = APIEndpoint.betaTester(
             withId: options.id,
-            include: [GetBetaTester.Include.betaGroups,
-                      GetBetaTester.Include.apps])
+            include: [.betaGroups, .apps])
     }
 
     func execute(with dependencies: GetBetaTesterInfoDependencies) -> AnyPublisher<BetaTester, Error> {
