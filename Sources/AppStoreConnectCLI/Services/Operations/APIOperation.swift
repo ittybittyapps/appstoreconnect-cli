@@ -10,5 +10,5 @@ protocol APIOperation {
 
     init(options: Options)
 
-    func execute(with dependencies: Dependencies) -> AnyPublisher<Output, Error>
+    func execute(with dependencies: Dependencies) throws -> AnyPublisher<Output, Error>
 }
