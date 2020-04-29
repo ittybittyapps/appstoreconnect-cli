@@ -5,7 +5,7 @@ import Combine
 import Foundation
 import SwiftyTextTable
 
-struct App: ResultRenderable {
+struct App: ResultRenderable, Equatable {
     let id: String
     var bundleId: String?
     var name: String?

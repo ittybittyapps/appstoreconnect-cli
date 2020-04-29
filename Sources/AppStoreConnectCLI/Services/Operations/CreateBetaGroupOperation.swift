@@ -22,23 +22,18 @@ struct CreateBetaGroupOperation: APIOperation {
         }
     }
 
-    private typealias AppAttributes = AppStoreConnect_Swift_SDK.App.Attributes
-    private typealias BetaGroupAttributes = AppStoreConnect_Swift_SDK.BetaGroup.Attributes
+    typealias App = AppStoreConnect_Swift_SDK.App
+    typealias BetaGroup = AppStoreConnect_Swift_SDK.BetaGroup
 
-    func execute(with requestor: EndpointRequestor) -> AnyPublisher<BetaGroup, Error> {
+    func execute(with requestor: EndpointRequestor) -> AnyPublisher<ExtendedBetaGroup, Error> {
         let app = getAppsOperation
             .execute(with: requestor)
             .compactMap(\.first)
 
-        let betaGroup = app.flatMap { app -> AnyPublisher<BetaGroup, Error> in
-            var betaGroup = BetaGroup(app: app)
-
-            return requestor
+        let betaGroup = app.flatMap { app -> AnyPublisher<ExtendedBetaGroup, Error> in
+            requestor
                 .request(self.createBetaGroupEndpoint(app.id))
-                .map { response -> BetaGroup in
-                    betaGroup.update(with: response.data.attributes)
-                    return betaGroup
-                }
+                .map { ExtendedBetaGroup(app: app, betaGroup: $0.data) }
                 .eraseToAnyPublisher()
         }
 

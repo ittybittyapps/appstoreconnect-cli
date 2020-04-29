@@ -6,41 +6,14 @@ import Foundation
 import SwiftyTextTable
 
 struct BetaGroup: TableInfoProvider, ResultRenderable, Equatable {
-    let appId: String
-    var appBundleId: String?
-    var appName: String?
-    var groupName: String?
-    var isInternal: Bool?
-    var publicLink: String?
-    var publicLinkEnabled: Bool?
-    var publicLinkLimit: Int?
-    var publicLinkLimitEnabled: Bool?
-    var creationDate: String?
-
-    init(app: App) {
-        appId = app.id
-        appBundleId = app.bundleId
-        appName = app.name
-    }
-
-    init(appId: String) {
-        self.appId = appId
-    }
-
-    mutating func update(with attributes: AppStoreConnect_Swift_SDK.App.Attributes?) {
-        appBundleId = attributes?.bundleId
-        appName = attributes?.name
-    }
-
-    mutating func update(with attributes: AppStoreConnect_Swift_SDK.BetaGroup.Attributes?) {
-        groupName = attributes?.name
-        isInternal = attributes?.isInternalGroup
-        publicLink = attributes?.publicLink
-        publicLinkEnabled = attributes?.publicLinkEnabled
-        publicLinkLimit = attributes?.publicLinkLimit
-        publicLinkLimitEnabled = attributes?.publicLinkLimitEnabled
-        creationDate = attributes?.createdDate?.formattedDate
-    }
+    let app: App
+    let groupName: String?
+    let isInternal: Bool?
+    let publicLink: String?
+    let publicLinkEnabled: Bool?
+    let publicLinkLimit: Int?
+    let publicLinkLimitEnabled: Bool?
+    let creationDate: String?
 
     static func tableColumns() -> [TextTableColumn] {
         [
@@ -59,9 +32,9 @@ struct BetaGroup: TableInfoProvider, ResultRenderable, Equatable {
 
     var tableRow: [CustomStringConvertible] {
         [
-            appId,
-            appBundleId ?? "",
-            appName ?? "",
+            app.id,
+            app.bundleId ?? "",
+            app.name ?? "",
             groupName ?? "",
             isInternal ?? "",
             publicLink ?? "",
@@ -70,6 +43,21 @@ struct BetaGroup: TableInfoProvider, ResultRenderable, Equatable {
             publicLinkEnabled ?? "",
             creationDate ?? ""
         ]
+    }
+}
+
+extension BetaGroup {
+    init(
+        extendedBetaGroup: ExtendedBetaGroup
+    ) {
+        app = App(extendedBetaGroup.app)
+        groupName = extendedBetaGroup.betaGroup.attributes?.name
+        isInternal = extendedBetaGroup.betaGroup.attributes?.isInternalGroup
+        publicLink = extendedBetaGroup.betaGroup.attributes?.publicLink
+        publicLinkEnabled = extendedBetaGroup.betaGroup.attributes?.publicLinkEnabled
+        publicLinkLimit = extendedBetaGroup.betaGroup.attributes?.publicLinkLimit
+        publicLinkLimitEnabled = extendedBetaGroup.betaGroup.attributes?.publicLinkLimitEnabled
+        creationDate = extendedBetaGroup.betaGroup.attributes?.createdDate?.formattedDate
     }
 }
 

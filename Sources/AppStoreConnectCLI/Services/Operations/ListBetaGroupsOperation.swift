@@ -27,35 +27,34 @@ struct ListBetaGroupsOperation: APIOperation {
         endpoint = .betaGroups(filter: filters, include: [.app])
     }
 
-    func execute(with requestor: EndpointRequestor) -> AnyPublisher<[BetaGroup], Error> {
+    func execute(with requestor: EndpointRequestor) -> AnyPublisher<[ExtendedBetaGroup], Error> {
         let response = requestor.request(endpoint)
 
-        let betaGroups = response.tryMap { response -> [BetaGroup] in
+        let betaGroup = response.tryMap { response -> [ExtendedBetaGroup] in
             let apps = response.included?.reduce(
                 into: [String: AppStoreConnect_Swift_SDK.App](),
                 { result, relationship in
                     switch relationship {
-                    case .app(let app): result[app.id] = app
-                    default: break
+                    case .app(let app):
+                        result[app.id] = app
+                    default:
+                        break
                     }
                 }
             )
 
-            return try response.data.map { betaGroupResponse -> BetaGroup in
+            return try response.data.map { betaGroup -> ExtendedBetaGroup in
                 guard
-                    let appId = betaGroupResponse.relationships?.app?.data?.id,
+                    let appId = betaGroup.relationships?.app?.data?.id,
                     let app = apps?[appId]
                 else {
-                    throw ListBetaGroupsError.missingAppData(betaGroupResponse)
+                    throw ListBetaGroupsError.missingAppData(betaGroup)
                 }
 
-                var betaGroup = BetaGroup(appId: appId)
-                betaGroup.update(with: app.attributes)
-                betaGroup.update(with: betaGroupResponse.attributes)
-                return betaGroup
+                return ExtendedBetaGroup(app: app, betaGroup: betaGroup)
             }
         }
 
-        return betaGroups.eraseToAnyPublisher()
+        return betaGroup.eraseToAnyPublisher()
     }
 }

@@ -26,9 +26,9 @@ struct GetAppsOperation: APIOperation {
         self.options = options
     }
 
-    func execute(
-        with requestor: EndpointRequestor
-    ) -> AnyPublisher<[App], Error> {
+    typealias App = AppStoreConnect_Swift_SDK.App
+
+    func execute(with requestor: EndpointRequestor) -> AnyPublisher<[App], Error> {
         let bundleIds = options.bundleIds
         let endpoint = APIEndpoint.apps(filters: [.bundleId(bundleIds)])
 
@@ -46,7 +46,7 @@ struct GetAppsOperation: APIOperation {
                     throw GetAppIdsError.appsDoNotExist(bundleIds: Array(nonExistentBundleIds))
                 }
 
-                return response.data.map(App.init)
+                return response.data
             }
             .eraseToAnyPublisher()
     }

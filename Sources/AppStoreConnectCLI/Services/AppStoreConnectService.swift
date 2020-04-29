@@ -34,13 +34,19 @@ class AppStoreConnectService {
     }
 
     func createBetaGroup(with options: CreateBetaGroupOptions) -> AnyPublisher<BetaGroup, Error> {
-        CreateBetaGroupOperation(options: options).execute(with: requestor)
+        let operation = CreateBetaGroupOperation(options: options)
+
+        return operation.execute(with: requestor)
+            .map(BetaGroup.init(extendedBetaGroup:))
+            .eraseToAnyPublisher()
     }
 
     func listBetaGroups(with options: ListBetaGroupsOptions) -> AnyPublisher<[BetaGroup], Error> {
         let operation = ListBetaGroupsOperation(options: options)
 
         return operation.execute(with: requestor)
+            .map { $0.map(BetaGroup.init(extendedBetaGroup:)) }
+            .eraseToAnyPublisher()
     }
 
     /// Make a request for something `Decodable`.
