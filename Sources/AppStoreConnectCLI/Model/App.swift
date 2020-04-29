@@ -53,10 +53,10 @@ extension AppStoreConnectService {
     private enum AppError: LocalizedError {
         case couldntFindApp(bundleId: [String])
 
-        var failureReason: String? {
+        var errorDescription: String? {
             switch self {
-                case .couldntFindApp(let bundleId):
-                    return "No apps were found matching \(bundleId)"
+            case .couldntFindApp(let bundleIds):
+                return "No apps were found matching \(bundleIds)."
             }
         }
     }

@@ -47,12 +47,15 @@ struct BetaGroup: TableInfoProvider, ResultRenderable, Equatable {
 
 extension AppStoreConnectService {
     private enum BetaGroupError: LocalizedError {
-        case couldntFindBetaGroup
+        case betaGroupNotFound(groupNames: [String])
+        case betaGroupNotUnique(groupNames: [String])
 
-        var failureReason: String? {
+        var errorDescription: String? {
             switch self {
-                case .couldntFindBetaGroup:
-                    return "Couldn't find beta group with input name or group name not unique"
+            case .betaGroupNotFound(let groupNames):
+                return "Couldn't find beta group with input names \(groupNames)."
+            case .betaGroupNotUnique(let groupNames):
+                return "The group name you input \(groupNames) are not unique."
             }
         }
     }
@@ -60,18 +63,24 @@ extension AppStoreConnectService {
     /// Find the opaque internal identifier for this beta group; search by group name.
     ///
     /// This is an App Store Connect internal identifier
-    func betaGroupIdentifier(matching name: String) throws -> AnyPublisher<String, Error> {
+    func betaGroupIdentifier(matching name: String) -> AnyPublisher<String, Error> {
         let endpoint = APIEndpoint.betaGroups(
             filter: [ListBetaGroups.Filter.name([name])]
         )
 
         return self.request(endpoint)
-            .tryMap { response throws -> String in
-                guard response.data.count == 1, let id = response.data.first?.id else {
-                    throw BetaGroupError.couldntFindBetaGroup
+            .flatMap { response -> AnyPublisher<String, Error> in
+                guard !response.data.isEmpty else {
+                    let error = BetaGroupError.betaGroupNotFound(groupNames: [name])
+                    return Fail(error: error).eraseToAnyPublisher()
                 }
 
-                return id
+                guard response.data.count == 1, let id = response.data.first?.id else {
+                    let error = BetaGroupError.betaGroupNotUnique(groupNames: [name])
+                    return Fail(error: error).eraseToAnyPublisher()
+                }
+
+                return Result.Publisher(id).eraseToAnyPublisher()
             }
             .eraseToAnyPublisher()
     }

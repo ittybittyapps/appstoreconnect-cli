@@ -16,9 +16,9 @@ struct GetAppsOperation: APIOperation {
         var errorDescription: String? {
             switch self {
             case .couldntFindAnyAppsMatching(let bundleIds):
-                return "No apps were found matching \(bundleIds)"
+                return "No apps were found matching \(bundleIds)."
             case .appsDoNotExist(let bundleIds):
-                return "Specified apps were non found / do not exist: \(bundleIds)"
+                return "Specified apps were non found / do not exist: \(bundleIds)."
             }
         }
     }

@@ -70,7 +70,6 @@ struct ListBetaTestersCommand: CommonParsableCommand {
                 request = api
                     .request(APIEndpoint.betaTesters(include: includes, limit: limits))
                     .eraseToAnyPublisher()
-
             case .listByApp(let bundleId):
                 request = api
                     .getAppResourceIdsFrom(bundleIds: [bundleId])
@@ -82,9 +81,8 @@ struct ListBetaTestersCommand: CommonParsableCommand {
                         ))
                     }
                     .eraseToAnyPublisher()
-
             case .listByGroup(let betaGroupName):
-                request = try api.betaGroupIdentifier(matching: betaGroupName)
+                request = api.betaGroupIdentifier(matching: betaGroupName)
                     .flatMap {
                         api.request(APIEndpoint.betaTesters(
                             filter: [.betaGroups([$0])],

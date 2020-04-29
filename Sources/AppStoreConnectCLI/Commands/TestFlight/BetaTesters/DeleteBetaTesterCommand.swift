@@ -96,7 +96,7 @@ struct DeleteBetaTesterCommand: CommonParsableCommand {
             case .removeFromGroup(let betaGroupName):
                 request = try service
                     .betaTesterResourceId(matching: email)
-                    .combineLatest(try service.betaGroupIdentifier(matching: betaGroupName))
+                    .combineLatest(service.betaGroupIdentifier(matching: betaGroupName))
                     .flatMap {
                         service.request(APIEndpoint.remove(
                             betaTestersWithIds: [$0],
