@@ -47,9 +47,7 @@ struct BetaGroup: TableInfoProvider, ResultRenderable, Equatable {
 }
 
 extension BetaGroup {
-    init(
-        extendedBetaGroup: ExtendedBetaGroup
-    ) {
+    init(extendedBetaGroup: ExtendedBetaGroup) {
         app = App(extendedBetaGroup.app)
         groupName = extendedBetaGroup.betaGroup.attributes?.name
         isInternal = extendedBetaGroup.betaGroup.attributes?.isInternalGroup
