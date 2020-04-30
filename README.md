@@ -118,7 +118,7 @@ This project is licensed under the terms of the MIT license. See the [LICENSE][l
 
 ## Acknowledgements
 
-We use the following Swift Packages in `appstoreconnect-cli`.  We are very greatful to their authors.
+We use the following Swift Packages in `appstoreconnect-cli`.  We are very grateful to their authors.
 
 - [AppStoreConnect Swift SDK][appstoreconnect-swift-sdk] by [@AvdLee][avdlee]
 - [CodableCSV][codablecsv] by [@dehesa][dehesa]
