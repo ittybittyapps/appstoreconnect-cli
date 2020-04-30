@@ -27,7 +27,7 @@ extension Certificate {
         "self" : "https://api.appstoreconnect.apple.com/v1/certificates"
       }
     }
-    """.data(using: .utf8)!
+    """.data(using: .utf8)
 
     static let noCertificateResponse = """
     {
@@ -42,7 +42,7 @@ extension Certificate {
         }
       }
     }
-    """.data(using: .utf8)!
+    """.data(using: .utf8)
 
     static let readCertificateResponse = """
     {
@@ -74,9 +74,9 @@ extension Certificate {
         }
       }
     }
-    """.data(using: .utf8)!
+    """.data(using: .utf8)
 
-    static let readCertificateNotUniqueResponse = """
+    static let notUniqueResponse = """
     {
       "data" : [
         {
@@ -124,5 +124,5 @@ extension Certificate {
         }
       }
     }
-    """.data(using: .utf8)!
+    """.data(using: .utf8)
 }

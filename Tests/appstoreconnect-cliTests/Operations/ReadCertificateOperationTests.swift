@@ -8,18 +8,37 @@ import XCTest
 
 final class ReadCertificateOperationTests: XCTestCase {
 
-    typealias Dependencies = ReadCertificateOperation.Dependencies
+    let successRequestor = OneEndpointTestRequestor(response: { _ in
+            Future { $0(.success(readCertificateResponse)) }
+        }
+    )
+
+    let failedRequestor = OneEndpointTestRequestor(response: { _ in
+            Future<CertificatesResponse, Error> { promise in
+                promise(.failure(TestError.somethingBadHappened))
+            }
+        }
+    )
+
+    let noResponseRequestor = OneEndpointTestRequestor(response: { _ in
+            Future{ $0(.success(noCertificateResponse)) }
+        }
+    )
+
+    let notUniqueRequestor = OneEndpointTestRequestor(response: { _ in
+            Future{ $0(.success(notUniqueResponse)) }
+        }
+    )
+
     typealias OperationError = ReadCertificateOperation.ReadCertificateError
 
     let options = ReadCertificateOptions(serial: "abcde")
 
     func testExecute_success() {
-        let dependencies: Dependencies = .readSuccess
-
         let operation = ReadCertificateOperation(options: options)
 
         let result = Result {
-            try operation.execute(with: dependencies).await()
+            try operation.execute(with: successRequestor).await()
         }
 
         switch result {
@@ -33,13 +52,10 @@ final class ReadCertificateOperationTests: XCTestCase {
     }
 
     func testExecute_propagatesUpstreamErrors() {
-        let dependencies: Dependencies = .readFailed
-
-        let options = ReadCertificateOptions(serial: "")
         let operation = ReadCertificateOperation(options: options)
 
         let result = Result {
-            try operation.execute(with: dependencies).await()
+            try operation.execute(with: failedRequestor).await()
         }
 
         let expectedError = TestError.somethingBadHappened
@@ -53,15 +69,13 @@ final class ReadCertificateOperationTests: XCTestCase {
     }
 
     func testCouldNotFindCertificateError() {
-        let dependencies: Dependencies = .noCertificate
-        let options = ReadCertificateOptions(serial: "abcd")
         let operation = ReadCertificateOperation(options: options)
 
         let result = Result {
-            try operation.execute(with: dependencies).await()
+            try operation.execute(with: noResponseRequestor).await()
         }
 
-        let expectedError = OperationError.couldNotFindCertificate("abcd")
+        let expectedError = OperationError.couldNotFindCertificate("abcde")
 
         switch result {
         case .failure(let error as OperationError):
@@ -72,15 +86,13 @@ final class ReadCertificateOperationTests: XCTestCase {
     }
 
     func testCertificateSerialNotUniqueError() {
-        let dependencies: Dependencies = .notUnique
-        let options = ReadCertificateOptions(serial: "abcd")
         let operation = ReadCertificateOperation(options: options)
 
         let result = Result {
-            try operation.execute(with: dependencies).await()
+            try operation.execute(with: notUniqueRequestor).await()
         }
 
-        let expectedError = OperationError.serialNumberNotUnique("abcd")
+        let expectedError = OperationError.serialNumberNotUnique("abcde")
 
         switch result {
         case .failure(let error as OperationError):
@@ -89,59 +101,17 @@ final class ReadCertificateOperationTests: XCTestCase {
             XCTFail("Expected failed with \(expectedError), got: \(result)")
         }
     }
-}
 
-extension ReadCertificateOperationTests.Dependencies {
+    static let readCertificateResponse = Certificate
+        .readCertificateResponse
+        .map({ try! jsonDecoder.decode(CertificatesResponse.self, from: $0) })!
 
-    typealias Dependencies = ListCertificateOperationsTests.Dependencies
+    static let noCertificateResponse = Certificate
+        .noCertificateResponse
+        .map({ try! jsonDecoder.decode(CertificatesResponse.self, from: $0) })!
 
-    static let readSuccess = Self(
-        certificatesResponse: { _ in
-            Future<CertificatesResponse, Error> { promise in
-                let certificateResponse = try! jsonDecoder
-                    .decode(
-                        CertificatesResponse.self,
-                        from: Certificate.readCertificateResponse
-                    )
+    static let notUniqueResponse = Certificate
+        .notUniqueResponse
+        .map({ try! jsonDecoder.decode(CertificatesResponse.self, from: $0) })!
 
-                promise(.success(certificateResponse))
-            }
-        }
-    )
-
-    static let readFailed = Self(
-        certificatesResponse: { _ in
-            Future<CertificatesResponse, Error> { promise in
-                promise(.failure(TestError.somethingBadHappened))
-            }
-        }
-    )
-
-    static let noCertificate = Self(
-        certificatesResponse: { _ in
-            Future<CertificatesResponse, Error> { promise in
-                let certificatesResponse = try! jsonDecoder
-                    .decode(
-                        CertificatesResponse.self,
-                        from: Certificate.noCertificateResponse
-                    )
-
-                promise(.success(certificatesResponse))
-            }
-        }
-    )
-
-    static let notUnique = Self(
-        certificatesResponse: { _ in
-            Future<CertificatesResponse, Error> { promise in
-                let certificatesResponse = try! jsonDecoder
-                    .decode(
-                        CertificatesResponse.self,
-                        from: Certificate.readCertificateNotUniqueResponse
-                    )
-
-                promise(.success(certificatesResponse))
-            }
-        }
-    )
 }

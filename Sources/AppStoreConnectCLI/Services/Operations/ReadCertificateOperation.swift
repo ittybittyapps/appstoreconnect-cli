@@ -6,10 +6,6 @@ import Foundation
 
 struct ReadCertificateOperation: APIOperation {
 
-    struct ReadCertificateDependencies {
-        let certificatesResponse: (APIEndpoint<CertificatesResponse>) -> Future<CertificatesResponse, Error>
-    }
-
     enum ReadCertificateError: LocalizedError {
         case couldNotFindCertificate(String)
         case serialNumberNotUnique(String)
@@ -36,9 +32,8 @@ struct ReadCertificateOperation: APIOperation {
         self.options = options
     }
 
-    func execute(with dependencies: ReadCertificateDependencies) -> AnyPublisher<Certificate, Error> {
-        dependencies
-            .certificatesResponse(endpoint)
+    func execute(with requestor: EndpointRequestor) -> AnyPublisher<Certificate, Error> {
+        requestor.request(endpoint)
             .tryMap { [serial = options.serial] (response: CertificatesResponse) -> Certificate in
                 switch response.data.count {
                 case 0:

@@ -26,10 +26,7 @@ class AppStoreConnectService {
     }
 
     func readCertificate(with options: ReadCertificateOptions) -> AnyPublisher<Certificate, Error> {
-        let dependencies = ReadCertificateOperation.Dependencies(certificatesResponse: request)
-        let operation = ReadCertificateOperation(options: options)
-
-        return operation.execute(with: dependencies)
+        ReadCertificateOperation(options: options).execute(with: requestor)
     }
 
     func createCertificate(with options: CreateCertificateOptions) -> AnyPublisher<Certificate, Error> {

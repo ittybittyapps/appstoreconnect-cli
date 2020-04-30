@@ -37,28 +37,7 @@ final class ListCertificateOperationsTests: XCTestCase {
         }
     }
 
-private extension ListCertificateOperationsTests.Dependencies {
-
-    static let noCertificate = Self(
-        certificatesResponse: { _ in
-            Future<CertificatesResponse, Error> { promise in
-                let certificatesResponse = try! jsonDecoder.decode(
-                    CertificatesResponse.self,
-                    from: Certificate.noCertificateResponse
-                )
-
-                promise(.success(certificatesResponse))
-            }
-        }
-    )
-    static let noCertificatesResponse = """
-    {
-      "data" : [ ],
-      "links": {
-        "self": "https://api.appstoreconnect.apple.com/v1/certificates"
-      }
-    }
-    """
-    .data(using: .utf8)
-    .map({ try! jsonDecoder.decode(CertificatesResponse.self, from: $0) })!
+    static let noCertificatesResponse = Certificate
+        .noCertificateResponse
+        .map({ try! jsonDecoder.decode(CertificatesResponse.self, from: $0) })!
 }
