@@ -14,21 +14,34 @@ struct ListBetaGroupsCommand: CommonParsableCommand {
 
     @Option(
         parsing: .upToNextOption,
-        help: "Filter the results by app ids, these supercede bundle ids"
+        help: ArgumentHelp(
+            "Filter by app AppStore ID. eg. 432156789",
+            discussion: "This option is mutually exclusive with --filter-bundle-ids.",
+            valueName: "app-id"
+        )
     ) var filterAppIds: [String]
 
     @Option(
         parsing: .upToNextOption,
-        help: "Filter the results by bundle ids, these are superceded by app ids"
+        help: ArgumentHelp(
+            "Filter by app bundle identifier. eg. com.example.App",
+            discussion: "This option is mutually exclusive with --filter-app-ids.",
+            valueName: "bundle-id"
+        )
     ) var filterBundleIds: [String]
+
+    func validate() throws {
+        if filterAppIds.isEmpty == false && filterBundleIds.isEmpty == false {
+            throw ValidationError("Filtering by both Bundle ID and App ID is not supported!")
+        }
+    }
 
     func run() throws {
         let service = try makeService()
 
-        let betaGroups = try service.listBetaGroups(
-            appIds: filterAppIds,
-            bundleIds: filterBundleIds
-        )
+        let betaGroups = filterBundleIds.isEmpty
+            ? try service.listBetaGroups(appIds: filterAppIds)
+            : try service.listBetaGroups(bundleIds: filterBundleIds)
 
         betaGroups.render(format: common.outputFormat)
     }
