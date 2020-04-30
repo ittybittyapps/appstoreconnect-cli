@@ -25,8 +25,8 @@ class AppStoreConnectService {
         ListCertificatesOperation(options: options).execute(with: requestor)
     }
 
-    func readCertificate(with options: ReadCertificateOptions) -> AnyPublisher<Certificate, Error> {
-        ReadCertificateOperation(options: options).execute(with: requestor)
+    func readCertificate(serial: String) -> AnyPublisher<Certificate, Error> {
+        ReadCertificateOperation(options: .init(serial: serial)).execute(with: requestor)
     }
 
     func createCertificate(with options: CreateCertificateOptions) -> AnyPublisher<Certificate, Error> {

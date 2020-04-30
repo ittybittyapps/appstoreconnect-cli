@@ -6,6 +6,10 @@ import Foundation
 
 struct ReadCertificateOperation: APIOperation {
 
+    struct Options {
+        let serial: String
+    }
+
     enum ReadCertificateError: LocalizedError {
         case couldNotFindCertificate(String)
         case serialNumberNotUnique(String)
@@ -26,9 +30,9 @@ struct ReadCertificateOperation: APIOperation {
         )
     }
 
-    private let options: ReadCertificateOptions
+    private let options: Options
 
-    init(options: ReadCertificateOptions) {
+    init(options: Options) {
         self.options = options
     }
 

@@ -23,12 +23,8 @@ struct ReadDownloadCertificateCommand: CommonParsableCommand {
     func run() throws {
         let service = try makeService()
 
-        let options = ReadCertificateOptions(
-            serial: serial
-        )
-
         let certificate = try service
-            .readCertificate(with: options)
+            .readCertificate(serial: serial)
             .await()
 
         if let certificateOutput = certificateOutput {

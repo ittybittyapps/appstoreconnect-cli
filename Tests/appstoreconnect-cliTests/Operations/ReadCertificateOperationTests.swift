@@ -32,7 +32,7 @@ final class ReadCertificateOperationTests: XCTestCase {
 
     typealias OperationError = ReadCertificateOperation.ReadCertificateError
 
-    let options = ReadCertificateOptions(serial: "abcde")
+    let options = ReadCertificateOperation.Options(serial: "abcde")
 
     func testExecute_success() {
         let operation = ReadCertificateOperation(options: options)

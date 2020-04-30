@@ -10,7 +10,3 @@ struct ListCertificatesOptions {
     let filterDisplayName: String?
     let limit: Int?
 }
-
-struct ReadCertificateOptions {
-    let serial: String
-}
