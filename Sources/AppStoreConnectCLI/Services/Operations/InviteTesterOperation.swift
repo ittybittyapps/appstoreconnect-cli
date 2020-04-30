@@ -76,7 +76,7 @@ struct InviteTesterOperation: APIOperation {
             withId: testerId,
             include: [.betaGroups, .apps])
 
-        return dependencies.betaTesterResponse(endpoint)
+        return requestor.request(endpoint)
             .map { BetaTester($0.data, $0.included) }
             .eraseToAnyPublisher()
     }

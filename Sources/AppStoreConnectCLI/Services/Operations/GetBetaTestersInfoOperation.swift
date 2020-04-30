@@ -6,10 +6,6 @@ import Foundation
 
 struct GetBetaTestersInfoOperation: APIOperation {
 
-    struct GetBetaTesterInfoDependencies {
-        let betaTestersResponse: (APIEndpoint<BetaTestersResponse>) -> Future<BetaTestersResponse, Error>
-    }
-
     private enum GetTestersError: LocalizedError {
         case betaTesterNotFound(String)
 
@@ -49,8 +45,8 @@ struct GetBetaTestersInfoOperation: APIOperation {
         self.options = options
     }
 
-    func execute(with dependencies: GetBetaTesterInfoDependencies) throws -> AnyPublisher<[BetaTester], Error> {
-        dependencies.betaTestersResponse(endpoint)
+    func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<[BetaTester], Error> {
+        requestor.request(endpoint)
             .tryMap { [email = options.email](response: BetaTestersResponse) -> [BetaTester] in
                 guard !response.data.isEmpty else {
                     throw GetTestersError.betaTesterNotFound(email)

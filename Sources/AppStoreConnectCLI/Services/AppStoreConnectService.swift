@@ -34,11 +34,7 @@ class AppStoreConnectService {
     }
         
     func getBetaTestersInfo(with options: GetBetaTesterInfoOptions) throws -> AnyPublisher<[BetaTester], Error> {
-        let dependencies = GetBetaTestersInfoOperation.Dependencies(betaTestersResponse: request)
-
-        let operation = GetBetaTestersInfoOperation(options: options)
-
-        return try operation.execute(with: dependencies)
+        return try GetBetaTestersInfoOperation(options: options).execute(with: requestor)
     }
         
     func createBetaGroup(
