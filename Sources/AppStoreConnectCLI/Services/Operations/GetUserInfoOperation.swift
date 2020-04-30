@@ -6,10 +6,6 @@ import Foundation
 
 struct GetUserInfoOperation: APIOperation {
 
-    struct GetUserInfoDependencies {
-        let usersResponse: (APIEndpoint<UsersResponse>) -> Future<UsersResponse, Error>
-    }
-
     enum GetUserInfoError: LocalizedError {
         case couldNotFindUser(email: String)
 
@@ -30,8 +26,8 @@ struct GetUserInfoOperation: APIOperation {
         email = options.email
     }
 
-    func execute(with dependencies: GetUserInfoDependencies) -> AnyPublisher<User, Error> {
-        dependencies.usersResponse(endpoint)
+    func execute(with requestor: EndpointRequestor) -> AnyPublisher<User, Error> {
+        requestor.request(endpoint)
             .tryMap { [email] response in
                 let users = User.fromAPIResponse(response)
                 guard let user = users.first, users.count == 1 else {

@@ -7,17 +7,20 @@ import Foundation
 import XCTest
 
 final class GetBetaTesterInfoOperationTests: XCTestCase {
-    typealias Dependencies = GetBetaTesterInfoOperation.Dependencies
 
     let options = GetBetaTesterInfoOptions(id: "abc")
 
-    func testExecute_success() {
-        let dependencies: Dependencies = .createdSuccess
+    let successRequestor = OneEndpointTestRequestor(
+        response: { _ in
+            Future{ $0(.success(response)) }
+        }
+    )
 
+    func testExecute_success() {
         let operation = GetBetaTesterInfoOperation(options: options)
 
         let result = Result {
-            try operation.execute(with: dependencies).await()
+            try operation.execute(with: successRequestor).await()
         }
 
         switch result {
@@ -32,12 +35,12 @@ final class GetBetaTesterInfoOperationTests: XCTestCase {
     }
 
     func testExecute_propagatesUpstreamErrors() {
-        let dependencies: Dependencies = .createdFailed
+        let requestor = FailureTestRequestor()
 
         let operation = GetBetaTesterInfoOperation(options: options)
 
         let result = Result {
-            try operation.execute(with: dependencies).await()
+            try operation.execute(with: requestor).await()
         }
 
         let expectedError = TestError.somethingBadHappened
@@ -49,11 +52,8 @@ final class GetBetaTesterInfoOperationTests: XCTestCase {
                 XCTFail("Expected failure with: \(expectedError), got: \(result)")
         }
     }
-}
 
-private extension GetBetaTesterInfoOperationTests.Dependencies {
-
-    static let createdSuccessResponse = """
+    static let response = """
     {
       "data": {
         "type": "betaTesters",
@@ -139,24 +139,7 @@ private extension GetBetaTesterInfoOperationTests.Dependencies {
         "self": "https://api.appstoreconnect.apple.com/v1/betaTesters/123455678-b311-4276-a6bb-28a5b8f46e32?include=betaGroups%2Capps"
       }
     }
-    """.data(using: .utf8)!
-
-    static let createdSuccess = Self(
-        betaTesterResponse: { _ in
-            Future<BetaTesterResponse, Error> { promise in
-                let certificateResponse = try! jsonDecoder
-                    .decode(BetaTesterResponse.self, from: createdSuccessResponse)
-                promise(.success(certificateResponse))
-            }
-        }
-    )
-
-    static let createdFailed = Self(
-        betaTesterResponse: { _ in
-            Future<BetaTesterResponse, Error> { promise in
-                promise(.failure(TestError.somethingBadHappened))
-            }
-        }
-    )
+    """
+    .data(using: .utf8)
+    .map({ try! jsonDecoder.decode(BetaTesterResponse.self, from: $0) })!
 }
-

@@ -5,10 +5,6 @@ import Combine
 
 struct ListUsersOperation: APIOperation {
 
-    struct ListUsersDependencies {
-        let users: (APIEndpoint<UsersResponse>) -> Future<UsersResponse, Error>
-    }
-
     private let endpoint: APIEndpoint<UsersResponse>
 
     init(options: ListUsersOptions) {
@@ -42,8 +38,8 @@ struct ListUsersOperation: APIOperation {
         )
     }
 
-    func execute(with dependencies: ListUsersDependencies) -> AnyPublisher<[User], Error> {
-        dependencies.users(endpoint)
+    func execute(with requestor: EndpointRequestor) -> AnyPublisher<[User], Error> {
+        requestor.request(endpoint)
             .map(User.fromAPIResponse)
             .eraseToAnyPublisher()
     }

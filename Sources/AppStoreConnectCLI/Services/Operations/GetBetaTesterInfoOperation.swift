@@ -6,10 +6,6 @@ import Foundation
 
 struct GetBetaTesterInfoOperation: APIOperation {
 
-    struct GetBetaTesterInfoDependencies {
-        let betaTesterResponse: (APIEndpoint<BetaTesterResponse>) -> Future<BetaTesterResponse, Error>
-    }
-
     private let endpoint: APIEndpoint<BetaTesterResponse>
 
     init(options: GetBetaTesterInfoOptions) {
@@ -18,8 +14,8 @@ struct GetBetaTesterInfoOperation: APIOperation {
             include: [.betaGroups, .apps])
     }
 
-    func execute(with dependencies: GetBetaTesterInfoDependencies) -> AnyPublisher<BetaTester, Error> {
-        dependencies.betaTesterResponse(endpoint)
+    func execute(with requestor: EndpointRequestor) -> AnyPublisher<BetaTester, Error> {
+        requestor.request(endpoint)
             .map { BetaTester($0.data, $0.included) }
             .eraseToAnyPublisher()
     }

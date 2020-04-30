@@ -6,10 +6,6 @@ import Foundation
 
 struct CreateCertificateOperation: APIOperation {
 
-    struct CreateCertificateDependencies {
-        let certificateResponse: (APIEndpoint<CertificateResponse>) -> Future<CertificateResponse, Error>
-    }
-
     private let endpoint: APIEndpoint<CertificateResponse>
 
     init(options: CreateCertificateOptions) {
@@ -19,9 +15,9 @@ struct CreateCertificateOperation: APIOperation {
         )
     }
 
-    func execute(with dependencies: CreateCertificateDependencies) -> AnyPublisher<Certificate, Error> {
-        dependencies
-            .certificateResponse(endpoint)
+    func execute(with requestor: EndpointRequestor) -> AnyPublisher<Certificate, Error> {
+        requestor
+            .request(endpoint)
             .map { Certificate($0.data) }
             .eraseToAnyPublisher()
     }
