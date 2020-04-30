@@ -65,9 +65,8 @@ class AppStoreConnectService {
 
     func listBetaGroups(appIds: [String]) throws -> [BetaGroup] {
         let operation = ListBetaGroupsOperation(options: .init(appIds: appIds))
-        let betaGroups = operation.execute(with: requestor).map({ $0.map(BetaGroup.init) })
 
-        return try betaGroups.await()
+        return try operation.execute(with: requestor).await().map(BetaGroup.init)
     }
 
     /// Make a request for something `Decodable`.
