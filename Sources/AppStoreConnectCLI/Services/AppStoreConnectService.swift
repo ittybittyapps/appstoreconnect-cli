@@ -32,7 +32,15 @@ class AppStoreConnectService {
     func inviteBetaTesterToGroups(with options: InviteBetaTesterOptions) throws -> AnyPublisher<BetaTester, Error> {
         try InviteTesterOperation(options: options).execute(with: requestor)
     }
+        
+    func getBetaTestersInfo(with options: GetBetaTesterInfoOptions) throws -> AnyPublisher<[BetaTester], Error> {
+        let dependencies = GetBetaTestersInfoOperation.Dependencies(betaTestersResponse: request)
 
+        let operation = GetBetaTestersInfoOperation(options: options)
+
+        return try operation.execute(with: dependencies)
+    }
+        
     func createBetaGroup(
         appBundleId: String,
         groupName: String,
