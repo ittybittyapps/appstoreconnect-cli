@@ -72,8 +72,12 @@ struct InviteTesterOperation: APIOperation {
             .data
             .id
 
-        return GetBetaTesterInfoOperation(options: GetBetaTesterInfoOptions(id: testerId))
-            .execute(with: requestor)
+        let endpoint = APIEndpoint.betaTester(
+            withId: testerId,
+            include: [.betaGroups, .apps])
+
+        return dependencies.betaTesterResponse(endpoint)
+            .map { BetaTester($0.data, $0.included) }
             .eraseToAnyPublisher()
     }
 
