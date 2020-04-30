@@ -39,24 +39,21 @@ class AppStoreConnectService {
         publicLinkEnabled: Bool,
         publicLinkLimit: Int?
     ) throws -> BetaGroup {
-        let getAppsOptions = GetAppsOperation.Options(bundleIds: [appBundleId])
-        let getAppsOperation = GetAppsOperation(options: getAppsOptions)
+        let getAppsOperation = GetAppsOperation(options: .init(bundleIds: [appBundleId]))
         // We use a force unwrap here as the operation handles errors raised by not finding our app
         let app = try getAppsOperation.execute(with: requestor).await().first!
 
-        let createBetaGroupOptions = CreateBetaGroupOperation.Options(
-            app: app,
-            groupName: groupName,
-            publicLinkEnabled: publicLinkEnabled,
-            publicLinkLimit: publicLinkLimit
+        let createBetaGroupOperation = CreateBetaGroupOperation(
+            options: .init(
+                app: app,
+                groupName: groupName,
+                publicLinkEnabled: publicLinkEnabled,
+                publicLinkLimit: publicLinkLimit
+            )
         )
 
-        let createBetaGroupOperation = CreateBetaGroupOperation(options: createBetaGroupOptions)
-
-        return try createBetaGroupOperation
-            .execute(with: requestor)
-            .map(BetaGroup.init)
-            .await()
+        let betaGroupResponse = createBetaGroupOperation.execute(with: requestor)
+        return try betaGroupResponse.map(BetaGroup.init).await()
     }
 
     func listBetaGroups(appIds: [String], bundleIds: [String]) throws -> [BetaGroup] {
@@ -64,18 +61,14 @@ class AppStoreConnectService {
 
         // Fill out appIds if no appIds are specified but bundleIds are
         if appIds.isEmpty && !bundleIds.isEmpty {
-            let getAppsOptions = GetAppsOperation.Options(bundleIds: bundleIds)
-            let getAppsOperation = GetAppsOperation(options: getAppsOptions)
-            appIds = try getAppsOperation.execute(with: requestor).await().map(\.id)
+            let operation = GetAppsOperation(options: .init(bundleIds: bundleIds))
+            appIds = try operation.execute(with: requestor).await().map(\.id)
         }
 
-        let listBetaGroupsOptions = ListBetaGroupsOperation.Options(appIds: appIds)
-        let listBetaGroupsOperation = ListBetaGroupsOperation(options: listBetaGroupsOptions)
+        let operation = ListBetaGroupsOperation(options: .init(appIds: appIds))
+        let response = operation.execute(with: requestor)
 
-        return try listBetaGroupsOperation
-            .execute(with: requestor)
-            .map { $0.map(BetaGroup.init) }
-            .await()
+        return try response.map({ $0.map(BetaGroup.init) }).await()
     }
 
     /// Make a request for something `Decodable`.
