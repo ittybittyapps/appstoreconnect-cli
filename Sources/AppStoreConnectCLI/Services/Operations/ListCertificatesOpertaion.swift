@@ -6,10 +6,6 @@ import Foundation
 
 struct ListCertificatesOperation: APIOperation {
 
-    struct ListCertificatesDependencies {
-        let certificatesResponse: (APIEndpoint<CertificatesResponse>) -> Future<CertificatesResponse, Error>
-    }
-
     enum ListCertificatesError: LocalizedError {
         case couldNotFindCertificate
 
@@ -47,9 +43,8 @@ struct ListCertificatesOperation: APIOperation {
         )
     }
 
-    func execute(with dependencies: ListCertificatesDependencies) -> AnyPublisher<[Certificate], Error> {
-        dependencies
-            .certificatesResponse(endpoint)
+    func execute(with requestor: EndpointRequestor) -> AnyPublisher<[Certificate], Error> {
+        requestor.request(endpoint)
             .tryMap { (response: CertificatesResponse) -> [Certificate] in
                 guard !response.data.isEmpty else {
                     throw ListCertificatesError.couldNotFindCertificate

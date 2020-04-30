@@ -7,11 +7,14 @@ import Foundation
 import XCTest
 
 final class ListCertificateOperationsTests: XCTestCase {
-    typealias Dependencies = ListCertificatesOperation.Dependencies
+
     typealias OperationError = ListCertificatesOperation.ListCertificatesError
 
+    let noCertificatesRequestor = OneEndpointTestRequestor(
+        response: { _ in Future({ $0(.success(noCertificatesResponse)) }) }
+    )
+
     func testCouldNotFindCertificate() {
-        let dependencies: Dependencies = .noCertificate
         let options = ListCertificatesOptions(
             filterSerial: nil,
             sort: nil,
@@ -20,50 +23,28 @@ final class ListCertificateOperationsTests: XCTestCase {
             limit: nil
         )
 
-        let expectedError = OperationError.couldNotFindCertificate
-
         let operation = ListCertificatesOperation(options: options)
 
         let result = Result {
-            try operation.execute(with: dependencies).await()
+            try operation.execute(with: noCertificatesRequestor).await()
         }
 
         switch result {
-        case .failure(let error as OperationError):
-            XCTAssertEqual(error.errorDescription, expectedError.errorDescription)
+        case .failure(OperationError.couldNotFindCertificate):
+            break
         default:
-            XCTFail("Expected failed with \(expectedError), got: \(result)")
+            XCTFail("Expected failed with \(OperationError.couldNotFindCertificate), got: \(result)")
         }
     }
-}
-
-private extension ListCertificateOperationsTests.Dependencies {
-    static let jsonDecoder = JSONDecoder()
 
     static let noCertificatesResponse = """
     {
       "data" : [ ],
       "links": {
         "self": "https://api.appstoreconnect.apple.com/v1/certificates"
-      },
-      "meta" : {
-        "paging" : {
-          "total" : 0,
-          "limit" : 50
-        }
       }
     }
-    """.data(using: .utf8)!
-
-    static let noCertificate = Self(
-        certificatesResponse: { _ in
-            Future<CertificatesResponse, Error> { promise in
-                let certificatesResponse = try! jsonDecoder.decode(
-                    CertificatesResponse.self, from: noCertificatesResponse
-                )
-
-                promise(.success(certificatesResponse))
-            }
-        }
-    )
+    """
+    .data(using: .utf8)
+    .map({ try! jsonDecoder.decode(CertificatesResponse.self, from: $0) })!
 }

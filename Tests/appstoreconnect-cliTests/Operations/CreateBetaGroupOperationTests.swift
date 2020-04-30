@@ -8,8 +8,34 @@ import XCTest
 
 final class CreateBetaGroupOperationTests: XCTestCase {
     typealias Operation = CreateBetaGroupOperation
-    typealias Dependencies = Operation.Dependencies
     typealias Options = Operation.Options
+
+    let successRequestor = TwoEndpointTestRequestor(
+        response: { _ in
+            Future { $0(.success(appsResponse)) }
+        },
+        response2: { _ in
+            Future { $0(.success(betaGroupResponse)) }
+        }
+    )
+
+    let appsFailureRequestor = TwoEndpointTestRequestor(
+        response: { _ in
+            Future<AppsResponse, Error> { $0(.failure(TestError.somethingBadHappened)) }
+        },
+        response2: { _ in
+            Future { $0(.success(betaGroupResponse)) }
+        }
+    )
+
+    let betaGroupFailureRequestor = TwoEndpointTestRequestor(
+        response: { _ in
+            Future { $0(.success(appsResponse)) }
+        },
+        response2: { _ in
+            Future<BetaGroupResponse, Error> { $0(.failure(TestError.somethingBadHappened)) }
+        }
+    )
 
     func testExecute_success() {
         let operation = Operation(
@@ -34,7 +60,7 @@ final class CreateBetaGroupOperationTests: XCTestCase {
             creationDate: Date(timeIntervalSince1970: 1587706826)
         )
 
-        let result = Result { try operation.execute(with: .success).await() }
+        let result = Result { try operation.execute(with: successRequestor).await() }
 
         switch result {
         case .success(let group):
@@ -54,8 +80,8 @@ final class CreateBetaGroupOperationTests: XCTestCase {
             )
         )
 
-        let appsResult = Result { try operation.execute(with: .appsFailure).await() }
-        let betaGroupResult = Result { try operation.execute(with: .betaGroupFailure).await() }
+        let appsResult = Result { try operation.execute(with: appsFailureRequestor).await() }
+        let betaGroupResult = Result { try operation.execute(with: betaGroupFailureRequestor).await() }
 
         switch (appsResult, betaGroupResult) {
         case (.failure(let appsError as TestError), .failure(let betaGroupError as TestError)):
@@ -81,15 +107,15 @@ final class CreateBetaGroupOperationTests: XCTestCase {
 
         var betaGroupEndpoint: APIEndpoint<BetaGroupResponse>?
 
-        let dependencies = Dependencies(
-            apps: { _ in Future { $0(.success(Dependencies.appsResponse)) } },
-            createBetaGroup: { endpoint in
+        let requestor = TwoEndpointTestRequestor(
+            response: { _ in Future { $0(.success(Self.appsResponse)) } },
+            response2: { endpoint -> Future<BetaGroupResponse, Error> in
                 betaGroupEndpoint = endpoint
                 return Future { $0(.failure(TestError.somethingBadHappened)) }
             }
         )
 
-        _ = try? Operation(options: noPublicLinkOrLimitOptions).execute(with: dependencies).await()
+        _ = try? Operation(options: noPublicLinkOrLimitOptions).execute(with: requestor).await()
 
         let bodyJSON = (betaGroupEndpoint?.body)
             .flatMap({ try? JSONSerialization.jsonObject(with: $0, options: []) }) as? [String: Any]
@@ -109,9 +135,6 @@ final class CreateBetaGroupOperationTests: XCTestCase {
         XCTAssertEqual(attributes["publicLinkEnabled"] as? Bool, true)
         XCTAssertEqual(attributes["publicLinkLimit"] as? Int, 10)
     }
-}
-
-private extension CreateBetaGroupOperationTests.Dependencies {
 
     static let appsResponse = """
         {
@@ -165,31 +188,4 @@ private extension CreateBetaGroupOperationTests.Dependencies {
         """
         .data(using: .utf8)
         .map({ try! jsonDecoder.decode(BetaGroupResponse.self, from: $0) })!
-
-    static let success = Self(
-        apps: { _ in
-            Future { $0(.success(appsResponse)) }
-        },
-        createBetaGroup: { _ in
-            Future { $0(.success(betaGroupResponse)) }
-        }
-    )
-
-    static let appsFailure = Self(
-        apps: { _ in
-            Future { $0(.failure(TestError.somethingBadHappened)) }
-        },
-        createBetaGroup: { _ in
-            Future { $0(.success(betaGroupResponse)) }
-        }
-    )
-
-    static let betaGroupFailure = Self(
-        apps: { _ in
-            Future { $0(.success(appsResponse)) }
-        },
-        createBetaGroup: { _ in
-            Future { $0(.failure(TestError.somethingBadHappened)) }
-        }
-    )
 }

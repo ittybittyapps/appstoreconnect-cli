@@ -6,58 +6,35 @@ import Foundation
 
 class AppStoreConnectService {
     private let provider: APIProvider
+    private let requestor: EndpointRequestor
 
     init(configuration: APIConfiguration) {
         provider = APIProvider(configuration: configuration)
+        requestor = DefaultEndpointRequestor(provider: provider)
     }
 
     func listUsers(with options: ListUsersOptions) -> AnyPublisher<[User], Error> {
-        let dependencies = ListUsersOperation.Dependencies(users: request)
-        let operation = ListUsersOperation(options: options)
-
-        return operation.execute(with: dependencies)
+        ListUsersOperation(options: options).execute(with: requestor)
     }
 
     func getUserInfo(with options: GetUserInfoOptions) -> AnyPublisher<User, Error> {
-        let dependencies = GetUserInfoOperation.Dependencies(usersResponse: request)
-        let operation = GetUserInfoOperation(options: options)
-
-        return operation.execute(with: dependencies)
+        GetUserInfoOperation(options: options).execute(with: requestor)
     }
 
     func listCertificates(with options: ListCertificatesOptions) -> AnyPublisher<[Certificate], Error> {
-        let dependencies = ListCertificatesOperation.Dependencies(certificatesResponse: request)
-        let operation = ListCertificatesOperation(options: options)
-
-        return operation.execute(with: dependencies)
+        ListCertificatesOperation(options: options).execute(with: requestor)
     }
 
     func createCertificate(with options: CreateCertificateOptions) -> AnyPublisher<Certificate, Error> {
-        let dependencies = CreateCertificateOperation.Dependencies(certificateResponse: request)
-        let operation = CreateCertificateOperation(options: options)
-
-        return operation.execute(with: dependencies)
+        CreateCertificateOperation(options: options).execute(with: requestor)
     }
 
     func inviteBetaTesterToGroups(with options: InviteBetaTesterOptions) throws -> AnyPublisher<BetaTester, Error> {
-        let dependencies = InviteTesterOperation.Dependencies(
-            appsResponse: request,
-            betaGroupsResponse: request,
-            betaTesterResponse: request
-        )
-
-        let operation = InviteTesterOperation(options: options)
-
-        return try operation.execute(with: dependencies)
+        try InviteTesterOperation(options: options).execute(with: requestor)
     }
 
     func createBetaGroup(with options: CreateBetaGroupOptions) -> AnyPublisher<BetaGroup, Error> {
-        let dependencies = CreateBetaGroupOperation.Dependencies(
-            apps: request,
-            createBetaGroup: request)
-        let operation = CreateBetaGroupOperation(options: options)
-
-        return operation.execute(with: dependencies)
+        CreateBetaGroupOperation(options: options).execute(with: requestor)
     }
 
     /// Make a request for something `Decodable`.

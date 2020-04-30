@@ -5,10 +5,6 @@ import Combine
 import Foundation
 
 struct CreateBetaGroupOperation: APIOperation {
-    struct CreateBetaGroupDependencies {
-        let apps: (APIEndpoint<AppsResponse>) -> Future<AppsResponse, Error>
-        let createBetaGroup: (APIEndpoint<BetaGroupResponse>) -> Future<BetaGroupResponse, Error>
-    }
 
     private let options: CreateBetaGroupOptions
 
@@ -19,13 +15,13 @@ struct CreateBetaGroupOperation: APIOperation {
     private typealias AppAttributes = AppStoreConnect_Swift_SDK.App.Attributes
     private typealias BetaGroupAttributes = AppStoreConnect_Swift_SDK.BetaGroup.Attributes
 
-    func execute(with dependencies: CreateBetaGroupDependencies) -> AnyPublisher<BetaGroup, Error> {
+    func execute(with requestor: EndpointRequestor) -> AnyPublisher<BetaGroup, Error> {
         let options = self.options
 
         let app = GetAppsOperation(
                 options: .init(bundleIds: [options.appBundleId])
             )
-            .execute(with: .init(apps: dependencies.apps))
+            .execute(with: requestor)
             .compactMap(\.first)
 
         let appAndGroupAttributes = app
@@ -38,7 +34,7 @@ struct CreateBetaGroupOperation: APIOperation {
                     publicLinkLimitEnabled: options.publicLinkLimit != nil
                 )
 
-                let betaGroupResponse = dependencies.createBetaGroup(endpoint)
+                let betaGroupResponse = requestor.request(endpoint)
 
                 return betaGroupResponse
                     .map({ (app.attributes, $0.data.attributes) })

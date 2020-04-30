@@ -5,9 +5,6 @@ import Combine
 import Foundation
 
 struct GetAppsOperation: APIOperation {
-    struct GetAppsDependencies {
-        let apps: (APIEndpoint<AppsResponse>) -> Future<AppsResponse, Error>
-    }
 
     enum GetAppIdsError: LocalizedError {
         case couldntFindAnyAppsMatching(bundleIds: [String])
@@ -30,12 +27,12 @@ struct GetAppsOperation: APIOperation {
     }
 
     func execute(
-        with dependencies: GetAppsDependencies
+        with requestor: EndpointRequestor
     ) -> AnyPublisher<[AppStoreConnect_Swift_SDK.App], Error> {
         let bundleIds = options.bundleIds
         let endpoint = APIEndpoint.apps(filters: [.bundleId(bundleIds)])
 
-        return dependencies.apps(endpoint)
+        return requestor.request(endpoint)
             .tryMap { (response: AppsResponse) throws -> [AppStoreConnect_Swift_SDK.App] in
                 guard !response.data.isEmpty else {
                     throw GetAppIdsError.couldntFindAnyAppsMatching(bundleIds: bundleIds)
@@ -53,4 +50,5 @@ struct GetAppsOperation: APIOperation {
             }
             .eraseToAnyPublisher()
     }
+
 }

@@ -5,10 +5,9 @@ import Foundation
 
 protocol APIOperation {
     associatedtype Options
-    associatedtype Dependencies
     associatedtype Output
 
     init(options: Options)
 
-    func execute(with dependencies: Dependencies) throws -> AnyPublisher<Output, Error>
+    func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<Output, Error>
 }

@@ -6,12 +6,6 @@ import Foundation
 
 struct InviteTesterOperation: APIOperation {
 
-    struct InviteBetaTesterDependencies {
-        let appsResponse: (APIEndpoint<AppsResponse>) -> Future<AppsResponse, Error>
-        let betaGroupsResponse: (APIEndpoint<BetaGroupsResponse>) -> Future<BetaGroupsResponse, Error>
-        let betaTesterResponse: (APIEndpoint<BetaTesterResponse>) -> Future<BetaTesterResponse, Error>
-    }
-
     private enum InviteTesterError: LocalizedError {
         case noGroupsExist(groupNames: [String], bundleId: String)
         case noAppExist
@@ -32,11 +26,11 @@ struct InviteTesterOperation: APIOperation {
         self.options = options
     }
 
-    func execute(with dependencies: InviteBetaTesterDependencies) throws -> AnyPublisher<BetaTester, Error> {
+    func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<BetaTester, Error> {
         let appIds = try GetAppsOperation(
                 options: .init(bundleIds: [options.bundleId])
             )
-            .execute(with: .init(apps: dependencies.appsResponse))
+            .execute(with: requestor)
             .await()
             .map { $0.id }
 
@@ -44,8 +38,8 @@ struct InviteTesterOperation: APIOperation {
             throw InviteTesterError.noAppExist
         }
 
-        let betaGroups = try dependencies
-            .betaGroupsResponse(.betaGroups(forAppWithId: appId))
+        let betaGroups = try requestor
+            .request(.betaGroups(forAppWithId: appId))
             .await()
             .data
         
@@ -67,8 +61,8 @@ struct InviteTesterOperation: APIOperation {
                 betaGroupIds: [id]
             )
 
-            return dependencies
-                .betaTesterResponse(endpoint)
+            return requestor
+                .request(endpoint)
                 .eraseToAnyPublisher()
         }
 
@@ -78,12 +72,8 @@ struct InviteTesterOperation: APIOperation {
             .data
             .id
 
-        return GetBetaTesterInfoOperation(
-                options: GetBetaTesterInfoOptions(id: testerId)
-            )
-            .execute(
-                with: .init(betaTesterResponse: dependencies.betaTesterResponse)
-            )
+        return GetBetaTesterInfoOperation(options: GetBetaTesterInfoOptions(id: testerId))
+            .execute(with: requestor)
             .eraseToAnyPublisher()
     }
 

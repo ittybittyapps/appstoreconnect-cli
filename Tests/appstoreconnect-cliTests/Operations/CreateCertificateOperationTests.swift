@@ -7,19 +7,19 @@ import Foundation
 import XCTest
 
 final class CreateCertificateOperationTests: XCTestCase {
-    typealias Dependencies = CreateCertificateOperation.Dependencies
-
     let options = CreateCertificateOptions(
         certificateType: .iOSDevelopment,
         csrContent: "")
 
-    func testExecute_success() {
-        let dependencies: Dependencies = .createdSuccess
+    let successRequestor = OneEndpointTestRequestor(
+        response: { _ in Future({ $0(.success(response)) }) }
+    )
 
+    func testExecute_success() {
         let operation = CreateCertificateOperation(options: options)
 
         let result = Result {
-            try operation.execute(with: dependencies).await()
+            try operation.execute(with: successRequestor).await()
         }
 
         switch result {
@@ -33,12 +33,12 @@ final class CreateCertificateOperationTests: XCTestCase {
     }
 
     func testExecute_propagatesUpstreamErrors() {
-        let dependencies: Dependencies = .createdFailed
+        let requestor = FailureTestRequestor()
 
         let operation = CreateCertificateOperation(options: options)
 
         let result = Result {
-            try operation.execute(with: dependencies).await()
+            try operation.execute(with: requestor).await()
         }
 
         let expectedError = TestError.somethingBadHappened
@@ -50,11 +50,8 @@ final class CreateCertificateOperationTests: XCTestCase {
                 XCTFail("Expected failure with: \(expectedError), got: \(result)")
         }
     }
-}
 
-private extension CreateCertificateOperationTests.Dependencies {
-
-    static let createdSuccessResponse = """
+    static let response = """
     {
       "data" : {
         "type" : "certificates",
@@ -77,23 +74,7 @@ private extension CreateCertificateOperationTests.Dependencies {
         "self" : "https://api.appstoreconnect.apple.com/v1/certificates"
       }
     }
-    """.data(using: .utf8)!
-
-    static let createdSuccess = Self(
-        certificateResponse: { _ in
-            Future<CertificateResponse, Error> { promise in
-                let certificateResponse = try! jsonDecoder
-                    .decode(CertificateResponse.self, from: createdSuccessResponse)
-                promise(.success(certificateResponse))
-            }
-        }
-    )
-
-    static let createdFailed = Self(
-        certificateResponse: { _ in
-            Future<CertificateResponse, Error> { promise in
-                promise(.failure(TestError.somethingBadHappened))
-            }
-        }
-    )
+    """
+    .data(using: .utf8)
+    .map({ try! jsonDecoder.decode(CertificateResponse.self, from: $0) })!
 }
