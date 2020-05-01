@@ -29,34 +29,20 @@ struct BetaTester: ResultRenderable {
         self.apps = apps
     }
 
-    init(_ betaTester: AppStoreConnect_Swift_SDK.BetaTester, _ includes: [AppStoreConnect_Swift_SDK.BetaTesterRelationship]?) {
-        let attributes = betaTester.attributes
-        let relationships = betaTester.relationships
-
-        let includedApps = includes?.compactMap { relationship -> AppStoreConnect_Swift_SDK.App? in
-            if case let .app(app) = relationship {
-                return app
-            }
-            return nil
-        }
-
-        let includedBetaGroups = includes?.compactMap { relationship -> AppStoreConnect_Swift_SDK.BetaGroup? in
-            if case let .betaGroup(betaGroup) = relationship {
-                return betaGroup
-            }
-            return nil
-        }
+    init(with output: GetBetaTesterOperation.Output) {
+        let attributes = output.betaTester.attributes
+        let relationships = output.betaTester.relationships
 
         // Find tester related beta groups and apps in included data
         let betaGroupsNames = relationships?.betaGroups?.data?
             .compactMap { group -> [AppStoreConnect_Swift_SDK.BetaGroup]? in
-                includedBetaGroups?.filter { $0.id == group.id }
+                output.betaGroups?.filter { $0.id == group.id }
             }
             .flatMap { $0.compactMap { $0.attributes?.name } }
 
         let appsBundleIds = relationships?.apps?.data?
             .compactMap { app -> [AppStoreConnect_Swift_SDK.App]? in
-                includedApps?.filter { app.id == $0.id }
+                output.apps?.filter { app.id == $0.id }
             }
             .flatMap { $0.compactMap { $0.attributes?.bundleId } }
 

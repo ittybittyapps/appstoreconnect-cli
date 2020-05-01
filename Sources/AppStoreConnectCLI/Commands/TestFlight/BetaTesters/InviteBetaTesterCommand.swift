@@ -42,7 +42,6 @@ struct InviteBetaTesterCommand: CommonParsableCommand {
 
         let betaTester = try service
             .inviteBetaTesterToGroups(with: options)
-            .await()
 
         betaTester.render(format: common.outputFormat)
     }

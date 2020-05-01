@@ -26,7 +26,7 @@ struct InviteTesterOperation: APIOperation {
         self.options = options
     }
 
-    func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<BetaTester, Error> {
+    func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<GetBetaTesterOperation.Output, Error> {
         let appIds = try GetAppsOperation(
                 options: .init(bundleIds: [options.bundleId])
             )
@@ -66,18 +66,18 @@ struct InviteTesterOperation: APIOperation {
                 .eraseToAnyPublisher()
         }
 
-        let testerId = try Publishers.ConcatenateMany(requests)
+        let betaTester = try Publishers.ConcatenateMany(requests)
             .last()
+            .eraseToAnyPublisher()
             .await()
-            .data
-            .id
 
-        let endpoint = APIEndpoint.betaTester(
-            withId: testerId,
-            include: [.betaGroups, .apps])
-
-        return requestor.request(endpoint)
-            .map { BetaTester($0.data, $0.included) }
+        return try GetBetaTesterOperation(
+                options: .init(
+                    id: betaTester.data.id,
+                    email: nil
+                )
+            )
+            .execute(with: requestor)
             .eraseToAnyPublisher()
     }
 
