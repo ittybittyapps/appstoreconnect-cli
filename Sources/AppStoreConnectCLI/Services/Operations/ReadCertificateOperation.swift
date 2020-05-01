@@ -10,7 +10,7 @@ struct ReadCertificateOperation: APIOperation {
         let serial: String
     }
 
-    enum ReadCertificateError: LocalizedError {
+    enum Error: LocalizedError {
         case couldNotFindCertificate(String)
         case serialNumberNotUnique(String)
 
@@ -36,16 +36,16 @@ struct ReadCertificateOperation: APIOperation {
         self.options = options
     }
 
-    func execute(with requestor: EndpointRequestor) -> AnyPublisher<Certificate, Error> {
+    func execute(with requestor: EndpointRequestor) -> AnyPublisher<Certificate, Swift.Error> {
         requestor.request(endpoint)
             .tryMap { [serial = options.serial] (response: CertificatesResponse) -> Certificate in
                 switch response.data.count {
                 case 0:
-                    throw ReadCertificateError.couldNotFindCertificate(serial)
+                    throw Error.couldNotFindCertificate(serial)
                 case 1:
                     return Certificate(response.data.first!)
                 default:
-                    throw ReadCertificateError.serialNumberNotUnique(serial)
+                    throw Error.serialNumberNotUnique(serial)
                 }
             }
             .eraseToAnyPublisher()
