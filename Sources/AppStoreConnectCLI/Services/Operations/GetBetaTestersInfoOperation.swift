@@ -6,7 +6,14 @@ import Foundation
 
 struct GetBetaTestersInfoOperation: APIOperation {
 
-    private enum GetTestersError: LocalizedError {
+    struct Options {
+        let email: String
+        var limitApps: Int?
+        var limitBuilds: Int?
+        var limitBetaGroups: Int?
+    }
+
+    private enum Error: LocalizedError {
         case betaTesterNotFound(String)
 
         var errorDescription: String? {
@@ -39,22 +46,20 @@ struct GetBetaTestersInfoOperation: APIOperation {
         )
     }
 
-    let options: GetBetaTesterInfoOptions
+    let options: Options
 
-    init(options: GetBetaTesterInfoOptions) {
+    init(options: Options) {
         self.options = options
     }
 
-    func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<[BetaTester], Error> {
+    func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<BetaTestersResponse, Swift.Error> {
         requestor.request(endpoint)
-            .tryMap { [email = options.email](response: BetaTestersResponse) -> [BetaTester] in
+            .tryMap { [email = options.email] (response: BetaTestersResponse) -> BetaTestersResponse in
                 guard !response.data.isEmpty else {
-                    throw GetTestersError.betaTesterNotFound(email)
+                    throw Error.betaTesterNotFound(email)
                 }
 
-                return response.data.map {
-                    BetaTester($0, response.included)
-                }
+                return response
             }
             .eraseToAnyPublisher()
     }
