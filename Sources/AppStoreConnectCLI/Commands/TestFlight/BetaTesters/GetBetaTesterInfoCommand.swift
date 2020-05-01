@@ -28,17 +28,14 @@ struct GetBetaTesterInfoCommand: CommonParsableCommand {
     func run() throws {
         let service = try makeService()
 
-        let options = GetBetaTesterInfoOptions(
-            email: email,
-            limitApps: limitApps,
-            limitBuilds: limitBuilds,
-            limitBetaGroups: limitBetaGroups
-        )
+        let tester = try service
+            .getBetaTesterInfo(
+                email: email,
+                limitApps: limitApps,
+                limitBuilds: limitBuilds,
+                limitBetaGroups: limitBetaGroups
+            )
 
-        let tester = try service.getBetaTestersInfo(with: options)
-            .await()
-            .first
-
-        tester?.render(format: common.outputFormat)
+        tester.render(format: common.outputFormat)
     }
 }

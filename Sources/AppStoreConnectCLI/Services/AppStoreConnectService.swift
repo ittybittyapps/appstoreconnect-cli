@@ -32,9 +32,23 @@ class AppStoreConnectService {
     func inviteBetaTesterToGroups(with options: InviteBetaTesterOptions) throws -> AnyPublisher<BetaTester, Error> {
         try InviteTesterOperation(options: options).execute(with: requestor)
     }
-        
-    func getBetaTestersInfo(with options: GetBetaTesterInfoOptions) throws -> AnyPublisher<[BetaTester], Error> {
-        return try GetBetaTestersInfoOperation(options: options).execute(with: requestor)
+
+    func getBetaTesterInfo(
+        email: String,
+        limitApps: Int?,
+        limitBuilds: Int?,
+        limitBetaGroups: Int?
+    ) throws -> BetaTester {
+        let response = try GetBetaTestersInfoOperation(options:
+            .init(email: email,
+                  limitApps: limitApps,
+                  limitBuilds: limitBuilds,
+                  limitBetaGroups: limitBetaGroups)
+            )
+            .execute(with: requestor)
+            .await()
+
+        return response.data.map { BetaTester($0, response.included) }.first!
     }
         
     func createBetaGroup(
