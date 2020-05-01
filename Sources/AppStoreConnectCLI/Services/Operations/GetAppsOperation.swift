@@ -46,7 +46,7 @@ struct GetAppsOperation: APIOperation {
                 let bundleIds = Set(bundleIds)
 
                 guard responseBundleIds == bundleIds else {
-                    let nonExistentBundleIds = responseBundleIds.subtracting(bundleIds)
+                    let nonExistentBundleIds = bundleIds.subtracting(responseBundleIds)
                     throw GetAppIdsError.appsDoNotExist(bundleIds: Array(nonExistentBundleIds))
                 }
 
