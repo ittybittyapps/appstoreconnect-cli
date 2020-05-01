@@ -6,55 +6,31 @@ import Foundation
 
 struct CreateBetaGroupOperation: APIOperation {
 
-    private let options: CreateBetaGroupOptions
+    struct Options {
+        let app: AppStoreConnect_Swift_SDK.App
+        let groupName: String
+        let publicLinkEnabled: Bool
+        let publicLinkLimit: Int?
+    }
 
-    init(options: CreateBetaGroupOptions) {
+    private let options: Options
+
+    init(options: Options) {
         self.options = options
     }
 
-    private typealias AppAttributes = AppStoreConnect_Swift_SDK.App.Attributes
-    private typealias BetaGroupAttributes = AppStoreConnect_Swift_SDK.BetaGroup.Attributes
+    func execute(with requestor: EndpointRequestor) -> AnyPublisher<ExtendedBetaGroup, Error> {
+        let endpoint = APIEndpoint.create(
+            betaGroupForAppWithId: options.app.id,
+            name: options.groupName,
+            publicLinkEnabled: options.publicLinkEnabled,
+            publicLinkLimit: options.publicLinkLimit,
+            publicLinkLimitEnabled: options.publicLinkLimit != nil
+        )
 
-    func execute(with requestor: EndpointRequestor) -> AnyPublisher<BetaGroup, Error> {
-        let options = self.options
-
-        let app = GetAppsOperation(
-                options: .init(bundleIds: [options.appBundleId])
-            )
-            .execute(with: requestor)
-            .compactMap(\.first)
-
-        let appAndGroupAttributes = app
-            .flatMap { app -> AnyPublisher<(AppAttributes?, BetaGroupAttributes?), Error> in
-                let endpoint = APIEndpoint.create(
-                    betaGroupForAppWithId: app.id,
-                    name: options.groupName,
-                    publicLinkEnabled: options.publicLinkEnabled,
-                    publicLinkLimit: options.publicLinkLimit,
-                    publicLinkLimitEnabled: options.publicLinkLimit != nil
-                )
-
-                let betaGroupResponse = requestor.request(endpoint)
-
-                return betaGroupResponse
-                    .map({ (app.attributes, $0.data.attributes) })
-                    .eraseToAnyPublisher()
-            }
-
-        let betaGroup = appAndGroupAttributes.map { appAttributes, groupAttributes -> BetaGroup in
-            BetaGroup(
-                appBundleId: appAttributes?.bundleId,
-                appName: appAttributes?.name,
-                groupName: groupAttributes?.name,
-                isInternal: groupAttributes?.isInternalGroup,
-                publicLink: groupAttributes?.publicLink,
-                publicLinkEnabled: groupAttributes?.publicLinkEnabled,
-                publicLinkLimit: groupAttributes?.publicLinkLimit,
-                publicLinkLimitEnabled: groupAttributes?.publicLinkEnabled,
-                creationDate: groupAttributes?.createdDate
-            )
-        }
-
-        return betaGroup.eraseToAnyPublisher()
+        return requestor
+            .request(endpoint)
+            .map { ExtendedBetaGroup(app: self.options.app, betaGroup: $0.data) }
+            .eraseToAnyPublisher()
     }
 }

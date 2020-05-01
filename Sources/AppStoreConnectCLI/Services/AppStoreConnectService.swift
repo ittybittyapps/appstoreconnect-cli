@@ -33,8 +33,39 @@ class AppStoreConnectService {
         try InviteTesterOperation(options: options).execute(with: requestor)
     }
 
-    func createBetaGroup(with options: CreateBetaGroupOptions) -> AnyPublisher<BetaGroup, Error> {
-        CreateBetaGroupOperation(options: options).execute(with: requestor)
+    func createBetaGroup(
+        appBundleId: String,
+        groupName: String,
+        publicLinkEnabled: Bool,
+        publicLinkLimit: Int?
+    ) throws -> BetaGroup {
+        let getAppsOperation = GetAppsOperation(options: .init(bundleIds: [appBundleId]))
+        let app = try getAppsOperation.execute(with: requestor).compactMap(\.first).await()
+
+        let createBetaGroupOperation = CreateBetaGroupOperation(
+            options: .init(
+                app: app,
+                groupName: groupName,
+                publicLinkEnabled: publicLinkEnabled,
+                publicLinkLimit: publicLinkLimit
+            )
+        )
+
+        let betaGroupResponse = createBetaGroupOperation.execute(with: requestor)
+        return try betaGroupResponse.map(BetaGroup.init).await()
+    }
+
+    func listBetaGroups(bundleIds: [String]) throws -> [BetaGroup] {
+        let operation = GetAppsOperation(options: .init(bundleIds: bundleIds))
+        let appIds = try operation.execute(with: requestor).await().map(\.id)
+
+        return try listBetaGroups(appIds: appIds)
+    }
+
+    func listBetaGroups(appIds: [String]) throws -> [BetaGroup] {
+        let operation = ListBetaGroupsOperation(options: .init(appIds: appIds))
+
+        return try operation.execute(with: requestor).await().map(BetaGroup.init)
     }
 
     /// Make a request for something `Decodable`.
