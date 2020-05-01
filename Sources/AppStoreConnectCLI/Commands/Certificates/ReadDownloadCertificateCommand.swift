@@ -25,19 +25,20 @@ struct ReadDownloadCertificateCommand: CommonParsableCommand {
 
         let certificate = try service
             .readCertificate(serial: serial)
-            .await()
 
         if let certificateOutput = certificateOutput {
-            guard let content = certificate.content,
-                let data = Data(base64Encoded: content) else {
+            guard
+                let content = certificate.content,
+                let data = Data(base64Encoded: content)
+            else {
                 throw CertificatesError.noContent
             }
 
-            let (folderName, fileName) = File.folderAndFilename(from: certificateOutput)
+            let standardizedPath = certificateOutput as NSString
 
-            let file = try Folder(path: folderName)
+            let file = try Folder(path: standardizedPath.deletingLastPathComponent)
                 .createFile(
-                    named: fileName,
+                    named: standardizedPath.lastPathComponent,
                     contents: data
                 )
 
