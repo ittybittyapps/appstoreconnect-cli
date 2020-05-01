@@ -65,11 +65,6 @@ extension BuildDetailsInfo {
     let buildBetaDetail = includedBuildBetaDetails?.filter { relationships?.buildBetaDetail?.data?.id == $0.id }.first
     let betaAppReviewSubmission = includedBetaAppReviewSubmissions?.filter { relationships?.betaAppReviewSubmission?.data?.id == $0.id }.first
 
-//    let app = App(  appDetails.id,
-//                    bundleId: appDetails?.attributes?.bundleId,
-//                    name: appDetails?.attributes?.name
-//                  )
-
     let app = appDetails.map(App.init)
 
     self.init(
