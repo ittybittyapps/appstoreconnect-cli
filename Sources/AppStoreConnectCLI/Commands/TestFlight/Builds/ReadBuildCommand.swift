@@ -28,52 +28,11 @@ struct ReadBuildCommand: CommonParsableCommand {
     )
     var preReleaseVersion: [String]
 
-    private var listFilters: [ListBuilds.Filter]? {
-      var filters = [ListBuilds.Filter]()
-
-      if preReleaseVersion.isEmpty == false {
-        filters += [ListBuilds.Filter.preReleaseVersionVersion(preReleaseVersion)]
-      }
-
-      if buildNumber.isEmpty == false {
-        filters += [ListBuilds.Filter.version(buildNumber)]
-      }
-
-      return filters
-    }
-
     func run() throws {
         let service = try makeService()
+        let options = ReadBuildOptions(bundleId: bundleId, buildNumber: buildNumber, preReleaseVersion: preReleaseVersion)
 
-        let buildResponse = try service
-        .getAppResourceIdsFrom(bundleIds: [bundleId])
-        .flatMap {(resoureceIds: [String]) -> AnyPublisher<BuildsResponse, Error> in
-            guard let appId = resoureceIds.first else {
-                fatalError("Can't find a related app with input bundleID")
-            }
-
-            var filters: [ListBuilds.Filter] = []
-            filters += [ListBuilds.Filter.app([appId])]
-
-            if let listFilters = self.listFilters {
-              if listFilters.isEmpty == false {
-                filters += listFilters
-              }
-            }
-
-            let endpoint = APIEndpoint.builds(
-              filter: filters,
-              include: [.app, .betaAppReviewSubmission, .buildBetaDetail, .preReleaseVersion]
-            )
-
-            return service.request(endpoint).eraseToAnyPublisher()
-        }
-        .await()
-
-        let buildDetailsInfo = buildResponse.data.map {
-          BuildDetailsInfo($0, buildResponse.included)
-        }
-
+        let buildDetailsInfo = try service.readBuild(with: options).await()
         buildDetailsInfo.render(format: common.outputFormat)
     }
 }

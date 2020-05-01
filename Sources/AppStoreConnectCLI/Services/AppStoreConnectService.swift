@@ -68,6 +68,10 @@ class AppStoreConnectService {
         return try operation.execute(with: requestor).await().map(BetaGroup.init)
     }
 
+    func readBuild(with options: ReadBuildOptions) throws -> AnyPublisher<[BuildDetailsInfo], Error> {
+        try ReadBuildOperation(options: options).execute(with: requestor)
+    }
+
     /// Make a request for something `Decodable`.
     ///
     /// - Parameters:
