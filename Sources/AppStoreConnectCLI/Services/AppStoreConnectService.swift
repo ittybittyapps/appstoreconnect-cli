@@ -35,7 +35,7 @@ class AppStoreConnectService {
         return BetaTester(with: output)
     }
 
-    func getBetaTesterInfo(
+    func getBetaTester(
         email: String,
         limitApps: Int?,
         limitBuilds: Int?,

@@ -29,7 +29,7 @@ struct GetBetaTesterInfoCommand: CommonParsableCommand {
         let service = try makeService()
 
         let tester = try service
-            .getBetaTesterInfo(
+            .getBetaTester(
                 email: email,
                 limitApps: limitApps,
                 limitBuilds: limitBuilds,
