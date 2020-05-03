@@ -6,18 +6,18 @@ import Foundation
 import SwiftyTextTable
 
 struct BetaGroup: TableInfoProvider, ResultRenderable, Equatable {
-    let appBundleId: String?
-    let appName: String?
+    let app: App
     let groupName: String?
     let isInternal: Bool?
     let publicLink: String?
     let publicLinkEnabled: Bool?
     let publicLinkLimit: Int?
     let publicLinkLimitEnabled: Bool?
-    let creationDate: Date?
+    let creationDate: String?
 
     static func tableColumns() -> [TextTableColumn] {
         [
+            TextTableColumn(header: "App ID"),
             TextTableColumn(header: "App Bundle ID"),
             TextTableColumn(header: "App Name"),
             TextTableColumn(header: "Group Name"),
@@ -32,8 +32,9 @@ struct BetaGroup: TableInfoProvider, ResultRenderable, Equatable {
 
     var tableRow: [CustomStringConvertible] {
         [
-            appBundleId ?? "",
-            appName ?? "",
+            app.id,
+            app.bundleId ?? "",
+            app.name ?? "",
             groupName ?? "",
             isInternal ?? "",
             publicLink ?? "",
@@ -42,6 +43,19 @@ struct BetaGroup: TableInfoProvider, ResultRenderable, Equatable {
             publicLinkEnabled ?? "",
             creationDate ?? ""
         ]
+    }
+}
+
+extension BetaGroup {
+    init(extendedBetaGroup: ExtendedBetaGroup) {
+        app = App(extendedBetaGroup.app)
+        groupName = extendedBetaGroup.betaGroup.attributes?.name
+        isInternal = extendedBetaGroup.betaGroup.attributes?.isInternalGroup
+        publicLink = extendedBetaGroup.betaGroup.attributes?.publicLink
+        publicLinkEnabled = extendedBetaGroup.betaGroup.attributes?.publicLinkEnabled
+        publicLinkLimit = extendedBetaGroup.betaGroup.attributes?.publicLinkLimit
+        publicLinkLimitEnabled = extendedBetaGroup.betaGroup.attributes?.publicLinkLimitEnabled
+        creationDate = extendedBetaGroup.betaGroup.attributes?.createdDate?.formattedDate
     }
 }
 

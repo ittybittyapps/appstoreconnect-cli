@@ -8,7 +8,6 @@ public struct AppStoreConnectCLI: ParsableCommand {
         commandName: "asc",
         abstract: "A utility for interacting with the AppStore Connect API.",
         subcommands: [
-            BetaGroupCommand.self,
             BundleIdsCommand.self,
             CertificatesCommand.self,
             DevicesCommand.self,

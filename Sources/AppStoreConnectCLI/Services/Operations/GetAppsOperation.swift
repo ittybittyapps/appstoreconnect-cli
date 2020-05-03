@@ -6,6 +6,10 @@ import Foundation
 
 struct GetAppsOperation: APIOperation {
 
+    struct Options {
+        let bundleIds: [String]
+    }
+
     enum GetAppIdsError: LocalizedError {
         case couldntFindAnyAppsMatching(bundleIds: [String])
         case appsDoNotExist(bundleIds: [String])
@@ -20,20 +24,20 @@ struct GetAppsOperation: APIOperation {
         }
     }
 
-    private let options: GetAppsOptions
+    private let options: Options
 
-    init(options: GetAppsOptions) {
+    init(options: Options) {
         self.options = options
     }
 
-    func execute(
-        with requestor: EndpointRequestor
-    ) -> AnyPublisher<[AppStoreConnect_Swift_SDK.App], Error> {
+    typealias App = AppStoreConnect_Swift_SDK.App
+
+    func execute(with requestor: EndpointRequestor) -> AnyPublisher<[App], Error> {
         let bundleIds = options.bundleIds
         let endpoint = APIEndpoint.apps(filters: [.bundleId(bundleIds)])
 
         return requestor.request(endpoint)
-            .tryMap { (response: AppsResponse) throws -> [AppStoreConnect_Swift_SDK.App] in
+            .tryMap { (response: AppsResponse) throws -> [App] in
                 guard !response.data.isEmpty else {
                     throw GetAppIdsError.couldntFindAnyAppsMatching(bundleIds: bundleIds)
                 }
@@ -42,7 +46,7 @@ struct GetAppsOperation: APIOperation {
                 let bundleIds = Set(bundleIds)
 
                 guard responseBundleIds == bundleIds else {
-                    let nonExistentBundleIds = responseBundleIds.subtracting(bundleIds)
+                    let nonExistentBundleIds = bundleIds.subtracting(responseBundleIds)
                     throw GetAppIdsError.appsDoNotExist(bundleIds: Array(nonExistentBundleIds))
                 }
 
