@@ -6,7 +6,7 @@ import Combine
 import Foundation
 import Files
 
-struct ListDownloadCertificatesCommand: CommonParsableCommand {
+struct ListCertificatesCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "list",
         abstract: "Find and list certificates and download their data.")
