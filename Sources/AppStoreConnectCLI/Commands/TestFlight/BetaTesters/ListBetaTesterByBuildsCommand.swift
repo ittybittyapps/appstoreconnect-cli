@@ -72,7 +72,12 @@ struct ListBetaTesterByBuildsCommand: CommonParsableCommand {
                 return service.request(endpoint).eraseToAnyPublisher()
             }
             .map { response in
-                response.data.map { BetaTester($0, response.included) }
+                response.data.map {
+                    BetaTester(
+                        .init(betaTester: $0,
+                              includes: response.included)
+                    )
+                }
             }
             .await()
 

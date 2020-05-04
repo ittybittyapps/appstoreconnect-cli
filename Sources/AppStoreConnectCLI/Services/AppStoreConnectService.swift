@@ -33,10 +33,38 @@ class AppStoreConnectService {
         CreateCertificateOperation(options: options).execute(with: requestor)
     }
 
-    func inviteBetaTesterToGroups(with options: InviteBetaTesterOptions) throws -> AnyPublisher<BetaTester, Error> {
-        try InviteTesterOperation(options: options).execute(with: requestor)
+    func inviteBetaTesterToGroups(with options: InviteBetaTesterOptions) throws -> BetaTester {
+        let sdkBetaTester = try InviteTesterOperation(options: options).execute(with: requestor).await()
+
+        let getBetaTesterOptions = GetBetaTesterOperation.Options(id: sdkBetaTester.id, email: nil)
+
+        let output = try GetBetaTesterOperation(options: getBetaTesterOptions)
+            .execute(with: requestor)
+            .await()
+
+        return BetaTester(output)
     }
 
+    func getBetaTester(
+        email: String,
+        limitApps: Int?,
+        limitBuilds: Int?,
+        limitBetaGroups: Int?
+    ) throws -> BetaTester {
+        let operation = GetBetaTesterOperation(
+            options: .init(
+                email: email,
+                limitApps: limitApps,
+                limitBuilds: limitBuilds,
+                limitBetaGroups: limitBetaGroups
+            )
+        )
+
+        let output = try operation.execute(with: requestor).await()
+
+        return BetaTester(output)
+    }
+        
     func createBetaGroup(
         appBundleId: String,
         groupName: String,
@@ -70,6 +98,15 @@ class AppStoreConnectService {
         let operation = ListBetaGroupsOperation(options: .init(appIds: appIds))
 
         return try operation.execute(with: requestor).await().map(BetaGroup.init)
+    }
+
+    func readBuild(bundleId: String, buildNumber: [String], preReleaseVersion: [String]) throws -> [BuildDetailsInfo] {
+      let appsOperation = GetAppsOperation(options: .init(bundleIds: [bundleId]))
+      let appId = try appsOperation.execute(with: requestor).await().map(\.id)
+
+      let readBuildOperation = ReadBuildOperation(options: .init(appId: appId, buildNumber: buildNumber, preReleaseVersion: preReleaseVersion))
+
+      return try readBuildOperation.execute(with: requestor).await()
     }
 
     /// Make a request for something `Decodable`.
