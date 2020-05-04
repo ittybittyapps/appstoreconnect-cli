@@ -30,9 +30,9 @@ struct ReadBuildCommand: CommonParsableCommand {
 
     func run() throws {
         let service = try makeService()
-        let options = ReadBuildOptions(bundleId: bundleId, buildNumber: buildNumber, preReleaseVersion: preReleaseVersion)
 
-        let buildDetailsInfo = try service.readBuild(with: options).await()
+        let buildDetailsInfo = try service.readBuild(bundleId: bundleId, buildNumber: buildNumber, preReleaseVersion: preReleaseVersion)
+
         buildDetailsInfo.render(format: common.outputFormat)
     }
 }

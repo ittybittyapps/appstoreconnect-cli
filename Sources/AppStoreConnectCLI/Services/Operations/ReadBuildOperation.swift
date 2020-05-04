@@ -8,10 +8,33 @@ import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
 
-struct ReadBuildOperation {
-  private let options: ReadBuildOptions
+struct ReadBuildOperation: APIOperation {
 
-  private var listFilters: [ListBuilds.Filter]? {
+  struct Options {
+    let appId: [String]
+    let buildNumber: [String]
+    let preReleaseVersion: [String]
+  }
+
+  enum ReadBuildError: LocalizedError {
+    case noBuildExist
+
+    var errorDescription: String? {
+      switch self {
+      case .noBuildExist:
+        return "No build exists"
+      }
+    }
+  }
+
+  private let options: Options
+
+  init(options: Options) {
+    self.options = options
+  }
+
+  func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<[BuildDetailsInfo], Error> {
+
     var filters = [ListBuilds.Filter]()
 
     if options.preReleaseVersion.isEmpty == false {
@@ -22,56 +45,25 @@ struct ReadBuildOperation {
       filters += [ListBuilds.Filter.version(options.buildNumber)]
     }
 
-    return filters
-  }
+    filters += [ListBuilds.Filter.app(options.appId)]
 
-  private enum ReadBuildError: LocalizedError {
-    case noAppExist
-    case noBuildExist
-  }
+    let endpoint = APIEndpoint.builds(
+      filter: filters,
+      include: [.app, .betaAppReviewSubmission, .buildBetaDetail, .preReleaseVersion]
+    )
 
-  init(options: ReadBuildOptions) {
-    self.options = options
-  }
-
-  func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<[BuildDetailsInfo], Error> {
-      let appIds = try GetAppsOperation(
-          options: .init(bundleIds: [options.bundleId])
-      )
-      .execute(with: requestor)
-      .await()
-      .map { $0.id }
-
-      guard let appId = appIds.first else {
-          throw ReadBuildError.noAppExist
-      }
-
-      var filters: [ListBuilds.Filter] = []
-      filters += [ListBuilds.Filter.app([appId])]
-
-      if let listFilters = self.listFilters {
-        if listFilters.isEmpty == false {
-          filters += listFilters
+    return requestor.request(endpoint)
+      .tryMap { (buildResponse) throws -> [BuildDetailsInfo] in
+        guard !buildResponse.data.isEmpty else {
+          throw ReadBuildError.noBuildExist
         }
-      }
 
-      let endpoint = APIEndpoint.builds(
-        filter: filters,
-        include: [.app, .betaAppReviewSubmission, .buildBetaDetail, .preReleaseVersion]
-      )
+        let buildDetailsInfo = buildResponse.data.map {
+          BuildDetailsInfo($0, buildResponse.included)
+        }
 
-      return requestor.request(endpoint)
-        .tryMap { (buildResponse) throws -> [BuildDetailsInfo] in
-          guard !buildResponse.data.isEmpty else {
-              throw ReadBuildError.noBuildExist
-           }
-
-          let buildDetailsInfo = buildResponse.data.map {
-              BuildDetailsInfo($0, buildResponse.included)
-          }
-
-          return buildDetailsInfo
-      }
-      .eraseToAnyPublisher()
+        return buildDetailsInfo
+    }
+    .eraseToAnyPublisher()
   }
 }
