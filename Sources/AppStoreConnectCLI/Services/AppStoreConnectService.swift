@@ -26,11 +26,28 @@ class AppStoreConnectService {
     }
 
     func readCertificate(serial: String) throws -> Certificate {
-        try ReadCertificateOperation(options: .init(serial: serial)).execute(with: requestor).await()
+        let sdkCertificate = try ReadCertificateOperation(options: .init(serial: serial))
+            .execute(with: requestor)
+            .await()
+
+        return Certificate(sdkCertificate)
     }
 
     func createCertificate(with options: CreateCertificateOptions) -> AnyPublisher<Certificate, Error> {
         CreateCertificateOperation(options: options).execute(with: requestor)
+    }
+
+    func revokeCertificates(serials: [String]) throws -> [Void] {
+        let certificatesIds = try serials.map {
+            try ReadCertificateOperation(options: .init(serial: $0))
+                .execute(with: requestor)
+                .await()
+                .id
+            }
+
+        return try RevokeCertificatesOperation(options: .init(ids: certificatesIds))
+            .execute(with: requestor)
+            .awaitMany()
     }
 
     func inviteBetaTesterToGroups(with options: InviteBetaTesterOptions) throws -> BetaTester {
