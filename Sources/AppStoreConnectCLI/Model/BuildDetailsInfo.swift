@@ -1,9 +1,4 @@
-//
-//  BuildDetails.swift
-//  AppStoreConnect-Swift-SDK
-//
-//  Created by Nafisa Rahman on 27/4/20.
-//
+// Copyright 2020 Itty Bitty Apps Pty Ltd
 
 import AppStoreConnect_Swift_SDK
 import Foundation

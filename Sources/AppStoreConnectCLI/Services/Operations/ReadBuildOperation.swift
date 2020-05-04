@@ -1,8 +1,4 @@
-//
-//  ReadBuildOperation.swift
-//  AppStoreConnect-Swift-SDK
-//
-//  Created by Nafisa Rahman on 1/5/20.
+// Copyright 2020 Itty Bitty Apps Pty Ltd
 //
 import AppStoreConnect_Swift_SDK
 import Combine
