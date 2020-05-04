@@ -14,19 +14,14 @@ final class ListBetaGroupsOperationTests: XCTestCase {
         response: { _ in Future({ $0(.success(response)) }) }
     )
 
-    func testExecute_success() {
+    func testExecute_success() throws {
         let operation = Operation(options: Options(appIds: []))
 
-        let result = Result { try operation.execute(with: successRequestor).await() }
+        let output = try operation.execute(with: successRequestor).await()
 
-        switch result {
-        case .success(let output):
-            XCTAssertEqual(output.count, 1)
-            XCTAssertEqual(output.first?.app.id, "1234567890")
-            XCTAssertEqual(output.first?.betaGroup.id, "12345678-90ab-cdef-1234-567890abcdef")
-        case .failure(let error):
-            XCTFail("Expected success, got: \(error.localizedDescription)")
-        }
+        XCTAssertEqual(output.count, 1)
+        XCTAssertEqual(output.first?.app.id, "1234567890")
+        XCTAssertEqual(output.first?.betaGroup.id, "12345678-90ab-cdef-1234-567890abcdef")
     }
 
     func testExecute_propagatesUpstreamErrors() {
