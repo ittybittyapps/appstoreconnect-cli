@@ -26,7 +26,7 @@ struct InviteTesterOperation: APIOperation {
         self.options = options
     }
 
-    func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<BetaTester, Error> {
+    func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<AppStoreConnect_Swift_SDK.BetaTester, Error> {
         let appIds = try GetAppsOperation(
                 options: .init(bundleIds: [options.bundleId])
             )
@@ -66,14 +66,9 @@ struct InviteTesterOperation: APIOperation {
                 .eraseToAnyPublisher()
         }
 
-        let testerId = try Publishers.ConcatenateMany(requests)
+        return Publishers.ConcatenateMany(requests)
             .last()
-            .await()
-            .data
-            .id
-
-        return GetBetaTesterInfoOperation(options: GetBetaTesterInfoOptions(id: testerId))
-            .execute(with: requestor)
+            .map(\.data)
             .eraseToAnyPublisher()
     }
 
