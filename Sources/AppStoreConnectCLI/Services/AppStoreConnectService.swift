@@ -30,9 +30,18 @@ class AppStoreConnectService {
     }
 
     func inviteBetaTesterToGroups(with options: InviteBetaTesterOptions) throws -> BetaTester {
-        let output = try InviteTesterOperation(options: options).execute(with: requestor).await()
+        let sdkBetaTester = try InviteTesterOperation(options: options).execute(with: requestor).await()
 
-        return BetaTester(with: output)
+        let getBetaTesterOperation = GetBetaTesterOperation(
+            options: .init(
+                id: sdkBetaTester.id,
+                email: nil
+            )
+        )
+
+        let output = try getBetaTesterOperation.execute(with: requestor).await()
+
+        return BetaTester(output: output)
     }
 
     func getBetaTester(
@@ -52,7 +61,7 @@ class AppStoreConnectService {
 
         let output = try operation.execute(with: requestor).await()
 
-        return BetaTester(with: output)
+        return BetaTester(output: output)
     }
         
     func createBetaGroup(
