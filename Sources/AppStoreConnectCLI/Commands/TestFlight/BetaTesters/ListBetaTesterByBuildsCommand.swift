@@ -73,7 +73,7 @@ struct ListBetaTesterByBuildsCommand: CommonParsableCommand {
             }
             .map { response in
                 response.data.map {
-                    BetaTester(output:
+                    BetaTester(
                         .init(betaTester: $0,
                               includes: response.included)
                     )

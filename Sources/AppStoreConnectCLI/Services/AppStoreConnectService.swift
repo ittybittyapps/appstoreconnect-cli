@@ -41,7 +41,7 @@ class AppStoreConnectService {
 
         let output = try getBetaTesterOperation.execute(with: requestor).await()
 
-        return BetaTester(output: output)
+        return BetaTester(output)
     }
 
     func getBetaTester(
@@ -61,7 +61,7 @@ class AppStoreConnectService {
 
         let output = try operation.execute(with: requestor).await()
 
-        return BetaTester(output: output)
+        return BetaTester(output)
     }
         
     func createBetaGroup(
