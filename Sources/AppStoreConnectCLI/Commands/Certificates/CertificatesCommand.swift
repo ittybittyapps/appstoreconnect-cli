@@ -9,7 +9,8 @@ struct CertificatesCommand: ParsableCommand {
         abstract: "Create, download, and revoke signing certificates for app development and distribution.",
         subcommands: [
             CreateCertificateCommand.self,
-            ListDownloadCertificates.self
+            ListCertificatesCommand.self,
+            ReadCertificateCommand.self
         ]
         // defaultSubcommand: ListCertificatesCommand.self
     )

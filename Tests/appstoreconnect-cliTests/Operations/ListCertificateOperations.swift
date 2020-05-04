@@ -37,14 +37,7 @@ final class ListCertificateOperationsTests: XCTestCase {
         }
     }
 
-    static let noCertificatesResponse = """
-    {
-      "data" : [ ],
-      "links": {
-        "self": "https://api.appstoreconnect.apple.com/v1/certificates"
-      }
-    }
-    """
-    .data(using: .utf8)
-    .map({ try! jsonDecoder.decode(CertificatesResponse.self, from: $0) })!
+    static let noCertificatesResponse = Certificate
+        .noCertificateResponse
+        .map({ try! jsonDecoder.decode(CertificatesResponse.self, from: $0) })!
 }

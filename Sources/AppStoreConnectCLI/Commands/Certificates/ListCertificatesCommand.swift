@@ -6,7 +6,7 @@ import Combine
 import Foundation
 import Files
 
-struct ListDownloadCertificates: CommonParsableCommand {
+struct ListCertificatesCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "list",
         abstract: "Find and list certificates and download their data.")
@@ -38,20 +38,6 @@ struct ListDownloadCertificates: CommonParsableCommand {
     @Option(help: "The file download path. (eg. ~/Documents)")
     var downloadPath: String?
 
-    enum CommandError: LocalizedError {
-        case invalidPath(String)
-        case invalidContent
-
-        var errorDescription: String? {
-            switch self {
-            case .invalidPath(let path):
-                return "Download failed, please check the path '\(path)' you input and try again"
-            case .invalidContent:
-                return "The certificate in the response doesn't have a proper content"
-            }
-        }
-    }
-
     func run() throws {
         let service = try makeService()
 
@@ -69,21 +55,20 @@ struct ListDownloadCertificates: CommonParsableCommand {
 
         if let downloadPath = downloadPath {
             try certificates.forEach { (certificate: Certificate) in
-                guard let content = certificate.content else {
-                    throw CommandError.invalidContent
+                guard
+                    let content = certificate.content,
+                    let data = Data(base64Encoded: content)
+                else {
+                    throw CertificatesError.noContent
                 }
 
-                do {
-                    let folder = try Folder(path: downloadPath)
-
-                    let file = try folder.createFile(
+                let file = try Folder(path: downloadPath)
+                    .createFile(
                         named: "\(certificate.serialNumber ?? "serial").cer",
-                        contents: Data(base64Encoded: content)
+                        contents: data
                     )
-                    print("📥 Certificate '\(certificate.name ?? "")' downloaded to: \(file.path)")
-                } catch {
-                    throw CommandError.invalidPath(downloadPath)
-                }
+
+                print("📥 Certificate '\(certificate.name ?? "")' downloaded to: \(file.path)")
             }
         }
 
