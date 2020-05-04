@@ -29,7 +29,7 @@ struct BetaTester: ResultRenderable {
         self.apps = apps
     }
 
-    init(with output: GetBetaTesterOperation.Output) {
+    init(output: GetBetaTesterOperation.Output) {
         let attributes = output.betaTester.attributes
         let relationships = output.betaTester.relationships
 

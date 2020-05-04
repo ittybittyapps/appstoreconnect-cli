@@ -99,7 +99,7 @@ struct ListBetaTestersCommand: CommonParsableCommand {
         let betaTesters = try request
             .map { response in
                 response.data.map {
-                    BetaTester(with:
+                    BetaTester(output:
                         .init(betaTester: $0,
                               includes: response.included)
                     )
