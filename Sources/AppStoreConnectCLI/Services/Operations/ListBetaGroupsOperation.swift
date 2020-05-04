@@ -10,8 +10,13 @@ struct ListBetaGroupsOperation: APIOperation {
         let appIds: [String]
     }
 
-    enum ListBetaGroupsError: LocalizedError {
-        case missingAppData(AppStoreConnect_Swift_SDK.BetaGroup)
+    typealias BetaGroup = AppStoreConnect_Swift_SDK.BetaGroup
+    typealias App = AppStoreConnect_Swift_SDK.App
+
+    typealias Output = [(app: App, betaGroup: BetaGroup)]
+
+    enum Error: LocalizedError {
+        case missingAppData(BetaGroup)
 
         var errorDescription: String? {
             switch self {
@@ -27,12 +32,12 @@ struct ListBetaGroupsOperation: APIOperation {
         self.options = options
     }
 
-    func execute(with requestor: EndpointRequestor) -> AnyPublisher<[ExtendedBetaGroup], Error> {
+    func execute(with requestor: EndpointRequestor) -> AnyPublisher<Output, Swift.Error> {
         let filters = options.appIds.isEmpty ? [] : [ListBetaGroups.Filter.app(options.appIds)]
         let endpoint = APIEndpoint.betaGroups(filter: filters, include: [.app])
         let response = requestor.request(endpoint)
 
-        let betaGroup = response.tryMap { response -> [ExtendedBetaGroup] in
+        let output = response.tryMap { response -> Output in
             let apps = response.included?.reduce(
                 into: [String: AppStoreConnect_Swift_SDK.App](),
                 { result, relationship in
@@ -45,18 +50,18 @@ struct ListBetaGroupsOperation: APIOperation {
                 }
             )
 
-            return try response.data.map { betaGroup -> ExtendedBetaGroup in
+            return try response.data.map { betaGroup -> (App, BetaGroup) in
                 guard
                     let appId = betaGroup.relationships?.app?.data?.id,
                     let app = apps?[appId]
                 else {
-                    throw ListBetaGroupsError.missingAppData(betaGroup)
+                    throw Error.missingAppData(betaGroup)
                 }
 
-                return ExtendedBetaGroup(app: app, betaGroup: betaGroup)
+                return (app, betaGroup)
             }
         }
 
-        return betaGroup.eraseToAnyPublisher()
+        return output.eraseToAnyPublisher()
     }
 }

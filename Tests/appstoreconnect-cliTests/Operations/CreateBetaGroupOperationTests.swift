@@ -16,7 +16,7 @@ final class CreateBetaGroupOperationTests: XCTestCase {
         }
     )
 
-    func testExecute_success() {
+    func testExecute_success() throws {
         let app = Self.appsResponse.data.first!
 
         let options = Options(
@@ -26,17 +26,10 @@ final class CreateBetaGroupOperationTests: XCTestCase {
             publicLinkLimit: nil
         )
 
-        let operation = Operation(options: options)
+        let output = try Operation(options: options).execute(with: successRequestor).await()
 
-        let result = Result { try operation.execute(with: successRequestor).await() }
-
-        switch result {
-        case .success(let extendedBetaGroup):
-            XCTAssertEqual(extendedBetaGroup.app.id, app.id)
-            XCTAssertEqual(extendedBetaGroup.betaGroup.id, "12345678-90ab-cdef-1234-567890abcdef")
-        case .failure(let error):
-            XCTFail("Expected success, got: \(error)")
-        }
+        XCTAssertEqual(output.app.id, app.id)
+        XCTAssertEqual(output.betaGroup.id, "12345678-90ab-cdef-1234-567890abcdef")
     }
 
     func testExecute_propagatesUpstreamErrors() {
