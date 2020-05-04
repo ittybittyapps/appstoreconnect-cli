@@ -31,9 +31,9 @@ final class CreateBetaGroupOperationTests: XCTestCase {
         let result = Result { try operation.execute(with: successRequestor).await() }
 
         switch result {
-        case .success(let extendedBetaGroup):
-            XCTAssertEqual(extendedBetaGroup.app.id, app.id)
-            XCTAssertEqual(extendedBetaGroup.betaGroup.id, "12345678-90ab-cdef-1234-567890abcdef")
+        case .success(let output):
+            XCTAssertEqual(output.app.id, app.id)
+            XCTAssertEqual(output.betaGroup.id, "12345678-90ab-cdef-1234-567890abcdef")
         case .failure(let error):
             XCTFail("Expected success, got: \(error)")
         }

@@ -20,10 +20,10 @@ final class ListBetaGroupsOperationTests: XCTestCase {
         let result = Result { try operation.execute(with: successRequestor).await() }
 
         switch result {
-        case .success(let extendedBetaGroups):
-            XCTAssertEqual(extendedBetaGroups.count, 1)
-            XCTAssertEqual(extendedBetaGroups.first?.app.id, "1234567890")
-            XCTAssertEqual(extendedBetaGroups.first?.betaGroup.id, "12345678-90ab-cdef-1234-567890abcdef")
+        case .success(let output):
+            XCTAssertEqual(output.count, 1)
+            XCTAssertEqual(output.first?.app.id, "1234567890")
+            XCTAssertEqual(output.first?.betaGroup.id, "12345678-90ab-cdef-1234-567890abcdef")
         case .failure(let error):
             XCTFail("Expected success, got: \(error.localizedDescription)")
         }

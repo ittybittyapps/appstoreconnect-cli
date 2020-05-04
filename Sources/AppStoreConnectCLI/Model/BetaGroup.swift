@@ -47,15 +47,18 @@ struct BetaGroup: TableInfoProvider, ResultRenderable, Equatable {
 }
 
 extension BetaGroup {
-    init(extendedBetaGroup: ExtendedBetaGroup) {
-        app = App(extendedBetaGroup.app)
-        groupName = extendedBetaGroup.betaGroup.attributes?.name
-        isInternal = extendedBetaGroup.betaGroup.attributes?.isInternalGroup
-        publicLink = extendedBetaGroup.betaGroup.attributes?.publicLink
-        publicLinkEnabled = extendedBetaGroup.betaGroup.attributes?.publicLinkEnabled
-        publicLinkLimit = extendedBetaGroup.betaGroup.attributes?.publicLinkLimit
-        publicLinkLimitEnabled = extendedBetaGroup.betaGroup.attributes?.publicLinkLimitEnabled
-        creationDate = extendedBetaGroup.betaGroup.attributes?.createdDate?.formattedDate
+    init(
+        _ apiApp: AppStoreConnect_Swift_SDK.App,
+        _ apiBetaGroup: AppStoreConnect_Swift_SDK.BetaGroup
+    ) {
+        app = App(apiApp)
+        groupName = apiBetaGroup.attributes?.name
+        isInternal = apiBetaGroup.attributes?.isInternalGroup
+        publicLink = apiBetaGroup.attributes?.publicLink
+        publicLinkEnabled = apiBetaGroup.attributes?.publicLinkEnabled
+        publicLinkLimit = apiBetaGroup.attributes?.publicLinkLimit
+        publicLinkLimitEnabled = apiBetaGroup.attributes?.publicLinkLimitEnabled
+        creationDate = apiBetaGroup.attributes?.createdDate?.formattedDate
     }
 }
 
