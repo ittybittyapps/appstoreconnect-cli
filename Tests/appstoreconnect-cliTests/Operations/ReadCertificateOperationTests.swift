@@ -42,7 +42,8 @@ final class ReadCertificateOperationTests: XCTestCase {
         }
 
         switch result {
-        case .success(let certificate):
+        case .success(let sdkCertificate):
+            let certificate = Certificate(sdkCertificate)
             XCTAssertEqual(certificate.name, "Mac Installer Distribution: Hello")
             XCTAssertEqual(certificate.platform, BundleIdPlatform.macOS)
             XCTAssertEqual(certificate.content, "MIIFpDCCBIygAwIBAgIIbgb/7NS42MgwDQ")
