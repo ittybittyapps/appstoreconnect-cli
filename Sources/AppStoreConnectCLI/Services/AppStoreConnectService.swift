@@ -76,7 +76,7 @@ class AppStoreConnectService {
             }
             .map { $0.betaTester.id }
 
-        return try DeleteBetaTesterOperation(options: .init(ids: betaTestersIds))
+        return try DeleteBetaTestersOperation(options: .init(ids: betaTestersIds))
             .execute(with: requestor)
             .awaitMany()
     }
