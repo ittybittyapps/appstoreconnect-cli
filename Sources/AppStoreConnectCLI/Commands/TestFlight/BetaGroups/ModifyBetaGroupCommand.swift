@@ -45,5 +45,17 @@ struct ModifyBetaGroupCommand: CommonParsableCommand {
     var publicLinkLimitEnabled: Bool?
 
     func run() throws {
+        let service = try makeService()
+
+        let betaGroup = try service.modifyBetaGroup(
+            appBundleId: appBundleId,
+            currentGroupName: currentGroupName,
+            newGroupName: newGroupName,
+            publicLinkEnabled: publicLinkEnabled,
+            publicLinkLimit: publicLinkLimit,
+            publicLinkLimitEnabled: publicLinkLimitEnabled
+        )
+
+        betaGroup.render(format: common.outputFormat)
     }
 }
