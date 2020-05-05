@@ -16,6 +16,12 @@ struct DeleteBetaTesterCommand: CommonParsableCommand {
     @Argument(help: "Beta testers' emails")
     var emails: [String]
 
+    func validate() throws {
+        if emails.isEmpty {
+            throw ValidationError("Missing expected argument '<emails>'")
+        }
+    }
+
     func run() throws {
         let service = try makeService()
 
