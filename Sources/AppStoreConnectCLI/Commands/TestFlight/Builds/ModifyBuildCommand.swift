@@ -16,22 +16,19 @@ struct ModifyBuildCommand: CommonParsableCommand {
   @Argument(help: "An opaque resource ID that uniquely identifies the build")
   var bundleId: String
 
-  @Argument(help: "The build number of this build")
-  var buildNumber: String
-
   @Argument(help: "The pre-release version number of this build")
   var preReleaseVersion: String
+
+  @Argument(help: "The build number of this build")
+  var buildNumber: String
 
   @Option(help: "The new value for expired")
   var expired: Bool?
 
-  @Option(help: "The new value for usesNonExemptEncyption")
-  var usesNonExemptEncyption: Bool?
-
   func run() throws {
       let service = try makeService()
 
-    let modifyDetailsInfo = try service.modifyBuild(bundleId: bundleId, buildNumber: buildNumber, preReleaseVersion: preReleaseVersion, expired: expired, usesNonExemptEncyption: usesNonExemptEncyption )
+    let modifyDetailsInfo = try service.modifyBuild(bundleId: bundleId, buildNumber: buildNumber, preReleaseVersion: preReleaseVersion, expired: expired, usesNonExemptEncyption: nil)
 
      modifyDetailsInfo.render(format: common.outputFormat)
   }

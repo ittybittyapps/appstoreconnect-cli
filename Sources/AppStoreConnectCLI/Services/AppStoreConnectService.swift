@@ -170,12 +170,14 @@ class AppStoreConnectService {
       let appId = try appsOperation.execute(with: requestor).await().map(\.id)
 
       let readBuildOperation = ReadBuildOperation(options: .init(appId: appId, buildNumber: [buildNumber], preReleaseVersion: [preReleaseVersion]))
-
       let buildId = try readBuildOperation.execute(with: requestor).await().map(\.id).first
+
       let modifyBuildOperation = ModifyBuildOperation(options: .init(buildId: buildId, expired: expired, usesNonExemptEncryption: usesNonExemptEncyption))
+      let modifiedBuildDetails = try modifyBuildOperation.execute(with: requestor).await()
 
-      return try modifyBuildOperation.execute(with: requestor).await()
-
+      let newBuildDetails = try readBuildOperation.execute(with: requestor).await()
+      print(newBuildDetails.first?.externalBuildState ?? "")
+      return newBuildDetails.first(where: {$0.id == modifiedBuildDetails.id}) ?? modifiedBuildDetails
     }
 
     /// Make a request for something `Decodable`.

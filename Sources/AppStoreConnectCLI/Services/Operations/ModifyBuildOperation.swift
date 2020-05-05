@@ -38,20 +38,20 @@ struct ModifyBuildOperation: APIOperation {
       throw ModifyBuildError.noBuildIdFound
     }
 
-    let endpoint = APIEndpoint.modify(
+    let buildModifyEndpoint = APIEndpoint.modify(
       buildWithId: self.options.buildId!,
-      appEncryptionDeclarationId: "", // TODO:
+      appEncryptionDeclarationId: "",
       expired: self.options.expired,
       usesNonExemptEncryption: self.options.usesNonExemptEncryption)
 
-    return requestor.request(endpoint)
+    return requestor.request(buildModifyEndpoint)
       .tryMap { (buildResponse) throws -> BuildDetailsInfo in
 
         guard (buildResponse.data.attributes != nil) else {
           throw ModifyBuildError.noBuildExist
         }
 
-        return BuildDetailsInfo(buildResponse.data, buildResponse.included)
+        return BuildDetailsInfo(buildResponse.data, nil)
     }
     .eraseToAnyPublisher()
   }
