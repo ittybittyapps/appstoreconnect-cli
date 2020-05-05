@@ -116,6 +116,22 @@ class AppStoreConnectService {
         return try betaGroupResponse.map(BetaGroup.init).await()
     }
 
+    func deleteBetaGroup(appBundleId: String, betaGroupName: String) throws {
+        let app = try GetAppsOperation(options: .init(bundleIds: [appBundleId]))
+            .execute(with: requestor)
+            .compactMap(\.first)
+            .await()
+
+        let betaGroup = try GetBetaGroupOperation(
+            options: .init(app: app, betaGroupName: betaGroupName))
+            .execute(with: requestor)
+            .await()
+
+        try DeleteBetaGroupOperation(options: .init(betaGroup: betaGroup))
+            .execute(with: requestor)
+            .await()
+    }
+
     func listBetaGroups(bundleIds: [String]) throws -> [BetaGroup] {
         let operation = GetAppsOperation(options: .init(bundleIds: bundleIds))
         let appIds = try operation.execute(with: requestor).await().map(\.id)
