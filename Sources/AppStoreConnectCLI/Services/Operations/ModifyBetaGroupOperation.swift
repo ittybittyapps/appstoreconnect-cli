@@ -6,7 +6,7 @@ import Foundation
 
 struct ModifyBetaGroupOperation: APIOperation {
     struct Options {
-        let appId: String
+        let app: App
         let currentGroupName: String
         let newGroupName: String?
         let publicLinkEnabled: Bool?
@@ -15,19 +15,20 @@ struct ModifyBetaGroupOperation: APIOperation {
     }
 
     enum Error: LocalizedError {
-        case betaGroupNotFound(groupName: String, appId: String)
-        case betaGroupNotUniqueToApp(groupName: String, appId: String)
+        case betaGroupNotFound(groupName: String, bundleId: String)
+        case betaGroupNotUniqueToApp(groupName: String, bundleId: String)
 
         var errorDescription: String? {
             switch self {
-            case .betaGroupNotFound(let groupName, let appId):
-                return "No beta group found with name: \(groupName) and app id: \(appId)"
-            case .betaGroupNotUniqueToApp(let groupName, let appId):
-                return "Multiple beta groups found with name: \(groupName) and app id: \(appId)"
+            case .betaGroupNotFound(let groupName, let bundleId):
+                return "No beta group found with name: \(groupName) and bundle id: \(bundleId)"
+            case .betaGroupNotUniqueToApp(let groupName, let bundleId):
+                return "Multiple beta groups found with name: \(groupName) and app id: \(bundleId)"
             }
         }
     }
 
+    typealias App = AppStoreConnect_Swift_SDK.App
     typealias BetaGroup = AppStoreConnect_Swift_SDK.BetaGroup
 
     private let options: Options
@@ -38,20 +39,18 @@ struct ModifyBetaGroupOperation: APIOperation {
 
     func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<BetaGroup, Swift.Error> {
         let groupName = options.currentGroupName
-        let appId = options.appId
+        let appId = options.app.id
+        let bundleId = options.app.attributes?.bundleId ?? ""
 
         let betaGroupsEndpoint = APIEndpoint.betaGroups(filter: [.app([appId]), .name([groupName])])
         let betaGroups = try requestor.request(betaGroupsEndpoint).await().data
 
         guard betaGroups.count == 1, let betaGroup = betaGroups.first else {
-            let groupName = options.currentGroupName
-            let appId = options.appId
-
             switch betaGroups.count {
             case 0:
-                throw Error.betaGroupNotFound(groupName: groupName, appId: appId)
+                throw Error.betaGroupNotFound(groupName: groupName, bundleId: bundleId)
             default:
-                throw Error.betaGroupNotUniqueToApp(groupName: groupName, appId: appId)
+                throw Error.betaGroupNotUniqueToApp(groupName: groupName, bundleId: bundleId)
             }
         }
 

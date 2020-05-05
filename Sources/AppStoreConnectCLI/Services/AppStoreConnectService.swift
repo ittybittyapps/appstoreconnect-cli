@@ -113,7 +113,7 @@ class AppStoreConnectService {
 
         let modifyBetaGroupOperation = ModifyBetaGroupOperation(
             options: .init(
-                appId: app.id,
+                app: app,
                 currentGroupName: currentGroupName,
                 newGroupName: newGroupName,
                 publicLinkEnabled: publicLinkEnabled,
