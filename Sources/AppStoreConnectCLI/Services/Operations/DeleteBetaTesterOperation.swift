@@ -19,13 +19,8 @@ struct DeleteBetaTestersOperation: APIOperation {
     }
 
     func execute(with requestor: EndpointRequestor) -> AnyPublisher<Void, Error> {
-        let requests = endpoints.map {
-            requestor
-                .request($0)
-                .eraseToAnyPublisher()
-        }
-
-        return Publishers.ConcatenateMany(requests)
+        Publishers
+            .ConcatenateMany(endpoints.map { requestor.request($0) })
             .eraseToAnyPublisher()
     }
 
