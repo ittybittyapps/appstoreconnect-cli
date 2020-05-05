@@ -140,20 +140,20 @@ class AppStoreConnectService {
         let getAppsOperation = GetAppsOperation(options: .init(bundleIds: [appBundleId]))
         let app = try getAppsOperation.execute(with: requestor).compactMap(\.first).await()
 
-        let modifyBetaGroupOperation = ModifyBetaGroupOperation(
-            options: .init(
-                app: app,
-                currentGroupName: currentGroupName,
-                newGroupName: newGroupName,
-                publicLinkEnabled: publicLinkEnabled,
-                publicLinkLimit: publicLinkLimit,
-                publicLinkLimitEnabled: publicLinkLimitEnabled
-            )
-        )
+        let getBetaGroupOperation = GetBetaGroupOperation(
+            options: .init(app: app, betaGroupName: currentGroupName))
+        let betaGroup = try getBetaGroupOperation.execute(with: requestor).await()
 
-        let betaGroup = try modifyBetaGroupOperation.execute(with: requestor).await()
+        let modifyBetaGroupOptions = ModifyBetaGroupOperation.Options(
+            betaGroup: betaGroup,
+            betaGroupName: newGroupName,
+            publicLinkEnabled: publicLinkEnabled,
+            publicLinkLimit: publicLinkLimit,
+            publicLinkLimitEnabled: publicLinkLimitEnabled)
+        let modifyBetaGroupOperation = ModifyBetaGroupOperation(options: modifyBetaGroupOptions)
+        let modifiedBetaGroup = try modifyBetaGroupOperation.execute(with: requestor).await()
 
-        return BetaGroup(app, betaGroup)
+        return BetaGroup(app, modifiedBetaGroup)
     }
 
     func readBuild(bundleId: String, buildNumber: String, preReleaseVersion: String) throws -> BuildDetailsInfo {
