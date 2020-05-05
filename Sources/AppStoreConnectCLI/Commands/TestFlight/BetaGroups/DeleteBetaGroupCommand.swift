@@ -31,5 +31,8 @@ struct DeleteBetaGroupCommand: CommonParsableCommand {
     ) var betaGroupName: String
 
     func run() throws {
+        let service = try makeService()
+
+        try service.deleteBetaGroup(appBundleId: appBundleId, betaGroupName: betaGroupName)
     }
 }
