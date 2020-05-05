@@ -16,12 +16,10 @@ struct RevokeCertificatesOperation: APIOperation {
         self.options = options
     }
 
-    func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<Void, Swift.Error> {
-        let requests = options.ids.compactMap {
-                requestor
-                    .request(APIEndpoint.revokeCertificate(withId: $0))
-                    .eraseToAnyPublisher()
-            }
+    func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<Void, Error> {
+        let requests = options.ids.map {
+            requestor.request(APIEndpoint.revokeCertificate(withId: $0))
+        }
 
         return Publishers.ConcatenateMany(requests).eraseToAnyPublisher()
     }

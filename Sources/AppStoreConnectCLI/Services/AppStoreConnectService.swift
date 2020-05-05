@@ -37,7 +37,7 @@ class AppStoreConnectService {
         CreateCertificateOperation(options: options).execute(with: requestor)
     }
 
-    func revokeCertificates(serials: [String]) throws -> [Void] {
+    func revokeCertificates(serials: [String]) throws {
         let certificatesIds = try serials.map {
             try ReadCertificateOperation(options: .init(serial: $0))
                 .execute(with: requestor)
@@ -45,7 +45,7 @@ class AppStoreConnectService {
                 .id
             }
 
-        return try RevokeCertificatesOperation(options: .init(ids: certificatesIds))
+        _ = try RevokeCertificatesOperation(options: .init(ids: certificatesIds))
             .execute(with: requestor)
             .awaitMany()
     }
