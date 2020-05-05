@@ -64,6 +64,18 @@ class AppStoreConnectService {
 
         return BetaTester(output)
     }
+
+    func deleteBetaTesters(emails: [String]) throws -> [Void] {
+        let requests = try emails.map {
+            try GetBetaTesterOperation(options: .init(id: nil, email: $0)).execute(with: requestor)
+        }
+
+        let ids = try Publishers.ConcatenateMany(requests).awaitMany().map(\.betaTester.id)
+
+        return try DeleteBetaTestersOperation(options: .init(ids: ids))
+            .execute(with: requestor)
+            .awaitMany()
+    }
         
     func createBetaGroup(
         appBundleId: String,
