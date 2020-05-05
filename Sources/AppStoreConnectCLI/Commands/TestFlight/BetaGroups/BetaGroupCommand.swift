@@ -12,7 +12,8 @@ struct TestFlightBetaGroupCommand: ParsableCommand {
         """,
         subcommands: [
             CreateBetaGroupCommand.self,
-            ListBetaGroupsCommand.self
+            ListBetaGroupsCommand.self,
+            ModifyBetaGroupCommand.self
         ],
         defaultSubcommand: ListBetaGroupsCommand.self
     )
