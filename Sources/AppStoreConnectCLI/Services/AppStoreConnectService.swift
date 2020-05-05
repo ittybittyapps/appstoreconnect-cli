@@ -165,6 +165,19 @@ class AppStoreConnectService {
       return try readBuildOperation.execute(with: requestor).await()
     }
 
+    func modifyBuild(bundleId: String, buildNumber: String, preReleaseVersion: String, expired: Bool?, usesNonExemptEncyption: Bool?) throws -> BuildDetailsInfo {
+      let appsOperation = GetAppsOperation(options: .init(bundleIds: [bundleId]))
+      let appId = try appsOperation.execute(with: requestor).await().map(\.id)
+
+      let readBuildOperation = ReadBuildOperation(options: .init(appId: appId, buildNumber: [buildNumber], preReleaseVersion: [preReleaseVersion]))
+
+      let buildId = try readBuildOperation.execute(with: requestor).await().map(\.id).first
+      let modifyBuildOperation = ModifyBuildOperation(options: .init(buildId: buildId, expired: expired, usesNonExemptEncryption: usesNonExemptEncyption))
+
+      return try modifyBuildOperation.execute(with: requestor).await()
+
+    }
+
     /// Make a request for something `Decodable`.
     ///
     /// - Parameters:

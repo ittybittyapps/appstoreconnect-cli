@@ -53,7 +53,7 @@ struct ReadBuildOperation: APIOperation {
         guard !buildResponse.data.isEmpty else {
           throw ReadBuildError.noBuildExist
         }
-
+    
         let buildDetailsInfo = buildResponse.data.map {
           BuildDetailsInfo($0, buildResponse.included)
         }

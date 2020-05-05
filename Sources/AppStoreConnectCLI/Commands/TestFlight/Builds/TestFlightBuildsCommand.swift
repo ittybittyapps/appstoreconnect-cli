@@ -10,7 +10,7 @@ public struct TestFlightBuildsCommand: ParsableCommand {
         subcommands: [
              ListBuildsCommand.self,
              ReadBuildCommand.self,
-            // ModifyBuildCommand.self,
+             ModifyBuildCommand.self,
             // More...
         ])
 

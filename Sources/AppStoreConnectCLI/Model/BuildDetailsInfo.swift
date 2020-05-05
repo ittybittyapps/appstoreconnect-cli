@@ -5,6 +5,7 @@ import Foundation
 import SwiftyTextTable
 
 struct BuildDetailsInfo: ResultRenderable {
+  let id: String
   let app: App?
   let platform: String?
   let version: String?
@@ -63,6 +64,7 @@ extension BuildDetailsInfo {
     let app = appDetails.map(App.init)
 
     self.init(
+      id: build.id,
       app: app,
       platform: prereleaseVersion?.attributes?.platform?.rawValue,
       version: prereleaseVersion?.attributes?.version,
