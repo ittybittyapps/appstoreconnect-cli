@@ -32,10 +32,10 @@ final class ModifyBetaGroupOperationTests: XCTestCase {
         Options(
             app: app,
             currentGroupName: "Some Group",
-            newGroupName: nil,
-            publicLinkEnabled: nil,
-            publicLinkLimit: nil,
-            publicLinkLimitEnabled: nil
+            newGroupName: "New Group Name",
+            publicLinkEnabled: true,
+            publicLinkLimit: 10,
+            publicLinkLimitEnabled: true
         )
     }
 
@@ -48,27 +48,31 @@ final class ModifyBetaGroupOperationTests: XCTestCase {
         )
     }
 
+    var betaGroupResponseFuture: Future<BetaGroupResponse, Error> {
+        let response =  BetaGroupResponse(
+            data: self.betaGroup,
+            included: nil,
+            links: DocumentLinks(self: URL(fileURLWithPath: "test"))
+        )
+
+        return Future { $0(.success(response)) }
+    }
+
+    var betaGroupsResponseFuture: Future<BetaGroupsResponse, Error> {
+        let response = BetaGroupsResponse(
+            data: [self.betaGroup],
+            included: nil,
+            links: PagedDocumentLinks(first: nil, next: nil, self: self.testUrl),
+            meta: nil
+        )
+
+        return Future { $0(.success(response)) }
+    }
+
     func testSuccess() throws {
         let successRequestor = TwoEndpointTestRequestor(
-            response: { (endpoint: APIEndpoint<BetaGroupResponse>) -> Future<BetaGroupResponse, Error> in
-                let response =  BetaGroupResponse(
-                    data: self.betaGroup,
-                    included: nil,
-                    links: DocumentLinks(self: URL(fileURLWithPath: "test"))
-                )
-
-                return Future { $0(.success(response)) }
-            },
-            response2: { (endpoint: APIEndpoint<BetaGroupsResponse>) -> Future<BetaGroupsResponse, Error> in
-                let response = BetaGroupsResponse(
-                    data: [self.betaGroup],
-                    included: nil,
-                    links: PagedDocumentLinks(first: nil, next: nil, self: self.testUrl),
-                    meta: nil
-                )
-
-                return Future { $0(.success(response)) }
-            }
+            response: { _ in self.betaGroupResponseFuture },
+            response2: { _ in self.betaGroupsResponseFuture }
         )
 
         let output = try Operation(options: options).execute(with: successRequestor).await()
@@ -126,5 +130,37 @@ final class ModifyBetaGroupOperationTests: XCTestCase {
         default:
             XCTFail()
         }
+    }
+
+    func testPopulatesModifyRequestBody() throws {
+        var requestBody: Data?
+
+        let requestor = TwoEndpointTestRequestor<BetaGroupResponse, BetaGroupsResponse>(
+            response: { endpoint in
+                requestBody = endpoint.body
+                return self.betaGroupResponseFuture
+            },
+            response2: { _ in self.betaGroupsResponseFuture }
+        )
+
+        _ = try Operation(options: options).execute(with: requestor).await()
+
+        guard
+            let data = requestBody,
+            let json = try JSONSerialization.jsonObject(with: data, options: []) as? NSDictionary,
+            let betaGroup = json["data"] as? NSDictionary,
+            let attributes = betaGroup["attributes"] as? NSDictionary
+        else {
+            XCTFail(); return
+        }
+
+        let expectedAttributes: [String: Any] = [
+            "name": "New Group Name",
+            "publicLinkEnabled": true,
+            "publicLinkLimit": 10,
+            "publicLinkLimitEnabled": true
+        ]
+
+        XCTAssert(attributes.isEqual(to: expectedAttributes))
     }
 }
