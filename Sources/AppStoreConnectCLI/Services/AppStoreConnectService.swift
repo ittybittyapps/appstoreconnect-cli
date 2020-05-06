@@ -165,20 +165,15 @@ class AppStoreConnectService {
       return try readBuildOperation.execute(with: requestor).await()
     }
 
-    func modifyBuild(bundleId: String, buildNumber: String, preReleaseVersion: String, expired: Bool?, usesNonExemptEncyption: Bool?) throws -> BuildDetailsInfo {
+    func expireBuild(bundleId: String, buildNumber: String, preReleaseVersion: String, expired: Bool) throws -> Void {
       let appsOperation = GetAppsOperation(options: .init(bundleIds: [bundleId]))
       let appId = try appsOperation.execute(with: requestor).await().map(\.id)
 
       let readBuildOperation = ReadBuildOperation(options: .init(appId: appId, buildNumber: [buildNumber], preReleaseVersion: [preReleaseVersion]))
       let buildId = try readBuildOperation.execute(with: requestor).await().map(\.id).first
 
-      let modifyBuildOperation = ModifyBuildOperation(options: .init(buildId: buildId, expired: expired, usesNonExemptEncryption: usesNonExemptEncyption))
-      let modifiedBuildDetails = try modifyBuildOperation.execute(with: requestor).await()
-      return modifiedBuildDetails
-      
-      // doing another read immediately doesn't return correct values of external build state and internal build state
-      //      let newBuildDetails = try readBuildOperation.execute(with: requestor).await()
-      //      return newBuildDetails.first(where: {$0.id == modifiedBuildDetails.id}) ?? modifiedBuildDetails
+      let expireBuildOperation = ExpireBuildOperation(options: .init(buildId: buildId, expired: expired))
+      _ = try expireBuildOperation.execute(with: requestor).await()
     }
 
     /// Make a request for something `Decodable`.

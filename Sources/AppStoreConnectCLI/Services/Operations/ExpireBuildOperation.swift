@@ -4,15 +4,14 @@ import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
 
-struct ModifyBuildOperation: APIOperation {
+struct ExpireBuildOperation: APIOperation {
 
   struct Options {
     let buildId: String?
-    let expired: Bool?
-    let usesNonExemptEncryption: Bool?
+    let expired: Bool
   }
 
-  enum ModifyBuildError: LocalizedError {
+  enum ExpireBuildError: LocalizedError {
     case noBuildIdFound
     case noBuildExist
 
@@ -32,26 +31,24 @@ struct ModifyBuildOperation: APIOperation {
     self.options = options
   }
 
-  func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<BuildDetailsInfo, Error> {
+  func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<Void, Error> {
 
     guard self.options.buildId != nil else {
-      throw ModifyBuildError.noBuildIdFound
+      throw ExpireBuildError.noBuildIdFound
     }
 
     let buildModifyEndpoint = APIEndpoint.modify(
       buildWithId: self.options.buildId!,
       appEncryptionDeclarationId: "",
       expired: self.options.expired,
-      usesNonExemptEncryption: self.options.usesNonExemptEncryption)
+      usesNonExemptEncryption: nil)
 
     return requestor.request(buildModifyEndpoint)
-      .tryMap { (buildResponse) throws -> BuildDetailsInfo in
+      .tryMap { (buildResponse) throws in
 
         guard (buildResponse.data.attributes != nil) else {
-          throw ModifyBuildError.noBuildExist
+          throw ExpireBuildError.noBuildExist
         }
-
-        return BuildDetailsInfo(buildResponse.data, buildResponse.included)
     }
     .eraseToAnyPublisher()
   }

@@ -5,10 +5,10 @@ import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
 
-struct ModifyBuildCommand: CommonParsableCommand {
+struct ExpireBuildCommand: CommonParsableCommand {
   static var configuration = CommandConfiguration(
-      commandName: "modify",
-      abstract: "Expire a build or change the encryption exemption of a build.")
+      commandName: "expire",
+      abstract: "Expire a build.")
 
   @OptionGroup()
   var common: CommonOptions
@@ -22,14 +22,12 @@ struct ModifyBuildCommand: CommonParsableCommand {
   @Argument(help: "The build number of this build")
   var buildNumber: String
 
-  @Option(help: "The new value for expired")
-  var expired: Bool?
+  @Argument(help: "The new value for expired")
+  var expired: Bool
 
   func run() throws {
       let service = try makeService()
 
-    let modifyDetailsInfo = try service.modifyBuild(bundleId: bundleId, buildNumber: buildNumber, preReleaseVersion: preReleaseVersion, expired: expired, usesNonExemptEncyption: nil)
-
-     modifyDetailsInfo.render(format: common.outputFormat)
+      _ = try service.expireBuild(bundleId: bundleId, buildNumber: buildNumber, preReleaseVersion: preReleaseVersion, expired: expired)
   }
 }
