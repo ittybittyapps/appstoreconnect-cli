@@ -139,6 +139,46 @@ class AppStoreConnectService {
             .await()
             .map(BetaTester.init)
     }
+
+    func removeTesterFromGroups(email: String, groupNames: [String]) throws {
+        let testerId = try GetBetaTesterOperation(
+                options: .init(id: nil, email: email)
+            )
+            .execute(with: requestor)
+            .await()
+            .betaTester
+            .id
+
+        let groupIds = try groupNames.map { try betaGroupIdentifier(matching: $0).await() }
+
+        try RemoveTesterOperation(options:
+                .init(removeStrategy:
+                    .removeTesterFromGroups(testerId: testerId, groupIds: groupIds)
+                )
+            )
+            .execute(with: requestor)
+            .await()
+    }
+
+    func removeTestersFromGroup(groupName: String, emails: [String]) throws {
+        let groupId = try betaGroupIdentifier(matching: groupName).await()
+
+        let testerIds = try emails.map {
+            try GetBetaTesterOperation(options: .init(id: nil, email: $0))
+                .execute(with: requestor)
+                .await()
+                .betaTester
+                .id
+        }
+
+        try RemoveTesterOperation(options:
+                .init(removeStrategy:
+                    .removeTestersFromGroup(testerIds: testerIds, groupId: groupId)
+                )
+            )
+            .execute(with: requestor)
+            .await()
+    }
         
     func createBetaGroup(
         appBundleId: String,
