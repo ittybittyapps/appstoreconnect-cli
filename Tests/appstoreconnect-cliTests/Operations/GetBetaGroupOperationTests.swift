@@ -37,7 +37,16 @@ final class GetBetaGroupOperationTests: XCTestCase {
 
     var betaGroup: BetaGroup {
         BetaGroup(
-            attributes: nil,
+            attributes: BetaGroup.Attributes(
+                isInternalGroup: false,
+                name: "Some Group",
+                publicLink: nil,
+                publicLinkEnabled: nil,
+                publicLinkId: nil,
+                publicLinkLimit: nil,
+                publicLinkLimitEnabled: nil,
+                createdDate: nil
+            ),
             id: "1234",
             relationships: nil,
             links: ResourceLinks(self: testUrl)
@@ -70,6 +79,48 @@ final class GetBetaGroupOperationTests: XCTestCase {
             response: { (endpoint: APIEndpoint<BetaGroupsResponse>) -> Future<BetaGroupsResponse, Error> in
                 let response = BetaGroupsResponse(
                     data: [],
+                    included: nil,
+                    links: PagedDocumentLinks(first: nil, next: nil, self: self.testUrl),
+                    meta: nil
+                )
+
+                return Future { $0(.success(response)) }
+            }
+        )
+
+        let result = Result {
+            try Operation(options: options).execute(with: betaGroupNotFoundRequestor).await()
+        }
+
+        switch result {
+        case .failure(Operation.Error.betaGroupNotFound(groupName: "Some Group", bundleId: "com.example.test")):
+            break
+        default:
+            XCTFail()
+        }
+    }
+
+    func testBetaGroupNotFoundWithDifferentName() {
+        let betaGroup = BetaGroup(
+            attributes: BetaGroup.Attributes(
+                isInternalGroup: false,
+                name: "Just Some Group",
+                publicLink: nil,
+                publicLinkEnabled: nil,
+                publicLinkId: nil,
+                publicLinkLimit: nil,
+                publicLinkLimitEnabled: nil,
+                createdDate: nil
+            ),
+            id: "5678",
+            relationships: nil,
+            links: ResourceLinks(self: testUrl)
+        )
+
+        let betaGroupNotFoundRequestor = OneEndpointTestRequestor(
+            response: { (endpoint: APIEndpoint<BetaGroupsResponse>) -> Future<BetaGroupsResponse, Error> in
+                let response = BetaGroupsResponse(
+                    data: [betaGroup],
                     included: nil,
                     links: PagedDocumentLinks(first: nil, next: nil, self: self.testUrl),
                     meta: nil
