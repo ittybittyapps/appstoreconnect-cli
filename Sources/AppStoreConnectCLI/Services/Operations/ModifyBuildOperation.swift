@@ -51,7 +51,7 @@ struct ModifyBuildOperation: APIOperation {
           throw ModifyBuildError.noBuildExist
         }
 
-        return BuildDetailsInfo(buildResponse.data, nil)
+        return BuildDetailsInfo(buildResponse.data, buildResponse.included)
     }
     .eraseToAnyPublisher()
   }
