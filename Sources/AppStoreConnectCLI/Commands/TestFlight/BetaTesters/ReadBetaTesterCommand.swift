@@ -5,9 +5,9 @@ import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
 
-struct GetBetaTesterInfoCommand: CommonParsableCommand {
+struct ReadBetaTesterCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
-        commandName: "info",
+        commandName: "read",
         abstract: "Get information about a beta tester")
 
     @OptionGroup()
