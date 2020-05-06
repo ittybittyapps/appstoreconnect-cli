@@ -32,7 +32,7 @@ struct ListBuildsOperation: APIOperation {
     self.options = options
   }
 
-  func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<[BuildDetailsInfo], Error> {
+  func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<[Build], Error> {
 
     var filters = [ListBuilds.Filter]()
 
@@ -72,13 +72,13 @@ struct ListBuildsOperation: APIOperation {
 
 
     return requestor.request(endpoint)
-      .tryMap { (buildResponse) throws -> [BuildDetailsInfo] in
+      .tryMap { (buildResponse) throws -> [Build] in
         guard !buildResponse.data.isEmpty else {
           throw ListBuildsError.noBuildExist
         }
 
         let buildDetailsInfo = buildResponse.data.map {
-          BuildDetailsInfo($0, buildResponse.included)
+          Build($0, buildResponse.included)
         }
 
         return buildDetailsInfo
