@@ -178,15 +178,15 @@ class AppStoreConnectService {
             .await()
     }
 
-    func listBetaGroups(bundleIds: [String]) throws -> [BetaGroup] {
+    func listBetaGroups(bundleIds: [String], names: [String]) throws -> [BetaGroup] {
         let operation = GetAppsOperation(options: .init(bundleIds: bundleIds))
         let appIds = try operation.execute(with: requestor).await().map(\.id)
 
-        return try listBetaGroups(appIds: appIds)
+        return try listBetaGroups(appIds: appIds, names: names)
     }
 
-    func listBetaGroups(appIds: [String]) throws -> [BetaGroup] {
-        let operation = ListBetaGroupsOperation(options: .init(appIds: appIds))
+    func listBetaGroups(appIds: [String], names: [String]) throws -> [BetaGroup] {
+        let operation = ListBetaGroupsOperation(options: .init(appIds: appIds, names: names))
 
         return try operation.execute(with: requestor).await().map(BetaGroup.init)
     }
