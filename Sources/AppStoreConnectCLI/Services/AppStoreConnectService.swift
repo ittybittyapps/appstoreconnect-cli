@@ -43,7 +43,7 @@ class AppStoreConnectService {
                 .execute(with: requestor)
                 .await()
                 .id
-            }
+        }
 
         _ = try RevokeCertificatesOperation(options: .init(ids: certificatesIds))
             .execute(with: requestor)
