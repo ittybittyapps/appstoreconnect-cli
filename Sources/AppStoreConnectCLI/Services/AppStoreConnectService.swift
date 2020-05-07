@@ -239,18 +239,18 @@ class AppStoreConnectService {
         _ = try expireBuildOperation.execute(with: requestor).await()
     }
 
-  func listBuilds(bundleId: [String], expired: [String], preReleaseVersion: [String], buildNumber: [String], betaReviewState: [String], limit: Int?) throws -> [Build] {
+    func listBuilds(bundleId: [String], expired: [String], preReleaseVersion: [String], buildNumber: [String], betaReviewState: [String], limit: Int?) throws -> [Build] {
 
-      var appId: [String] = []
+        var appId: [String] = []
 
-      if !bundleId.isEmpty {
-        let appsOperation = GetAppsOperation(options: .init(bundleIds: bundleId))
-        appId = try appsOperation.execute(with: requestor).await().map(\.id)
-      }
+        if !bundleId.isEmpty {
+            let appsOperation = GetAppsOperation(options: .init(bundleIds: bundleId))
+            appId = try appsOperation.execute(with: requestor).await().map(\.id)
+        }
 
-      let listBuildsOperation = ListBuildsOperation(options: .init(appId: appId, expired: expired, preReleaseVersion: preReleaseVersion, buildNumber: buildNumber, betaReviewState: betaReviewState, limit: limit))
+        let listBuildsOperation = ListBuildsOperation(options: .init(appId: appId, expired: expired, preReleaseVersion: preReleaseVersion, buildNumber: buildNumber, betaReviewState: betaReviewState, limit: limit))
 
-      return try listBuildsOperation.execute(with: requestor).await()
+        return try listBuildsOperation.execute(with: requestor).await()
     }
 
     /// Make a request for something `Decodable`.
