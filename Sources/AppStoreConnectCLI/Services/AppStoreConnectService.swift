@@ -278,6 +278,7 @@ class AppStoreConnectService {
         let appId = try appsOperation.execute(with: requestor)
             .compactMap(\.first)
             .await()
+            .id
 
         let output = try ReadAppOperation(options: .init(id: appId))
             .execute(with: requestor)
