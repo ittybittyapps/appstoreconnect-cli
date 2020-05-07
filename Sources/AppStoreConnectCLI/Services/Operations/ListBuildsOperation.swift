@@ -50,7 +50,7 @@ struct ListBuildsOperation: APIOperation {
         return requestor.request(endpoint)
             .map { response -> Output in
                 response.data.map { ($0, response.included) }
-        }
-        .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
     }
 }
