@@ -127,7 +127,7 @@ class AppStoreConnectService {
             .execute(with: requestor)
             .await()
 
-        try DeleteBetaGroupOperation(options: .init(betaGroup: betaGroup))
+        try DeleteBetaGroupOperation(options: .init(betaGroupId: betaGroup.id))
             .execute(with: requestor)
             .await()
     }

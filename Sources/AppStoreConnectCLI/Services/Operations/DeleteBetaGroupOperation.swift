@@ -8,7 +8,7 @@ struct DeleteBetaGroupOperation: APIOperation {
     typealias BetaGroup = AppStoreConnect_Swift_SDK.BetaGroup
 
     struct Options {
-        let betaGroup: BetaGroup
+        let betaGroupId: String
     }
 
     let options: Options
@@ -18,7 +18,7 @@ struct DeleteBetaGroupOperation: APIOperation {
     }
 
     func execute(with requestor: EndpointRequestor) -> AnyPublisher<Void, Error> {
-        let endpoint = APIEndpoint.delete(betaGroupWithId: options.betaGroup.id)
+        let endpoint = APIEndpoint.delete(betaGroupWithId: options.betaGroupId)
 
         return requestor.request(endpoint).eraseToAnyPublisher()
     }
