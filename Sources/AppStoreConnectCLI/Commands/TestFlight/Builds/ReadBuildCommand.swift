@@ -16,17 +16,11 @@ struct ReadBuildCommand: CommonParsableCommand {
     @Argument(help: "An opaque resource ID that uniquely identifies the build")
     var bundleId: String
 
-    @Option(
-      parsing: .upToNextOption,
-      help: "The build number of this build"
-    )
-    var buildNumber: [String]
+    @Argument(help: "The build number of this build")
+    var buildNumber: String
 
-    @Option(
-      parsing: .upToNextOption,
-      help: "The pre-release version number of this build"
-    )
-    var preReleaseVersion: [String]
+    @Argument(help: "The pre-release version number of this build")
+    var preReleaseVersion: String
 
     func run() throws {
         let service = try makeService()

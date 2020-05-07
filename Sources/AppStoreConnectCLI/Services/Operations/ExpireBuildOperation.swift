@@ -7,22 +7,7 @@ import Foundation
 struct ExpireBuildOperation: APIOperation {
 
   struct Options {
-    let buildId: String?
-    let expired: Bool
-  }
-
-  enum ExpireBuildError: LocalizedError {
-    case noBuildIdFound
-    case noBuildExist
-
-    var errorDescription: String? {
-      switch self {
-      case .noBuildExist:
-        return "No build exists"
-      case .noBuildIdFound:
-        return " No build id found"
-      }
-    }
+    let buildId: String
   }
 
   private let options: Options
@@ -33,23 +18,14 @@ struct ExpireBuildOperation: APIOperation {
 
   func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<Void, Error> {
 
-    guard self.options.buildId != nil else {
-      throw ExpireBuildError.noBuildIdFound
-    }
-
     let buildModifyEndpoint = APIEndpoint.modify(
-      buildWithId: self.options.buildId!,
+      buildWithId: self.options.buildId,
       appEncryptionDeclarationId: "",
-      expired: self.options.expired,
+      expired: true,
       usesNonExemptEncryption: nil)
 
     return requestor.request(buildModifyEndpoint)
-      .tryMap { (buildResponse) throws in
-
-        guard (buildResponse.data.attributes != nil) else {
-          throw ExpireBuildError.noBuildExist
-        }
-    }
+    .map { _ in }
     .eraseToAnyPublisher()
   }
 }

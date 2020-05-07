@@ -22,12 +22,9 @@ struct ExpireBuildCommand: CommonParsableCommand {
   @Argument(help: "The build number of this build")
   var buildNumber: String
 
-  @Argument(help: "The new value for expired")
-  var expired: Bool
-
   func run() throws {
       let service = try makeService()
 
-      _ = try service.expireBuild(bundleId: bundleId, buildNumber: buildNumber, preReleaseVersion: preReleaseVersion, expired: expired)
+      _ = try service.expireBuild(bundleId: bundleId, buildNumber: buildNumber, preReleaseVersion: preReleaseVersion)
   }
 }
