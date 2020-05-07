@@ -80,7 +80,8 @@ struct ListBuildsCommand: CommonParsableCommand {
             filterPreReleaseVersions: filterPreReleaseVersions,
             filterBuildNumbers: filterBuildNumbers,
             filterProcessingStates: filterProcessingStates,
-            filterBetaReviewStates: filterBetaReviewStates, limit: limit
+            filterBetaReviewStates: filterBetaReviewStates,
+            limit: limit
         )
 
         builds.render(format: common.outputFormat)

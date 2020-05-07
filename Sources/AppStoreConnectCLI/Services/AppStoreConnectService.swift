@@ -245,7 +245,8 @@ class AppStoreConnectService {
         filterPreReleaseVersions: [String],
         filterBuildNumbers: [String],
         filterProcessingStates:[ListBuilds.Filter.ProcessingState],
-        filterBetaReviewStates: [String], limit: Int?
+        filterBetaReviewStates: [String],
+        limit: Int?
     ) throws -> [Build] {
 
         var filterAppIds: [String] = []
@@ -268,8 +269,7 @@ class AppStoreConnectService {
         )
 
         let output = try listBuildsOperation.execute(with: requestor).await()
-        let builds = output.map { Build($0.build, $0.relationships) }
-        return builds
+        return output.map(Build.init)
     }
 
     /// Make a request for something `Decodable`.

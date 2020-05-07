@@ -29,18 +29,15 @@ struct ListBuildsOperation: APIOperation {
 
     func execute(with requestor: EndpointRequestor) -> AnyPublisher<Output, Error> {
         var filters = [ListBuilds.Filter]()
-        filters += options.filterAppIds.isEmpty ? [] : [ListBuilds.Filter.app(options.filterAppIds)]
-        filters += options.filterPreReleaseVersions.isEmpty ? [] : [ListBuilds.Filter.preReleaseVersionVersion(options.filterPreReleaseVersions)]
-        filters += options.filterBuildNumbers.isEmpty ? [] : [ListBuilds.Filter.version(options.filterBuildNumbers)]
-        filters += options.filterExpired.isEmpty ? [] : [ListBuilds.Filter.expired(options.filterExpired)]
-        filters += options.filterProcessingStates.isEmpty ? [] : [ListBuilds.Filter.processingState(options.filterProcessingStates)]
-        filters += options.filterBetaReviewStates.isEmpty ? [] :  [ListBuilds.Filter.betaAppReviewSubmissionBetaReviewState(options.filterBetaReviewStates)]
+        filters += options.filterAppIds.isEmpty ? [] : [.app(options.filterAppIds)]
+        filters += options.filterPreReleaseVersions.isEmpty ? [] : [.preReleaseVersionVersion(options.filterPreReleaseVersions)]
+        filters += options.filterBuildNumbers.isEmpty ? [] : [.version(options.filterBuildNumbers)]
+        filters += options.filterExpired.isEmpty ? [] : [.expired(options.filterExpired)]
+        filters += options.filterProcessingStates.isEmpty ? [] : [.processingState(options.filterProcessingStates)]
+        filters += options.filterBetaReviewStates.isEmpty ? [] :  [.betaAppReviewSubmissionBetaReviewState(options.filterBetaReviewStates)]
 
-        var limit: [ListBuilds.Limit]?
-
-        if let optionLimit = options.limit {
-            limit = [ListBuilds.Limit.individualTesters(optionLimit),
-                     ListBuilds.Limit.betaBuildLocalizations(optionLimit)]
+        let limit = options.limit.map { limit -> [ListBuilds.Limit] in
+            [.individualTesters(limit), .betaBuildLocalizations(limit)]
         }
 
         let endpoint = APIEndpoint.builds(
@@ -51,10 +48,8 @@ struct ListBuildsOperation: APIOperation {
         )
 
         return requestor.request(endpoint)
-            .map { (buildResponse) -> Output in
-                return buildResponse.data.map {
-                    return ($0, buildResponse.included)
-                }
+            .map { response -> Output in
+                response.data.map { ($0, response.included) }
         }
         .eraseToAnyPublisher()
     }
