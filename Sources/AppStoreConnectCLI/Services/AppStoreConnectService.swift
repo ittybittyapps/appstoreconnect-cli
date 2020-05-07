@@ -218,14 +218,14 @@ class AppStoreConnectService {
         return BetaGroup(app, modifiedBetaGroup)
     }
 
-    func readBuild(bundleId: String, buildNumber: String, preReleaseVersion: String) throws -> BuildDetailsInfo {
+    func readBuild(bundleId: String, buildNumber: String, preReleaseVersion: String) throws -> Build {
         let appsOperation = GetAppsOperation(options: .init(bundleIds: [bundleId]))
         let appId = try appsOperation.execute(with: requestor).compactMap(\.first).await().id
 
         let readBuildOperation = ReadBuildOperation(options: .init(appId: appId, buildNumber: buildNumber, preReleaseVersion: preReleaseVersion))
 
         let output = try readBuildOperation.execute(with: requestor).await()
-        return BuildDetailsInfo(output.build, output.relationships)
+        return Build(output.build, output.relationships)
     }
 
     func expireBuild(bundleId: String, buildNumber: String, preReleaseVersion: String) throws -> Void {
@@ -239,7 +239,7 @@ class AppStoreConnectService {
         _ = try expireBuildOperation.execute(with: requestor).await()
     }
 
-  func listBuilds(bundleId: [String], expired: [String], preReleaseVersion: [String], buildNumber: [String], betaReviewState: [String], limit: Int?) throws -> [BuildDetailsInfo] {
+  func listBuilds(bundleId: [String], expired: [String], preReleaseVersion: [String], buildNumber: [String], betaReviewState: [String], limit: Int?) throws -> [Build] {
 
       var appId: [String] = []
 
