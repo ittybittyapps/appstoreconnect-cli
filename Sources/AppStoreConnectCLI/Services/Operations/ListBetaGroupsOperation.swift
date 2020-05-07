@@ -8,6 +8,7 @@ struct ListBetaGroupsOperation: APIOperation {
 
     struct Options {
         let appIds: [String]
+        let names: [String]
     }
 
     typealias BetaGroup = AppStoreConnect_Swift_SDK.BetaGroup
@@ -33,7 +34,10 @@ struct ListBetaGroupsOperation: APIOperation {
     }
 
     func execute(with requestor: EndpointRequestor) -> AnyPublisher<Output, Swift.Error> {
-        let filters = options.appIds.isEmpty ? [] : [ListBetaGroups.Filter.app(options.appIds)]
+        var filters: [ListBetaGroups.Filter] = []
+        filters += options.appIds.isEmpty ? [] : [.app(options.appIds)]
+        filters += options.names.isEmpty ? [] : [.name(options.names)]
+
         let endpoint = APIEndpoint.betaGroups(filter: filters, include: [.app])
         let response = requestor.request(endpoint)
 
