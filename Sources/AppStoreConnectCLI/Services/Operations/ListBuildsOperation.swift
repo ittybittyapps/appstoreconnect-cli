@@ -7,11 +7,12 @@ import Foundation
 struct ListBuildsOperation: APIOperation {
 
     struct Options {
-        let appId: [String]
-        let expired: [String]
-        let preReleaseVersion: [String]
-        let buildNumber: [String]
-        let betaReviewState: [String]
+        let filterAppIds: [String]
+        let filterExpired: [String]
+        let filterPreReleaseVersions: [String]
+        let filterBuildNumbers: [String]
+        let filterProcessingStates: [ListBuilds.Filter.ProcessingState]
+        let filterBetaReviewStates: [String]
         let limit: Int?
     }
 
@@ -36,25 +37,18 @@ struct ListBuildsOperation: APIOperation {
 
         var filters = [ListBuilds.Filter]()
 
-        if !options.appId.isEmpty {
-            filters += [ListBuilds.Filter.app(options.appId)]
-        }
+        filters += options.filterAppIds.isEmpty ? [] : [ListBuilds.Filter.app(options.filterAppIds)]
 
-        if !options.preReleaseVersion.isEmpty {
-            filters += [ListBuilds.Filter.preReleaseVersionVersion(options.preReleaseVersion)]
-        }
+        filters += options.filterPreReleaseVersions.isEmpty ? [] : [ListBuilds.Filter.preReleaseVersionVersion(options.filterPreReleaseVersions)]
 
-        if !options.buildNumber.isEmpty {
-            filters += [ListBuilds.Filter.version(options.buildNumber)]
-        }
+        filters += options.filterBuildNumbers.isEmpty ? [] : [ListBuilds.Filter.version(options.filterBuildNumbers)]
 
-        if !options.expired.isEmpty {
-            filters += [ListBuilds.Filter.expired(options.expired)]
-        }
+        filters += options.filterExpired.isEmpty ? [] : [ListBuilds.Filter.expired(options.filterExpired)]
 
-        if !options.betaReviewState.isEmpty {
-            filters += [ListBuilds.Filter.betaAppReviewSubmissionBetaReviewState(options.betaReviewState)]
-        }
+        filters += options.filterProcessingStates.isEmpty ? [] : [ListBuilds.Filter.processingState(options.filterProcessingStates)]
+
+        filters += options.filterBetaReviewStates.isEmpty ? [] :  [ListBuilds.Filter.betaAppReviewSubmissionBetaReviewState(options.filterBetaReviewStates)]
+
 
         var limit: [ListBuilds.Limit]?
 

@@ -15,39 +15,57 @@ struct ListBuildsCommand: CommonParsableCommand {
 
     @Option(
         parsing: .upToNextOption,
-        help: "An opaque resource ID that uniquely identifies the build"
+        help: ArgumentHelp(
+            "Filter by app bundle identifier. eg. com.example.App",
+            valueName: "bundle-id"
+        )
     )
-    var bundleId: [String]
+    var filterBundleIds: [String]
 
     @Option(
         parsing: .upToNextOption,
-        help: "A boolean value to indicate whether the build is expired (true or false)"
+        help: ArgumentHelp(
+            "Filter by whether the build has expired (true or false)",
+            valueName: "expired"
+        )
     )
-    var expired: [String]
+    var filterExpired: [String]
 
     @Option(
         parsing: .upToNextOption,
-        help: "The pre-release version number of this build"
+        help: ArgumentHelp(
+            "Filter by the pre-release version number of a build",
+            valueName: "pre-release-version"
+        )
     )
-    var preReleaseVersion: [String]
+    var filterPreReleaseVersions: [String]
 
     @Option(
         parsing: .upToNextOption,
-        help: "The build number of the builds"
+        help: ArgumentHelp(
+            "Filter by the build number of a build",
+            valueName: "build-number"
+        )
     )
-    var buildNumber:[String]
+    var filterBuildNumbers:[String]
 
     @Option(
         parsing: .upToNextOption,
-        help: "The processing state of the builds"
+        help: ArgumentHelp(
+            "Filter by the processing state a build \(ListBuilds.Filter.ProcessingState.allCases)",
+            valueName: "processing-state"
+     )
     )
-    var processingState: [String]
+    var filterProcessingStates: [ListBuilds.Filter.ProcessingState]
 
     @Option(
         parsing: .upToNextOption,
-        help: "The beta review state of the builds"
+        help: ArgumentHelp(
+            "Filter by the beta review state of a build",
+            valueName: "beta-review-state"
+        )
     )
-    var betaReviewState: [String]
+    var filterBetaReviewStates: [String]
 
     @Option(help: "Limit the number of individualTesters & betaBuildLocalizations")
     var limit: Int?
@@ -56,7 +74,7 @@ struct ListBuildsCommand: CommonParsableCommand {
     func run() throws {
         let service = try makeService()
 
-        let builds = try service.listBuilds(bundleId: bundleId, expired: expired, preReleaseVersion: preReleaseVersion, buildNumber: buildNumber, betaReviewState: betaReviewState, limit: limit)
+        let builds = try service.listBuilds(filterBundleIds: filterBundleIds, filterExpired: filterExpired, filterPreReleaseVersions: filterPreReleaseVersions, filterBuildNumbers: filterBuildNumbers, filterProcessingStates: filterProcessingStates, filterBetaReviewStates: filterBetaReviewStates, limit: limit)
 
         builds.render(format: common.outputFormat)
     }

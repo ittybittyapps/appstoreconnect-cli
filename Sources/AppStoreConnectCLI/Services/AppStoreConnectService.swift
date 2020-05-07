@@ -239,16 +239,16 @@ class AppStoreConnectService {
         _ = try expireBuildOperation.execute(with: requestor).await()
     }
 
-    func listBuilds(bundleId: [String], expired: [String], preReleaseVersion: [String], buildNumber: [String], betaReviewState: [String], limit: Int?) throws -> [Build] {
+    func listBuilds(filterBundleIds: [String], filterExpired: [String], filterPreReleaseVersions: [String], filterBuildNumbers: [String], filterProcessingStates:[ListBuilds.Filter.ProcessingState], filterBetaReviewStates: [String], limit: Int?) throws -> [Build] {
 
-        var appId: [String] = []
+        var filterAppIds: [String] = []
 
-        if !bundleId.isEmpty {
-            let appsOperation = GetAppsOperation(options: .init(bundleIds: bundleId))
-            appId = try appsOperation.execute(with: requestor).await().map(\.id)
+        if !filterBundleIds.isEmpty {
+            let appsOperation = GetAppsOperation(options: .init(bundleIds: filterBundleIds))
+            filterAppIds = try appsOperation.execute(with: requestor).await().map(\.id)
         }
 
-        let listBuildsOperation = ListBuildsOperation(options: .init(appId: appId, expired: expired, preReleaseVersion: preReleaseVersion, buildNumber: buildNumber, betaReviewState: betaReviewState, limit: limit))
+        let listBuildsOperation = ListBuildsOperation(options: .init(filterAppIds: filterAppIds, filterExpired: filterExpired, filterPreReleaseVersions: filterPreReleaseVersions, filterBuildNumbers: filterBuildNumbers, filterProcessingStates: filterProcessingStates, filterBetaReviewStates: filterBetaReviewStates, limit: limit))
 
         return try listBuildsOperation.execute(with: requestor).await()
     }
