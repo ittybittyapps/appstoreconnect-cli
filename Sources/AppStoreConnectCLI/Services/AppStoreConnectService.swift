@@ -218,14 +218,14 @@ class AppStoreConnectService {
         return BetaGroup(app, modifiedBetaGroup)
     }
 
-    func readBuild(bundleId: String, buildNumber: String, preReleaseVersion: String) throws -> BuildDetailsInfo {
+    func readBuild(bundleId: String, buildNumber: String, preReleaseVersion: String) throws -> Build {
         let appsOperation = GetAppsOperation(options: .init(bundleIds: [bundleId]))
         let appId = try appsOperation.execute(with: requestor).compactMap(\.first).await().id
 
         let readBuildOperation = ReadBuildOperation(options: .init(appId: appId, buildNumber: buildNumber, preReleaseVersion: preReleaseVersion))
 
         let output = try readBuildOperation.execute(with: requestor).await()
-        return BuildDetailsInfo(output.build, output.relationships)
+        return Build(output.build, output.relationships)
     }
 
     func expireBuild(bundleId: String, buildNumber: String, preReleaseVersion: String) throws -> Void {
@@ -237,6 +237,39 @@ class AppStoreConnectService {
 
         let expireBuildOperation = ExpireBuildOperation(options: .init(buildId: buildId))
         _ = try expireBuildOperation.execute(with: requestor).await()
+    }
+
+    func listBuilds(
+        filterBundleIds: [String],
+        filterExpired: [String],
+        filterPreReleaseVersions: [String],
+        filterBuildNumbers: [String],
+        filterProcessingStates:[ListBuilds.Filter.ProcessingState],
+        filterBetaReviewStates: [String],
+        limit: Int?
+    ) throws -> [Build] {
+
+        var filterAppIds: [String] = []
+
+        if !filterBundleIds.isEmpty {
+            let appsOperation = GetAppsOperation(options: .init(bundleIds: filterBundleIds))
+            filterAppIds = try appsOperation.execute(with: requestor).await().map(\.id)
+        }
+
+        let listBuildsOperation = ListBuildsOperation(
+            options: .init(
+                filterAppIds: filterAppIds,
+                filterExpired: filterExpired,
+                filterPreReleaseVersions: filterPreReleaseVersions,
+                filterBuildNumbers: filterBuildNumbers,
+                filterProcessingStates: filterProcessingStates,
+                filterBetaReviewStates: filterBetaReviewStates,
+                limit: limit
+            )
+        )
+
+        let output = try listBuildsOperation.execute(with: requestor).await()
+        return output.map(Build.init)
     }
 
     /// Make a request for something `Decodable`.
