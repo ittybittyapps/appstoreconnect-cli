@@ -25,8 +25,7 @@ struct DeleteBetaGroupCommand: CommonParsableCommand {
             discussion: """
             This name will be used to search for a unique beta group matching the specified \
             app bundle id
-            """,
-            valueName: "beta-group-name"
+            """
         )
     ) var betaGroupName: String
 
