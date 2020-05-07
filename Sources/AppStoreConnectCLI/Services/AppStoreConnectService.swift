@@ -99,16 +99,17 @@ class AppStoreConnectService {
         firstName: String?,
         lastName: String?,
         inviteType: BetaInviteType?,
-        apps: [String],
+        appIds: [String],
+        bundleIds: [String],
         groupNames: [String],
         sort: ListBetaTesters.Sort?,
         limit: Int?,
         relatedResourcesLimit: Int?
     ) throws -> [BetaTester] {
 
-        var appIds: [String] = []
-        if !apps.isEmpty {
-            appIds = try GetAppsOperation(options: .init(bundleIds: apps))
+        var appIds: [String] = appIds
+        if !bundleIds.isEmpty && appIds.isEmpty {
+            appIds = try GetAppsOperation(options: .init(bundleIds: bundleIds))
                 .execute(with: requestor)
                 .await()
                 .map(\.id)

@@ -13,30 +13,61 @@ struct ListBetaTestersCommand: CommonParsableCommand {
     @OptionGroup()
     var common: CommonOptions
 
-    @Option(help: "Beta tester's email.")
-    var filterEmail: String?
-
-    @Option(help: "Beta tester's first name.")
-    var filterFirstName: String?
-
-    @Option(help: "Beta tester's last name.")
-    var filterLastName: String?
+    @Option(
+        help: ArgumentHelp(
+            "Beta tester's email.",
+            valueName: "email"
+        )
+    ) var filterEmail: String?
 
     @Option(
-        help: """
-        An invite type that indicates if a beta tester was invited by an email invite or used a TestFlight public link to join a beta test. \n
-        Possible values \(BetaInviteType.allCases).
-        """
+        help: ArgumentHelp(
+            "Beta tester's first name.",
+            valueName: "first-name"
+        )
+    ) var filterFirstName: String?
+
+    @Option(
+        help: ArgumentHelp(
+            "Beta tester's last name.",
+            valueName: "last-name"
+        )
+    ) var filterLastName: String?
+
+    @Option(
+        help: ArgumentHelp(
+            """
+            An invite type that indicates if a beta tester was invited by an email invite or used a TestFlight public link to join a beta test. \n
+            Possible values \(BetaInviteType.allCases).
+            """,
+            valueName: "invite-type"
+        )
     ) var filterInviteType: BetaInviteType?
 
     @Option(
         parsing: .upToNextOption,
-        help: "Application Bundle Ids. (eg. com.example.app)"
-    ) var filterApps: [String]
+        help: ArgumentHelp(
+            "Filter by app AppStore ID. eg. 432156789",
+            discussion: "This option is mutually exclusive with --filter-bundle-ids.",
+            valueName: "app-id"
+        )
+    ) var filterAppIds: [String]
 
     @Option(
         parsing: .upToNextOption,
-        help: "TestFlight beta group names."
+        help: ArgumentHelp(
+            "Filter by app bundle identifier. eg. com.example.App",
+            discussion: "This option is mutually exclusive with --filter-app-ids.",
+            valueName: "bundle-id"
+        )
+    ) var filterBundleIds: [String]
+
+    @Option(
+        parsing: .upToNextOption,
+        help: ArgumentHelp(
+            "TestFlight beta group names.",
+            valueName: "group-name"
+        )
     ) var filterGroupNames: [String]
 
     @Option(help: "Number of resources to return. (maximum: 200)")
@@ -54,8 +85,12 @@ struct ListBetaTestersCommand: CommonParsableCommand {
     var relatedResourcesLimit: Int?
 
     func validate() throws {
-        if !filterApps.isEmpty && !filterGroupNames.isEmpty {
-            throw ValidationError("Only one of these relationship filters ('filterApps', 'filterGroupNames') can be applied.")
+        if !filterAppIds.isEmpty && !filterBundleIds.isEmpty {
+            throw ValidationError("Filtering by both Bundle ID and App ID is not supported!")
+        }
+
+        if (!filterAppIds.isEmpty || !filterBundleIds.isEmpty) && !filterGroupNames.isEmpty {
+            throw ValidationError("Only one of these relationship filters ('app-id, bundle-id', 'group-name') can be applied.")
         }
     }
 
@@ -67,7 +102,8 @@ struct ListBetaTestersCommand: CommonParsableCommand {
             firstName: filterFirstName,
             lastName: filterLastName,
             inviteType: filterInviteType,
-            apps: filterApps,
+            appIds: filterAppIds,
+            bundleIds: filterBundleIds,
             groupNames: filterGroupNames,
             sort: sort,
             limit: limit,
