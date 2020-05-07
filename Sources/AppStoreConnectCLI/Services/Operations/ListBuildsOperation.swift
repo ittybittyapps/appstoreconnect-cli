@@ -16,16 +16,10 @@ struct ListBuildsOperation: APIOperation {
         let limit: Int?
     }
 
-    enum ListBuildsError: LocalizedError {
-        case noBuildExist
+    typealias Build = AppStoreConnect_Swift_SDK.Build
+    typealias Relationships = [AppStoreConnect_Swift_SDK.BuildRelationship]?
 
-        var errorDescription: String? {
-            switch self {
-            case .noBuildExist:
-                return "No build exists"
-            }
-        }
-    }
+    typealias Output  = [(build: Build, relationships: Relationships)]
 
     private let options: Options
 
@@ -33,22 +27,14 @@ struct ListBuildsOperation: APIOperation {
         self.options = options
     }
 
-    func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<[Build], Error> {
-
+    func execute(with requestor: EndpointRequestor) -> AnyPublisher<Output, Error> {
         var filters = [ListBuilds.Filter]()
-
         filters += options.filterAppIds.isEmpty ? [] : [ListBuilds.Filter.app(options.filterAppIds)]
-
         filters += options.filterPreReleaseVersions.isEmpty ? [] : [ListBuilds.Filter.preReleaseVersionVersion(options.filterPreReleaseVersions)]
-
         filters += options.filterBuildNumbers.isEmpty ? [] : [ListBuilds.Filter.version(options.filterBuildNumbers)]
-
         filters += options.filterExpired.isEmpty ? [] : [ListBuilds.Filter.expired(options.filterExpired)]
-
         filters += options.filterProcessingStates.isEmpty ? [] : [ListBuilds.Filter.processingState(options.filterProcessingStates)]
-
         filters += options.filterBetaReviewStates.isEmpty ? [] :  [ListBuilds.Filter.betaAppReviewSubmissionBetaReviewState(options.filterBetaReviewStates)]
-
 
         var limit: [ListBuilds.Limit]?
 
@@ -64,18 +50,11 @@ struct ListBuildsOperation: APIOperation {
             sort: [ListBuilds.Sort.uploadedDateAscending]
         )
 
-
         return requestor.request(endpoint)
-            .tryMap { (buildResponse) throws -> [Build] in
-                guard !buildResponse.data.isEmpty else {
-                    throw ListBuildsError.noBuildExist
+            .map { (buildResponse) -> Output in
+                return buildResponse.data.map {
+                    return ($0, buildResponse.included)
                 }
-
-                let buildDetailsInfo = buildResponse.data.map {
-                    Build($0, buildResponse.included)
-                }
-
-                return buildDetailsInfo
         }
         .eraseToAnyPublisher()
     }

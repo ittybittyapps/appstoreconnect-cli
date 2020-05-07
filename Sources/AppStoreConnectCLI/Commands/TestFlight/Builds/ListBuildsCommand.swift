@@ -74,7 +74,14 @@ struct ListBuildsCommand: CommonParsableCommand {
     func run() throws {
         let service = try makeService()
 
-        let builds = try service.listBuilds(filterBundleIds: filterBundleIds, filterExpired: filterExpired, filterPreReleaseVersions: filterPreReleaseVersions, filterBuildNumbers: filterBuildNumbers, filterProcessingStates: filterProcessingStates, filterBetaReviewStates: filterBetaReviewStates, limit: limit)
+        let builds = try service.listBuilds(
+            filterBundleIds: filterBundleIds,
+            filterExpired: filterExpired,
+            filterPreReleaseVersions: filterPreReleaseVersions,
+            filterBuildNumbers: filterBuildNumbers,
+            filterProcessingStates: filterProcessingStates,
+            filterBetaReviewStates: filterBetaReviewStates, limit: limit
+        )
 
         builds.render(format: common.outputFormat)
     }

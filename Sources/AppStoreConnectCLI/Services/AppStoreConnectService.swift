@@ -239,7 +239,14 @@ class AppStoreConnectService {
         _ = try expireBuildOperation.execute(with: requestor).await()
     }
 
-    func listBuilds(filterBundleIds: [String], filterExpired: [String], filterPreReleaseVersions: [String], filterBuildNumbers: [String], filterProcessingStates:[ListBuilds.Filter.ProcessingState], filterBetaReviewStates: [String], limit: Int?) throws -> [Build] {
+    func listBuilds(
+        filterBundleIds: [String],
+        filterExpired: [String],
+        filterPreReleaseVersions: [String],
+        filterBuildNumbers: [String],
+        filterProcessingStates:[ListBuilds.Filter.ProcessingState],
+        filterBetaReviewStates: [String], limit: Int?
+    ) throws -> [Build] {
 
         var filterAppIds: [String] = []
 
@@ -248,9 +255,21 @@ class AppStoreConnectService {
             filterAppIds = try appsOperation.execute(with: requestor).await().map(\.id)
         }
 
-        let listBuildsOperation = ListBuildsOperation(options: .init(filterAppIds: filterAppIds, filterExpired: filterExpired, filterPreReleaseVersions: filterPreReleaseVersions, filterBuildNumbers: filterBuildNumbers, filterProcessingStates: filterProcessingStates, filterBetaReviewStates: filterBetaReviewStates, limit: limit))
+        let listBuildsOperation = ListBuildsOperation(
+            options: .init(
+                filterAppIds: filterAppIds,
+                filterExpired: filterExpired,
+                filterPreReleaseVersions: filterPreReleaseVersions,
+                filterBuildNumbers: filterBuildNumbers,
+                filterProcessingStates: filterProcessingStates,
+                filterBetaReviewStates: filterBetaReviewStates,
+                limit: limit
+            )
+        )
 
-        return try listBuildsOperation.execute(with: requestor).await()
+        let output = try listBuildsOperation.execute(with: requestor).await()
+        let builds = output.map { Build($0.build, $0.relationships) }
+        return builds
     }
 
     /// Make a request for something `Decodable`.
