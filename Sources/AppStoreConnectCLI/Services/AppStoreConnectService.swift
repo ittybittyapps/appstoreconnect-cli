@@ -157,24 +157,24 @@ class AppStoreConnectService {
     }
 
     func readBuild(bundleId: String, buildNumber: String, preReleaseVersion: String) throws -> BuildDetailsInfo {
-      let appsOperation = GetAppsOperation(options: .init(bundleIds: [bundleId]))
-      let appId = try appsOperation.execute(with: requestor).await().map(\.id).first ?? ""
+        let appsOperation = GetAppsOperation(options: .init(bundleIds: [bundleId]))
+        let appId = try appsOperation.execute(with: requestor).compactMap(\.first).await().id
 
-      let readBuildOperation = ReadBuildOperation(options: .init(appId: appId, buildNumber: buildNumber, preReleaseVersion: preReleaseVersion))
+        let readBuildOperation = ReadBuildOperation(options: .init(appId: appId, buildNumber: buildNumber, preReleaseVersion: preReleaseVersion))
 
-      let output = try readBuildOperation.execute(with: requestor).await()
-      return BuildDetailsInfo(output.build, output.relationships)
+        let output = try readBuildOperation.execute(with: requestor).await()
+        return BuildDetailsInfo(output.build, output.relationships)
     }
 
     func expireBuild(bundleId: String, buildNumber: String, preReleaseVersion: String) throws -> Void {
-      let appsOperation = GetAppsOperation(options: .init(bundleIds: [bundleId]))
-      let appId = try appsOperation.execute(with: requestor).await().map(\.id).first ?? ""
+        let appsOperation = GetAppsOperation(options: .init(bundleIds: [bundleId]))
+        let appId = try appsOperation.execute(with: requestor).compactMap(\.first).await().id
 
-      let readBuildOperation = ReadBuildOperation(options: .init(appId: appId, buildNumber: buildNumber, preReleaseVersion: preReleaseVersion))
-      let buildId = try readBuildOperation.execute(with: requestor).await().build.id
+        let readBuildOperation = ReadBuildOperation(options: .init(appId: appId, buildNumber: buildNumber, preReleaseVersion: preReleaseVersion))
+        let buildId = try readBuildOperation.execute(with: requestor).await().build.id
 
-      let expireBuildOperation = ExpireBuildOperation(options: .init(buildId: buildId))
-      _ = try expireBuildOperation.execute(with: requestor).await()
+        let expireBuildOperation = ExpireBuildOperation(options: .init(buildId: buildId))
+        _ = try expireBuildOperation.execute(with: requestor).await()
     }
 
     /// Make a request for something `Decodable`.

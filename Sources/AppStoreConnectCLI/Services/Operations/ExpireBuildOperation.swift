@@ -6,26 +6,26 @@ import Foundation
 
 struct ExpireBuildOperation: APIOperation {
 
-  struct Options {
-    let buildId: String
-  }
+    struct Options {
+        let buildId: String
+    }
 
-  private let options: Options
+    private let options: Options
 
-  init(options: Options) {
-    self.options = options
-  }
+    init(options: Options) {
+        self.options = options
+    }
+    
+    func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<Void, Error> {
 
-  func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<Void, Error> {
+        let buildModifyEndpoint = APIEndpoint.modify(
+            buildWithId: self.options.buildId,
+            appEncryptionDeclarationId: "",
+            expired: true,
+            usesNonExemptEncryption: nil)
 
-    let buildModifyEndpoint = APIEndpoint.modify(
-      buildWithId: self.options.buildId,
-      appEncryptionDeclarationId: "",
-      expired: true,
-      usesNonExemptEncryption: nil)
-
-    return requestor.request(buildModifyEndpoint)
-    .map { _ in }
-    .eraseToAnyPublisher()
-  }
+        return requestor.request(buildModifyEndpoint)
+            .map { _ in }
+            .eraseToAnyPublisher()
+    }
 }
