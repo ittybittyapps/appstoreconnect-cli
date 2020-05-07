@@ -30,9 +30,8 @@ final class ModifyBetaGroupOperationTests: XCTestCase {
 
     var options: Options {
         Options(
-            app: app,
-            currentGroupName: "Some Group",
-            newGroupName: "New Group Name",
+            betaGroup: betaGroup,
+            betaGroupName: "New Group Name",
             publicLinkEnabled: true,
             publicLinkLimit: 10,
             publicLinkLimitEnabled: true
@@ -58,21 +57,9 @@ final class ModifyBetaGroupOperationTests: XCTestCase {
         return Future { $0(.success(response)) }
     }
 
-    var betaGroupsResponseFuture: Future<BetaGroupsResponse, Error> {
-        let response = BetaGroupsResponse(
-            data: [self.betaGroup],
-            included: nil,
-            links: PagedDocumentLinks(first: nil, next: nil, self: self.testUrl),
-            meta: nil
-        )
-
-        return Future { $0(.success(response)) }
-    }
-
     func testSuccess() throws {
-        let successRequestor = TwoEndpointTestRequestor(
-            response: { _ in self.betaGroupResponseFuture },
-            response2: { _ in self.betaGroupsResponseFuture }
+        let successRequestor = OneEndpointTestRequestor(
+            response: { _ in self.betaGroupResponseFuture }
         )
 
         let output = try Operation(options: options).execute(with: successRequestor).await()
@@ -80,67 +67,14 @@ final class ModifyBetaGroupOperationTests: XCTestCase {
         XCTAssertEqual(output.id, "1234")
     }
 
-    func testBetaGroupNotFound() {
-        let betaGroupNotFoundRequestor = OneEndpointTestRequestor(
-            response: { (endpoint: APIEndpoint<BetaGroupsResponse>) -> Future<BetaGroupsResponse, Error> in
-                let response = BetaGroupsResponse(
-                    data: [],
-                    included: nil,
-                    links: PagedDocumentLinks(first: nil, next: nil, self: self.testUrl),
-                    meta: nil
-                )
-
-                return Future { $0(.success(response)) }
-            }
-        )
-
-        let result = Result {
-            try Operation(options: options).execute(with: betaGroupNotFoundRequestor).await()
-        }
-
-        switch result {
-        case .failure(Operation.Error.betaGroupNotFound(groupName: "Some Group", bundleId: "com.example.test")):
-            break
-        default:
-            XCTFail()
-        }
-    }
-
-    func testBetaGroupNotUniqueToApp() {
-        let betaGroupNotUniqueRequestor = OneEndpointTestRequestor(
-            response: { (endpoint: APIEndpoint<BetaGroupsResponse>) -> Future<BetaGroupsResponse, Error> in
-                let response = BetaGroupsResponse(
-                    data: [self.betaGroup, self.betaGroup],
-                    included: nil,
-                    links: PagedDocumentLinks(first: nil, next: nil, self: self.testUrl),
-                    meta: nil
-                )
-
-                return Future { $0(.success(response)) }
-            }
-        )
-
-        let result = Result {
-            try Operation(options: options).execute(with: betaGroupNotUniqueRequestor).await()
-        }
-
-        switch result {
-        case .failure(Operation.Error.betaGroupNotUniqueToApp(groupName: "Some Group", bundleId: "com.example.test")):
-            break
-        default:
-            XCTFail()
-        }
-    }
-
     func testPopulatesModifyRequestBody() throws {
         var requestBody: Data?
 
-        let requestor = TwoEndpointTestRequestor<BetaGroupResponse, BetaGroupsResponse>(
+        let requestor = OneEndpointTestRequestor<BetaGroupResponse>(
             response: { endpoint in
                 requestBody = endpoint.body
                 return self.betaGroupResponseFuture
-            },
-            response2: { _ in self.betaGroupsResponseFuture }
+            }
         )
 
         _ = try Operation(options: options).execute(with: requestor).await()
