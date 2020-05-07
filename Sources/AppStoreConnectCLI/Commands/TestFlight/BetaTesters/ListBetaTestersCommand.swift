@@ -13,98 +13,102 @@ struct ListBetaTestersCommand: CommonParsableCommand {
     @OptionGroup()
     var common: CommonOptions
 
-    @Option(help: "The bundle ID of an application. (eg. com.example.app)")
-    var filterBundleId: String?
+    @Option(
+        help: ArgumentHelp(
+            "Beta tester's email.",
+            valueName: "email"
+        )
+    ) var filterEmail: String?
 
-    @Option(help: "The name of the beta group")
-    var filterGroupName: String?
+    @Option(
+        help: ArgumentHelp(
+            "Beta tester's first name.",
+            valueName: "first-name"
+        )
+    ) var filterFirstName: String?
 
-    @Option(default: 10,
-            help: "Number of included related resources to return.")
-    var relatedResourcesLimit: Int
+    @Option(
+        help: ArgumentHelp(
+            "Beta tester's last name.",
+            valueName: "last-name"
+        )
+    ) var filterLastName: String?
 
-    private enum ListBetaTesterError: LocalizedError {
-        case multipleFilters
+    @Option(
+        help: ArgumentHelp(
+            """
+            An invite type that indicates if a beta tester was invited by an email invite or used a TestFlight public link to join a beta test. \n
+            Possible values \(BetaInviteType.allCases).
+            """,
+            valueName: "invite-type"
+        )
+    ) var filterInviteType: BetaInviteType?
 
-        var failureReason: String? {
-            switch self {
-                case .multipleFilters:
-                    return "Only one relationship filter can be applied"
-            }
+    @Option(
+        parsing: .upToNextOption,
+        help: ArgumentHelp(
+            "Filter by app AppStore ID. eg. 432156789",
+            discussion: "This option is mutually exclusive with --filter-bundle-ids.",
+            valueName: "app-id"
+        )
+    ) var filterAppIds: [String]
+
+    @Option(
+        parsing: .upToNextOption,
+        help: ArgumentHelp(
+            "Filter by app bundle identifier. eg. com.example.App",
+            discussion: "This option is mutually exclusive with --filter-app-ids.",
+            valueName: "bundle-id"
+        )
+    ) var filterBundleIds: [String]
+
+    @Option(
+        parsing: .upToNextOption,
+        help: ArgumentHelp(
+            "TestFlight beta group names.",
+            valueName: "group-name"
+        )
+    ) var filterGroupNames: [String]
+
+    @Option(help: "Number of resources to return. (maximum: 200)")
+    var limit: Int?
+
+    @Option(
+        parsing: .unconditional,
+        help: ArgumentHelp(
+            "Sort the results using the provided key \(ListBetaTesters.Sort.allCases).",
+            discussion: "The `-` prefix indicates descending order."
+        )
+    ) var sort: ListBetaTesters.Sort?
+
+    @Option(help: "Number of included related resources to return.")
+    var relatedResourcesLimit: Int?
+
+    func validate() throws {
+        if !filterAppIds.isEmpty && !filterBundleIds.isEmpty {
+            throw ValidationError("Filtering by both Bundle ID and App ID is not supported!")
         }
-    }
 
-    private enum ListStrategy {
-        case all
-        case listByApp(bundleId: String)
-        case listByGroup(betaGroupName: String)
-        case listByAppAndGroup
-
-        typealias ListOptions = (bundleId: String?, betaGroupName: String?)
-
-        init(options: ListOptions) {
-            switch (options.bundleId, options.betaGroupName) {
-                case let(.some(bundleId), .some(betaGroup)) where !bundleId.isEmpty && !betaGroup.isEmpty:
-                    self = .listByAppAndGroup
-                case let(.some(bundleId), _) where !bundleId.isEmpty:
-                    self = .listByApp(bundleId: bundleId)
-                case let(_, .some(betaGroupName)) where !betaGroupName.isEmpty:
-                    self = .listByGroup(betaGroupName: betaGroupName)
-                case (_, _):
-                    self = .all
-            }
+        if (!filterAppIds.isEmpty || !filterBundleIds.isEmpty) && !filterGroupNames.isEmpty {
+            throw ValidationError("Only one of these relationship filters ('app-id, bundle-id', 'group-name') can be applied.")
         }
     }
 
     func run() throws {
-        let api = try makeService()
+        let service = try makeService()
 
-        let request: AnyPublisher<BetaTestersResponse, Error>
-
-        let includes = [ListBetaTesters.Include.apps, ListBetaTesters.Include.betaGroups]
-        let limits = [ListBetaTesters.Limit.apps(relatedResourcesLimit),
-                      ListBetaTesters.Limit.betaGroups(relatedResourcesLimit)]
-
-        switch ListStrategy(options: (filterBundleId, filterGroupName)) {
-            case .all:
-                request = api
-                    .request(APIEndpoint.betaTesters(include: includes, limit: limits))
-                    .eraseToAnyPublisher()
-            case .listByApp(let bundleId):
-                request = api
-                    .getAppResourceIdsFrom(bundleIds: [bundleId])
-                    .flatMap {
-                        api.request(APIEndpoint.betaTesters(
-                            filter: [.apps($0)],
-                            include: includes,
-                            limit: limits
-                        ))
-                    }
-                    .eraseToAnyPublisher()
-            case .listByGroup(let betaGroupName):
-                request = api.betaGroupIdentifier(matching: betaGroupName)
-                    .flatMap {
-                        api.request(APIEndpoint.betaTesters(
-                            filter: [.betaGroups([$0])],
-                            include: includes,
-                            limit: limits
-                        ))
-                    }
-                    .eraseToAnyPublisher()
-            case .listByAppAndGroup:
-                request = Fail(error: ListBetaTesterError.multipleFilters)
-                    .eraseToAnyPublisher()
-        }
-
-        let betaTesters = try request
-            .map { response in
-                response.data.map {
-                    BetaTester(.init(betaTester: $0,
-                              includes: response.included)
-                    )
-                }
-            }
-            .await()
+        let betaTesters = try service.listBetaTesters(
+            email: filterEmail,
+            firstName: filterFirstName,
+            lastName: filterLastName,
+            inviteType: filterInviteType,
+            appIds: filterAppIds,
+            bundleIds: filterBundleIds,
+            groupNames: filterGroupNames,
+            sort: sort,
+            limit: limit,
+            relatedResourcesLimit: relatedResourcesLimit
+        )
 
         betaTesters.render(format: common.outputFormat)
     }

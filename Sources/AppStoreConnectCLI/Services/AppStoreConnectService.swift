@@ -93,6 +93,52 @@ class AppStoreConnectService {
             .execute(with: requestor)
             .awaitMany()
     }
+
+    func listBetaTesters(
+        email: String?,
+        firstName: String?,
+        lastName: String?,
+        inviteType: BetaInviteType?,
+        appIds: [String],
+        bundleIds: [String],
+        groupNames: [String],
+        sort: ListBetaTesters.Sort?,
+        limit: Int?,
+        relatedResourcesLimit: Int?
+    ) throws -> [BetaTester] {
+
+        var appIds: [String] = appIds
+        if !bundleIds.isEmpty && appIds.isEmpty {
+            appIds = try GetAppsOperation(options: .init(bundleIds: bundleIds))
+                .execute(with: requestor)
+                .await()
+                .map(\.id)
+        }
+
+        var groupIds: [String] = []
+        if !groupNames.isEmpty {
+            groupIds = try groupNames.map {
+                try betaGroupIdentifier(matching: $0).await()
+            }
+        }
+
+        return try ListBetaTestersOperation(options:
+                .init(
+                    email: email,
+                    firstName: firstName,
+                    lastName: lastName,
+                    inviteType: inviteType,
+                    appIds: appIds,
+                    groupIds: groupIds,
+                    sort: sort,
+                    limit: limit,
+                    relatedResourcesLimit: relatedResourcesLimit
+                )
+            )
+            .execute(with: requestor)
+            .await()
+            .map(BetaTester.init)
+    }
         
     func createBetaGroup(
         appBundleId: String,
