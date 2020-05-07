@@ -5,10 +5,10 @@ import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
 
-struct ReadBuildCommand: CommonParsableCommand {
+struct ExpireBuildCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
-        commandName: "read",
-        abstract: "Get information about a specific build.")
+        commandName: "expire",
+        abstract: "Expire a build.")
 
     @OptionGroup()
     var common: CommonOptions
@@ -16,17 +16,15 @@ struct ReadBuildCommand: CommonParsableCommand {
     @Argument(help: "An opaque resource ID that uniquely identifies the build")
     var bundleId: String
 
-    @Argument(help: "The build number of this build")
-    var buildNumber: String
-
     @Argument(help: "The pre-release version number of this build")
     var preReleaseVersion: String
+
+    @Argument(help: "The build number of this build")
+    var buildNumber: String
 
     func run() throws {
         let service = try makeService()
 
-        let buildDetailsInfo = try service.readBuild(bundleId: bundleId, buildNumber: buildNumber, preReleaseVersion: preReleaseVersion)
-
-        buildDetailsInfo.render(format: common.outputFormat)
+        _ = try service.expireBuild(bundleId: bundleId, buildNumber: buildNumber, preReleaseVersion: preReleaseVersion)
     }
 }

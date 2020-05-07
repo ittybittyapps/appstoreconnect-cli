@@ -162,6 +162,22 @@ class AppStoreConnectService {
         return try betaGroupResponse.map(BetaGroup.init).await()
     }
 
+    func deleteBetaGroup(appBundleId: String, betaGroupName: String) throws {
+        let app = try GetAppsOperation(options: .init(bundleIds: [appBundleId]))
+            .execute(with: requestor)
+            .compactMap(\.first)
+            .await()
+
+        let betaGroup = try GetBetaGroupOperation(
+            options: .init(app: app, betaGroupName: betaGroupName))
+            .execute(with: requestor)
+            .await()
+
+        try DeleteBetaGroupOperation(options: .init(betaGroupId: betaGroup.id))
+            .execute(with: requestor)
+            .await()
+    }
+
     func listBetaGroups(bundleIds: [String]) throws -> [BetaGroup] {
         let operation = GetAppsOperation(options: .init(bundleIds: bundleIds))
         let appIds = try operation.execute(with: requestor).await().map(\.id)
@@ -186,29 +202,41 @@ class AppStoreConnectService {
         let getAppsOperation = GetAppsOperation(options: .init(bundleIds: [appBundleId]))
         let app = try getAppsOperation.execute(with: requestor).compactMap(\.first).await()
 
-        let modifyBetaGroupOperation = ModifyBetaGroupOperation(
-            options: .init(
-                app: app,
-                currentGroupName: currentGroupName,
-                newGroupName: newGroupName,
-                publicLinkEnabled: publicLinkEnabled,
-                publicLinkLimit: publicLinkLimit,
-                publicLinkLimitEnabled: publicLinkLimitEnabled
-            )
-        )
+        let getBetaGroupOperation = GetBetaGroupOperation(
+            options: .init(app: app, betaGroupName: currentGroupName))
+        let betaGroup = try getBetaGroupOperation.execute(with: requestor).await()
 
-        let betaGroup = try modifyBetaGroupOperation.execute(with: requestor).await()
+        let modifyBetaGroupOptions = ModifyBetaGroupOperation.Options(
+            betaGroup: betaGroup,
+            betaGroupName: newGroupName,
+            publicLinkEnabled: publicLinkEnabled,
+            publicLinkLimit: publicLinkLimit,
+            publicLinkLimitEnabled: publicLinkLimitEnabled)
+        let modifyBetaGroupOperation = ModifyBetaGroupOperation(options: modifyBetaGroupOptions)
+        let modifiedBetaGroup = try modifyBetaGroupOperation.execute(with: requestor).await()
 
-        return BetaGroup(app, betaGroup)
+        return BetaGroup(app, modifiedBetaGroup)
     }
 
-    func readBuild(bundleId: String, buildNumber: [String], preReleaseVersion: [String]) throws -> [BuildDetailsInfo] {
-      let appsOperation = GetAppsOperation(options: .init(bundleIds: [bundleId]))
-      let appId = try appsOperation.execute(with: requestor).await().map(\.id)
+    func readBuild(bundleId: String, buildNumber: String, preReleaseVersion: String) throws -> BuildDetailsInfo {
+        let appsOperation = GetAppsOperation(options: .init(bundleIds: [bundleId]))
+        let appId = try appsOperation.execute(with: requestor).compactMap(\.first).await().id
 
-      let readBuildOperation = ReadBuildOperation(options: .init(appId: appId, buildNumber: buildNumber, preReleaseVersion: preReleaseVersion))
+        let readBuildOperation = ReadBuildOperation(options: .init(appId: appId, buildNumber: buildNumber, preReleaseVersion: preReleaseVersion))
 
-      return try readBuildOperation.execute(with: requestor).await()
+        let output = try readBuildOperation.execute(with: requestor).await()
+        return BuildDetailsInfo(output.build, output.relationships)
+    }
+
+    func expireBuild(bundleId: String, buildNumber: String, preReleaseVersion: String) throws -> Void {
+        let appsOperation = GetAppsOperation(options: .init(bundleIds: [bundleId]))
+        let appId = try appsOperation.execute(with: requestor).compactMap(\.first).await().id
+
+        let readBuildOperation = ReadBuildOperation(options: .init(appId: appId, buildNumber: buildNumber, preReleaseVersion: preReleaseVersion))
+        let buildId = try readBuildOperation.execute(with: requestor).await().build.id
+
+        let expireBuildOperation = ExpireBuildOperation(options: .init(buildId: buildId))
+        _ = try expireBuildOperation.execute(with: requestor).await()
     }
 
     /// Make a request for something `Decodable`.
