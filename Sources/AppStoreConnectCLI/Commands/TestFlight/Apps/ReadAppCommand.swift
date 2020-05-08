@@ -16,13 +16,14 @@ struct ReadAppCommand: CommonParsableCommand {
 
     @Argument(
         help: ArgumentHelp(
-            "Filter by app AppStore ID. eg. 432156789 or app bundle identifier. eg. com.example.App",
+            "The app AppStore ID. eg. 432156789 or app bundle identifier. eg. com.example.App",
             discussion: "Please input either app id or bundle Id",
             valueName: "app-id / bundle-id"
-        )
-    ) var appIdOrBundleId: String
+        ),
+        transform: Identifier.init
+    ) var identifier: Identifier
 
-    enum CommandArgument {
+    enum Identifier {
         case appId(String)
         case bundleId(String)
 
@@ -41,7 +42,7 @@ struct ReadAppCommand: CommonParsableCommand {
 
         var app: App
 
-        switch CommandArgument(appIdOrBundleId) {
+        switch identifier {
         case .appId(let appId):
             app = try service.readApp(appId: appId)
         case .bundleId(let bundleId):
