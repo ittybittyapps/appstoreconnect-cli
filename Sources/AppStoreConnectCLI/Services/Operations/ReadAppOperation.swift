@@ -33,15 +33,17 @@ struct ReadAppOperation: APIOperation {
     }
 
     func execute(with requestor: EndpointRequestor) -> AnyPublisher<App, Swift.Error> {
+        let result: AnyPublisher<App, Swift.Error>
+
         switch options.identifier {
         case .appId(let appId):
-            return requestor.request(.app(withId: appId))
+            result = requestor.request(.app(withId: appId))
                 .map(\.data)
                 .eraseToAnyPublisher()
         case .bundleId(let bundleId):
             let endpoint: APIEndpoint = .apps(filters: [.bundleId([bundleId])])
 
-            return requestor.request(endpoint)
+            result = requestor.request(endpoint)
                 .tryMap { (response: AppsResponse) throws -> App in
                     switch response.data.count {
                     case 0:
@@ -54,6 +56,8 @@ struct ReadAppOperation: APIOperation {
                 }
                 .eraseToAnyPublisher()
         }
+
+        return result
     }
 
 }
