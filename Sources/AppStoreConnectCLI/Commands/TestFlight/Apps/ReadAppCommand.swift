@@ -14,38 +14,39 @@ struct ReadAppCommand: CommonParsableCommand {
     @OptionGroup()
     var common: CommonOptions
 
-    @Option(
+    @Argument(
         help: ArgumentHelp(
-            "Filter by app AppStore ID. eg. 432156789",
-            discussion: "This option is mutually exclusive with --filter-bundle-id.",
-            valueName: "app-id"
+            "Filter by app AppStore ID. eg. 432156789 or app bundle identifier. eg. com.example.App",
+            discussion: "Please input either app id or bundle Id",
+            valueName: "app-id / bundle-id"
         )
-    ) var filterAppId: String?
+    ) var appIdOrBundleId: String
 
-    @Option(
-        help: ArgumentHelp(
-            "Filter by app bundle identifier. eg. com.example.App",
-            discussion: "This option is mutually exclusive with --filter-app-id.",
-            valueName: "bundle-id"
-        )
-    ) var filterBundleId: String?
+    enum CommandArgument {
+        case appId(String)
+        case bundleId(String)
 
-    func validate() throws {
-        if filterAppId == nil && filterBundleId == nil {
-            throw ValidationError("Missing expected argument '<app-id>' or '<bundle-id>'")
-        }
-
-        if filterAppId != nil && filterBundleId != nil {
-            throw ValidationError("Filtering by both Bundle ID and App ID is not supported!")
+        init(_ argument: String) {
+            switch Int(argument) == nil {
+            case true:
+                self = .bundleId(argument)
+            case false:
+                self = .appId(argument)
+            }
         }
     }
 
     func run() throws {
         let service = try makeService()
 
-        let app = filterAppId == nil ?
-            try service.readApp(bundleId: filterBundleId!):
-            try service.readApp(appId: filterAppId!)
+        var app: App
+
+        switch CommandArgument(appIdOrBundleId) {
+        case .appId(let appId):
+            app = try service.readApp(appId: appId)
+        case .bundleId(let bundleId):
+            app = try service.readApp(bundleId: bundleId)
+        }
 
         app.render(format: common.outputFormat)
     }
