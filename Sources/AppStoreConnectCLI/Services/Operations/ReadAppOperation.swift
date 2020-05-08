@@ -7,8 +7,24 @@ import Foundation
 struct ReadAppOperation: APIOperation {
 
     struct Options {
-        let id: String
+        let identifier: ReadAppCommand.Identifier
     }
+
+    enum Error: LocalizedError {
+        case notFound(String)
+        case notUnique(String)
+
+        var errorDescription: String? {
+            switch self {
+            case .notFound(let identifier):
+                return "App with provided identifier '\(identifier)' doesn't exist."
+            case .notUnique(let identifier):
+                return "App with provided identifier '\(identifier)' not unique."
+            }
+        }
+    }
+
+    typealias App = AppStoreConnect_Swift_SDK.App
 
     private let options: Options
 
@@ -16,10 +32,28 @@ struct ReadAppOperation: APIOperation {
         self.options = options
     }
 
-    func execute(with requestor: EndpointRequestor) -> AnyPublisher<AppStoreConnect_Swift_SDK.App, Error> {
-        requestor.request(.app(withId: options.id))
-            .map(\.data)
-            .eraseToAnyPublisher()
+    func execute(with requestor: EndpointRequestor) -> AnyPublisher<App, Swift.Error> {
+        switch options.identifier {
+        case .appId(let appId):
+            return requestor.request(.app(withId: appId))
+                .map(\.data)
+                .eraseToAnyPublisher()
+        case .bundleId(let bundleId):
+            let endpoint: APIEndpoint = .apps(filters: [.bundleId([bundleId])])
+
+            return requestor.request(endpoint)
+                .tryMap { (response: AppsResponse) throws -> App in
+                    switch response.data.count {
+                    case 0:
+                        throw Error.notFound(bundleId)
+                    case 1:
+                        return response.data.first!
+                    default:
+                        throw Error.notUnique(bundleId)
+                    }
+                }
+                .eraseToAnyPublisher()
+        }
     }
 
 }

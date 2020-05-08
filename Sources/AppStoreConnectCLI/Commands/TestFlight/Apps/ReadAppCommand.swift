@@ -40,14 +40,7 @@ struct ReadAppCommand: CommonParsableCommand {
     func run() throws {
         let service = try makeService()
 
-        var app: App
-
-        switch identifier {
-        case .appId(let appId):
-            app = try service.readApp(appId: appId)
-        case .bundleId(let bundleId):
-            app = try service.readApp(bundleId: bundleId)
-        }
+        let app = try service.readApp(identifier: identifier)
 
         app.render(format: common.outputFormat)
     }

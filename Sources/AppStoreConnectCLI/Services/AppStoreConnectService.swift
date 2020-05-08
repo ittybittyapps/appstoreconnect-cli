@@ -272,24 +272,13 @@ class AppStoreConnectService {
         return output.map(Build.init)
     }
 
-    func readApp(bundleId: String) throws -> App {
-        let appsOperation = GetAppsOperation(options: .init(bundleIds: [bundleId]))
-
-        let sdkApp = try appsOperation.execute(with: requestor)
-            .compactMap(\.first)
-            .await()
-
-        return App(sdkApp)
-    }
-
-    func readApp(appId: String) throws -> App {
-        let sdkApp = try ReadAppOperation(options: .init(id: appId))
+    func readApp(identifier: ReadAppCommand.Identifier) throws -> App {
+        let sdkApp = try ReadAppOperation(options: .init(identifier: identifier))
             .execute(with: requestor)
             .await()
 
         return App(sdkApp)
     }
-
     /// Make a request for something `Decodable`.
     ///
     /// - Parameters:
