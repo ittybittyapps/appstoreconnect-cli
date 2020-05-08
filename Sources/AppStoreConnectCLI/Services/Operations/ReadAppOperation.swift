@@ -16,7 +16,7 @@ struct ReadAppOperation: APIOperation {
         self.options = options
     }
 
-    func execute(with requestor: EndpointRequestor) -> AnyPublisher<AppStoreConnect_Swift_SDK.App, Swift.Error> {
+    func execute(with requestor: EndpointRequestor) -> AnyPublisher<AppStoreConnect_Swift_SDK.App, Error> {
         requestor.request(.app(withId: options.id))
             .map(\.data)
             .eraseToAnyPublisher()
