@@ -69,12 +69,11 @@ struct ListBuildsCommand: CommonParsableCommand {
 
     @Option(help: "Limit the number of individualTesters & betaBuildLocalizations")
     var limit: Int?
-
     
     func run() throws {
         let service = try makeService()
 
-        let builds = try service.listBuilds(
+        let result = try service.listBuilds(
             filterBundleIds: filterBundleIds,
             filterExpired: filterExpired,
             filterPreReleaseVersions: filterPreReleaseVersions,
@@ -84,6 +83,8 @@ struct ListBuildsCommand: CommonParsableCommand {
             limit: limit
         )
 
-        builds.render(format: common.outputFormat)
+        result.0.render(format: common.outputFormat)
+
+        try pagingSupport(links: result.1, fetcher: service.listBuilds)
     }
 }

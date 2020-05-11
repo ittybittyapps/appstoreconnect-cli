@@ -18,8 +18,7 @@ struct ListBuildsOperation: APIOperation {
 
     typealias Build = AppStoreConnect_Swift_SDK.Build
     typealias Relationships = [AppStoreConnect_Swift_SDK.BuildRelationship]?
-
-    typealias Output  = [(build: Build, relationships: Relationships)]
+    typealias Output = ([(build: Build, relationships: Relationships)], links: PagedDocumentLinks)
 
     private let options: Options
 
@@ -49,7 +48,17 @@ struct ListBuildsOperation: APIOperation {
 
         return requestor.request(endpoint)
             .map { response -> Output in
-                response.data.map { ($0, response.included) }
+                (response.data.map { ($0, response.included) }, response.links)
+            }
+            .eraseToAnyPublisher()
+    }
+}
+
+extension ListBuildsOperation {
+    static func fetchByURL(url: URL, with requestor: EndpointRequestor) throws -> AnyPublisher<Output, Error> {
+        requestor.request(url, T: BuildsResponse.self)
+            .map { response -> Output in
+                (response.data.map { ($0, response.included) }, response.links)
             }
             .eraseToAnyPublisher()
     }

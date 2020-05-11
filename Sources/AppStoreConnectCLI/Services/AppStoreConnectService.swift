@@ -295,7 +295,7 @@ class AppStoreConnectService {
         filterProcessingStates:[ListBuilds.Filter.ProcessingState],
         filterBetaReviewStates: [String],
         limit: Int?
-    ) throws -> [Build] {
+    ) throws -> ([Build], PagedDocumentLinks) {
 
         var filterAppIds: [String] = []
 
@@ -317,7 +317,14 @@ class AppStoreConnectService {
         )
 
         let output = try listBuildsOperation.execute(with: requestor).await()
-        return output.map(Build.init)
+
+        return (output.0.map(Build.init), output.links)
+    }
+
+    func listBuilds(by url: URL) throws -> ([Build], PagedDocumentLinks) {
+        let output = try ListBuildsOperation.fetchByURL(url: url, with: requestor).await()
+
+        return (output.0.map(Build.init), output.links)
     }
 
     func removeBuildFromGroups(
