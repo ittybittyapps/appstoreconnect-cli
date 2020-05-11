@@ -294,7 +294,8 @@ class AppStoreConnectService {
         filterBuildNumbers: [String],
         filterProcessingStates:[ListBuilds.Filter.ProcessingState],
         filterBetaReviewStates: [String],
-        limit: Int?
+        limit: Int?,
+        resourceLimit: Int?
     ) throws -> ([Build], PagedDocumentLinks) {
 
         var filterAppIds: [String] = []
@@ -312,7 +313,8 @@ class AppStoreConnectService {
                 filterBuildNumbers: filterBuildNumbers,
                 filterProcessingStates: filterProcessingStates,
                 filterBetaReviewStates: filterBetaReviewStates,
-                limit: limit
+                limit: limit,
+                resourceLimit: resourceLimit
             )
         )
 

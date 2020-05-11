@@ -68,6 +68,9 @@ struct ListBuildsCommand: CommonParsableCommand {
     var filterBetaReviewStates: [String]
 
     @Option(help: "Limit the number of individualTesters & betaBuildLocalizations")
+    var resourceLimit: Int?
+
+    @Option(help: "Limit the number of builds")
     var limit: Int?
     
     func run() throws {
@@ -80,7 +83,8 @@ struct ListBuildsCommand: CommonParsableCommand {
             filterBuildNumbers: filterBuildNumbers,
             filterProcessingStates: filterProcessingStates,
             filterBetaReviewStates: filterBetaReviewStates,
-            limit: limit
+            limit: limit,
+            resourceLimit: resourceLimit
         )
 
         result.0.render(format: common.outputFormat)

@@ -14,6 +14,7 @@ struct ListBuildsOperation: APIOperation {
         let filterProcessingStates: [ListBuilds.Filter.ProcessingState]
         let filterBetaReviewStates: [String]
         let limit: Int?
+        let resourceLimit: Int?
     }
 
     typealias Build = AppStoreConnect_Swift_SDK.Build
@@ -35,10 +36,18 @@ struct ListBuildsOperation: APIOperation {
         filters += options.filterProcessingStates.isEmpty ? [] : [.processingState(options.filterProcessingStates)]
         filters += options.filterBetaReviewStates.isEmpty ? [] :  [.betaAppReviewSubmissionBetaReviewState(options.filterBetaReviewStates)]
 
-        let limit = options.limit.map { limit -> [ListBuilds.Limit] in
+        var limit = options.resourceLimit.map { limit -> [ListBuilds.Limit] in
             [.individualTesters(limit), .betaBuildLocalizations(limit)]
         }
 
+        if let buildLimit = options.limit {
+            if var limit = limit {
+                limit += [ListBuilds.Limit.builds(buildLimit)]
+            } else {
+                limit = [ListBuilds.Limit.builds(buildLimit)]
+            }
+        }
+        
         let endpoint = APIEndpoint.builds(
             filter: filters,
             include: [.app, .betaAppReviewSubmission, .buildBetaDetail, .preReleaseVersion],
