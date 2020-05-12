@@ -151,13 +151,13 @@ class AppStoreConnectService {
 
         let groupIds = try groupNames.map { try betaGroupIdentifier(matching: $0).await() }
 
-        try RemoveTesterOperation(options:
-                .init(removeStrategy:
-                    .removeTesterFromGroups(testerId: testerId, groupIds: groupIds)
-                )
+        let operation = RemoveTesterOperation(
+            options: .init(
+                removeStrategy: .removeTesterFromGroups(testerId: testerId, groupIds: groupIds)
             )
-            .execute(with: requestor)
-            .await()
+        )
+
+        try operation.execute(with: requestor).await()
     }
 
     func removeTestersFromGroup(groupName: String, emails: [String]) throws {
@@ -171,13 +171,13 @@ class AppStoreConnectService {
                 .id
         }
 
-        try RemoveTesterOperation(options:
-                .init(removeStrategy:
-                    .removeTestersFromGroup(testerIds: testerIds, groupId: groupId)
-                )
+        let operation = RemoveTesterOperation(
+            options: .init(
+                removeStrategy: .removeTestersFromGroup(testerIds: testerIds, groupId: groupId)
             )
-            .execute(with: requestor)
-            .await()
+        )
+
+        try operation.execute(with: requestor).await()
     }
         
     func createBetaGroup(
