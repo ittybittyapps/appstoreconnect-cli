@@ -33,15 +33,17 @@ extension App {
 extension App: TableInfoProvider {
     static func tableColumns() -> [TextTableColumn] {
         return [
-            TextTableColumn(header: "bundleId"),
-            TextTableColumn(header: "name"),
-            TextTableColumn(header: "primaryLocale"),
-            TextTableColumn(header: "sku"),
+            TextTableColumn(header: "App ID"),
+            TextTableColumn(header: "App Bundle ID"),
+            TextTableColumn(header: "Name"),
+            TextTableColumn(header: "Primary Locale"),
+            TextTableColumn(header: "SKU"),
         ]
     }
 
     var tableRow: [CustomStringConvertible] {
         return [
+            id,
             bundleId ?? "",
             name ?? "",
             primaryLocale ?? "",

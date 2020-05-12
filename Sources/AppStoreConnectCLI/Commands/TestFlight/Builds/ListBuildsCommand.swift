@@ -8,33 +8,81 @@ import Foundation
 struct ListBuildsCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "list",
-        abstract: "Find and list builds for one app in App Store Connect.")
+        abstract: "Find and list builds for all apps in App Store Connect.")
 
     @OptionGroup()
     var common: CommonOptions
 
-    @Argument(help: "A bundle identifier that uniquely identifies an application.")
-    var bundleId: String
+    @Option(
+        parsing: .upToNextOption,
+        help: ArgumentHelp(
+            "Filter by app bundle identifier. eg. com.example.App",
+            valueName: "bundle-id"
+        )
+    )
+    var filterBundleIds: [String]
 
+    @Option(
+        parsing: .upToNextOption,
+        help: ArgumentHelp(
+            "Filter by whether the build has expired (true or false)",
+            valueName: "expired"
+        )
+    )
+    var filterExpired: [String]
+
+    @Option(
+        parsing: .upToNextOption,
+        help: ArgumentHelp(
+            "Filter by the pre-release version number of a build",
+            valueName: "pre-release-version"
+        )
+    )
+    var filterPreReleaseVersions: [String]
+
+    @Option(
+        parsing: .upToNextOption,
+        help: ArgumentHelp(
+            "Filter by the build number of a build",
+            valueName: "build-number"
+        )
+    )
+    var filterBuildNumbers:[String]
+
+    @Option(
+        parsing: .upToNextOption,
+        help: ArgumentHelp(
+            "Filter by the processing state a build \(ListBuilds.Filter.ProcessingState.allCases)",
+            valueName: "processing-state"
+     )
+    )
+    var filterProcessingStates: [ListBuilds.Filter.ProcessingState]
+
+    @Option(
+        parsing: .upToNextOption,
+        help: ArgumentHelp(
+            "Filter by the beta review state of a build",
+            valueName: "beta-review-state"
+        )
+    )
+    var filterBetaReviewStates: [String]
+
+    @Option(help: "Limit the number of individualTesters & betaBuildLocalizations")
+    var limit: Int?
+
+    
     func run() throws {
         let service = try makeService()
 
-        let builds = try service
-            .getAppResourceIdsFrom(bundleIds: [bundleId])
-            .flatMap { (resoureceIds: [String]) -> AnyPublisher<BuildsResponse, Error> in
-                guard let appId = resoureceIds.first else {
-                    fatalError("Can't find a related app with input bundleID")
-                }
-
-                let endpoint = APIEndpoint.builds(
-                    filter: [ListBuilds.Filter.app([appId])],
-                    sort: [ListBuilds.Sort.uploadedDateAscending]
-                )
-
-                return service.request(endpoint).eraseToAnyPublisher()
-            }
-            .map { $0.data }
-            .await()
+        let builds = try service.listBuilds(
+            filterBundleIds: filterBundleIds,
+            filterExpired: filterExpired,
+            filterPreReleaseVersions: filterPreReleaseVersions,
+            filterBuildNumbers: filterBuildNumbers,
+            filterProcessingStates: filterProcessingStates,
+            filterBetaReviewStates: filterBetaReviewStates,
+            limit: limit
+        )
 
         builds.render(format: common.outputFormat)
     }
