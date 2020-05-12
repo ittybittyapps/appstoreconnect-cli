@@ -27,7 +27,7 @@ struct RemoveBuildFromGroupsCommand: CommonParsableCommand {
 
     func validate() throws {
         if groupNames.isEmpty {
-            throw ValidationError("Missing expected argument '<group-names>'")
+            throw ValidationError("Excepted at least one group name.'")
         }
     }
 
