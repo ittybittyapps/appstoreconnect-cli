@@ -18,7 +18,7 @@ struct RemoveTesterFromGroupsCommand: CommonParsableCommand {
 
     func validate() throws {
         if groupNames.isEmpty {
-            throw ValidationError("Missing expected argument '<group-names>'.")
+            throw ValidationError("Expected at least one group name.")
         }
     }
 

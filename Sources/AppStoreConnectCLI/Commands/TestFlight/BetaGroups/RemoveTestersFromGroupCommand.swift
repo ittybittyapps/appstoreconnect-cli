@@ -18,7 +18,7 @@ struct RemoveTestersFromGroupCommand: CommonParsableCommand {
 
     func validate() throws {
         if emails.isEmpty {
-            throw ValidationError("Missing expected argument '<emails>'.")
+            throw ValidationError("Expected at least one email.")
         }
     }
 
