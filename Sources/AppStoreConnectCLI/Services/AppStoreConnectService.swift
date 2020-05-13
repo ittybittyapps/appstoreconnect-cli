@@ -339,7 +339,7 @@ class AppStoreConnectService {
             try ListBetaGroupsOperation(options: .init(appIds: [appId], names: [$0]))
                 .execute(with: requestor)
                 .await()
-                .map(\.1.id)
+                .map(\.betaGroup.id)
         }
 
         try RemoveBuildFromGroupsOperation(options: .init(buildId: buildId, groupIds: groupIds))
