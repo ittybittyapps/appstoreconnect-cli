@@ -312,6 +312,41 @@ class AppStoreConnectService {
         return output.map(Build.init)
     }
 
+    func removeBuildFromGroups(
+        bundleId: String,
+        version: String,
+        buildNumber: String,
+        groupNames: [String]
+    ) throws {
+        let appId = try ReadAppOperation(options: .init(identifier: .bundleId(bundleId)))
+            .execute(with: requestor)
+            .await()
+            .id
+
+        let buildId = try ReadBuildOperation(
+                options: .init(
+                    appId: appId,
+                    buildNumber: buildNumber,
+                    preReleaseVersion: version
+                )
+            )
+            .execute(with: requestor)
+            .await()
+            .build
+            .id
+
+        let groupIds = try groupNames.flatMap {
+            try ListBetaGroupsOperation(options: .init(appIds: [appId], names: [$0]))
+                .execute(with: requestor)
+                .await()
+                .map(\.betaGroup.id)
+        }
+
+        try RemoveBuildFromGroupsOperation(options: .init(buildId: buildId, groupIds: groupIds))
+            .execute(with: requestor)
+            .await()
+    }
+
     func readApp(identifier: ReadAppCommand.Identifier) throws -> App {
         let sdkApp = try ReadAppOperation(options: .init(identifier: identifier))
             .execute(with: requestor)
