@@ -7,8 +7,12 @@ import Foundation
 struct GetBetaTesterOperation: APIOperation {
 
     struct Options {
-        var id: String?
-        let email: String?
+        enum TesterIdentifier {
+            case id(String)
+            case email(String)
+        }
+
+        let identifier: TesterIdentifier
         var limitApps: Int?
         var limitBuilds: Int?
         var limitBetaGroups: Int?
@@ -17,7 +21,6 @@ struct GetBetaTesterOperation: APIOperation {
     private enum Error: LocalizedError {
         case betaTesterNotFound(String)
         case betaTesterNotUnique(String)
-        case invalidInput
 
         var errorDescription: String? {
             switch self {
@@ -25,8 +28,6 @@ struct GetBetaTesterOperation: APIOperation {
                 return "Beta tester with provided email '\(email)' doesn't exist."
             case .betaTesterNotUnique(let email):
                 return "Beta tester with email address '\(email)' not unique"
-            case .invalidInput:
-                return "Invalid input, either email or id is required."
             }
         }
     }
@@ -56,8 +57,26 @@ struct GetBetaTesterOperation: APIOperation {
 
     let options: Options
 
-    var limits: [ListBetaTesters.Limit] {
+    var listTesterslimits: [ListBetaTesters.Limit] {
         var limits: [ListBetaTesters.Limit] = []
+
+        if let limitApps = options.limitApps {
+            limits.append(.apps(limitApps))
+        }
+
+        if let limitBuilds = options.limitBuilds {
+            limits.append(.builds(limitBuilds))
+        }
+
+        if let limitBetaGroups = options.limitBetaGroups {
+            limits.append(.betaGroups(limitBetaGroups))
+        }
+
+        return limits
+    }
+
+    var getTesterlimits: [GetBetaTester.Limit] {
+        var limits: [GetBetaTester.Limit] = []
 
         if let limitApps = options.limitApps {
             limits.append(.apps(limitApps))
@@ -79,11 +98,13 @@ struct GetBetaTesterOperation: APIOperation {
     }
 
     func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<Output, Swift.Error> {
-        switch (options.id, options.email) {
-            case let (.some(id), _):
+        switch options.identifier {
+            case .id(let id):
                 let endpoint = APIEndpoint.betaTester(
                     withId: id,
-                    include: [.betaGroups, .apps])
+                    include: [.betaGroups, .apps],
+                    limit: getTesterlimits
+                )
 
                 return requestor.request(endpoint)
                     .tryMap { (response: BetaTesterResponse) -> Output in
@@ -94,11 +115,11 @@ struct GetBetaTesterOperation: APIOperation {
                     }
                     .eraseToAnyPublisher()
 
-            case let (_, .some(email)):
+            case .email(let email):
                 let endpoint = APIEndpoint.betaTesters(
                     filter: [.email([email])],
                     include: [.betaGroups, .apps],
-                    limit: limits
+                    limit: listTesterslimits
                 )
 
                 return requestor.request(endpoint)
@@ -116,8 +137,6 @@ struct GetBetaTesterOperation: APIOperation {
                         }
                     }
                     .eraseToAnyPublisher()
-            default:
-                throw Error.invalidInput
         }
     }
 
