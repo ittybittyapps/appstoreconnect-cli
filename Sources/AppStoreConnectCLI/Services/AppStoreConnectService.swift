@@ -65,6 +65,78 @@ class AppStoreConnectService {
         return BetaTester(output)
     }
 
+    func addTestersToGroup(
+        bundleId: String,
+        groupName: String,
+        emails: [String]
+    ) throws {
+        let testerIds = try emails.map {
+            try GetBetaTesterOperation(options: .init(id: nil, email: $0))
+                .execute(with: requestor)
+                .await()
+                .betaTester
+                .id
+        }
+
+        let app = try GetAppsOperation(
+                options: .init(bundleIds: [bundleId])
+            )
+            .execute(with: requestor)
+            .await()
+            .first!
+
+        let groupId = try GetBetaGroupOperation(
+                options: .init(app: app, betaGroupName: groupName)
+            )
+            .execute(with: requestor)
+            .await()
+            .id
+
+        try AddTesterToGroupOperation(
+                options: .init(
+                    addStrategy: .addTestersToGroup(testerIds: testerIds, groupId: groupId)
+                )
+            )
+            .execute(with: requestor)
+            .await()
+    }
+
+    func addTesterToGroups(
+        email: String,
+        bundleId: String,
+        groupNames: [String]
+    ) throws {
+        let testerId = try GetBetaTesterOperation(options: .init(id: nil, email: email))
+            .execute(with: requestor)
+            .await()
+            .betaTester
+            .id
+
+        let app = try GetAppsOperation(
+                options: .init(bundleIds: [bundleId])
+            )
+            .execute(with: requestor)
+            .await()
+            .first!
+
+        let groupIds = try groupNames.map {
+            try GetBetaGroupOperation(
+                    options: .init(app: app, betaGroupName: $0)
+                )
+                .execute(with: requestor)
+                .await()
+                .id
+        }
+
+        try AddTesterToGroupOperation(
+                options: .init(
+                    addStrategy: .addTesterToGroups(testerId: testerId, groupIds: groupIds)
+                )
+            )
+            .execute(with: requestor)
+            .await()
+    }
+
     func getBetaTester(
         email: String,
         limitApps: Int?,
