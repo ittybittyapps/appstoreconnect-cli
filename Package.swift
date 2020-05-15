@@ -25,7 +25,7 @@ let package = Package(
         ),
         .package(
             url: "https://github.com/ittybittyapps/appstoreconnect-swift-sdk.git",
-            .branch("add-url-request")
+            .branch("master")
         ),
         .package(
             url: "https://github.com/jpsim/Yams.git",

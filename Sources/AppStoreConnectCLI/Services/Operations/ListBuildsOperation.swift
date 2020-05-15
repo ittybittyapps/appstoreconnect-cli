@@ -34,19 +34,9 @@ struct ListBuildsOperation: APIOperation {
     }
 
     var limit: [ListBuilds.Limit]? {
-        var limit = options.resourceLimit.map { limit -> [ListBuilds.Limit] in
+        options.resourceLimit.map { limit -> [ListBuilds.Limit] in
             [.individualTesters(limit), .betaBuildLocalizations(limit)]
         }
-
-        if let buildLimit = options.limit {
-            if var limit = limit {
-                limit += [ListBuilds.Limit.builds(buildLimit)]
-            } else {
-                limit = [ListBuilds.Limit.builds(buildLimit)]
-            }
-        }
-
-        return limit
     }
 
     private let options: Options
@@ -56,7 +46,17 @@ struct ListBuildsOperation: APIOperation {
     }
 
     func execute(with requestor: EndpointRequestor) -> AnyPublisher<Output, Error> {
-        concatFetcher(with: requestor, next: nil)
+        let endpointMaker = { [filters, limit] (next: PagedDocumentLinks?) in
+            APIEndpoint.builds(
+                filter: filters,
+                include: [.app, .betaAppReviewSubmission, .buildBetaDetail, .preReleaseVersion],
+                limit: limit,
+                sort: [ListBuilds.Sort.uploadedDateAscending],
+                next: next
+            )
+        }
+
+        return requestor.concatFetcher(endpointMaker, next: nil)
             .map { (responses: [BuildsResponse]) -> Output in
                 responses.flatMap { (response: BuildsResponse) -> Output in
                     (response.data.map { ($0, response.included) })
@@ -64,29 +64,6 @@ struct ListBuildsOperation: APIOperation {
             }
             .eraseToAnyPublisher()
     }
-
-    func concatFetcher(with requestor: EndpointRequestor, next: PagedDocumentLinks?) -> AnyPublisher<[BuildsResponse], Error> {
-        let endpoint = APIEndpoint.builds(
-            filter: filters,
-            include: [.app, .betaAppReviewSubmission, .buildBetaDetail, .preReleaseVersion],
-            limit: limit,
-            sort: [ListBuilds.Sort.uploadedDateAscending],
-            next: next
-        )
-
-        return requestor.request(endpoint)
-            .flatMap { [concatFetcher] (response) -> AnyPublisher<[BuildsResponse], Error> in
-                if response.links.next != nil {
-                    return concatFetcher(requestor, response.links)
-                        .flatMap {
-                            Empty<[BuildsResponse], Error>()
-                                .append([response] + $0)
-                        }
-                        .eraseToAnyPublisher()
-                }
-
-                return Empty<[BuildsResponse], Error>().append([response]).eraseToAnyPublisher()
-            }
-            .eraseToAnyPublisher()
-    }
 }
+
+extension BuildsResponse: PaginatedResponse { }

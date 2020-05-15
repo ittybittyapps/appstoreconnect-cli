@@ -5,8 +5,8 @@
         "package": "AppStoreConnect-Swift-SDK",
         "repositoryURL": "https://github.com/ittybittyapps/appstoreconnect-swift-sdk.git",
         "state": {
-          "branch": "add-url-request",
-          "revision": "daf19b4f13b0a209c6e10ca93ad506fbc6039a24",
+          "branch": "master",
+          "revision": "e3a5e2b820f88b8e4236257fcae03c890b6362eb",
           "version": null
         }
       },

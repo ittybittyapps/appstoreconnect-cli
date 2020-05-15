@@ -24,3 +24,25 @@ struct DefaultEndpointRequestor: EndpointRequestor {
         }
     }
 }
+
+protocol PaginatedResponse: Decodable {
+    var links: PagedDocumentLinks { get }
+}
+
+extension EndpointRequestor {
+    func concatFetcher<T: PaginatedResponse>(_ endpointMaker: @escaping (PagedDocumentLinks?) -> APIEndpoint<T>, next: PagedDocumentLinks?) -> AnyPublisher<[T], Error> {
+        self.request(endpointMaker(next)).flatMap { (response) -> AnyPublisher<[T], Error> in
+            if response.links.next != nil {
+                return self.concatFetcher(endpointMaker, next: response.links)
+                    .flatMap {
+                        Empty<[T], Error>()
+                            .append([response] + $0)
+                    }
+                    .eraseToAnyPublisher()
+            }
+
+            return Empty<[T], Error>().append([response]).eraseToAnyPublisher()
+        }
+        .eraseToAnyPublisher()
+    }
+}
