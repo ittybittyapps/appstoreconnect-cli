@@ -76,7 +76,7 @@ struct ListBuildsCommand: CommonParsableCommand {
     func run() throws {
         let service = try makeService()
 
-        let result = try service.listBuilds(
+        let builds = try service.listBuilds(
             filterBundleIds: filterBundleIds,
             filterExpired: filterExpired,
             filterPreReleaseVersions: filterPreReleaseVersions,
@@ -87,8 +87,6 @@ struct ListBuildsCommand: CommonParsableCommand {
             resourceLimit: resourceLimit
         )
 
-        result.0.render(format: common.outputFormat)
-
-        try pagingSupport(links: result.1, fetcher: service.listBuilds)
+        builds.render(format: common.outputFormat)
     }
 }

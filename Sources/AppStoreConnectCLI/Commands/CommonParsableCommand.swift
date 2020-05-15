@@ -23,27 +23,3 @@ struct CommonOptions: ParsableArguments {
     @Flag(default: .table, help: "Display results in specified format.")
     var outputFormat: OutputFormat
 }
-
-extension CommonParsableCommand {
-
-    typealias PageFetcher<T: ResultRenderable> = (_ url: URL) throws -> (T, PagedDocumentLinks)
-
-    func pagingSupport<T: ResultRenderable> (links: PagedDocumentLinks, fetcher: @escaping PageFetcher<T>) throws {
-
-        let fetch = { (url: URL) in
-            let result = try fetcher(url)
-
-            result.0.render(format: self.common.outputFormat)
-
-            try self.pagingSupport(links: result.1, fetcher: fetcher)
-        }
-
-        if let next = links.next {
-            print("The result contains more than one page, would you like to load next page? y/n.")
-
-            if readLine() == "y" {
-                try fetch(next)
-            }
-        }
-    }
-}

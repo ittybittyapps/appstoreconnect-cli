@@ -7,7 +7,6 @@ import Foundation
 protocol EndpointRequestor {
     func request<T: Decodable>(_ endpoint: APIEndpoint<T>) -> Future<T, Error>
     func request(_ endpoint: APIEndpoint<Void>) -> Future<Void, Error>
-    func request<T: Decodable>(_ url: URL, T: T.Type) -> Future<T, Error>
 }
 
 struct DefaultEndpointRequestor: EndpointRequestor {
@@ -22,12 +21,6 @@ struct DefaultEndpointRequestor: EndpointRequestor {
     func request(_ endpoint: APIEndpoint<Void>) -> Future<Void, Error> {
         Future { [provider] promise in
             provider.request(endpoint, completion: promise)
-        }
-    }
-    
-    func request<T: Decodable>(_ url: URL, T: T.Type) -> Future<T, Error> {
-        Future { [provider] promise in
-            provider.request(url, T: T, completion: promise)
         }
     }
 }
