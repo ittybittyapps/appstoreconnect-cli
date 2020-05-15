@@ -45,23 +45,21 @@ struct ListBuildsOperation: APIOperation {
     }
 
     func execute(with requestor: EndpointRequestor) -> AnyPublisher<Output, Error> {
-        let endpointMaker = { [filters, limit] (next: PagedDocumentLinks?) in
-            APIEndpoint.builds(
-                filter: filters,
+        requestor.requestAllPages {
+            .builds(
+                filter: self.filters,
                 include: [.app, .betaAppReviewSubmission, .buildBetaDetail, .preReleaseVersion],
-                limit: limit,
-                sort: [ListBuilds.Sort.uploadedDateAscending],
-                next: next
+                limit: self.limit,
+                sort: [.uploadedDateAscending],
+                next: $0
             )
         }
-
-        return requestor.concatFetcher(with: endpointMaker, next: nil)
-            .map { (responses: [BuildsResponse]) -> Output in
-                responses.flatMap { (response: BuildsResponse) -> Output in
-                    (response.data.map { ($0, response.included) })
-                }
+        .map { (responses: [BuildsResponse]) -> Output in
+            responses.flatMap { (response: BuildsResponse) -> Output in
+                (response.data.map { ($0, response.included) })
             }
-            .eraseToAnyPublisher()
+        }
+        .eraseToAnyPublisher()
     }
 }
 
