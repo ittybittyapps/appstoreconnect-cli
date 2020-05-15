@@ -30,10 +30,13 @@ protocol PaginatedResponse: Decodable {
 }
 
 extension EndpointRequestor {
-    func concatFetcher<T: PaginatedResponse>(_ endpointMaker: @escaping (PagedDocumentLinks?) -> APIEndpoint<T>, next: PagedDocumentLinks?) -> AnyPublisher<[T], Error> {
+    func concatFetcher<T: PaginatedResponse>(
+        with endpointMaker: @escaping (PagedDocumentLinks?) -> APIEndpoint<T>,
+        next: PagedDocumentLinks?
+    ) -> AnyPublisher<[T], Error> {
         self.request(endpointMaker(next)).flatMap { (response) -> AnyPublisher<[T], Error> in
             if response.links.next != nil {
-                return self.concatFetcher(endpointMaker, next: response.links)
+                return self.concatFetcher(with: endpointMaker, next: response.links)
                     .flatMap {
                         Empty<[T], Error>()
                             .append([response] + $0)

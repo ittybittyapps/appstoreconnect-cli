@@ -14,7 +14,6 @@ struct ListBuildsOperation: APIOperation {
         let filterProcessingStates: [ListBuilds.Filter.ProcessingState]
         let filterBetaReviewStates: [String]
         let limit: Int?
-        let resourceLimit: Int?
     }
 
     typealias Build = AppStoreConnect_Swift_SDK.Build
@@ -34,7 +33,7 @@ struct ListBuildsOperation: APIOperation {
     }
 
     var limit: [ListBuilds.Limit]? {
-        options.resourceLimit.map { limit -> [ListBuilds.Limit] in
+        options.limit.map { limit -> [ListBuilds.Limit] in
             [.individualTesters(limit), .betaBuildLocalizations(limit)]
         }
     }
@@ -56,7 +55,7 @@ struct ListBuildsOperation: APIOperation {
             )
         }
 
-        return requestor.concatFetcher(endpointMaker, next: nil)
+        return requestor.concatFetcher(with: endpointMaker, next: nil)
             .map { (responses: [BuildsResponse]) -> Output in
                 responses.flatMap { (response: BuildsResponse) -> Output in
                     (response.data.map { ($0, response.included) })

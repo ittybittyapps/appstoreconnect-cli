@@ -294,8 +294,7 @@ class AppStoreConnectService {
         filterBuildNumbers: [String],
         filterProcessingStates:[ListBuilds.Filter.ProcessingState],
         filterBetaReviewStates: [String],
-        limit: Int?,
-        resourceLimit: Int?
+        limit: Int?
     ) throws -> [Build] {
 
         var filterAppIds: [String] = []
@@ -313,15 +312,11 @@ class AppStoreConnectService {
                 filterBuildNumbers: filterBuildNumbers,
                 filterProcessingStates: filterProcessingStates,
                 filterBetaReviewStates: filterBetaReviewStates,
-                limit: limit,
-                resourceLimit: resourceLimit
+                limit: limit
             )
         )
 
-        let output = try listBuildsOperation
-            .execute(with: requestor)
-            .await()
-
+        let output = try listBuildsOperation.execute(with: requestor).await()
         return output.map(Build.init)
     }
 

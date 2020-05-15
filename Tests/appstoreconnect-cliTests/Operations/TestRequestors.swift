@@ -13,10 +13,6 @@ extension EndpointRequestor {
     func request(_ endpoint: APIEndpoint<Void>) -> Future<Void, Error> {
         Future { $0(.failure(TestError.somethingBadHappened)) }
     }
-
-    func request<T>(_ url: URL, T: T.Type) -> Future<T, Error> where T : Decodable {
-         Future { $0(.failure(TestError.somethingBadHappened)) }
-    }
 }
 
 struct OneEndpointTestRequestor<U: Decodable>: EndpointRequestor {
