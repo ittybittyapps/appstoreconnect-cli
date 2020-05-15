@@ -51,11 +51,14 @@ class AppStoreConnectService {
     }
 
     func inviteBetaTesterToGroups(with options: InviteBetaTesterOptions) throws -> BetaTester {
-        let sdkBetaTester = try InviteTesterOperation(options: options).execute(with: requestor).await()
+        let id = try InviteTesterOperation(options: options)
+            .execute(with: requestor)
+            .await()
+            .id
 
-        let getBetaTesterOptions = GetBetaTesterOperation.Options(id: sdkBetaTester.id, email: nil)
-
-        let output = try GetBetaTesterOperation(options: getBetaTesterOptions)
+        let output = try GetBetaTesterOperation(
+                options: .init(identifier: .id(id))
+            )
             .execute(with: requestor)
             .await()
 
@@ -70,7 +73,7 @@ class AppStoreConnectService {
     ) throws -> BetaTester {
         let operation = GetBetaTesterOperation(
             options: .init(
-                email: email,
+                identifier: .email(email),
                 limitApps: limitApps,
                 limitBuilds: limitBuilds,
                 limitBetaGroups: limitBetaGroups
@@ -84,7 +87,10 @@ class AppStoreConnectService {
 
     func deleteBetaTesters(emails: [String]) throws -> [Void] {
         let requests = try emails.map {
-            try GetBetaTesterOperation(options: .init(id: nil, email: $0)).execute(with: requestor)
+            try GetBetaTesterOperation(
+                    options: .init(identifier: .email($0))
+                )
+                .execute(with: requestor)
         }
 
         let ids = try Publishers.ConcatenateMany(requests).awaitMany().map(\.betaTester.id)
@@ -142,7 +148,7 @@ class AppStoreConnectService {
 
     func removeTesterFromGroups(email: String, groupNames: [String]) throws {
         let testerId = try GetBetaTesterOperation(
-                options: .init(id: nil, email: email)
+                options: .init(identifier: .email(email))
             )
             .execute(with: requestor)
             .await()
@@ -164,7 +170,9 @@ class AppStoreConnectService {
         let groupId = try betaGroupIdentifier(matching: groupName).await()
 
         let testerIds = try emails.map {
-            try GetBetaTesterOperation(options: .init(id: nil, email: $0))
+            try GetBetaTesterOperation(
+                    options: .init(identifier: .email($0))
+                )
                 .execute(with: requestor)
                 .await()
                 .betaTester
