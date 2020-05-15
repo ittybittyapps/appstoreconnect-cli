@@ -71,19 +71,16 @@ class AppStoreConnectService {
         emails: [String]
     ) throws {
         let testerIds = try emails.map {
-            try GetBetaTesterOperation(options: .init(id: nil, email: $0))
+            try GetBetaTesterOperation(options: .init(identifier: .email($0)))
                 .execute(with: requestor)
                 .await()
                 .betaTester
                 .id
         }
 
-        let app = try GetAppsOperation(
-                options: .init(bundleIds: [bundleId])
-            )
+        let app = try ReadAppOperation(options: .init(identifier: .bundleId(bundleId)))
             .execute(with: requestor)
             .await()
-            .first!
 
         let groupId = try GetBetaGroupOperation(
                 options: .init(app: app, betaGroupName: groupName)
@@ -106,18 +103,15 @@ class AppStoreConnectService {
         bundleId: String,
         groupNames: [String]
     ) throws {
-        let testerId = try GetBetaTesterOperation(options: .init(id: nil, email: email))
+        let testerId = try GetBetaTesterOperation(options: .init(identifier: .email(email)))
             .execute(with: requestor)
             .await()
             .betaTester
             .id
 
-        let app = try GetAppsOperation(
-                options: .init(bundleIds: [bundleId])
-            )
+        let app = try ReadAppOperation(options: .init(identifier: .bundleId(bundleId)))
             .execute(with: requestor)
             .await()
-            .first!
 
         let groupIds = try groupNames.map {
             try GetBetaGroupOperation(
