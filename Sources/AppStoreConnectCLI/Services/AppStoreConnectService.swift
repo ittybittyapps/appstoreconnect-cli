@@ -441,15 +441,50 @@ class AppStoreConnectService {
 
         return App(sdkApp)
     }
-   
-    func listPreReleaseVersions(with options: ListPreReleaseVersionsOperation.Options) -> AnyPublisher<[PreReleaseVersion], Error> {
-        return ListPreReleaseVersionsOperation(options: options)
-            .execute(with: .init(preReleaseVersions: request, apps: request))
-    }
 
-    func listPreReleaseVersions(with options: ListPreReleaseVersionsOperation.Options) -> AnyPublisher<[PreReleaseVersion], Error> {
-        return ListPreReleaseVersionsOperation(options: options)
-            .execute(with: .init(preReleaseVersions: request, apps: request))
+    func listPreReleaseVersions(
+        filterAppIds: [String],
+        filterVersions: [String],
+        filterPlatforms: [String],
+        sort: ListPrereleaseVersions.Sort?
+    ) throws -> [PreReleaseVersionDetails] {
+
+        let listpreReleaseVersionsOperation = ListPreReleaseVersionsOperation(
+            options: .init(
+                filterAppIds: filterAppIds,
+                filterVersions: filterVersions,
+                filterPlatforms: filterPlatforms,
+                sort: nil)
+        )
+
+        let output = try listpreReleaseVersionsOperation.execute(with: requestor).await()
+        return output.map(PreReleaseVersionDetails.init)
+    }
+   
+    func listPreReleaseVersions(
+        filterBundleIds: [String],
+        filterVersions: [String],
+        filterPlatforms: [String],
+        sort: ListPrereleaseVersions.Sort?
+    ) throws -> [PreReleaseVersionDetails] {
+
+        var filterAppIds: [String] = []
+
+        if !filterBundleIds.isEmpty {
+            let appsOperation = GetAppsOperation(options: .init(bundleIds: filterBundleIds))
+            filterAppIds = try appsOperation.execute(with: requestor).await().map(\.id)
+        }
+
+        let listpreReleaseVersionsOperation = ListPreReleaseVersionsOperation(
+            options: .init(
+                filterAppIds: filterAppIds,
+                filterVersions: filterVersions,
+                filterPlatforms: filterPlatforms,
+                sort: sort)
+        )
+
+        let output = try listpreReleaseVersionsOperation.execute(with: requestor).await()
+        return output.map(PreReleaseVersionDetails.init)
     }
 
     /// Make a request for something `Decodable`.
