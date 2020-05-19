@@ -18,7 +18,7 @@ struct ReadBetaGroupCommand: CommonParsableCommand {
         """
     ) var appBundleId: String
 
-    @Argument(help: "The name of the beta group")
+    @Argument(help: "The name of the beta group.")
     var groupName: String
 
     func run() throws {
