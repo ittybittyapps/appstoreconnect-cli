@@ -36,11 +36,13 @@ extension EndpointRequestor {
     ) -> AnyPublisher<[T], Error> {
         request(endpointProvider(next))
             .flatMap { (response) -> AnyPublisher<[T], Error> in
-                response.links.next != nil
-                    ? self.requestAllPages(with: endpointProvider, next: response.links)
-                        .flatMap { Empty<[T], Error>().append([response] + $0) }
-                        .eraseToAnyPublisher()
-                    : Empty<[T], Error>().append([response]).eraseToAnyPublisher()
+                guard response.links.next != nil else {
+                    return Just([response]).setFailureType(to: Error.self).eraseToAnyPublisher()
+                }
+
+                return self.requestAllPages(with: endpointProvider, next: response.links)
+                    .flatMap { Just([response] + $0).setFailureType(to: Error.self) }
+                    .eraseToAnyPublisher()
             }
             .eraseToAnyPublisher()
     }

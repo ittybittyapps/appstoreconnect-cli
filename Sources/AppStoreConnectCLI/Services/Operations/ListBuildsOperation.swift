@@ -45,21 +45,19 @@ struct ListBuildsOperation: APIOperation {
     }
 
     func execute(with requestor: EndpointRequestor) -> AnyPublisher<Output, Error> {
-        requestor.requestAllPages {
-            .builds(
-                filter: self.filters,
-                include: [.app, .betaAppReviewSubmission, .buildBetaDetail, .preReleaseVersion],
-                limit: self.limit,
-                sort: [.uploadedDateAscending],
-                next: $0
-            )
-        }
-        .map { (responses: [BuildsResponse]) -> Output in
-            responses.flatMap { (response: BuildsResponse) -> Output in
-                (response.data.map { ($0, response.included) })
+        let filters = self.filters
+        let include: [ListBuilds.Include] = [.app, .betaAppReviewSubmission, .buildBetaDetail, .preReleaseVersion]
+        let limit = self.limit
+        let sort: [ListBuilds.Sort] = [.uploadedDateAscending]
+
+        return requestor
+            .requestAllPages { .builds(filter: filters, include: include, limit: limit, sort: sort, next: $0) }
+            .map { (responses: [BuildsResponse]) -> Output in
+                responses.flatMap { (response: BuildsResponse) -> Output in
+                    (response.data.map { ($0, response.included) })
+                }
             }
-        }
-        .eraseToAnyPublisher()
+            .eraseToAnyPublisher()
     }
 }
 
