@@ -21,6 +21,14 @@ struct ReadPreReleaseVersionCommand: CommonParsableCommand {
         transform: Identifier.init
     ) var identifier: Identifier
 
+    @Argument(
+        help: ArgumentHelp(
+            "The version no of the app",
+            discussion: "Please input a specific version no",
+            valueName: "version"
+        )
+    ) var version: String
+
     enum Identifier {
         case appId(String)
         case bundleId(String)
@@ -40,10 +48,10 @@ struct ReadPreReleaseVersionCommand: CommonParsableCommand {
 
         switch (identifier) {
         case .appId(let filterAppId):
-            let prereleaseVersion = try service.readPreReleaseVersion(filterAppId: filterAppId)
+            let prereleaseVersion = try service.readPreReleaseVersion(filterAppId: filterAppId, filterVersion: version)
             prereleaseVersion.render(format: common.outputFormat)
         case .bundleId(let filterBundleId):
-            let prereleaseVersion = try service.readPreReleaseVersion(filterBundleId: filterBundleId)
+            let prereleaseVersion = try service.readPreReleaseVersion(filterBundleId: filterBundleId , filterVersion: version)
             prereleaseVersion.render(format: common.outputFormat)
         }
     }

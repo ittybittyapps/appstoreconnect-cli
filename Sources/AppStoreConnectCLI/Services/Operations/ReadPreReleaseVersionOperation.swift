@@ -8,6 +8,7 @@ struct ReadPreReleaseVersionOperation: APIOperation {
 
     struct Options {
         var filterAppId: String
+        var filterVersion: String
     }
 
     enum ReadPreReleaseVersionError: LocalizedError {
@@ -37,7 +38,8 @@ struct ReadPreReleaseVersionOperation: APIOperation {
 
     func execute(with requestor: EndpointRequestor) -> AnyPublisher<Output, Swift.Error> {
         var filters: [ListPrereleaseVersions.Filter] = []
-               filters += options.filterAppId.isEmpty ? [] : [.app([options.filterAppId])]
+        filters += options.filterAppId.isEmpty ? [] : [.app([options.filterAppId])]
+        filters += options.filterVersion.isEmpty ? [] : [.version([options.filterVersion])]
 
         let endpoint = APIEndpoint.prereleaseVersions(
             filter: filters,

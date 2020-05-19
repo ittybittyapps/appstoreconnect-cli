@@ -15,7 +15,7 @@ final class ReadPreReleaseVersionOperationTests: XCTestCase {
     )
 
     func testReturnsOnePreReleaseVersion() throws {
-        let operation = Operation(options: Options(filterAppId: "1504341572"))
+        let operation = Operation(options: Options(filterAppId: "1504341572", filterVersion: "1.0"))
         let output = try operation.execute(with: successRequestor).await()
         XCTAssertEqual(output.preReleaseVersion.attributes?.version, "1.0")
     }

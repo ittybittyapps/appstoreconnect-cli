@@ -483,26 +483,21 @@ class AppStoreConnectService {
     }
 
 
-    func readPreReleaseVersion(appId: String) throws -> PreReleaseVersionDetails {
-        let readPreReleaseVersionOperation = ReadPreReleaseVersionOperation(options: .init(appId: appId))
-    func readPreReleaseVersion(filterAppId: String) throws -> PreReleaseVersionDetails {
-        let readPreReleaseVersionOperation = ReadPreReleaseVersionOperation(options: .init(filterAppId: filterAppId))
+    func readPreReleaseVersion(filterAppId: String, filterVersion: String) throws -> PreReleaseVersion {
+        let readPreReleaseVersionOperation = ReadPreReleaseVersionOperation(options: .init(filterAppId: filterAppId, filterVersion: filterVersion))
 
         let output = try readPreReleaseVersionOperation.execute(with: requestor).await()
-        return PreReleaseVersionDetails(output.preReleaseVersion, output.relationships)
+        return PreReleaseVersion(output.preReleaseVersion, output.relationships)
      }
 
-     func readPreReleaseVersion(filterBundleId: String) throws -> PreReleaseVersionDetails {
+     func readPreReleaseVersion(filterBundleId: String, filterVersion: String) throws -> PreReleaseVersion {
         let appsOperation = GetAppsOperation(options: .init(bundleIds: [filterBundleId]))
         let appId = try appsOperation.execute(with: requestor).compactMap(\.first).await().id
 
-        let readPreReleaseVersionOperation = ReadPreReleaseVersionOperation(options: .init(filterAppId: appId))
+        let readPreReleaseVersionOperation = ReadPreReleaseVersionOperation(options: .init(filterAppId: appId, filterVersion: filterVersion))
         let output = try readPreReleaseVersionOperation.execute(with: requestor).await()
-        return PreReleaseVersionDetails(output.preReleaseVersion, output.relationships)
+        return PreReleaseVersion(output.preReleaseVersion, output.relationships)
      }
-
-
-
 
     /// Make a request for something `Decodable`.
     ///
