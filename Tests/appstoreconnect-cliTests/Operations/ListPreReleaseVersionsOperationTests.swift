@@ -17,12 +17,11 @@ final class ListPreReleaseVersionsOperationTests: XCTestCase {
     func testReturnsOnePreReleaseVersion() throws {
         let operation = Operation(options: Options(filterAppIds: [], filterVersions: [], filterPlatforms: [], sort: nil))
         let output = try operation.execute(with: successRequestor).await()
-        XCTAssertEqual(output.count, 1)
-        XCTAssertEqual(output.first?.preReleaseVersion.attributes?.version, "1.0")
+        XCTAssertEqual(output.first?.preReleaseVersion.attributes?.version, "1.1")
     }
 
     
-    static let dataResponse: PrereleaseVersionResponse = """
+    static let dataResponse: PreReleaseVersionsResponse = """
         {
         "data": [
           {
@@ -237,9 +236,9 @@ final class ListPreReleaseVersionsOperationTests: XCTestCase {
             "total": 3,
             "limit": 50
           }
+         }
         }
         """
         .data(using: .utf8)
-        .map({ try! jsonDecoder.decode(PrereleaseVersionResponse.self, from: $0) })!
+        .map({ try! jsonDecoder.decode(PreReleaseVersionsResponse.self, from: $0) })!
 }
-
