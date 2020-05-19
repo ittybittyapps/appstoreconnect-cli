@@ -447,7 +447,7 @@ class AppStoreConnectService {
         filterVersions: [String],
         filterPlatforms: [String],
         sort: ListPrereleaseVersions.Sort?
-    ) throws -> [PreReleaseVersionDetails] {
+    ) throws -> [PreReleaseVersion] {
 
         let listpreReleaseVersionsOperation = ListPreReleaseVersionsOperation(
             options: .init(
@@ -458,7 +458,7 @@ class AppStoreConnectService {
         )
 
         let output = try listpreReleaseVersionsOperation.execute(with: requestor).await()
-        return output.map(PreReleaseVersionDetails.init)
+        return output.map(PreReleaseVersion.init)
     }
    
     func listPreReleaseVersions(
@@ -466,7 +466,7 @@ class AppStoreConnectService {
         filterVersions: [String],
         filterPlatforms: [String],
         sort: ListPrereleaseVersions.Sort?
-    ) throws -> [PreReleaseVersionDetails] {
+    ) throws -> [PreReleaseVersion] {
 
         var filterAppIds: [String] = []
 
@@ -484,7 +484,7 @@ class AppStoreConnectService {
         )
 
         let output = try listpreReleaseVersionsOperation.execute(with: requestor).await()
-        return output.map(PreReleaseVersionDetails.init)
+        return output.map(PreReleaseVersion.init)
     }
 
     /// Make a request for something `Decodable`.

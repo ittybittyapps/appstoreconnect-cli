@@ -4,14 +4,16 @@ import AppStoreConnect_Swift_SDK
 import Foundation
 import SwiftyTextTable
 
-struct PreReleaseVersionDetails: ResultRenderable {
+struct PreReleaseVersion: ResultRenderable {
+
+
     var app: App?
     var platform: String?
     var version: String?
     // TODO: var builds: [Build]?
 }
 
-extension PreReleaseVersionDetails {
+extension PreReleaseVersion {
     init(_ preReleaseVersion: AppStoreConnect_Swift_SDK.PrereleaseVersion, _ includes: [AppStoreConnect_Swift_SDK.PreReleaseVersionRelationship]?) {
 
         let relationships = preReleaseVersion.relationships
@@ -34,7 +36,7 @@ extension PreReleaseVersionDetails {
     }
 }
 
-extension PreReleaseVersionDetails: TableInfoProvider {
+extension PreReleaseVersion: TableInfoProvider {
     static func tableColumns() -> [TextTableColumn] {
         return [
             TextTableColumn(header: "App ID"),
