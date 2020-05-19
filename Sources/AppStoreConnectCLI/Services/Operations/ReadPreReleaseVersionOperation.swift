@@ -29,7 +29,6 @@ struct ReadPreReleaseVersionOperation: APIOperation {
     typealias Relationships = [AppStoreConnect_Swift_SDK.PreReleaseVersionRelationship]?
     typealias Output = (preReleaseVersion: PreReleaseVersion, relationships: Relationships)
 
-
     private let options: Options
 
     init(options: Options) {
@@ -45,10 +44,17 @@ struct ReadPreReleaseVersionOperation: APIOperation {
             filter: filters,
             include: [.app]
         )
-        
+
         return requestor.request(endpoint)
-        .map{ response -> Output in
-            return Output(preReleaseVersion: response.data.first!, relationships: response.included)
+            .tryMap { (response) throws -> Output in
+                switch response.data.count {
+                case 0:
+                    throw ReadPreReleaseVersionError.noVersionExist
+                case 1:
+                    return Output(preReleaseVersion: response.data.first!, relationships: response.included)
+                default:
+                    throw ReadPreReleaseVersionError.versionNotUnique
+                }
         }
         .eraseToAnyPublisher()
     }
