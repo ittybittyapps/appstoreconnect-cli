@@ -39,11 +39,11 @@ struct ReadPreReleaseVersionCommand: CommonParsableCommand {
         let service = try makeService()
 
         switch (identifier) {
-        case .appId(let appId):
-            let prereleaseVersion = try service.readPreReleaseVersion(appId: appId)
+        case .appId(let filterAppId):
+            let prereleaseVersion = try service.readPreReleaseVersion(filterAppId: filterAppId)
             prereleaseVersion.render(format: common.outputFormat)
-        case .bundleId(let bundleId):
-            let prereleaseVersion = try service.readPreReleaseVersion(bundleId: bundleId)
+        case .bundleId(let filterBundleId):
+            let prereleaseVersion = try service.readPreReleaseVersion(filterBundleId: filterBundleId)
             prereleaseVersion.render(format: common.outputFormat)
         }
     }

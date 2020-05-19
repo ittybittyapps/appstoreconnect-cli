@@ -485,16 +485,18 @@ class AppStoreConnectService {
 
     func readPreReleaseVersion(appId: String) throws -> PreReleaseVersionDetails {
         let readPreReleaseVersionOperation = ReadPreReleaseVersionOperation(options: .init(appId: appId))
+    func readPreReleaseVersion(filterAppId: String) throws -> PreReleaseVersionDetails {
+        let readPreReleaseVersionOperation = ReadPreReleaseVersionOperation(options: .init(filterAppId: filterAppId))
 
         let output = try readPreReleaseVersionOperation.execute(with: requestor).await()
         return PreReleaseVersionDetails(output.preReleaseVersion, output.relationships)
      }
 
-     func readPreReleaseVersion(bundleId: String) throws -> PreReleaseVersionDetails {
-        let appsOperation = GetAppsOperation(options: .init(bundleIds: [bundleId]))
+     func readPreReleaseVersion(filterBundleId: String) throws -> PreReleaseVersionDetails {
+        let appsOperation = GetAppsOperation(options: .init(bundleIds: [filterBundleId]))
         let appId = try appsOperation.execute(with: requestor).compactMap(\.first).await().id
 
-        let readPreReleaseVersionOperation = ReadPreReleaseVersionOperation(options: .init(appId: appId))
+        let readPreReleaseVersionOperation = ReadPreReleaseVersionOperation(options: .init(filterAppId: appId))
         let output = try readPreReleaseVersionOperation.execute(with: requestor).await()
         return PreReleaseVersionDetails(output.preReleaseVersion, output.relationships)
      }

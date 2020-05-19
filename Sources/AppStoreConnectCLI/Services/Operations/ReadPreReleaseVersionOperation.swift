@@ -7,7 +7,7 @@ import Foundation
 struct ReadPreReleaseVersionOperation: APIOperation {
 
     struct Options {
-        var appId: String
+        var filterAppId: String
     }
 
     enum ReadPreReleaseVersionError: LocalizedError {
@@ -36,18 +36,18 @@ struct ReadPreReleaseVersionOperation: APIOperation {
     }
 
     func execute(with requestor: EndpointRequestor) -> AnyPublisher<Output, Swift.Error> {
-        let endpoint = APIEndpoint.prereleaseVersion(
-            withId: options.appId,
+        var filters: [ListPrereleaseVersions.Filter] = []
+               filters += options.filterAppId.isEmpty ? [] : [.app([options.filterAppId])]
+
+        let endpoint = APIEndpoint.prereleaseVersions(
+            filter: filters,
             include: [.app]
         )
-
-
+        
         return requestor.request(endpoint)
-            .tryMap { (prereleaseVersionResponse) throws -> Output in
-
-                return (prereleaseVersionResponse.data, prereleaseVersionResponse.included)
-
-            }
-            .eraseToAnyPublisher()
+        .map{ response -> Output in
+            return Output(preReleaseVersion: response.data.first!, relationships: response.included)
+        }
+        .eraseToAnyPublisher()
     }
 }
