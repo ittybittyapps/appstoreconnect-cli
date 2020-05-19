@@ -1,7 +1,6 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
 import ArgumentParser
-import Foundation
 
 struct ReadBetaGroupCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
