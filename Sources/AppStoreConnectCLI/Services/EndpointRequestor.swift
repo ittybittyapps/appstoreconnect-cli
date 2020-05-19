@@ -24,3 +24,26 @@ struct DefaultEndpointRequestor: EndpointRequestor {
         }
     }
 }
+
+protocol PaginatedResponse: Decodable {
+    var links: PagedDocumentLinks { get }
+}
+
+extension EndpointRequestor {
+    func requestAllPages<T: PaginatedResponse>(
+        with endpointProvider: @escaping (PagedDocumentLinks?) -> APIEndpoint<T>,
+        next: PagedDocumentLinks? = nil
+    ) -> AnyPublisher<[T], Error> {
+        request(endpointProvider(next))
+            .flatMap { (response) -> AnyPublisher<[T], Error> in
+                guard response.links.next != nil else {
+                    return Just([response]).setFailureType(to: Error.self).eraseToAnyPublisher()
+                }
+
+                return self.requestAllPages(with: endpointProvider, next: response.links)
+                    .flatMap { Just([response] + $0).setFailureType(to: Error.self) }
+                    .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
+}

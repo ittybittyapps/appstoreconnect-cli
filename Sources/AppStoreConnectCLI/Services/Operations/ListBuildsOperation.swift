@@ -18,16 +18,9 @@ struct ListBuildsOperation: APIOperation {
 
     typealias Build = AppStoreConnect_Swift_SDK.Build
     typealias Relationships = [AppStoreConnect_Swift_SDK.BuildRelationship]?
+    typealias Output = [(build: Build, relationships: Relationships)]
 
-    typealias Output  = [(build: Build, relationships: Relationships)]
-
-    private let options: Options
-
-    init(options: Options) {
-        self.options = options
-    }
-
-    func execute(with requestor: EndpointRequestor) -> AnyPublisher<Output, Error> {
+    var filters: [ListBuilds.Filter] {
         var filters = [ListBuilds.Filter]()
         filters += options.filterAppIds.isEmpty ? [] : [.app(options.filterAppIds)]
         filters += options.filterPreReleaseVersions.isEmpty ? [] : [.preReleaseVersionVersion(options.filterPreReleaseVersions)]
@@ -36,21 +29,36 @@ struct ListBuildsOperation: APIOperation {
         filters += options.filterProcessingStates.isEmpty ? [] : [.processingState(options.filterProcessingStates)]
         filters += options.filterBetaReviewStates.isEmpty ? [] :  [.betaAppReviewSubmissionBetaReviewState(options.filterBetaReviewStates)]
 
-        let limit = options.limit.map { limit -> [ListBuilds.Limit] in
+        return filters
+    }
+
+    var limit: [ListBuilds.Limit]? {
+        options.limit.map { limit -> [ListBuilds.Limit] in
             [.individualTesters(limit), .betaBuildLocalizations(limit)]
         }
+    }
 
-        let endpoint = APIEndpoint.builds(
-            filter: filters,
-            include: [.app, .betaAppReviewSubmission, .buildBetaDetail, .preReleaseVersion],
-            limit: limit,
-            sort: [ListBuilds.Sort.uploadedDateAscending]
-        )
+    private let options: Options
 
-        return requestor.request(endpoint)
-            .map { response -> Output in
-                response.data.map { ($0, response.included) }
+    init(options: Options) {
+        self.options = options
+    }
+
+    func execute(with requestor: EndpointRequestor) -> AnyPublisher<Output, Error> {
+        let filters = self.filters
+        let include: [ListBuilds.Include] = [.app, .betaAppReviewSubmission, .buildBetaDetail, .preReleaseVersion]
+        let limit = self.limit
+        let sort: [ListBuilds.Sort] = [.uploadedDateAscending]
+
+        return requestor
+            .requestAllPages { .builds(filter: filters, include: include, limit: limit, sort: sort, next: $0) }
+            .map { (responses: [BuildsResponse]) -> Output in
+                responses.flatMap { (response: BuildsResponse) -> Output in
+                    (response.data.map { ($0, response.included) })
+                }
             }
             .eraseToAnyPublisher()
     }
 }
+
+extension BuildsResponse: PaginatedResponse { }
