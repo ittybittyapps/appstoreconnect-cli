@@ -6,9 +6,10 @@ import Foundation
 public struct TestFlightPreReleaseVersionCommand: ParsableCommand {
     public static var configuration = CommandConfiguration(
         commandName: "prereleaseversion",
-        abstract: "Platform-specific versions of your app intended for distribution to beta testers.",
+        abstract: "PreRelease version commands.",
         subcommands: [
-            ListPreReleaseVersionsCommand.self
+            ListPreReleaseVersionsCommand.self,
+            ReadPreReleaseVersionCommand.self
         ],
         defaultSubcommand: ListPreReleaseVersionsCommand.self)
 
