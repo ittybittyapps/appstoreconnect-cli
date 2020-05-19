@@ -19,7 +19,8 @@ struct ReadPreReleaseVersionCommand: CommonParsableCommand {
             valueName: "app-id / bundle-id"
         ),
         transform: Identifier.init
-    ) var identifier: Identifier
+    )
+    var identifier: Identifier
 
     @Argument(
         help: ArgumentHelp(
@@ -27,7 +28,8 @@ struct ReadPreReleaseVersionCommand: CommonParsableCommand {
             discussion: "Please input a specific version no",
             valueName: "version"
         )
-    ) var version: String
+    )
+    var version: String
 
     enum Identifier {
         case appId(String)
