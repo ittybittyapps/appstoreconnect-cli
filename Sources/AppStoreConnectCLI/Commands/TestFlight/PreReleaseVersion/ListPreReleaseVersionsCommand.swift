@@ -58,13 +58,7 @@ struct ListPreReleaseVersionsCommand: CommonParsableCommand {
         )
     )
     var sort: ListPrereleaseVersions.Sort?
-
-
-    func validate() throws {
-        if filterAppIds.isEmpty == false && filterBundleIds.isEmpty == false {
-            throw ValidationError("Filtering by both Bundle ID and App ID is not supported!")
-        }
-    }
+    
 
     func run() throws {
         let service = try makeService()
