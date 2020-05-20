@@ -253,6 +253,19 @@ class AppStoreConnectService {
 
         try operation.execute(with: requestor).await()
     }
+
+    func readBetaGroup(bundleId: String, groupName: String) throws -> BetaGroup {
+        let app = try ReadAppOperation(options: .init(identifier: .bundleId(bundleId)))
+            .execute(with: requestor)
+            .await()
+
+        let options = GetBetaGroupOperation.Options(app: app, betaGroupName: groupName)
+        let betaGroup = try GetBetaGroupOperation(options: options)
+            .execute(with: requestor)
+            .await()
+
+        return BetaGroup(app, betaGroup)
+    }
         
     func createBetaGroup(
         appBundleId: String,
