@@ -15,6 +15,7 @@ let package = Package(
         )
     ],
     dependencies: [
+        .package(path: "Model"),
         .package(
             url: "https://github.com/johnsundell/files.git",
             from: "4.0.0"
