@@ -441,6 +441,43 @@ class AppStoreConnectService {
 
         return App(sdkApp)
     }
+
+    func listPreReleaseVersions(
+        filterIdentifiers: [ListPreReleaseVersionsCommand.Identifier],
+        filterVersions: [String],
+        filterPlatforms: [String],
+        sort: ListPrereleaseVersions.Sort?
+    ) throws -> [PreReleaseVersion] {
+
+        var filterAppIds: [String] = []
+        var filterBundleIds: [String] = []
+
+        _ = filterIdentifiers.map { identifier in
+            switch (identifier) {
+            case .appId(let filterAppId):
+                filterAppIds.append(filterAppId)  
+            case .bundleId(let filterBundleId):
+                filterBundleIds.append(filterBundleId)
+            }
+        }
+
+        if !filterBundleIds.isEmpty {
+            let appsOperation = GetAppsOperation(options: .init(bundleIds: filterBundleIds))
+            filterAppIds += try appsOperation.execute(with: requestor).await().map(\.id)
+        }
+
+        let listpreReleaseVersionsOperation = ListPreReleaseVersionsOperation(
+            options: .init(
+                filterAppIds: filterAppIds,
+                filterVersions: filterVersions,
+                filterPlatforms: filterPlatforms,
+                sort: sort)
+        )
+
+        let output = try listpreReleaseVersionsOperation.execute(with: requestor).await()
+        return output.map(PreReleaseVersion.init)
+    }
+
     /// Make a request for something `Decodable`.
     ///
     /// - Parameters:

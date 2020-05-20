@@ -116,9 +116,33 @@ This project is licensed under the terms of the MIT license. See the [LICENSE][l
 
 > This project is in no way affiliated with [Apple Inc][apple]. This project is open source under the MIT license, which means you have full access to the source code and can modify it to fit your own needs. _AppStoreConnect CLI_ runs on your own computer or server and does not communicate with any service other than the [Apple AppStore Connect API][appstore-connect-api]. You are responsible for how you use _AppStoreConnect CLI_.
 
+## Acknowledgements
+
+We use the following Swift Packages in `appstoreconnect-cli`.  We are very grateful to their authors.
+
+- [AppStoreConnect Swift SDK][appstoreconnect-swift-sdk] by [@AvdLee][avdlee]
+- [CodableCSV][codablecsv] by [@dehesa][dehesa]
+- [Files][files] by [@johnsundell][johnsundell]
+- [Swift Argument Parser][argument-parser] by [Apple][apple-github]
+- [SwiftyTextTable][text-table] by [@scottrhoyt][scottrhoyt]
+- [Yams][yams] by [@jpsim][jpsim]
+
+
 [docs-api-key]: https://developer.apple.com/documentation/appstoreconnectapi/creating_api_keys_for_app_store_connect_api
 [license]: LICENSE
 [contributing]: CONTRIBUTING.md
 [code-of-conduct]: CODE_OF_CONDUCT.md
 [apple]: https://apple.com
 [appstore-connect-api]: https://developer.apple.com/app-store-connect/api/
+[appstoreconnect-swift-sdk]: https://github.com/AvdLee/appstoreconnect-swift-sdk
+[avdlee]: https://github.com/AvdLee
+[files]: https://github.com/johnsundell/files.git
+[johnsundell]: https://github.com/johnsundell
+[argument-parser]: https://github.com/apple/swift-argument-parser
+[apple-github]: https://github.com/apple
+[yams]: https://github.com/jpsim/Yams.git
+[jpsim]: https://github.com/jpsim
+[text-table]: https://github.com/scottrhoyt/SwiftyTextTable.git
+[scottrhoyt]: https://github.com/scottrhoyt 
+[codablecsv]: https://github.com/dehesa/CodableCSV
+[dehesa]: https://github.com/dehesa
