@@ -23,7 +23,7 @@ extension PreReleaseVersion {
           return nil
         }
 
-        let appDetails = includedApps?.filter { relationships?.app?.data?.id == $0.id }.first
+        let appDetails = includedApps?.first(where: { relationships?.app?.data?.id == $0.id }) 
         let app = appDetails.map(App.init)
 
         self.init(

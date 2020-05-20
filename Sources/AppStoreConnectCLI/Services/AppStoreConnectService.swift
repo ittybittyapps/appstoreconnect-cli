@@ -443,26 +443,7 @@ class AppStoreConnectService {
     }
 
     func listPreReleaseVersions(
-        filterAppIds: [String],
-        filterVersions: [String],
-        filterPlatforms: [String],
-        sort: ListPrereleaseVersions.Sort?
-    ) throws -> [PreReleaseVersion] {
-
-        let listpreReleaseVersionsOperation = ListPreReleaseVersionsOperation(
-            options: .init(
-                filterAppIds: filterAppIds,
-                filterVersions: filterVersions,
-                filterPlatforms: filterPlatforms,
-                sort: nil)
-        )
-
-        let output = try listpreReleaseVersionsOperation.execute(with: requestor).await()
-        return output.map(PreReleaseVersion.init)
-    }
-   
-    func listPreReleaseVersions(
-        filterBundleIds: [String],
+        filterIdentifiers: [ListPreReleaseVersionsCommand.Identifier],
         filterVersions: [String],
         filterPlatforms: [String],
         sort: ListPrereleaseVersions.Sort?
@@ -470,9 +451,14 @@ class AppStoreConnectService {
 
         var filterAppIds: [String] = []
 
-        if !filterBundleIds.isEmpty {
-            let appsOperation = GetAppsOperation(options: .init(bundleIds: filterBundleIds))
-            filterAppIds = try appsOperation.execute(with: requestor).await().map(\.id)
+        _ = try filterIdentifiers.map { identifier in
+            switch (identifier) {
+            case .appId(let filterAppId):
+                filterAppIds.append(filterAppId)  
+            case .bundleId(let filterBundleId):
+                let appsOperation = GetAppsOperation(options: .init(bundleIds: [filterBundleId]))
+                filterAppIds += try appsOperation.execute(with: requestor).await().map(\.id)
+            }
         }
 
         let listpreReleaseVersionsOperation = ListPreReleaseVersionsOperation(
