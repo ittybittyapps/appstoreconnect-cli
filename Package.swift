@@ -49,12 +49,15 @@ let package = Package(
             dependencies: ["AppStoreConnectCLI"]),
         .target(
             name: "AppStoreConnectCLI",
-            dependencies: [.product(name: "Files", package: "Files"),
-                           .product(name: "AppStoreConnect-Swift-SDK", package: "AppStoreConnect-Swift-SDK"),
-                           .product(name: "Yams", package: "Yams"),
-                           .product(name: "ArgumentParser", package: "swift-argument-parser"),
-                           .product(name: "SwiftyTextTable", package: "SwiftyTextTable"),
-                           .product(name: "CodableCSV", package: "CodableCSV")]
+            dependencies: [
+                .product(name: "Model", package: "Model"),
+                .product(name: "Files", package: "Files"),
+                .product(name: "AppStoreConnect-Swift-SDK", package: "AppStoreConnect-Swift-SDK"),
+                .product(name: "Yams", package: "Yams"),
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                .product(name: "SwiftyTextTable", package: "SwiftyTextTable"),
+                .product(name: "CodableCSV", package: "CodableCSV")
+            ]
         ),
         .testTarget(
             name: "appstoreconnect-cliTests",

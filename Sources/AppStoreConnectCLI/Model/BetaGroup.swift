@@ -3,6 +3,7 @@
 import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
+import struct Model.App
 import SwiftyTextTable
 
 struct BetaGroup: TableInfoProvider, ResultRenderable, Equatable {
