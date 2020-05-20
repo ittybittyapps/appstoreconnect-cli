@@ -450,15 +450,20 @@ class AppStoreConnectService {
     ) throws -> [PreReleaseVersion] {
 
         var filterAppIds: [String] = []
+        var filterBundleIds: [String] = []
 
-        _ = try filterIdentifiers.map { identifier in
+        _ = filterIdentifiers.map { identifier in
             switch (identifier) {
             case .appId(let filterAppId):
                 filterAppIds.append(filterAppId)  
             case .bundleId(let filterBundleId):
-                let appsOperation = GetAppsOperation(options: .init(bundleIds: [filterBundleId]))
-                filterAppIds += try appsOperation.execute(with: requestor).await().map(\.id)
+                filterBundleIds.append(filterBundleId)
             }
+        }
+
+        if !filterBundleIds.isEmpty {
+            let appsOperation = GetAppsOperation(options: .init(bundleIds: filterBundleIds))
+            filterAppIds += try appsOperation.execute(with: requestor).await().map(\.id)
         }
 
         let listpreReleaseVersionsOperation = ListPreReleaseVersionsOperation(
