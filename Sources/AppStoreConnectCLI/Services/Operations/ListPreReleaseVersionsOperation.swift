@@ -17,7 +17,6 @@ struct ListPreReleaseVersionsOperation: APIOperation {
     typealias Relationships = [AppStoreConnect_Swift_SDK.PreReleaseVersionRelationship]?
     typealias Output = [(preReleaseVersion: PreReleaseVersion, relationships: Relationships)]
 
-
     private let options: Options
 
     init(options: Options) {
@@ -38,7 +37,7 @@ struct ListPreReleaseVersionsOperation: APIOperation {
 
         return requestor.request(endpoint)
             .map{ response -> Output in
-                return response.data.map {($0, response.included)}
+                return response.data.map { ($0, response.included) }
             }
             .eraseToAnyPublisher()
     }

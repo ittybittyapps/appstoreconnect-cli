@@ -5,8 +5,6 @@ import Foundation
 import SwiftyTextTable
 
 struct PreReleaseVersion: ResultRenderable {
-
-
     var app: App?
     var platform: String?
     var version: String?

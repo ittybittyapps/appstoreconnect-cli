@@ -2,7 +2,6 @@
 
 import AppStoreConnect_Swift_SDK
 import ArgumentParser
-import Foundation
 
 struct ListPreReleaseVersionsCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
@@ -59,7 +58,6 @@ struct ListPreReleaseVersionsCommand: CommonParsableCommand {
     )
     var sort: ListPrereleaseVersions.Sort?
     
-
     func run() throws {
         let service = try makeService()
 
