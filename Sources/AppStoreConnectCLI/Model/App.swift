@@ -3,15 +3,10 @@
 import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
+import struct Model.App
 import SwiftyTextTable
 
-struct App: ResultRenderable, Equatable {
-    let id: String
-    var bundleId: String?
-    var name: String?
-    var primaryLocale: String?
-    var sku: String?
-}
+extension App: ResultRenderable {}
 
 // MARK: - API conveniences
 

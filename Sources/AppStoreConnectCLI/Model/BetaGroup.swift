@@ -3,17 +3,11 @@
 import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
+import struct Model.App
+import struct Model.BetaGroup
 import SwiftyTextTable
 
-struct BetaGroup: TableInfoProvider, ResultRenderable, Equatable {
-    let app: App
-    let groupName: String?
-    let isInternal: Bool?
-    let publicLink: String?
-    let publicLinkEnabled: Bool?
-    let publicLinkLimit: Int?
-    let publicLinkLimitEnabled: Bool?
-    let creationDate: String?
+extension BetaGroup: TableInfoProvider, ResultRenderable {
 
     static func tableColumns() -> [TextTableColumn] {
         [
@@ -51,14 +45,16 @@ extension BetaGroup {
         _ apiApp: AppStoreConnect_Swift_SDK.App,
         _ apiBetaGroup: AppStoreConnect_Swift_SDK.BetaGroup
     ) {
-        app = App(apiApp)
-        groupName = apiBetaGroup.attributes?.name
-        isInternal = apiBetaGroup.attributes?.isInternalGroup
-        publicLink = apiBetaGroup.attributes?.publicLink
-        publicLinkEnabled = apiBetaGroup.attributes?.publicLinkEnabled
-        publicLinkLimit = apiBetaGroup.attributes?.publicLinkLimit
-        publicLinkLimitEnabled = apiBetaGroup.attributes?.publicLinkLimitEnabled
-        creationDate = apiBetaGroup.attributes?.createdDate?.formattedDate
+        self.init(
+            app: App(apiApp),
+            groupName: apiBetaGroup.attributes?.name,
+            isInternal: apiBetaGroup.attributes?.isInternalGroup,
+            publicLink: apiBetaGroup.attributes?.publicLink,
+            publicLinkEnabled: apiBetaGroup.attributes?.publicLinkEnabled,
+            publicLinkLimit: apiBetaGroup.attributes?.publicLinkLimit,
+            publicLinkLimitEnabled: apiBetaGroup.attributes?.publicLinkLimitEnabled,
+            creationDate: apiBetaGroup.attributes?.createdDate?.formattedDate
+        )
     }
 }
 

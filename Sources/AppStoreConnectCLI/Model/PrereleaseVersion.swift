@@ -2,6 +2,7 @@
 
 import AppStoreConnect_Swift_SDK
 import Foundation
+import struct Model.App
 import SwiftyTextTable
 
 struct PreReleaseVersion: ResultRenderable {
