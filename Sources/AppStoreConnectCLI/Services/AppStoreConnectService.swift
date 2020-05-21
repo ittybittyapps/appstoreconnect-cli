@@ -526,13 +526,16 @@ extension AppStoreConnectService {
             .await()
             .build
             .id
-
-        let groupIds = try groupNames.flatMap {
-            try ListBetaGroupsOperation(options: .init(appIds: [appId], names: [$0]))
-                .execute(with: requestor)
-                .await()
-                .map(\.betaGroup.id)
-        }
+        let groupIds = try ListBetaGroupsOperation(options: .init(appIds: [], names: []))
+            .execute(with: requestor)
+            .await()
+            .filter {
+                guard let groupName = $0.betaGroup.attributes?.name else {
+                    return false
+                }
+                return $0.app.id == appId && groupNames.contains(groupName)
+            }
+            .map(\.betaGroup.id)
 
         return (buildId, groupIds)
     }
