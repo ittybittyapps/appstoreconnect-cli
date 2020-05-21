@@ -1,6 +1,5 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
-import AppStoreConnect_Swift_SDK
 import ArgumentParser
 
 struct ReadPreReleaseVersionCommand: CommonParsableCommand {
@@ -48,6 +47,6 @@ struct ReadPreReleaseVersionCommand: CommonParsableCommand {
         let service = try makeService()
 
         let prereleaseVersion = try service.readPreReleaseVersion(filterIdentifier: identifier, filterVersion: version)
-        prereleaseVersion.render(format:  common.outputFormat)
+        prereleaseVersion.render(format: common.outputFormat)
     }
 }

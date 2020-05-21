@@ -7,11 +7,11 @@ import Foundation
 struct ReadPreReleaseVersionOperation: APIOperation {
 
     struct Options {
-        var filterAppId: String
-        var filterVersion: String
+        let filterAppId: String
+        let filterVersion: String
     }
 
-    enum ReadPreReleaseVersionError: LocalizedError {
+    enum Error: LocalizedError {
         case noVersionExists
         case versionNotUnique
 
@@ -25,7 +25,7 @@ struct ReadPreReleaseVersionOperation: APIOperation {
         }
     }
 
-    typealias PreReleaseVersion =  AppStoreConnect_Swift_SDK.PrereleaseVersion
+    typealias PreReleaseVersion = AppStoreConnect_Swift_SDK.PrereleaseVersion
     typealias Relationships = [AppStoreConnect_Swift_SDK.PreReleaseVersionRelationship]?
     typealias Output = (preReleaseVersion: PreReleaseVersion, relationships: Relationships)
 
@@ -49,13 +49,13 @@ struct ReadPreReleaseVersionOperation: APIOperation {
             .tryMap { (response) throws -> Output in
                 switch response.data.count {
                 case 0:
-                    throw ReadPreReleaseVersionError.noVersionExists
+                    throw Error.noVersionExists
                 case 1:
                     return Output(preReleaseVersion: response.data.first!, relationships: response.included)
                 default:
-                    throw ReadPreReleaseVersionError.versionNotUnique
+                    throw Error.versionNotUnique
                 }
-        }
+            }
         .eraseToAnyPublisher()
     }
 }
