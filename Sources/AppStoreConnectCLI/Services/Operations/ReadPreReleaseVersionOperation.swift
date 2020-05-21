@@ -12,12 +12,12 @@ struct ReadPreReleaseVersionOperation: APIOperation {
     }
 
     enum ReadPreReleaseVersionError: LocalizedError {
-        case noVersionExist
+        case noVersionExists
         case versionNotUnique
 
         var errorDescription: String? {
             switch self {
-            case .noVersionExist:
+            case .noVersionExists:
                 return "No prerelease version exists"
             case .versionNotUnique:
                 return "More than 1 prerelease version returned"
@@ -49,7 +49,7 @@ struct ReadPreReleaseVersionOperation: APIOperation {
             .tryMap { (response) throws -> Output in
                 switch response.data.count {
                 case 0:
-                    throw ReadPreReleaseVersionError.noVersionExist
+                    throw ReadPreReleaseVersionError.noVersionExists
                 case 1:
                     return Output(preReleaseVersion: response.data.first!, relationships: response.included)
                 default:

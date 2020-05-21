@@ -2,7 +2,6 @@
 
 import AppStoreConnect_Swift_SDK
 import ArgumentParser
-import Foundation
 
 struct ReadPreReleaseVersionCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
@@ -48,13 +47,7 @@ struct ReadPreReleaseVersionCommand: CommonParsableCommand {
     func run() throws {
         let service = try makeService()
 
-        switch (identifier) {
-        case .appId(let filterAppId):
-            let prereleaseVersion = try service.readPreReleaseVersion(filterAppId: filterAppId, filterVersion: version)
-            prereleaseVersion.render(format: common.outputFormat)
-        case .bundleId(let filterBundleId):
-            let prereleaseVersion = try service.readPreReleaseVersion(filterBundleId: filterBundleId , filterVersion: version)
-            prereleaseVersion.render(format: common.outputFormat)
-        }
+        let prereleaseVersion = try service.readPreReleaseVersion(filterIdentifier: identifier, filterVersion: version)
+        prereleaseVersion.render(format:  common.outputFormat)
     }
 }

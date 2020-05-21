@@ -482,19 +482,23 @@ class AppStoreConnectService {
         return output.map(PreReleaseVersion.init)
     }
 
+    func readPreReleaseVersion(filterIdentifier: ReadPreReleaseVersionCommand.Identifier, filterVersion: String) throws -> PreReleaseVersion {
+        var filterAppId: String = ""
+        var filterBundleId: String = ""
 
-    func readPreReleaseVersion(filterAppId: String, filterVersion: String) throws -> PreReleaseVersion {
+        switch (filterIdentifier) {
+        case .appId(let appId):
+            filterAppId = appId
+        case .bundleId(let bundleId):
+            filterBundleId = bundleId
+        }
+
+        if !filterBundleId.isEmpty {
+            let appsOperation = GetAppsOperation(options: .init(bundleIds: [filterBundleId]))
+            filterAppId = try appsOperation.execute(with: requestor).compactMap(\.first).await().id
+        }
+
         let readPreReleaseVersionOperation = ReadPreReleaseVersionOperation(options: .init(filterAppId: filterAppId, filterVersion: filterVersion))
-
-        let output = try readPreReleaseVersionOperation.execute(with: requestor).await()
-        return PreReleaseVersion(output.preReleaseVersion, output.relationships)
-     }
-
-     func readPreReleaseVersion(filterBundleId: String, filterVersion: String) throws -> PreReleaseVersion {
-        let appsOperation = GetAppsOperation(options: .init(bundleIds: [filterBundleId]))
-        let appId = try appsOperation.execute(with: requestor).compactMap(\.first).await().id
-
-        let readPreReleaseVersionOperation = ReadPreReleaseVersionOperation(options: .init(filterAppId: appId, filterVersion: filterVersion))
         let output = try readPreReleaseVersionOperation.execute(with: requestor).await()
         return PreReleaseVersion(output.preReleaseVersion, output.relationships)
      }
