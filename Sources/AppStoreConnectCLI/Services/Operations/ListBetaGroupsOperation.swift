@@ -38,34 +38,39 @@ struct ListBetaGroupsOperation: APIOperation {
         filters += options.appIds.isEmpty ? [] : [.app(options.appIds)]
         filters += options.names.isEmpty ? [] : [.name(options.names)]
 
-        let endpoint = APIEndpoint.betaGroups(filter: filters, include: [.app])
-        let response = requestor.request(endpoint)
+        let response = requestor.requestAllPages {
+            APIEndpoint.betaGroups(filter: filters, include: [.app], next: $0)
+        }
 
-        let output = response.tryMap { response -> Output in
-            let apps = response.included?.reduce(
-                into: [String: AppStoreConnect_Swift_SDK.App](),
-                { result, relationship in
-                    switch relationship {
-                    case .app(let app):
-                        result[app.id] = app
-                    default:
-                        break
+        let output = response.tryMap { (responses: [BetaGroupsResponse]) in
+            try responses.flatMap { response -> Output in
+                let apps = response.included?.reduce(
+                    into: [String: AppStoreConnect_Swift_SDK.App](),
+                    { result, relationship in
+                        switch relationship {
+                        case .app(let app):
+                            result[app.id] = app
+                        default:
+                            break
+                        }
                     }
-                }
-            )
+                )
 
-            return try response.data.map { betaGroup -> (App, BetaGroup) in
-                guard
-                    let appId = betaGroup.relationships?.app?.data?.id,
-                    let app = apps?[appId]
-                else {
-                    throw Error.missingAppData(betaGroup)
-                }
+                return try response.data.map { betaGroup -> (App, BetaGroup) in
+                    guard
+                        let appId = betaGroup.relationships?.app?.data?.id,
+                        let app = apps?[appId]
+                    else {
+                        throw Error.missingAppData(betaGroup)
+                    }
 
-                return (app, betaGroup)
+                    return (app, betaGroup)
+                }
             }
         }
 
         return output.eraseToAnyPublisher()
     }
 }
+
+extension BetaGroupsResponse: PaginatedResponse { }
