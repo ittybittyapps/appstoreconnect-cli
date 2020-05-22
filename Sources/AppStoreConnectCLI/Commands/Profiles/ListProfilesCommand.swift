@@ -5,6 +5,7 @@ import ArgumentParser
 import Combine
 import Foundation
 import Files
+import Model
 
 struct ListProfilesCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
@@ -95,7 +96,7 @@ struct ListProfilesCommand: CommonParsableCommand {
         )
 
         let profiles = try api.request(request)
-            .map { $0.data.map(Profile.init) }
+            .map { $0.data.map(Model.Profile.init) }
             .saveProfile(downloadPath: self.downloadPath) // FIXME: This feels like a hack.
             .await()
 
@@ -103,7 +104,7 @@ struct ListProfilesCommand: CommonParsableCommand {
     }
 }
 
-private extension Publisher where Output == [Profile], Failure == Error {
+private extension Publisher where Output == [Model.Profile], Failure == Error {
     func saveProfile(downloadPath: String?) -> AnyPublisher<Output, Failure> {
         tryMap { profiles -> Output in
             if let path = downloadPath {
