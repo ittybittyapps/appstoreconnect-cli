@@ -43,20 +43,20 @@ let package = Package(
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
-        .target(
-            name: "appstoreconnect-cli",
-            dependencies: ["AppStoreConnectCLI"]),
+        .target(name: "appstoreconnect-cli", dependencies: ["AppStoreConnectCLI"]),
+        .target(name: "Model"),
         .target(
             name: "AppStoreConnectCLI",
-            dependencies: [.product(name: "Files", package: "Files"),
-                           .product(name: "AppStoreConnect-Swift-SDK", package: "AppStoreConnect-Swift-SDK"),
-                           .product(name: "Yams", package: "Yams"),
-                           .product(name: "ArgumentParser", package: "swift-argument-parser"),
-                           .product(name: "SwiftyTextTable", package: "SwiftyTextTable"),
-                           .product(name: "CodableCSV", package: "CodableCSV")]
+            dependencies: [
+                .target(name: "Model"),
+                .product(name: "Files", package: "Files"),
+                .product(name: "AppStoreConnect-Swift-SDK", package: "AppStoreConnect-Swift-SDK"),
+                .product(name: "Yams", package: "Yams"),
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                .product(name: "SwiftyTextTable", package: "SwiftyTextTable"),
+                .product(name: "CodableCSV", package: "CodableCSV")
+            ]
         ),
-        .testTarget(
-            name: "appstoreconnect-cliTests",
-            dependencies: ["appstoreconnect-cli"]),
+        .testTarget(name: "appstoreconnect-cliTests", dependencies: ["appstoreconnect-cli"]),
     ]
 )

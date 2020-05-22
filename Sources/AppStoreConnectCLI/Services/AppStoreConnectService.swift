@@ -4,6 +4,9 @@ import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
 
+import struct Model.App
+import struct Model.BetaGroup
+
 class AppStoreConnectService {
     private let provider: APIProvider
     private let requestor: EndpointRequestor
