@@ -3,6 +3,7 @@
 import ArgumentParser
 import AppStoreConnect_Swift_SDK
 import Combine
+import struct Model.BetaTester
 import Foundation
 
 struct ListBetaTesterByBuildsCommand: CommonParsableCommand {

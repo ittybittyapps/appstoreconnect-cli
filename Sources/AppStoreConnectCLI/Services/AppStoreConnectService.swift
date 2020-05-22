@@ -6,6 +6,7 @@ import Foundation
 
 import struct Model.App
 import struct Model.BetaGroup
+import struct Model.BetaTester
 
 class AppStoreConnectService {
     private let provider: APIProvider

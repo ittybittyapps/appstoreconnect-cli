@@ -3,32 +3,10 @@
 import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
+import struct Model.BetaTester
 import SwiftyTextTable
 
-struct BetaTester: ResultRenderable {
-    let email: String?
-    let firstName: String?
-    let lastName: String?
-    let inviteType: String?
-    let betaGroups: [String]?
-    let apps: [String]?
-
-    init(
-        email: String?,
-         firstName: String?,
-         lastName: String?,
-         inviteType: BetaInviteType?,
-         betaGroups: [String]?,
-         apps: [String]?
-    ) {
-        self.email = email
-        self.firstName = firstName
-        self.lastName = lastName
-        self.inviteType = inviteType?.rawValue
-        self.betaGroups = betaGroups
-        self.apps = apps
-    }
-
+extension BetaTester {
     init(_ output: GetBetaTesterOperation.Output) {
         let attributes = output.betaTester.attributes
         let relationships = output.betaTester.relationships
@@ -46,16 +24,18 @@ struct BetaTester: ResultRenderable {
             }
             .flatMap { $0.compactMap { $0.attributes?.bundleId } }
 
-        self.init(email: attributes?.email,
-                  firstName: attributes?.firstName,
-                  lastName: attributes?.lastName,
-                  inviteType: attributes?.inviteType,
-                  betaGroups: betaGroupsNames,
-                  apps: appsBundleIds)
+        self.init(
+            email: attributes?.email,
+            firstName: attributes?.firstName,
+            lastName: attributes?.lastName,
+            inviteType: attributes?.inviteType?.rawValue,
+            betaGroups: betaGroupsNames,
+            apps: appsBundleIds
+        )
     }
 }
 
-extension BetaTester: TableInfoProvider {
+extension BetaTester: ResultRenderable, TableInfoProvider {
     static func tableColumns() -> [TextTableColumn] {
        return [
             TextTableColumn(header: "Email"),
