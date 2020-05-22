@@ -13,18 +13,16 @@ struct ExpireBuildCommand: CommonParsableCommand {
     @OptionGroup()
     var common: CommonOptions
 
-    @Argument(help: "An opaque resource ID that uniquely identifies the build")
-    var bundleId: String
-
-    @Argument(help: "The pre-release version number of this build")
-    var preReleaseVersion: String
-
-    @Argument(help: "The build number of this build")
-    var buildNumber: String
+    @OptionGroup()
+    var build: BuildArguments
 
     func run() throws {
         let service = try makeService()
 
-        _ = try service.expireBuild(bundleId: bundleId, buildNumber: buildNumber, preReleaseVersion: preReleaseVersion)
+        _ = try service.expireBuild(
+            bundleId: build.bundleId,
+            buildNumber: build.buildNumber,
+            preReleaseVersion: build.preReleaseVersion
+        )
     }
 }

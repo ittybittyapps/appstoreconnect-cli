@@ -11,7 +11,8 @@ public struct TestFlightBuildsCommand: ParsableCommand {
              ListBuildsCommand.self,
              ReadBuildCommand.self,
              ExpireBuildCommand.self,
-             RemoveBuildFromGroupsCommand.self
+             RemoveBuildFromGroupsCommand.self,
+             AddGroupsToBuildCommand.self
         ])
 
     public init() {
