@@ -22,7 +22,7 @@ struct ReadPreReleaseVersionCommand: CommonParsableCommand {
 
     @Argument(
         help: ArgumentHelp(
-            "The version no of the app",
+            "The version number of the prerelease version of your app.",
             discussion: "Please input a specific version no"
         )
     )
