@@ -14,11 +14,11 @@ class AppStoreConnectService {
         requestor = DefaultEndpointRequestor(provider: provider)
     }
 
-    func listUsers(with options: ListUsersOptions) -> AnyPublisher<[User], Error> {
+    func listUsers(with options: ListUsersOptions) -> AnyPublisher<[Model.User], Error> {
         ListUsersOperation(options: options).execute(with: requestor)
     }
 
-    func getUserInfo(with options: GetUserInfoOptions) -> AnyPublisher<User, Error> {
+    func getUserInfo(with options: GetUserInfoOptions) -> AnyPublisher<Model.User, Error> {
         GetUserInfoOperation(options: options).execute(with: requestor)
     }
 

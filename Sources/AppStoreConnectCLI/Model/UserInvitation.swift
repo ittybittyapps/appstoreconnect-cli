@@ -2,6 +2,7 @@
 
 import Foundation
 import Combine
+import struct Model.User
 import SwiftyTextTable
 import AppStoreConnect_Swift_SDK
 
@@ -39,7 +40,7 @@ extension APIEndpoint where T == UserInvitationResponse {
             userWithEmail: user.username,
             firstName: user.firstName,
             lastName: user.lastName,
-            roles: user.roles,
+            roles: user.roles.compactMap(UserRole.init(rawValue:)),
             allAppsVisible: user.allAppsVisible,
             provisioningAllowed: user.provisioningAllowed,
             appsVisibleIds: user.allAppsVisible ? [] : user.visibleApps

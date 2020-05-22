@@ -3,43 +3,38 @@
 import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
+import Model
 import SwiftyTextTable
-
-struct User: ResultRenderable {
-    var username: String
-    var firstName: String
-    var lastName: String
-    var roles: [UserRole]
-    var provisioningAllowed: Bool
-    var allAppsVisible: Bool
-    var visibleApps: [String]?
-}
 
 // TODO: Extract these extensions somewhere that makes sense down the road
 
 // MARK: - API conveniences
 
-extension User {
-    static func fromAPIUser(_ apiUser: AppStoreConnect_Swift_SDK.User) -> User? {
+extension Model.User {
+    static func fromAPIUser(_ apiUser: AppStoreConnect_Swift_SDK.User) -> Model.User? {
         guard let attributes = apiUser.attributes,
               let username = attributes.username else {
             // TODO: Error handling
             return nil
         }
+
         let visibleApps = apiUser.relationships?.visibleApps?.data?.map { $0.type }
-        return User(username: username,
-                    firstName: attributes.firstName ?? "",
-                    lastName: attributes.lastName ?? "",
-                    roles: attributes.roles ?? [],
-                    provisioningAllowed: attributes.provisioningAllowed ?? false,
-                    allAppsVisible: attributes.allAppsVisible ?? false,
-                    visibleApps: visibleApps)
+
+        return User(
+            username: username,
+            firstName: attributes.firstName ?? "",
+            lastName: attributes.lastName ?? "",
+            roles: attributes.roles?.map(\.rawValue) ?? [],
+            provisioningAllowed: attributes.provisioningAllowed ?? false,
+            allAppsVisible: attributes.allAppsVisible ?? false,
+            visibleApps: visibleApps
+        )
     }
 
-    static func fromAPIResponse(_ response: UsersResponse) -> [User] {
+    static func fromAPIResponse(_ response: UsersResponse) -> [Model.User] {
         let users: [AppStoreConnect_Swift_SDK.User] = response.data
 
-        return users.compactMap { (user: AppStoreConnect_Swift_SDK.User) -> User in
+        return users.compactMap { (user: AppStoreConnect_Swift_SDK.User) -> Model.User in
             let userVisibleAppIds = user.relationships?.visibleApps?.data?.compactMap { $0.id }
             let userVisibleApps = response.included?.filter {
                 userVisibleAppIds?.contains($0.id) ?? false
@@ -52,19 +47,21 @@ extension User {
     }
 
     init(attributes: AppStoreConnect_Swift_SDK.User.Attributes, visibleApps: [AppStoreConnect_Swift_SDK.App]? = nil) {
-        self.username = attributes.username ?? ""
-        self.firstName = attributes.firstName ?? ""
-        self.lastName = attributes.lastName ?? ""
-        self.roles = attributes.roles ?? []
-        self.provisioningAllowed = attributes.provisioningAllowed ?? false
-        self.allAppsVisible = attributes.allAppsVisible ?? false
-        self.visibleApps = visibleApps?.compactMap{ $0.attributes?.bundleId }
+        self.init(
+            username: attributes.username ?? "",
+            firstName: attributes.firstName ?? "",
+            lastName: attributes.lastName ?? "",
+            roles: attributes.roles?.map(\.rawValue) ?? [],
+            provisioningAllowed: attributes.provisioningAllowed ?? false,
+            allAppsVisible: attributes.provisioningAllowed ?? false,
+            visibleApps: visibleApps?.compactMap{ $0.attributes?.bundleId }
+        )
     }
 }
 
 // MARK: - TextTable conveniences
 
-extension User: TableInfoProvider {
+extension Model.User: ResultRenderable, TableInfoProvider {
     static func tableColumns() -> [TextTableColumn] {
         [
             TextTableColumn(header: "Username"),
@@ -82,7 +79,7 @@ extension User: TableInfoProvider {
             username,
             firstName,
             lastName,
-            roles.map { $0.rawValue }.joined(separator: ", "),
+            roles.joined(separator: ", "),
             provisioningAllowed.toYesNo(),
             allAppsVisible.toYesNo(),
             visibleApps?.joined(separator: ", ") ?? ""
