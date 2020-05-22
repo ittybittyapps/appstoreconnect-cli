@@ -49,7 +49,7 @@ final class ReadPreReleaseVersionOperationTests: XCTestCase {
         case .failure(let error as OperationError):
             XCTAssertEqual(error.errorDescription, expectedError.errorDescription)
         default:
-            XCTFail("Expected failed with \(expectedError) but got: \(result)")
+            XCTFail("Expected failure with \(expectedError) but got: \(result)")
         }
     }
 
@@ -65,7 +65,7 @@ final class ReadPreReleaseVersionOperationTests: XCTestCase {
         case .failure(let error as OperationError):
             XCTAssertEqual(error.errorDescription, expectedError.errorDescription)
         default:
-            XCTFail("Expected failed with \(expectedError) but got: \(result)")
+            XCTFail("Expected failure with \(expectedError) but got: \(result)")
         }
     }
 
