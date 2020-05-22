@@ -24,48 +24,23 @@ final class ReadPreReleaseVersionOperationTests: XCTestCase {
 
     func testOnePreReleaseVersion() throws {
         let operation = Operation(options: Options(filterAppId: "1504341572", filterVersion: "1.0"))
-
-        let result = Result {
-            try operation.execute(with: successResponseRequestor).await()
-        }
-
-        switch result {
-        case .success(let output):
-            XCTAssertEqual(output.preReleaseVersion.attributes?.version, "1.0")
-        default:
-            XCTFail("Error in getting prereleaseVersion response")
-        }
+        let output = try operation.execute(with: successResponseRequestor).await()
+        XCTAssertEqual(output.preReleaseVersion.attributes?.version, "1.0")
     }
 
     func testNoPreReleaseVersion() {
         let operation = Operation(options: Options(filterAppId: "1504341572", filterVersion: "0.0"))
-        let expectedError = OperationError.noVersionExists
 
-        let result = Result {
-            try operation.execute(with: noResponseRequestor).await()
-        }
-
-        switch result {
-        case .failure(let error as OperationError):
-            XCTAssertEqual(error.errorDescription, expectedError.errorDescription)
-        default:
-            XCTFail("Expected failure with \(expectedError) but got: \(result)")
+        XCTAssertThrowsError(try operation.execute(with: noResponseRequestor).await()) { error in
+            XCTAssertEqual(error as! OperationError, OperationError.noVersionExists)
         }
     }
 
     func testNotUniquePreReleaseVersion() {
         let operation = Operation(options: Options(filterAppId: "1504341572", filterVersion: "1.0"))
-        let expectedError = OperationError.versionNotUnique
 
-        let result = Result {
-            try operation.execute(with: notUniqueRequestor).await()
-        }
-
-        switch result {
-        case .failure(let error as OperationError):
-            XCTAssertEqual(error.errorDescription, expectedError.errorDescription)
-        default:
-            XCTFail("Expected failure with \(expectedError) but got: \(result)")
+        XCTAssertThrowsError(try operation.execute(with: notUniqueRequestor).await()) { error in
+            XCTAssertEqual(error as! OperationError, OperationError.versionNotUnique)
         }
     }
 
@@ -173,8 +148,8 @@ final class ReadPreReleaseVersionOperationTests: XCTestCase {
       }
     }
     """
-    .data(using: .utf8)
-    .map({ try! jsonDecoder.decode(PreReleaseVersionsResponse.self, from: $0) })!
+        .data(using: .utf8)
+        .map({ try! jsonDecoder.decode(PreReleaseVersionsResponse.self, from: $0) })!
 
 
     static let noPreReleaseVersionResponse: PreReleaseVersionsResponse = """
@@ -191,6 +166,6 @@ final class ReadPreReleaseVersionOperationTests: XCTestCase {
       }
     }
     """
-    .data(using: .utf8)
-    .map({ try! jsonDecoder.decode(PreReleaseVersionsResponse.self, from: $0) })!
+        .data(using: .utf8)
+        .map({ try! jsonDecoder.decode(PreReleaseVersionsResponse.self, from: $0) })!
 }
