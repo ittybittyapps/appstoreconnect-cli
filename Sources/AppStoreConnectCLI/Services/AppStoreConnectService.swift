@@ -3,10 +3,7 @@
 import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
-
-import struct Model.App
-import struct Model.BetaGroup
-import struct Model.BetaTester
+import Model
 
 class AppStoreConnectService {
     private let provider: APIProvider
@@ -54,7 +51,7 @@ class AppStoreConnectService {
             .awaitMany()
     }
 
-    func inviteBetaTesterToGroups(with options: InviteBetaTesterOptions) throws -> BetaTester {
+    func inviteBetaTesterToGroups(with options: InviteBetaTesterOptions) throws -> Model.BetaTester {
         let id = try InviteTesterOperation(options: options)
             .execute(with: requestor)
             .await()
@@ -66,7 +63,7 @@ class AppStoreConnectService {
             .execute(with: requestor)
             .await()
 
-        return BetaTester(output)
+        return Model.BetaTester(output)
     }
 
     func addTestersToGroup(
@@ -140,7 +137,7 @@ class AppStoreConnectService {
         limitApps: Int?,
         limitBuilds: Int?,
         limitBetaGroups: Int?
-    ) throws -> BetaTester {
+    ) throws -> Model.BetaTester {
         let operation = GetBetaTesterOperation(
             options: .init(
                 identifier: .email(email),
@@ -152,7 +149,7 @@ class AppStoreConnectService {
 
         let output = try operation.execute(with: requestor).await()
 
-        return BetaTester(output)
+        return Model.BetaTester(output)
     }
 
     func deleteBetaTesters(emails: [String]) throws -> [Void] {
@@ -181,7 +178,7 @@ class AppStoreConnectService {
         sort: ListBetaTesters.Sort?,
         limit: Int?,
         relatedResourcesLimit: Int?
-    ) throws -> [BetaTester] {
+    ) throws -> [Model.BetaTester] {
 
         var appIds: [String] = appIds
         if !bundleIds.isEmpty && appIds.isEmpty {
@@ -213,7 +210,7 @@ class AppStoreConnectService {
             )
             .execute(with: requestor)
             .await()
-            .map(BetaTester.init)
+            .map(Model.BetaTester.init)
     }
 
     func removeTesterFromGroups(email: String, groupNames: [String]) throws {
@@ -258,7 +255,7 @@ class AppStoreConnectService {
         try operation.execute(with: requestor).await()
     }
 
-    func readBetaGroup(bundleId: String, groupName: String) throws -> BetaGroup {
+    func readBetaGroup(bundleId: String, groupName: String) throws -> Model.BetaGroup {
         let app = try ReadAppOperation(options: .init(identifier: .bundleId(bundleId)))
             .execute(with: requestor)
             .await()
@@ -268,7 +265,7 @@ class AppStoreConnectService {
             .execute(with: requestor)
             .await()
 
-        return BetaGroup(app, betaGroup)
+        return Model.BetaGroup(app, betaGroup)
     }
         
     func createBetaGroup(
@@ -276,7 +273,7 @@ class AppStoreConnectService {
         groupName: String,
         publicLinkEnabled: Bool,
         publicLinkLimit: Int?
-    ) throws -> BetaGroup {
+    ) throws -> Model.BetaGroup {
         let getAppsOperation = GetAppsOperation(options: .init(bundleIds: [appBundleId]))
         let app = try getAppsOperation.execute(with: requestor).compactMap(\.first).await()
 
@@ -290,7 +287,7 @@ class AppStoreConnectService {
         )
 
         let betaGroupResponse = createBetaGroupOperation.execute(with: requestor)
-        return try betaGroupResponse.map(BetaGroup.init).await()
+        return try betaGroupResponse.map(Model.BetaGroup.init).await()
     }
 
     func deleteBetaGroup(appBundleId: String, betaGroupName: String) throws {
@@ -309,17 +306,17 @@ class AppStoreConnectService {
             .await()
     }
 
-    func listBetaGroups(bundleIds: [String], names: [String]) throws -> [BetaGroup] {
+    func listBetaGroups(bundleIds: [String], names: [String]) throws -> [Model.BetaGroup] {
         let operation = GetAppsOperation(options: .init(bundleIds: bundleIds))
         let appIds = try operation.execute(with: requestor).await().map(\.id)
 
         return try listBetaGroups(appIds: appIds, names: names)
     }
 
-    func listBetaGroups(appIds: [String], names: [String]) throws -> [BetaGroup] {
+    func listBetaGroups(appIds: [String], names: [String]) throws -> [Model.BetaGroup] {
         let operation = ListBetaGroupsOperation(options: .init(appIds: appIds, names: names))
 
-        return try operation.execute(with: requestor).await().map(BetaGroup.init)
+        return try operation.execute(with: requestor).await().map(Model.BetaGroup.init)
     }
 
     func modifyBetaGroup(
@@ -329,7 +326,7 @@ class AppStoreConnectService {
         publicLinkEnabled: Bool?,
         publicLinkLimit: Int?,
         publicLinkLimitEnabled: Bool?
-    ) throws -> BetaGroup {
+    ) throws -> Model.BetaGroup {
         let getAppsOperation = GetAppsOperation(options: .init(bundleIds: [appBundleId]))
         let app = try getAppsOperation.execute(with: requestor).compactMap(\.first).await()
 
@@ -346,17 +343,17 @@ class AppStoreConnectService {
         let modifyBetaGroupOperation = ModifyBetaGroupOperation(options: modifyBetaGroupOptions)
         let modifiedBetaGroup = try modifyBetaGroupOperation.execute(with: requestor).await()
 
-        return BetaGroup(app, modifiedBetaGroup)
+        return Model.BetaGroup(app, modifiedBetaGroup)
     }
 
-    func readBuild(bundleId: String, buildNumber: String, preReleaseVersion: String) throws -> Build {
+    func readBuild(bundleId: String, buildNumber: String, preReleaseVersion: String) throws -> Model.Build {
         let appsOperation = GetAppsOperation(options: .init(bundleIds: [bundleId]))
         let appId = try appsOperation.execute(with: requestor).compactMap(\.first).await().id
 
         let readBuildOperation = ReadBuildOperation(options: .init(appId: appId, buildNumber: buildNumber, preReleaseVersion: preReleaseVersion))
 
         let output = try readBuildOperation.execute(with: requestor).await()
-        return Build(output.build, output.relationships)
+        return Model.Build(output.build, output.relationships)
     }
 
     func expireBuild(bundleId: String, buildNumber: String, preReleaseVersion: String) throws -> Void {
@@ -378,7 +375,7 @@ class AppStoreConnectService {
         filterProcessingStates:[ListBuilds.Filter.ProcessingState],
         filterBetaReviewStates: [String],
         limit: Int?
-    ) throws -> [Build] {
+    ) throws -> [Model.Build] {
 
         var filterAppIds: [String] = []
 
@@ -400,7 +397,7 @@ class AppStoreConnectService {
         )
 
         let output = try listBuildsOperation.execute(with: requestor).await()
-        return output.map(Build.init)
+        return output.map(Model.Build.init)
     }
 
     func removeBuildFromGroups(
@@ -439,12 +436,12 @@ class AppStoreConnectService {
             .await()
     }
 
-    func readApp(identifier: ReadAppCommand.Identifier) throws -> App {
+    func readApp(identifier: ReadAppCommand.Identifier) throws -> Model.App {
         let sdkApp = try ReadAppOperation(options: .init(identifier: identifier))
             .execute(with: requestor)
             .await()
 
-        return App(sdkApp)
+        return Model.App(sdkApp)
     }
 
     func listPreReleaseVersions(

@@ -2,27 +2,10 @@
 
 import AppStoreConnect_Swift_SDK
 import Foundation
-import struct Model.App
+import Model
 import SwiftyTextTable
 
-struct Build: ResultRenderable {
-    let app: App?
-    let platform: String?
-    let version: String?
-    let externalBuildState: String?
-    let internalBuildState: String?
-    let autoNotifyEnabled: String?
-    let buildNumber: String?
-    let processingState: String?
-    let minOsVersion: String?
-    let uploadedDate: String?
-    let expirationDate: String?
-    let expired: String?
-    let usesNonExemptEncryption: String?
-    let betaReviewState: String?
-}
-
-extension Build {
+extension Model.Build {
 
     init(_ build: AppStoreConnect_Swift_SDK.Build ,_ includes: [AppStoreConnect_Swift_SDK.BuildRelationship]?) {
 
@@ -61,7 +44,7 @@ extension Build {
         let buildBetaDetail = includedBuildBetaDetails?.filter { relationships?.buildBetaDetail?.data?.id == $0.id }.first
         let betaAppReviewSubmission = includedBetaAppReviewSubmissions?.filter { relationships?.betaAppReviewSubmission?.data?.id == $0.id }.first
 
-        let app = appDetails.map(App.init)
+        let app = appDetails.map(Model.App.init)
 
         self.init(
             app: app,
@@ -82,7 +65,7 @@ extension Build {
     }
 }
 
-extension Build: TableInfoProvider {
+extension Model.Build: ResultRenderable, TableInfoProvider {
     static func tableColumns() -> [TextTableColumn] {
         return [
             TextTableColumn(header: "Bundle Id"),
@@ -104,7 +87,7 @@ extension Build: TableInfoProvider {
     }
 
     var tableRow: [CustomStringConvertible]  {
-        return [
+        let row = [
             app?.bundleId,
             app?.name,
             platform,
@@ -120,7 +103,8 @@ extension Build: TableInfoProvider {
             expirationDate,
             expired,
             usesNonExemptEncryption
-            ]
-            .map { $0 ?? ""}
+        ]
+
+        return row.map { $0 ?? ""}
     }
 }
