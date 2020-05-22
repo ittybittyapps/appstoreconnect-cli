@@ -408,31 +408,32 @@ class AppStoreConnectService {
         buildNumber: String,
         groupNames: [String]
     ) throws {
-        let appId = try ReadAppOperation(options: .init(identifier: .bundleId(bundleId)))
-            .execute(with: requestor)
-            .await()
-            .id
-
-        let buildId = try ReadBuildOperation(
-                options: .init(
-                    appId: appId,
-                    buildNumber: buildNumber,
-                    preReleaseVersion: version
-                )
-            )
-            .execute(with: requestor)
-            .await()
-            .build
-            .id
-
-        let groupIds = try groupNames.flatMap {
-            try ListBetaGroupsOperation(options: .init(appIds: [appId], names: [$0]))
-                .execute(with: requestor)
-                .await()
-                .map(\.betaGroup.id)
-        }
+        let (buildId, groupIds) = try getBuildIdAndGroupIdsFrom(
+            bundleId: bundleId,
+            version: version,
+            buildNumber: buildNumber,
+            groupNames: groupNames
+        )
 
         try RemoveBuildFromGroupsOperation(options: .init(buildId: buildId, groupIds: groupIds))
+            .execute(with: requestor)
+            .await()
+    }
+
+    func addGroupsToBuild(
+        bundleId: String,
+        version: String,
+        buildNumber: String,
+        groupNames: [String]
+    ) throws {
+        let (buildId, groupIds) = try getBuildIdAndGroupIdsFrom(
+            bundleId: bundleId,
+            version: version,
+            buildNumber: buildNumber,
+            groupNames: groupNames
+        )
+
+        try AddGroupsToBuildOperation(options: .init(groupIds: groupIds, buildId: buildId))
             .execute(with: requestor)
             .await()
     }
@@ -502,4 +503,44 @@ class AppStoreConnectService {
             provider.request(endpoint, completion: promise)
         }
     }
+}
+
+extension AppStoreConnectService {
+
+    func getBuildIdAndGroupIdsFrom(
+        bundleId: String,
+        version: String,
+        buildNumber: String,
+        groupNames: [String]
+    ) throws -> (buildId: String, groupIds: [String]) {
+        let appId = try ReadAppOperation(options: .init(identifier: .bundleId(bundleId)))
+            .execute(with: requestor)
+            .await()
+            .id
+
+        let buildId = try ReadBuildOperation(
+                options: .init(
+                    appId: appId,
+                    buildNumber: buildNumber,
+                    preReleaseVersion: version
+                )
+            )
+            .execute(with: requestor)
+            .await()
+            .build
+            .id
+        let groupIds = try ListBetaGroupsOperation(options: .init(appIds: [], names: []))
+            .execute(with: requestor)
+            .await()
+            .filter {
+                guard let groupName = $0.betaGroup.attributes?.name else {
+                    return false
+                }
+                return $0.app.id == appId && groupNames.contains(groupName)
+            }
+            .map(\.betaGroup.id)
+
+        return (buildId, groupIds)
+    }
+
 }
