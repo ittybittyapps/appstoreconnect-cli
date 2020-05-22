@@ -24,7 +24,7 @@ struct ListBuildsCommand: CommonParsableCommand {
 
     @Flag(
         default: true,
-        inver	sion: .prefixedNo,
+        inversion: .prefixedNo,
         exclusivity: .exclusive,
         help: ArgumentHelp(
             "Whether expired builds should be included."
