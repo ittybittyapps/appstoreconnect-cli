@@ -22,14 +22,15 @@ struct ListBuildsCommand: CommonParsableCommand {
     )
     var filterBundleIds: [String]
 
-    @Option(
-        parsing: .upToNextOption,
+    @Flag(
+        default: true,
+        inversion: .prefixedNo,
+        exclusivity: .exclusive,
         help: ArgumentHelp(
-            "Filter by whether the build has expired (true or false)",
-            valueName: "expired"
+            "Whether expired builds should be included."
         )
     )
-    var filterExpired: [String]
+    var includeExpired: Bool
 
     @Option(
         parsing: .upToNextOption,
@@ -47,7 +48,7 @@ struct ListBuildsCommand: CommonParsableCommand {
             valueName: "build-number"
         )
     )
-    var filterBuildNumbers:[String]
+    var filterBuildNumbers: [String]
 
     @Option(
         parsing: .upToNextOption,
@@ -76,7 +77,7 @@ struct ListBuildsCommand: CommonParsableCommand {
 
         let builds = try service.listBuilds(
             filterBundleIds: filterBundleIds,
-            filterExpired: filterExpired,
+            filterExpired: includeExpired ? [] : ["false"],
             filterPreReleaseVersions: filterPreReleaseVersions,
             filterBuildNumbers: filterBuildNumbers,
             filterProcessingStates: filterProcessingStates,
