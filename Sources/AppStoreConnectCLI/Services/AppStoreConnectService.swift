@@ -482,6 +482,22 @@ class AppStoreConnectService {
         return output.map(PreReleaseVersion.init)
     }
 
+    func readPreReleaseVersion(filterIdentifier: ReadPreReleaseVersionCommand.Identifier, filterVersion: String) throws -> PreReleaseVersion {
+        var filterAppId: String = ""
+
+        switch (filterIdentifier) {
+        case .appId(let appId):
+            filterAppId = appId
+        case .bundleId(let bundleId):
+            let appsOperation = GetAppsOperation(options: .init(bundleIds: [bundleId]))
+            filterAppId = try appsOperation.execute(with: requestor).compactMap(\.first).await().id
+        }
+
+        let readPreReleaseVersionOperation = ReadPreReleaseVersionOperation(options: .init(filterAppId: filterAppId, filterVersion: filterVersion))
+        let output = try readPreReleaseVersionOperation.execute(with: requestor).await()
+        return PreReleaseVersion(output.preReleaseVersion, output.relationships)
+     }
+
     /// Make a request for something `Decodable`.
     ///
     /// - Parameters:
