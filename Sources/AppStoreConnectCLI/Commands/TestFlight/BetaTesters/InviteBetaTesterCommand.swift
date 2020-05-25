@@ -1,9 +1,6 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
 import ArgumentParser
-import AppStoreConnect_Swift_SDK
-import Combine
-import Foundation
 
 struct InviteBetaTesterCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
@@ -28,6 +25,12 @@ struct InviteBetaTesterCommand: CommonParsableCommand {
     @Option(parsing: .upToNextOption,
             help: "Names of TestFlight beta tester group that the tester will be assigned to.")
     var groups: [String]
+
+    func validate() throws {
+        if groups.isEmpty {
+            throw ValidationError("Invalid input, you must provide at least one group name.")
+        }
+    }
 
     func run() throws {
         let service = try makeService()
