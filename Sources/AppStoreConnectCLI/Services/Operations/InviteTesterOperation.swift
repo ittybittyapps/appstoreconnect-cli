@@ -20,9 +20,17 @@ struct InviteTesterOperation: APIOperation {
         }
     }
 
-    private let options: InviteBetaTesterOptions
+    struct Options {
+        let firstName: String?
+        let lastName: String?
+        let email: String
+        let bundleId: String
+        let groupNames: [String]
+    }
 
-    init(options: InviteBetaTesterOptions) {
+    private let options: Options
+
+    init(options: Options) {
         self.options = options
     }
 

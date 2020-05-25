@@ -55,8 +55,22 @@ class AppStoreConnectService {
             .awaitMany()
     }
 
-    func inviteBetaTesterToGroups(with options: InviteBetaTesterOptions) throws -> Model.BetaTester {
-        let id = try InviteTesterOperation(options: options)
+    func inviteBetaTesterToGroups(
+        firstName: String?,
+        lastName: String?,
+        email: String,
+        bundleId: String,
+        groupNames: [String]
+    ) throws -> BetaTester {
+        let id = try InviteTesterOperation(
+                options: .init(
+                    firstName: firstName,
+                    lastName: lastName,
+                    email: email,
+                    bundleId: bundleId,
+                    groupNames: groupNames
+                )
+            )
             .execute(with: requestor)
             .await()
             .id

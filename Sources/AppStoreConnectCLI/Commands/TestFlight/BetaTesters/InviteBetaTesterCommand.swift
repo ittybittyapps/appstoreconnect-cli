@@ -32,16 +32,13 @@ struct InviteBetaTesterCommand: CommonParsableCommand {
     func run() throws {
         let service = try makeService()
 
-        let options = InviteBetaTesterOptions(
+        let betaTester = try service.inviteBetaTesterToGroups(
             firstName: firstName,
             lastName: lastName,
             email: email,
             bundleId: bundleId,
             groupNames: groups
         )
-
-        let betaTester = try service
-            .inviteBetaTesterToGroups(with: options)
 
         betaTester.render(format: common.outputFormat)
     }
