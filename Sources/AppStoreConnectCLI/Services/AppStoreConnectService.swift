@@ -22,19 +22,23 @@ class AppStoreConnectService {
         GetUserInfoOperation(options: options).execute(with: requestor)
     }
 
-    func listCertificates(with options: ListCertificatesOptions) -> AnyPublisher<[Certificate], Error> {
+    func listCertificates(
+        with options: ListCertificatesOptions
+    ) -> AnyPublisher<[Model.Certificate], Error> {
         ListCertificatesOperation(options: options).execute(with: requestor)
     }
 
-    func readCertificate(serial: String) throws -> Certificate {
+    func readCertificate(serial: String) throws -> Model.Certificate {
         let sdkCertificate = try ReadCertificateOperation(options: .init(serial: serial))
             .execute(with: requestor)
             .await()
 
-        return Certificate(sdkCertificate)
+        return Model.Certificate(sdkCertificate)
     }
 
-    func createCertificate(with options: CreateCertificateOptions) -> AnyPublisher<Certificate, Error> {
+    func createCertificate(
+        with options: CreateCertificateOptions
+    ) -> AnyPublisher<Model.Certificate, Error> {
         CreateCertificateOperation(options: options).execute(with: requestor)
     }
 

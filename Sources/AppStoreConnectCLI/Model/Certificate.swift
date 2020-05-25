@@ -2,18 +2,10 @@
 
 import AppStoreConnect_Swift_SDK
 import Foundation
+import Model
 import SwiftyTextTable
 
-struct Certificate: ResultRenderable {
-    let name: String?
-    let type: CertificateType?
-    let content: String?
-    let platform: BundleIdPlatform?
-    let expirationDate: Date?
-    let serialNumber: String?
-}
-
-extension Certificate {
+extension Model.Certificate {
     init(_ certificate: AppStoreConnect_Swift_SDK.Certificate) {
         self.init(certificate.attributes)
     }
@@ -21,16 +13,16 @@ extension Certificate {
     init(_ attributes: AppStoreConnect_Swift_SDK.Certificate.Attributes) {
         self.init(
             name: attributes.name,
-            type: attributes.certificateType,
+            type: attributes.certificateType?.rawValue,
             content: attributes.certificateContent,
-            platform: attributes.platform,
+            platform: attributes.platform?.rawValue,
             expirationDate: attributes.expirationDate,
             serialNumber: attributes.serialNumber
         )
     }
 }
 
-extension Certificate: TableInfoProvider {
+extension Model.Certificate: ResultRenderable, TableInfoProvider {
     static func tableColumns() -> [TextTableColumn] {
         [
             TextTableColumn(header: "SerialNumber"),
@@ -45,8 +37,8 @@ extension Certificate: TableInfoProvider {
         [
             self.serialNumber ?? "",
             self.name ?? "",
-            self.type?.rawValue ?? "",
-            self.platform?.rawValue ?? "",
+            self.type ?? "",
+            self.platform ?? "",
             self.expirationDate ?? ""
         ]
     }
