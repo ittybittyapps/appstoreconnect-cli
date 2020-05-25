@@ -25,6 +25,7 @@ extension OutputFormat: ExpressibleByArgument {
 enum InputFormat: String, CaseIterable, Codable {
     case json
     case yaml
+    case csv
 }
 
 extension InputFormat: CustomStringConvertible {
