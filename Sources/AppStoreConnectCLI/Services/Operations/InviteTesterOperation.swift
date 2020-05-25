@@ -24,8 +24,12 @@ struct InviteTesterOperation: APIOperation {
         let firstName: String?
         let lastName: String?
         let email: String
-        let bundleId: String
-        let groupNames: [String]
+        let identifers: GroupIdentifiers
+
+        enum GroupIdentifiers {
+            case bundleIdWithGroupNames(bundleId: String, groupNames: [String])
+            case resourceId([String])
+        }
     }
 
     private let options: Options
@@ -35,31 +39,39 @@ struct InviteTesterOperation: APIOperation {
     }
 
     func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<AppStoreConnect_Swift_SDK.BetaTester, Error> {
-        let appIds = try GetAppsOperation(
-                options: .init(bundleIds: [options.bundleId])
-            )
-            .execute(with: requestor)
-            .await()
-            .map { $0.id }
 
-        guard let appId = appIds.first else {
-            throw InviteTesterError.noAppExist
-        }
-
-        let betaGroups = try requestor
-            .request(.betaGroups(forAppWithId: appId))
-            .await()
-            .data
+        let groupIds: [String]
         
-        guard Set(options.groupNames).isSubset(of:
-            Set(betaGroups.compactMap { $0.attributes?.name })) else {
-                throw InviteTesterError.noGroupsExist(
-                    groupNames: options.groupNames,
-                    bundleId: options.bundleId
+        switch options.identifers {
+        case .bundleIdWithGroupNames(let bundleId, let groupNames):
+            let appIds = try GetAppsOperation(
+                    options: .init(bundleIds: [bundleId])
                 )
+                .execute(with: requestor)
+                .await()
+                .map { $0.id }
+
+            guard let appId = appIds.first else {
+                throw InviteTesterError.noAppExist
             }
 
-        let groupIds = getGroupIds(in: betaGroups, matching: options.groupNames)
+            let betaGroups = try requestor
+                .request(.betaGroups(forAppWithId: appId))
+                .await()
+                .data
+
+            guard Set(groupNames).isSubset(of:
+                Set(betaGroups.compactMap { $0.attributes?.name })) else {
+                    throw InviteTesterError.noGroupsExist(
+                        groupNames: groupNames,
+                        bundleId: bundleId
+                    )
+                }
+
+            groupIds = getGroupIds(in: betaGroups, matching: groupNames)
+        case .resourceId(let ids):
+            groupIds = ids
+        }
 
         let requests = groupIds.map { (id: String) -> AnyPublisher<BetaTesterResponse, Error> in
             let endpoint = APIEndpoint.create(
@@ -89,7 +101,7 @@ struct InviteTesterOperation: APIOperation {
                 return false
             }
 
-            return options.groupNames.contains(name)
+            return names.contains(name)
         }
         .map { $0.id }
     }

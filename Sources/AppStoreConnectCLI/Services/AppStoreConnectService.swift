@@ -67,8 +67,7 @@ class AppStoreConnectService {
                     firstName: firstName,
                     lastName: lastName,
                     email: email,
-                    bundleId: bundleId,
-                    groupNames: groupNames
+                    identifers: .bundleIdWithGroupNames(bundleId: bundleId, groupNames: groupNames)
                 )
             )
             .execute(with: requestor)
