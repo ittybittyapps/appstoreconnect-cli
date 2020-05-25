@@ -189,45 +189,53 @@ class AppStoreConnectService {
         firstName: String?,
         lastName: String?,
         inviteType: BetaInviteType?,
-        appIds: [String],
-        bundleIds: [String],
+        filterIdentifiers: [AppLookupIdentifier],
         groupNames: [String],
         sort: ListBetaTesters.Sort?,
         limit: Int?,
         relatedResourcesLimit: Int?
-    ) throws -> [Model.BetaTester] {
+        ) throws -> [Model.BetaTester] {
 
-        var appIds: [String] = appIds
-        if !bundleIds.isEmpty && appIds.isEmpty {
-            appIds = try GetAppsOperation(options: .init(bundleIds: bundleIds))
-                .execute(with: requestor)
-                .await()
-                .map(\.id)
+        var filterAppIds: [String] = []
+        var filterBundleIds: [String] = []
+
+        filterIdentifiers.forEach { identifier in
+        switch identifier {
+            case .appId(let filterAppId):
+                filterAppIds.append(filterAppId)
+            case .bundleId(let filterBundleId):
+                filterBundleIds.append(filterBundleId)
+            }
+        }
+
+        if !filterBundleIds.isEmpty {
+            let appsOperation = GetAppsOperation(options: .init(bundleIds: filterBundleIds))
+            filterAppIds += try appsOperation.execute(with: requestor).await().map(\.id)
         }
 
         var groupIds: [String] = []
         if !groupNames.isEmpty {
             groupIds = try groupNames.map {
-                try betaGroupIdentifier(matching: $0).await()
-            }
+            try betaGroupIdentifier(matching: $0).await()
         }
+    }
 
-        return try ListBetaTestersOperation(options:
-                .init(
-                    email: email,
-                    firstName: firstName,
-                    lastName: lastName,
-                    inviteType: inviteType,
-                    appIds: appIds,
-                    groupIds: groupIds,
-                    sort: sort,
-                    limit: limit,
-                    relatedResourcesLimit: relatedResourcesLimit
-                )
-            )
-            .execute(with: requestor)
-            .await()
-            .map(Model.BetaTester.init)
+    return try ListBetaTestersOperation(options:
+    .init(
+        email: email,
+        firstName: firstName,
+        lastName: lastName,
+        inviteType: inviteType,
+        appIds: filterAppIds,
+        groupIds: groupIds,
+        sort: sort,
+        limit: limit,
+        relatedResourcesLimit: relatedResourcesLimit
+        )
+    )
+    .execute(with: requestor)
+    .await()
+    .map(Model.BetaTester.init)
     }
 
     func removeTesterFromGroups(email: String, groupNames: [String]) throws {
@@ -323,18 +331,27 @@ class AppStoreConnectService {
             .await()
     }
 
-    func listBetaGroups(bundleIds: [String], names: [String]) throws -> [Model.BetaGroup] {
-        let operation = GetAppsOperation(options: .init(bundleIds: bundleIds))
-        let appIds = try operation.execute(with: requestor).await().map(\.id)
+    func listBetaGroups(filterIdentifiers: [AppLookupIdentifier], names: [String]) throws -> [Model.BetaGroup] {
+        var filterAppIds: [String] = []
+        var filterBundleIds: [String] = []
 
-        return try listBetaGroups(appIds: appIds, names: names)
-    }
+        filterIdentifiers.forEach { identifier in
+            switch identifier {
+                case .appId(let filterAppId):
+                    filterAppIds.append(filterAppId)
+                case .bundleId(let filterBundleId):
+                    filterBundleIds.append(filterBundleId)
+            }
+        }
 
-    func listBetaGroups(appIds: [String], names: [String]) throws -> [Model.BetaGroup] {
-        let operation = ListBetaGroupsOperation(options: .init(appIds: appIds, names: names))
+        if !filterBundleIds.isEmpty {
+            let appsOperation = GetAppsOperation(options: .init(bundleIds: filterBundleIds))
+            filterAppIds += try appsOperation.execute(with: requestor).await().map(\.id)
+        }
 
-        return try operation.execute(with: requestor).await().map(Model.BetaGroup.init)
-    }
+        let operation = ListBetaGroupsOperation(options: .init(appIds: filterAppIds, names: names))
+            return try operation.execute(with: requestor).await().map(Model.BetaGroup.init)
+        }
 
     func modifyBetaGroup(
         appBundleId: String,
@@ -453,7 +470,7 @@ class AppStoreConnectService {
             .await()
     }
 
-    func readApp(identifier: ReadAppCommand.Identifier) throws -> Model.App {
+    func readApp(identifier: Identifier) throws -> Model.App {
         let sdkApp = try ReadAppOperation(options: .init(identifier: identifier))
             .execute(with: requestor)
             .await()
@@ -497,7 +514,7 @@ class AppStoreConnectService {
         return output.map(PreReleaseVersion.init)
     }
 
-    func readPreReleaseVersion(filterIdentifier: ReadPreReleaseVersionCommand.Identifier, filterVersion: String) throws -> PreReleaseVersion {
+    func readPreReleaseVersion(filterIdentifier: Identifier, filterVersion: String) throws -> PreReleaseVersion {
         var filterAppId: String = ""
 
         switch (filterIdentifier) {
