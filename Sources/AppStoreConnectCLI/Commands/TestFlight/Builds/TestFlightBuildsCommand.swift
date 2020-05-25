@@ -8,13 +8,15 @@ public struct TestFlightBuildsCommand: ParsableCommand {
         commandName: "builds",
         abstract: "Information about app builds.",
         subcommands: [
-             ListBuildsCommand.self,
-             ReadBuildCommand.self,
-             ExpireBuildCommand.self,
-             RemoveBuildFromGroupsCommand.self,
-             AddGroupsToBuildCommand.self
-        ])
-
+            ListBuildsCommand.self,
+            ReadBuildCommand.self,
+            ExpireBuildCommand.self,
+            RemoveBuildFromGroupsCommand.self,
+            AddGroupsToBuildCommand.self
+        ],
+        defaultSubcommand: ListBuildsCommand.self
+    )
+    
     public init() {
     }
 }
