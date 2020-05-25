@@ -7,7 +7,7 @@ import Foundation
 
 struct ListBetaTesterByBuildsCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
-        commandName: "listByBuilds",
+        commandName: "listbybuilds",
         abstract: "List beta testers who were specifically assigned to one or more builds"
     )
 
