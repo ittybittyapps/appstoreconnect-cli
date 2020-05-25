@@ -479,7 +479,7 @@ class AppStoreConnectService {
     }
 
     func listPreReleaseVersions(
-        filterIdentifiers: [ListPreReleaseVersionsCommand.Identifier],
+        filterIdentifiers: [Identifier],
         filterVersions: [String],
         filterPlatforms: [String],
         sort: ListPrereleaseVersions.Sort?
