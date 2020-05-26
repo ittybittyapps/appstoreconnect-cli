@@ -200,7 +200,7 @@ class AppStoreConnectService {
         var filterBundleIds: [String] = []
 
         filterIdentifiers.forEach { identifier in
-        switch identifier {
+            switch identifier {
             case .appId(let filterAppId):
                 filterAppIds.append(filterAppId)
             case .bundleId(let filterBundleId):
@@ -488,8 +488,8 @@ class AppStoreConnectService {
         var filterAppIds: [String] = []
         var filterBundleIds: [String] = []
 
-        _ = filterIdentifiers.map { identifier in
-            switch (identifier) {
+        filterIdentifiers.forEach { identifier in
+            switch identifier {
             case .appId(let filterAppId):
                 filterAppIds.append(filterAppId)  
             case .bundleId(let filterBundleId):
