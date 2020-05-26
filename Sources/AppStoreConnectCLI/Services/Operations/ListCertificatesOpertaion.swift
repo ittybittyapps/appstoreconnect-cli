@@ -7,6 +7,8 @@ import struct Model.Certificate
 
 struct ListCertificatesOperation: APIOperation {
 
+    typealias Filter = Certificates.Filter
+
     enum ListCertificatesError: LocalizedError {
         case couldNotFindCertificate
 
@@ -25,12 +27,8 @@ struct ListCertificatesOperation: APIOperation {
         let filterDisplayName: String?
         let limit: Int?
     }
-
-    private let endpoint: APIEndpoint<CertificatesResponse>
-
-    init(options: Options) {
-        typealias Filter = Certificates.Filter
-
+    
+    var filters: [Certificates.Filter] {
         var filters = [Certificates.Filter]()
 
         if let filterSerial = options.filterSerial {
@@ -45,23 +43,40 @@ struct ListCertificatesOperation: APIOperation {
             filters.append(.displayName([filterDisplayName]))
         }
 
-        endpoint = APIEndpoint.listDownloadCertificates(
-            filter: filters,
-            sort: [options.sort].compactMap { $0 },
-            limit: options.limit
-        )
+        return filters
+    }
+
+    let options: Options
+
+    init(options: Options) {
+        self.options = options
     }
 
     func execute(with requestor: EndpointRequestor) -> AnyPublisher<[Certificate], Error> {
-        requestor.request(endpoint)
-            .tryMap { (response: CertificatesResponse) -> [Certificate] in
+        let filters = self.filters
+        let sort = [options.sort].compactMap { $0 }
+        let limit = options.limit
+
+        return requestor.requestAllPages {
+            .listDownloadCertificates(
+                filter: filters,
+                sort: sort,
+                limit: limit,
+                next: $0
+            )
+        }
+        .tryMap {
+            try $0.flatMap { (response: CertificatesResponse) -> [Certificate] in
                 guard !response.data.isEmpty else {
                     throw ListCertificatesError.couldNotFindCertificate
                 }
 
                 return response.data.map(Certificate.init)
             }
-            .eraseToAnyPublisher()
+        }
+        .eraseToAnyPublisher()
     }
 
 }
+
+extension CertificatesResponse: PaginatedResponse { }
