@@ -337,10 +337,10 @@ class AppStoreConnectService {
 
         filterIdentifiers.forEach { identifier in
             switch identifier {
-                case .appId(let filterAppId):
-                    filterAppIds.append(filterAppId)
-                case .bundleId(let filterBundleId):
-                    filterBundleIds.append(filterBundleId)
+            case .appId(let filterAppId):
+                filterAppIds.append(filterAppId)
+            case .bundleId(let filterBundleId):
+                filterBundleIds.append(filterBundleId)
             }
         }
 
