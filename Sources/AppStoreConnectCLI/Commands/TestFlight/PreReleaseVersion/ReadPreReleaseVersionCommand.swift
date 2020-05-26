@@ -10,15 +10,8 @@ struct ReadPreReleaseVersionCommand: CommonParsableCommand {
     @OptionGroup()
     var common: CommonOptions
 
-    @Argument(
-        help: ArgumentHelp(
-            "The app AppStore ID. eg. 432156789 or app bundle identifier. eg. com.example.App",
-            discussion: "Please input either app id or bundle Id",
-            valueName: "app-id / bundle-id"
-        ),
-        transform: Identifier.init
-    )
-    var identifier: Identifier
+    @OptionGroup()
+    var appLookupArgument: AppLookupArgument
 
     @Argument(
         help: ArgumentHelp(
@@ -28,24 +21,10 @@ struct ReadPreReleaseVersionCommand: CommonParsableCommand {
     )
     var version: String
 
-    enum Identifier {
-        case appId(String)
-        case bundleId(String)
-
-        init(_ argument: String) {
-            switch Int(argument) == nil {
-            case true:
-                self = .bundleId(argument)
-            case false:
-                self = .appId(argument)
-            }
-        }
-    }
-
     func run() throws {
         let service = try makeService()
 
-        let prereleaseVersion = try service.readPreReleaseVersion(filterIdentifier: identifier, filterVersion: version)
+        let prereleaseVersion = try service.readPreReleaseVersion(filterIdentifier: appLookupArgument.identifier, filterVersion: version)
         prereleaseVersion.render(format: common.outputFormat)
     }
 }

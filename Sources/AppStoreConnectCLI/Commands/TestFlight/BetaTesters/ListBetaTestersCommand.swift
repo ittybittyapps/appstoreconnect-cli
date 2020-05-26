@@ -3,7 +3,6 @@
 import ArgumentParser
 import AppStoreConnect_Swift_SDK
 import Combine
-import Foundation
 
 struct ListBetaTestersCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
@@ -44,23 +43,8 @@ struct ListBetaTestersCommand: CommonParsableCommand {
         )
     ) var filterInviteType: BetaInviteType?
 
-    @Option(
-        parsing: .upToNextOption,
-        help: ArgumentHelp(
-            "Filter by app AppStore ID. eg. 432156789",
-            discussion: "This option is mutually exclusive with --filter-bundle-ids.",
-            valueName: "app-id"
-        )
-    ) var filterAppIds: [String]
-
-    @Option(
-        parsing: .upToNextOption,
-        help: ArgumentHelp(
-            "Filter by app bundle identifier. eg. com.example.App",
-            discussion: "This option is mutually exclusive with --filter-app-ids.",
-            valueName: "bundle-id"
-        )
-    ) var filterBundleIds: [String]
+    @OptionGroup()
+    var appLookupOptions: AppLookupOptions
 
     @Option(
         parsing: .upToNextOption,
@@ -85,12 +69,8 @@ struct ListBetaTestersCommand: CommonParsableCommand {
     var relatedResourcesLimit: Int?
 
     func validate() throws {
-        if !filterAppIds.isEmpty && !filterBundleIds.isEmpty {
-            throw ValidationError("Filtering by both Bundle ID and App ID is not supported!")
-        }
-
-        if (!filterAppIds.isEmpty || !filterBundleIds.isEmpty) && !filterGroupNames.isEmpty {
-            throw ValidationError("Only one of these relationship filters ('app-id, bundle-id', 'group-name') can be applied.")
+        if !appLookupOptions.filterIdentifiers.isEmpty && !filterGroupNames.isEmpty {
+            throw ValidationError("Only one of these relationship filters ('app-id/ bundle-id', 'group-name') can be applied.")
         }
     }
 
@@ -102,8 +82,7 @@ struct ListBetaTestersCommand: CommonParsableCommand {
             firstName: filterFirstName,
             lastName: filterLastName,
             inviteType: filterInviteType,
-            appIds: filterAppIds,
-            bundleIds: filterBundleIds,
+            filterIdentifiers: appLookupOptions.filterIdentifiers,
             groupNames: filterGroupNames,
             sort: sort,
             limit: limit,
