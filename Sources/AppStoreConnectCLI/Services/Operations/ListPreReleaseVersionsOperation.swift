@@ -29,16 +29,23 @@ struct ListPreReleaseVersionsOperation: APIOperation {
         filters += options.filterVersions.isEmpty ? [] : [.version(options.filterVersions)]
         filters += options.filterPlatforms.isEmpty ? [] : [.platform(options.filterPlatforms)]
 
-        let endpoint = APIEndpoint.prereleaseVersions(
-            filter: filters,
-            include: [.app],
-            sort: [options.sort].compactMap { $0 }
-        )
+        let sort = [options.sort].compactMap { $0 }
 
-        return requestor.request(endpoint)
-            .map{ response -> Output in
-                return response.data.map { ($0, response.included) }
+        return requestor.requestAllPages {
+            .prereleaseVersions(
+                filter: filters,
+                include: [.app],
+                sort: sort,
+                next: $0
+            )
+        }
+        .map {
+            $0.flatMap { response -> Output in
+                response.data.map { ($0, response.included) }
             }
-            .eraseToAnyPublisher()
+        }
+        .eraseToAnyPublisher()
     }
 }
+
+extension PreReleaseVersionsResponse: PaginatedResponse { }
