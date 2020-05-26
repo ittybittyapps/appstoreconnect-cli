@@ -194,7 +194,7 @@ class AppStoreConnectService {
         sort: ListBetaTesters.Sort?,
         limit: Int?,
         relatedResourcesLimit: Int?
-        ) throws -> [Model.BetaTester] {
+    ) throws -> [Model.BetaTester] {
 
         var filterAppIds: [String] = []
         var filterBundleIds: [String] = []
@@ -216,26 +216,26 @@ class AppStoreConnectService {
         var groupIds: [String] = []
         if !groupNames.isEmpty {
             groupIds = try groupNames.map {
-            try betaGroupIdentifier(matching: $0).await()
+                try betaGroupIdentifier(matching: $0).await()
+            }
         }
-    }
 
-    return try ListBetaTestersOperation(options:
-    .init(
-        email: email,
-        firstName: firstName,
-        lastName: lastName,
-        inviteType: inviteType,
-        appIds: filterAppIds,
-        groupIds: groupIds,
-        sort: sort,
-        limit: limit,
-        relatedResourcesLimit: relatedResourcesLimit
+        return try ListBetaTestersOperation(options:
+            .init(
+                email: email,
+                firstName: firstName,
+                lastName: lastName,
+                inviteType: inviteType,
+                appIds: filterAppIds,
+                groupIds: groupIds,
+                sort: sort,
+                limit: limit,
+                relatedResourcesLimit: relatedResourcesLimit
+            )
         )
-    )
-    .execute(with: requestor)
-    .await()
-    .map(Model.BetaTester.init)
+            .execute(with: requestor)
+            .await()
+            .map(Model.BetaTester.init)
     }
 
     func removeTesterFromGroups(email: String, groupNames: [String]) throws {
@@ -350,8 +350,8 @@ class AppStoreConnectService {
         }
 
         let operation = ListBetaGroupsOperation(options: .init(appIds: filterAppIds, names: names))
-            return try operation.execute(with: requestor).await().map(Model.BetaGroup.init)
-        }
+        return try operation.execute(with: requestor).await().map(Model.BetaGroup.init)
+    }
 
     func modifyBetaGroup(
         appBundleId: String,
@@ -528,7 +528,7 @@ class AppStoreConnectService {
         let readPreReleaseVersionOperation = ReadPreReleaseVersionOperation(options: .init(filterAppId: filterAppId, filterVersion: filterVersion))
         let output = try readPreReleaseVersionOperation.execute(with: requestor).await()
         return PreReleaseVersion(output.preReleaseVersion, output.relationships)
-     }
+    }
 
     /// Make a request for something `Decodable`.
     ///
