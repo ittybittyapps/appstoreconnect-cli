@@ -11,7 +11,7 @@ struct ReadPreReleaseVersionCommand: CommonParsableCommand {
     var common: CommonOptions
 
     @OptionGroup()
-    var identifierArgument: IdentifierArgument
+    var appLookupArgument: AppLookupArgument
 
     @Argument(
         help: ArgumentHelp(
@@ -24,7 +24,7 @@ struct ReadPreReleaseVersionCommand: CommonParsableCommand {
     func run() throws {
         let service = try makeService()
 
-        let prereleaseVersion = try service.readPreReleaseVersion(filterIdentifier: identifierArgument.identifier, filterVersion: version)
+        let prereleaseVersion = try service.readPreReleaseVersion(filterIdentifier: appLookupArgument.identifier, filterVersion: version)
         prereleaseVersion.render(format: common.outputFormat)
     }
 }

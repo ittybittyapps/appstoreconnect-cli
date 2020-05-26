@@ -1,6 +1,6 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
-enum Identifier {
+enum AppLookupIdentifier {
      case appId(String)
      case bundleId(String)
 

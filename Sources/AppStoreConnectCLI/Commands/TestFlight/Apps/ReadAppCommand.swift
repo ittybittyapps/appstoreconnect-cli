@@ -15,12 +15,12 @@ struct ReadAppCommand: CommonParsableCommand {
     var common: CommonOptions
 
     @OptionGroup()
-    var identifierArgument: IdentifierArgument
+    var appLookupArgument: AppLookupArgument
     
     func run() throws {
         let service = try makeService()
 
-        let app = try service.readApp(identifier: identifierArgument.identifier)
+        let app = try service.readApp(identifier: appLookupArgument.identifier)
 
         app.render(format: common.outputFormat)
     }

@@ -2,7 +2,7 @@
 
 import ArgumentParser
 
-struct IdentifierOptions: ParsableArguments {
+struct AppLookupOptions: ParsableArguments {
     @Option(
         parsing: .upToNextOption,
         help: ArgumentHelp(
@@ -10,7 +10,7 @@ struct IdentifierOptions: ParsableArguments {
             discussion: "Please input either app id or bundle Id",
             valueName: "app-id / bundle-id"
         ),
-        transform: Identifier.init
+        transform: AppLookupIdentifier.init
     )
-    var filterIdentifiers: [Identifier]
+    var filterIdentifiers: [AppLookupIdentifier]
 }

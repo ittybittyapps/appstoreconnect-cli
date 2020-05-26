@@ -13,7 +13,7 @@ struct ListBetaGroupsCommand: CommonParsableCommand {
     var common: CommonOptions
 
     @OptionGroup()
-    var identifierOptions: IdentifierOptions
+    var appLookupOptions: AppLookupOptions
 
     @Option(
         parsing: .upToNextOption,
@@ -30,7 +30,7 @@ struct ListBetaGroupsCommand: CommonParsableCommand {
     func run() throws {
         let service = try makeService()
 
-        let betaGroups = try service.listBetaGroups(filterIdentifiers: identifierOptions.filterIdentifiers, names: filterNames)
+        let betaGroups = try service.listBetaGroups(filterIdentifiers: appLookupOptions.filterIdentifiers, names: filterNames)
 
         betaGroups.render(format: common.outputFormat)
     }

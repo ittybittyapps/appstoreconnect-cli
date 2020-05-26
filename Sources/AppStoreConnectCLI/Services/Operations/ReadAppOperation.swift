@@ -7,7 +7,7 @@ import Foundation
 struct ReadAppOperation: APIOperation {
 
     struct Options {
-        let identifier: Identifier
+        let identifier: AppLookupIdentifier
     }
 
     enum Error: LocalizedError {

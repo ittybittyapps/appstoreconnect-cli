@@ -470,7 +470,7 @@ class AppStoreConnectService {
             .await()
     }
 
-    func readApp(identifier: Identifier) throws -> Model.App {
+    func readApp(identifier: AppLookupIdentifier) throws -> Model.App {
         let sdkApp = try ReadAppOperation(options: .init(identifier: identifier))
             .execute(with: requestor)
             .await()
@@ -479,7 +479,7 @@ class AppStoreConnectService {
     }
 
     func listPreReleaseVersions(
-        filterIdentifiers: [Identifier],
+        filterIdentifiers: [AppLookupIdentifier],
         filterVersions: [String],
         filterPlatforms: [String],
         sort: ListPrereleaseVersions.Sort?
@@ -514,7 +514,7 @@ class AppStoreConnectService {
         return output.map(PreReleaseVersion.init)
     }
 
-    func readPreReleaseVersion(filterIdentifier: Identifier, filterVersion: String) throws -> PreReleaseVersion {
+    func readPreReleaseVersion(filterIdentifier: AppLookupIdentifier, filterVersion: String) throws -> PreReleaseVersion {
         var filterAppId: String = ""
 
         switch (filterIdentifier) {

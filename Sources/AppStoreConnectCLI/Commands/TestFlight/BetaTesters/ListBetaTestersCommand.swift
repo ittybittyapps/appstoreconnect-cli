@@ -44,7 +44,7 @@ struct ListBetaTestersCommand: CommonParsableCommand {
     ) var filterInviteType: BetaInviteType?
 
     @OptionGroup()
-    var identifierOptions: IdentifierOptions
+    var appLookupOptions: AppLookupOptions
 
     @Option(
         parsing: .upToNextOption,
@@ -76,7 +76,7 @@ struct ListBetaTestersCommand: CommonParsableCommand {
             firstName: filterFirstName,
             lastName: filterLastName,
             inviteType: filterInviteType,
-            filterIdentifiers: identifierOptions.filterIdentifiers,
+            filterIdentifiers: appLookupOptions.filterIdentifiers,
             groupNames: filterGroupNames,
             sort: sort,
             limit: limit,
