@@ -68,6 +68,12 @@ struct ListBetaTestersCommand: CommonParsableCommand {
     @Option(help: "Number of included related resources to return.")
     var relatedResourcesLimit: Int?
 
+    func validate() throws {
+        if (!appLookupOptions.filterIdentifiers.isEmpty) && !filterGroupNames.isEmpty {
+            throw ValidationError("Only one of these relationship filters ('app-id/ bundle-id', 'group-name') can be applied.")
+        }
+    }
+
     func run() throws {
         let service = try makeService()
 
