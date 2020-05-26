@@ -233,9 +233,9 @@ class AppStoreConnectService {
                 relatedResourcesLimit: relatedResourcesLimit
             )
         )
-            .execute(with: requestor)
-            .await()
-            .map(Model.BetaTester.init)
+        .execute(with: requestor)
+        .await()
+        .map(Model.BetaTester.init)
     }
 
     func removeTesterFromGroups(email: String, groupNames: [String]) throws {
