@@ -61,7 +61,7 @@ class AppStoreConnectService {
         email: String,
         bundleId: String,
         groupNames: [String]
-    ) throws -> BetaTester {
+    ) throws -> Model.BetaTester {
         let id = try InviteTesterOperation(
                 options: .init(
                     firstName: firstName,
