@@ -2,32 +2,21 @@
 
 import Foundation
 import AppStoreConnect_Swift_SDK
+import Model
 import SwiftyTextTable
-
-struct Device: ResultRenderable {
-    var udid: String?
-    var addedDate: Date?
-    var name: String?
-    var deviceClass: DeviceClass?
-    var model: String?
-    var platform: BundleIdPlatform?
-    var status: DeviceStatus?
-}
-
-// TODO: Extract these extensions somewhere that makes sense down the road
 
 // MARK: - API conveniences
 
-extension Device {
+extension Model.Device {
     init( _ attributes: AppStoreConnect_Swift_SDK.Device.Attributes) {
         self.init(
             udid: attributes.udid,
             addedDate: attributes.addedDate,
             name: attributes.name,
-            deviceClass: attributes.deviceClass,
+            deviceClass: attributes.deviceClass?.rawValue,
             model: attributes.model,
-            platform: attributes.platform,
-            status: attributes.status
+            platform: attributes.platform?.rawValue,
+            status: attributes.status?.rawValue
         )
     }
 
@@ -42,7 +31,7 @@ extension Device {
 
 // MARK: - TextTable conveniences
 
-extension Device: TableInfoProvider {
+extension Model.Device: ResultRenderable, TableInfoProvider {
     static func tableColumns() -> [TextTableColumn] {
         return [
             TextTableColumn(header: "UDID"),
@@ -60,10 +49,10 @@ extension Device: TableInfoProvider {
           udid,
           name,
           addedDate?.formattedDate,
-          deviceClass?.rawValue,
+          deviceClass,
           model,
-          platform?.rawValue,
-          status?.rawValue
+          platform,
+          status,
         ].map { $0 ?? "" }
     }
 }

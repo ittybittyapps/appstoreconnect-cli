@@ -4,6 +4,7 @@ import AppStoreConnect_Swift_SDK
 import ArgumentParser
 import Combine
 import Foundation
+import struct Model.Device
 import SwiftyTextTable
 import Yams
 
