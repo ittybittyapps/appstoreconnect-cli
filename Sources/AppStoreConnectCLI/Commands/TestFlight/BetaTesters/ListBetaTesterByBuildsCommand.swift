@@ -3,11 +3,12 @@
 import ArgumentParser
 import AppStoreConnect_Swift_SDK
 import Combine
+import struct Model.BetaTester
 import Foundation
 
 struct ListBetaTesterByBuildsCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
-        commandName: "listByBuilds",
+        commandName: "listbybuilds",
         abstract: "List beta testers who were specifically assigned to one or more builds"
     )
 

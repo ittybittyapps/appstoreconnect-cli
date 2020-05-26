@@ -12,7 +12,7 @@ struct CertificatesCommand: ParsableCommand {
             ListCertificatesCommand.self,
             ReadCertificateCommand.self,
             RevokeCertificatesCommand.self
-        ]
-        // defaultSubcommand: ListCertificatesCommand.self
+        ],
+        defaultSubcommand: ListCertificatesCommand.self
     )
 }

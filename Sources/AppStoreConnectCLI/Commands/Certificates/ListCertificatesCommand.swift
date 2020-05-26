@@ -54,7 +54,7 @@ struct ListCertificatesCommand: CommonParsableCommand {
             .await()
 
         if let downloadPath = downloadPath {
-            try certificates.forEach { (certificate: Certificate) in
+            try certificates.forEach { certificate in
                 guard
                     let content = certificate.content,
                     let data = Data(base64Encoded: content)
