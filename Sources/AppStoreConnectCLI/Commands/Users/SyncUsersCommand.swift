@@ -5,6 +5,7 @@ import ArgumentParser
 import CodableCSV
 import Combine
 import Foundation
+import struct Model.User
 import Yams
 
 struct SyncUsersCommand: CommonParsableCommand {

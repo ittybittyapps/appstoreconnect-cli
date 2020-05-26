@@ -2,6 +2,7 @@
 
 import AppStoreConnect_Swift_SDK
 import Combine
+import struct Model.User
 
 struct ListUsersOperation: APIOperation {
 

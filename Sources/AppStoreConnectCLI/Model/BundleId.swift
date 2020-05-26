@@ -3,23 +3,17 @@
 import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
+import Model
 import SwiftyTextTable
-
-struct BundleId: ResultRenderable {
-    var identifier: String?
-    var name: String?
-    var platform: BundleIdPlatform?
-    var seedId: String?
-}
 
 // MARK: - API conveniences
 
-extension BundleId {
+extension Model.BundleId {
     init(_ attributes: AppStoreConnect_Swift_SDK.BundleId.Attributes) {
         self.init(
             identifier: attributes.identifier,
             name: attributes.name,
-            platform: attributes.platform,
+            platform: attributes.platform?.rawValue,
             seedId: attributes.seedId
         )
     }
@@ -35,7 +29,7 @@ extension BundleId {
 
 // MARK: - TextTable conveniences
 
-extension BundleId: TableInfoProvider {
+extension Model.BundleId: ResultRenderable, TableInfoProvider {
     static func tableColumns() -> [TextTableColumn] {
         return [
             TextTableColumn(header: "Identifier"),
@@ -49,7 +43,7 @@ extension BundleId: TableInfoProvider {
         return [
             identifier ?? "",
             name ?? "",
-            platform?.rawValue ?? "",
+            platform ?? "",
             seedId ?? ""
         ]
     }

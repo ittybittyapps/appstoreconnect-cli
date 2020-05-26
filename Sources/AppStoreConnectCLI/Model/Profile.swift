@@ -2,20 +2,10 @@
 
 import AppStoreConnect_Swift_SDK
 import Foundation
+import Model
 import SwiftyTextTable
 
-struct Profile: Codable {
-    var name: String?
-    var platform: BundleIdPlatform?
-    var profileContent: String?
-    var uuid: String?
-    var createdDate: Date?
-    var profileState: ProfileState?
-    var profileType: ProfileType?
-    var expirationDate: Date?
-}
-
-extension Profile {
+extension Model.Profile {
     init(_ apiProfile: AppStoreConnect_Swift_SDK.Profile) {
         self.init(apiProfile.attributes!)
     }
@@ -23,12 +13,12 @@ extension Profile {
     init(_ attributes: AppStoreConnect_Swift_SDK.Profile.Attributes) {
         self.init(
             name: attributes.name,
-            platform: attributes.platform,
+            platform: attributes.platform?.rawValue,
             profileContent: attributes.profileContent,
             uuid: attributes.uuid,
             createdDate: attributes.createdDate,
-            profileState: attributes.profileState,
-            profileType: attributes.profileType,
+            profileState: attributes.profileState?.rawValue,
+            profileType: attributes.profileType?.rawValue,
             expirationDate: attributes.expirationDate
         )
     }
@@ -38,7 +28,7 @@ extension Profile {
     }
 }
 
-extension Profile: TableInfoProvider {
+extension Model.Profile: TableInfoProvider {
     static func tableColumns() -> [TextTableColumn] {
         return [
             TextTableColumn(header: "UUID"),
@@ -55,9 +45,9 @@ extension Profile: TableInfoProvider {
         return [
             uuid ?? "",
             name ?? "",
-            platform?.rawValue ?? "",
-            profileState?.rawValue ?? "",
-            profileType?.rawValue ?? "",
+            platform ?? "",
+            profileState ?? "",
+            profileType ?? "",
             createdDate?.formattedDate ?? "",
             expirationDate?.formattedDate ?? ""
         ]

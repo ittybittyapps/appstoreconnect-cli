@@ -5,6 +5,7 @@ import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
 import XCTest
+import Model
 
 final class ReadCertificateOperationTests: XCTestCase {
 
@@ -43,9 +44,9 @@ final class ReadCertificateOperationTests: XCTestCase {
 
         switch result {
         case .success(let sdkCertificate):
-            let certificate = Certificate(sdkCertificate)
+            let certificate = Model.Certificate(sdkCertificate)
             XCTAssertEqual(certificate.name, "Mac Installer Distribution: Hello")
-            XCTAssertEqual(certificate.platform, BundleIdPlatform.macOS)
+            XCTAssertEqual(certificate.platform, BundleIdPlatform.macOS.rawValue)
             XCTAssertEqual(certificate.content, "MIIFpDCCBIygAwIBAgIIbgb/7NS42MgwDQ")
         default:
             XCTFail("Error happened when parsing read certificate response")

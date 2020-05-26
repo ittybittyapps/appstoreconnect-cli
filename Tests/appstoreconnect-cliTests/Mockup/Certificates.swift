@@ -1,6 +1,7 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
 @testable import AppStoreConnectCLI
+import AppStoreConnect_Swift_SDK
 import Foundation
 
 extension Certificate {

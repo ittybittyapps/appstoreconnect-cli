@@ -4,6 +4,7 @@ import ArgumentParser
 import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
+import struct Model.Device
 
 struct RegisterDeviceCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
