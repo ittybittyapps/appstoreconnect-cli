@@ -69,7 +69,7 @@ struct ListBetaTestersCommand: CommonParsableCommand {
     var relatedResourcesLimit: Int?
 
     func validate() throws {
-        if (!appLookupOptions.filterIdentifiers.isEmpty) && !filterGroupNames.isEmpty {
+        if !appLookupOptions.filterIdentifiers.isEmpty && !filterGroupNames.isEmpty {
             throw ValidationError("Only one of these relationship filters ('app-id/ bundle-id', 'group-name') can be applied.")
         }
     }
