@@ -8,7 +8,8 @@ struct ListUsersOperation: APIOperation {
     
     typealias Filter = ListUsers.Filter
     typealias Limit = ListUsers.Limit
-
+    typealias Include = ListUsers.Include
+    
     struct Options {
         let limitVisibleApps: Int?
         let limitUsers: Int?
@@ -18,14 +19,14 @@ struct ListUsersOperation: APIOperation {
         let filterVisibleApps: [String]
         let includeVisibleApps: Bool
     }
-    
-    var limit: [ListUsers.Limit]? {
+
+    var limit: [Limit]? {
         [options.limitUsers.map(Limit.users), options.limitVisibleApps.map(Limit.visibleApps)]
         .compactMap { $0 }
         .nilIfEmpty()
     }
 
-    var include: [ListUsers.Include]? {
+    var include: [Include]? {
         options.includeVisibleApps ? [ListUsers.Include.visibleApps] : nil
     }
 

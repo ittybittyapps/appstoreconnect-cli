@@ -8,7 +8,7 @@ import XCTest
 
 final class ListCertificateOperationsTests: XCTestCase {
 
-    typealias OperationError = ListCertificatesOperation.ListCertificatesError
+    typealias OperationError = ListCertificatesOperation.Error
 
     let noCertificatesRequestor = OneEndpointTestRequestor(
         response: { _ in Future({ $0(.success(noCertificatesResponse)) }) }

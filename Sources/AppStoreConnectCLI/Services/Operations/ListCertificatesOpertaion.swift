@@ -9,7 +9,7 @@ struct ListCertificatesOperation: APIOperation {
 
     typealias Filter = Certificates.Filter
 
-    enum ListCertificatesError: LocalizedError {
+    enum Error: LocalizedError {
         case couldNotFindCertificate
 
         var errorDescription: String? {
@@ -19,7 +19,7 @@ struct ListCertificatesOperation: APIOperation {
             }
         }
     }
-
+    
     struct Options {
         let filterSerial: String?
         let sort: Certificates.Sort?
@@ -27,9 +27,9 @@ struct ListCertificatesOperation: APIOperation {
         let filterDisplayName: String?
         let limit: Int?
     }
-    
-    var filters: [Certificates.Filter] {
-        var filters = [Certificates.Filter]()
+
+    var filters: [Filter] {
+        var filters = [Filter]()
 
         if let filterSerial = options.filterSerial {
             filters.append(.serialNumber([filterSerial]))
@@ -52,7 +52,7 @@ struct ListCertificatesOperation: APIOperation {
         self.options = options
     }
 
-    func execute(with requestor: EndpointRequestor) -> AnyPublisher<[Certificate], Error> {
+    func execute(with requestor: EndpointRequestor) -> AnyPublisher<[Certificate], Swift.Error> {
         let filters = self.filters
         let sort = [options.sort].compactMap { $0 }
         let limit = options.limit
@@ -68,7 +68,7 @@ struct ListCertificatesOperation: APIOperation {
         .tryMap {
             try $0.flatMap { (response: CertificatesResponse) -> [Certificate] in
                 guard !response.data.isEmpty else {
-                    throw ListCertificatesError.couldNotFindCertificate
+                    throw Error.couldNotFindCertificate
                 }
 
                 return response.data.map(Certificate.init)
