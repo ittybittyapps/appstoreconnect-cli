@@ -12,23 +12,13 @@ struct ListBundleIdsOperation: APIOperation {
         let limit: Int?
 
         fileprivate var endpoint: APIEndpoint<BundleIdsResponse> {
+            let platforms = self.platforms.compactMap(Platform.init(rawValue:))
+
             var filters: [BundleIds.Filter] = []
-
-            if identifiers.isEmpty == false {
-                filters.append(.identifier(identifiers))
-            }
-
-            if names.isEmpty == false {
-                filters.append(.name(names))
-            }
-
-            if platforms.isEmpty == false {
-                filters.append(.platform(platforms.compactMap(Platform.init(rawValue:))))
-            }
-
-            if seedIds.isEmpty == false {
-                filters.append(.seedId(seedIds))
-            }
+            filters += identifiers.isEmpty ? [] : [.identifier(identifiers)]
+            filters += names.isEmpty ? [] : [.name(names)]
+            filters += platforms.isEmpty ? [] : [.platform(platforms)]
+            filters += seedIds.isEmpty ? [] : [.seedId(seedIds)]
 
             return .listBundleIds(filter: filters, limit: limit)
         }
