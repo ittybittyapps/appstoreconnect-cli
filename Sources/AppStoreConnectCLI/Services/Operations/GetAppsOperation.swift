@@ -8,6 +8,18 @@ struct GetAppsOperation: APIOperation {
 
     struct Options {
         let bundleIds: [String]
+        let names: [String]
+        let skus: [String]
+
+        init(
+            bundleIds: [String] = [],
+            names: [String] = [],
+            skus: [String] = []
+        ) {
+            self.bundleIds = bundleIds
+            self.names = []
+            self.skus = []
+        }
     }
 
     enum GetAppIdsError: LocalizedError {
