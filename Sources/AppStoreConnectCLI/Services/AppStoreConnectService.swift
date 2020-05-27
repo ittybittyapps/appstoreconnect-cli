@@ -17,10 +17,11 @@ class AppStoreConnectService {
     func listApps(
         bundleIds: [String],
         names: [String],
-        skus: [String]
+        skus: [String],
+        limit: Int?
     ) throws -> [Model.App] {
-        let operation = GetAppsOperation(
-            options: .init(bundleIds: bundleIds, names: names, skus: skus)
+        let operation = ListAppsOperation(
+            options: .init(bundleIds: bundleIds, names: names, skus: skus, limit: limit)
         )
 
         let output = try operation.execute(with: requestor).await()
