@@ -10,15 +10,18 @@ struct GetAppsOperation: APIOperation {
         let bundleIds: [String]
         let names: [String]
         let skus: [String]
+        let limit: Int?
 
         init(
             bundleIds: [String] = [],
             names: [String] = [],
-            skus: [String] = []
+            skus: [String] = [],
+            limit: Int? = nil
         ) {
             self.bundleIds = bundleIds
             self.names = []
             self.skus = []
+            self.limit = limit
         }
     }
 
