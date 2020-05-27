@@ -14,6 +14,20 @@ class AppStoreConnectService {
         requestor = DefaultEndpointRequestor(provider: provider)
     }
 
+    func listApps(
+        bundleIds: [String],
+        names: [String],
+        skus: [String]
+    ) throws -> [Model.App] {
+        let operation = GetAppsOperation(
+            options: .init(bundleIds: bundleIds, names: names, skus: skus)
+        )
+
+        let output = try operation.execute(with: requestor).await()
+
+        return output.map(Model.App.init)
+    }
+
     func listUsers(with options: ListUsersOptions) -> AnyPublisher<[Model.User], Error> {
         ListUsersOperation(options: options).execute(with: requestor)
     }
