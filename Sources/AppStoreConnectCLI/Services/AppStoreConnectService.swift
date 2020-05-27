@@ -29,6 +29,26 @@ class AppStoreConnectService {
         return output.map(Model.App.init)
     }
 
+    func listBundleIds(
+        identifiers: [String],
+        names: [String],
+        platforms: [String],
+        seedIds: [String],
+        limit: Int?
+    ) throws -> [Model.BundleId] {
+        let operation = ListBundleIdsOperation(options:
+            .init(
+                identifiers: identifiers,
+                names: names,
+                platforms: platforms,
+                seedIds: seedIds,
+                limit: limit
+            )
+        )
+
+        return try operation.execute(with: requestor).await().map(Model.BundleId.init)
+    }
+
     func listUsers(with options: ListUsersOptions) -> AnyPublisher<[Model.User], Error> {
         ListUsersOperation(options: options).execute(with: requestor)
     }
