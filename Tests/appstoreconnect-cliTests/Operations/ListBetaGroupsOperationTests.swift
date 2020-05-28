@@ -15,7 +15,7 @@ final class ListBetaGroupsOperationTests: XCTestCase {
     )
 
     func testExecute_success() throws {
-        let operation = Operation(options: Options(appIds: [], names: []))
+        let operation = Operation(options: Options(appIds: [], names: [], sort: nil))
 
         let output = try operation.execute(with: successRequestor).await()
 
@@ -25,7 +25,7 @@ final class ListBetaGroupsOperationTests: XCTestCase {
     }
 
     func testExecute_propagatesUpstreamErrors() {
-        let operation = Operation(options: Options(appIds: [], names: []))
+        let operation = Operation(options: Options(appIds: [], names: [], sort: nil))
 
         let result = Result { try operation.execute(with: FailureTestRequestor()).await() }
 
