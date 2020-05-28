@@ -238,22 +238,52 @@ class AppStoreConnectService {
             }
         }
 
-        return try ListBetaTestersOperation(options:
-            .init(
-                email: email,
-                firstName: firstName,
-                lastName: lastName,
-                inviteType: inviteType,
-                appIds: filterAppIds,
-                groupIds: groupIds,
-                sort: sort,
-                limit: limit,
-                relatedResourcesLimit: relatedResourcesLimit
+        if !groupIds.isEmpty && !filterAppIds.isEmpty {
+            var modelBetaTesters: [Model.BetaTester] = []
+            let operation = ListBetaGroupsOperation(options: .init(appIds: filterAppIds, names: groupNames, sort: nil, include: [.app, .betaTesters]))
+
+            let result =  try operation.execute(with: requestor)
+                .await()
+
+            result.forEach { response in
+                let betaTesters = response.betaTester
+                let betaGroup = response.betaGroup
+                let app = response.app
+
+                betaTesters?.forEach { betaTester in
+                    let modelBetaTester: Model.BetaTester =  Model.BetaTester.init(
+                        email: betaTester.attributes?.email,
+                        firstName: betaTester.attributes?.firstName,
+                        lastName: betaTester.attributes?.lastName,
+                        inviteType: betaTester.attributes?.inviteType?.rawValue,
+                        betaGroups: [betaGroup.attributes?.name ?? ""],
+                        apps: [app.attributes?.name ?? ""]
+                    )
+                    modelBetaTesters.append(modelBetaTester)
+
+                }
+            }
+
+            return modelBetaTesters
+
+        } else {
+            return try ListBetaTestersOperation(options:
+                .init(
+                    email: email,
+                    firstName: firstName,
+                    lastName: lastName,
+                    inviteType: inviteType,
+                    appIds: filterAppIds,
+                    groupIds: groupIds,
+                    sort: sort,
+                    limit: limit,
+                    relatedResourcesLimit: relatedResourcesLimit
+                )
             )
-        )
-        .execute(with: requestor)
-        .await()
-        .map(Model.BetaTester.init)
+            .execute(with: requestor)
+            .await()
+            .map(Model.BetaTester.init)
+        }
     }
 
     func removeTesterFromGroups(email: String, groupNames: [String]) throws {
@@ -380,11 +410,11 @@ class AppStoreConnectService {
             filterAppIds += try appsOperation.execute(with: requestor).await().map(\.id)
         }
 
-        let operation = ListBetaGroupsOperation(
-            options: .init(appIds: filterAppIds, names: names, sort: sort, excludeInternal: excludeInternal)
-        )
+        let operation = ListBetaGroupsOperation(options: .init(appIds: filterAppIds, names: names, sort: sort,  excludeInternal: excludeInternal, include: [.app]))
+        return try operation.execute(with: requestor).await().map {
+            Model.BetaGroup($0.app, $0.betaGroup)
+        }
 
-        return try operation.execute(with: requestor).await().map(Model.BetaGroup.init)
     }
 
     func modifyBetaGroup(
@@ -611,7 +641,7 @@ extension AppStoreConnectService {
             .await()
             .build
             .id
-        let groupIds = try ListBetaGroupsOperation(options: .init(appIds: [], names: [], sort: nil))
+        let groupIds = try ListBetaGroupsOperation(options: .init(appIds: [], names: [], sort: nil, include: [.app]))
             .execute(with: requestor)
             .await()
             .filter {

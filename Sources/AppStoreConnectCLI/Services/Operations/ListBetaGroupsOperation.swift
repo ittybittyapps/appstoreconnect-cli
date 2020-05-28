@@ -11,12 +11,14 @@ struct ListBetaGroupsOperation: APIOperation {
         let names: [String]
         let sort: ListBetaGroups.Sort?
         var excludeInternal: Bool?
+        let include: [ListBetaGroups.Include]
     }
 
     typealias BetaGroup = AppStoreConnect_Swift_SDK.BetaGroup
     typealias App = AppStoreConnect_Swift_SDK.App
+     
 
-    typealias Output = [(app: App, betaGroup: BetaGroup)]
+    typealias Output = [(app: App, betaGroup: BetaGroup, betaTester: [BetaTester]?)]
 
     enum Error: LocalizedError {
         case missingAppData(BetaGroup)
@@ -46,9 +48,9 @@ struct ListBetaGroupsOperation: APIOperation {
 
         let response = requestor.requestAllPages {
             APIEndpoint.betaGroups(
-                filter: filters,
-                include: [.app],
+                filter: filters, 
                 sort: [self.options.sort].compactMap { $0 },
+                include: self.options.include,
                 next: $0
             )
         }
@@ -67,7 +69,7 @@ struct ListBetaGroupsOperation: APIOperation {
                     }
                 )
 
-                return try response.data.map { betaGroup -> (App, BetaGroup) in
+                return try response.data.map { betaGroup -> (app: App, betaGroup: BetaGroup, betaTester: [BetaTester]?) in
                     guard
                         let appId = betaGroup.relationships?.app?.data?.id,
                         let app = apps?[appId]
@@ -75,7 +77,20 @@ struct ListBetaGroupsOperation: APIOperation {
                         throw Error.missingAppData(betaGroup)
                     }
 
-                    return (app, betaGroup)
+                    var betaTesters: [BetaTester]? = nil
+
+                    betaGroup.relationships?.betaTesters?.data?.forEach { data in
+                        let includedBetaTesters = response.included?.compactMap { relationship -> AppStoreConnect_Swift_SDK.BetaTester? in
+                            if case let .betaTester(betaTesters) = relationship {
+                                return betaTesters
+                            }
+                            return nil
+                        }
+
+                        betaTesters = includedBetaTesters
+                    }
+
+                    return (app, betaGroup, betaTesters)
                 }
             }
         }

@@ -11,8 +11,8 @@ struct ListBetaTestersOperation: APIOperation {
         let firstName: String?
         let lastName: String?
         let inviteType: BetaInviteType?
-        let appIds: [String]?
-        let groupIds: [String]?
+        let appIds: [String]
+        let groupIds: [String]
         let sort: ListBetaTesters.Sort?
         let limit: Int?
         let relatedResourcesLimit: Int?
@@ -77,12 +77,12 @@ struct ListBetaTestersOperation: APIOperation {
             filters.append(.inviteType([inviteType.rawValue]))
         }
 
-        if let appIds = options.appIds, !appIds.isEmpty {
-            filters.append(.apps(appIds))
+        if !options.appIds.isEmpty && options.groupIds.isEmpty {
+            filters.append(.apps(options.appIds))
         }
 
-        if let groupIds = options.groupIds, !groupIds.isEmpty {
-            filters.append(.betaGroups(groupIds))
+        if !options.groupIds.isEmpty && options.appIds.isEmpty {
+            filters.append(.betaGroups(options.groupIds))
         }
 
         return filters
