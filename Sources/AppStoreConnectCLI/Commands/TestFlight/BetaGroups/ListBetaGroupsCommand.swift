@@ -1,7 +1,7 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
 import ArgumentParser
-import Foundation
+import AppStoreConnect_Swift_SDK
 
 struct ListBetaGroupsCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
@@ -27,10 +27,18 @@ struct ListBetaGroupsCommand: CommonParsableCommand {
         )
     ) var filterNames: [String]
 
+    @Option(
+        parsing: .unconditional,
+        help: ArgumentHelp(
+            "Sort the results using the provided key \(ListBetaGroups.Sort.allCases).",
+            discussion: "The `-` prefix indicates descending order."
+        )
+    ) var sort: ListBetaGroups.Sort?
+
     func run() throws {
         let service = try makeService()
 
-        let betaGroups = try service.listBetaGroups(filterIdentifiers: appLookupOptions.filterIdentifiers, names: filterNames)
+        let betaGroups = try service.listBetaGroups(filterIdentifiers: appLookupOptions.filterIdentifiers, names: filterNames, sort: sort)
 
         betaGroups.render(format: common.outputFormat)
     }

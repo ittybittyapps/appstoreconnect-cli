@@ -9,6 +9,7 @@ struct ListBetaGroupsOperation: APIOperation {
     struct Options {
         let appIds: [String]
         let names: [String]
+        let sort: ListBetaGroups.Sort?
     }
 
     typealias BetaGroup = AppStoreConnect_Swift_SDK.BetaGroup
@@ -39,7 +40,12 @@ struct ListBetaGroupsOperation: APIOperation {
         filters += options.names.isEmpty ? [] : [.name(options.names)]
 
         let response = requestor.requestAllPages {
-            APIEndpoint.betaGroups(filter: filters, include: [.app], next: $0)
+            APIEndpoint.betaGroups(
+                filter: filters,
+                include: [.app],
+                sort: [self.options.sort].compactMap { $0 },
+                next: $0
+            )
         }
 
         let output = response.tryMap { (responses: [BetaGroupsResponse]) in
