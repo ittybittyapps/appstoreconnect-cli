@@ -14,6 +14,21 @@ class AppStoreConnectService {
         requestor = DefaultEndpointRequestor(provider: provider)
     }
 
+    func listApps(
+        bundleIds: [String],
+        names: [String],
+        skus: [String],
+        limit: Int?
+    ) throws -> [Model.App] {
+        let operation = ListAppsOperation(
+            options: .init(bundleIds: bundleIds, names: names, skus: skus, limit: limit)
+        )
+
+        let output = try operation.execute(with: requestor).await()
+
+        return output.map(Model.App.init)
+    }
+
     func listUsers(with options: ListUsersOptions) -> AnyPublisher<[Model.User], Error> {
         ListUsersOperation(options: options).execute(with: requestor)
     }
@@ -55,8 +70,21 @@ class AppStoreConnectService {
             .awaitMany()
     }
 
-    func inviteBetaTesterToGroups(with options: InviteBetaTesterOptions) throws -> Model.BetaTester {
-        let id = try InviteTesterOperation(options: options)
+    func inviteBetaTesterToGroups(
+        firstName: String?,
+        lastName: String?,
+        email: String,
+        bundleId: String,
+        groupNames: [String]
+    ) throws -> Model.BetaTester {
+        let id = try InviteTesterOperation(
+                options: .init(
+                    firstName: firstName,
+                    lastName: lastName,
+                    email: email,
+                    identifers: .bundleIdWithGroupNames(bundleId: bundleId, groupNames: groupNames)
+                )
+            )
             .execute(with: requestor)
             .await()
             .id
@@ -176,20 +204,28 @@ class AppStoreConnectService {
         firstName: String?,
         lastName: String?,
         inviteType: BetaInviteType?,
-        appIds: [String],
-        bundleIds: [String],
+        filterIdentifiers: [AppLookupIdentifier],
         groupNames: [String],
         sort: ListBetaTesters.Sort?,
         limit: Int?,
         relatedResourcesLimit: Int?
     ) throws -> [Model.BetaTester] {
 
-        var appIds: [String] = appIds
-        if !bundleIds.isEmpty && appIds.isEmpty {
-            appIds = try GetAppsOperation(options: .init(bundleIds: bundleIds))
-                .execute(with: requestor)
-                .await()
-                .map(\.id)
+        var filterAppIds: [String] = []
+        var filterBundleIds: [String] = []
+
+        filterIdentifiers.forEach { identifier in
+            switch identifier {
+            case .appId(let filterAppId):
+                filterAppIds.append(filterAppId)
+            case .bundleId(let filterBundleId):
+                filterBundleIds.append(filterBundleId)
+            }
+        }
+
+        if !filterBundleIds.isEmpty {
+            let appsOperation = GetAppsOperation(options: .init(bundleIds: filterBundleIds))
+            filterAppIds += try appsOperation.execute(with: requestor).await().map(\.id)
         }
 
         var groupIds: [String] = []
@@ -200,21 +236,21 @@ class AppStoreConnectService {
         }
 
         return try ListBetaTestersOperation(options:
-                .init(
-                    email: email,
-                    firstName: firstName,
-                    lastName: lastName,
-                    inviteType: inviteType,
-                    appIds: appIds,
-                    groupIds: groupIds,
-                    sort: sort,
-                    limit: limit,
-                    relatedResourcesLimit: relatedResourcesLimit
-                )
+            .init(
+                email: email,
+                firstName: firstName,
+                lastName: lastName,
+                inviteType: inviteType,
+                appIds: filterAppIds,
+                groupIds: groupIds,
+                sort: sort,
+                limit: limit,
+                relatedResourcesLimit: relatedResourcesLimit
             )
-            .execute(with: requestor)
-            .await()
-            .map(Model.BetaTester.init)
+        )
+        .execute(with: requestor)
+        .await()
+        .map(Model.BetaTester.init)
     }
 
     func removeTesterFromGroups(email: String, groupNames: [String]) throws {
@@ -310,16 +346,29 @@ class AppStoreConnectService {
             .await()
     }
 
-    func listBetaGroups(bundleIds: [String], names: [String]) throws -> [Model.BetaGroup] {
-        let operation = GetAppsOperation(options: .init(bundleIds: bundleIds))
-        let appIds = try operation.execute(with: requestor).await().map(\.id)
+    func listBetaGroups(
+        filterIdentifiers: [AppLookupIdentifier],
+        names: [String],
+        sort: ListBetaGroups.Sort?
+    ) throws -> [Model.BetaGroup] {
+        var filterAppIds: [String] = []
+        var filterBundleIds: [String] = []
 
-        return try listBetaGroups(appIds: appIds, names: names)
-    }
+        filterIdentifiers.forEach { identifier in
+            switch identifier {
+            case .appId(let filterAppId):
+                filterAppIds.append(filterAppId)
+            case .bundleId(let filterBundleId):
+                filterBundleIds.append(filterBundleId)
+            }
+        }
 
-    func listBetaGroups(appIds: [String], names: [String]) throws -> [Model.BetaGroup] {
-        let operation = ListBetaGroupsOperation(options: .init(appIds: appIds, names: names))
+        if !filterBundleIds.isEmpty {
+            let appsOperation = GetAppsOperation(options: .init(bundleIds: filterBundleIds))
+            filterAppIds += try appsOperation.execute(with: requestor).await().map(\.id)
+        }
 
+        let operation = ListBetaGroupsOperation(options: .init(appIds: filterAppIds, names: names, sort: sort))
         return try operation.execute(with: requestor).await().map(Model.BetaGroup.init)
     }
 
@@ -440,7 +489,7 @@ class AppStoreConnectService {
             .await()
     }
 
-    func readApp(identifier: ReadAppCommand.Identifier) throws -> Model.App {
+    func readApp(identifier: AppLookupIdentifier) throws -> Model.App {
         let sdkApp = try ReadAppOperation(options: .init(identifier: identifier))
             .execute(with: requestor)
             .await()
@@ -449,7 +498,7 @@ class AppStoreConnectService {
     }
 
     func listPreReleaseVersions(
-        filterIdentifiers: [ListPreReleaseVersionsCommand.Identifier],
+        filterIdentifiers: [AppLookupIdentifier],
         filterVersions: [String],
         filterPlatforms: [String],
         sort: ListPrereleaseVersions.Sort?
@@ -458,8 +507,8 @@ class AppStoreConnectService {
         var filterAppIds: [String] = []
         var filterBundleIds: [String] = []
 
-        _ = filterIdentifiers.map { identifier in
-            switch (identifier) {
+        filterIdentifiers.forEach { identifier in
+            switch identifier {
             case .appId(let filterAppId):
                 filterAppIds.append(filterAppId)  
             case .bundleId(let filterBundleId):
@@ -484,7 +533,7 @@ class AppStoreConnectService {
         return output.map(PreReleaseVersion.init)
     }
 
-    func readPreReleaseVersion(filterIdentifier: ReadPreReleaseVersionCommand.Identifier, filterVersion: String) throws -> PreReleaseVersion {
+    func readPreReleaseVersion(filterIdentifier: AppLookupIdentifier, filterVersion: String) throws -> PreReleaseVersion {
         var filterAppId: String = ""
 
         switch (filterIdentifier) {
@@ -498,7 +547,7 @@ class AppStoreConnectService {
         let readPreReleaseVersionOperation = ReadPreReleaseVersionOperation(options: .init(filterAppId: filterAppId, filterVersion: filterVersion))
         let output = try readPreReleaseVersionOperation.execute(with: requestor).await()
         return PreReleaseVersion(output.preReleaseVersion, output.relationships)
-     }
+    }
 
     /// Make a request for something `Decodable`.
     ///
@@ -547,7 +596,7 @@ extension AppStoreConnectService {
             .await()
             .build
             .id
-        let groupIds = try ListBetaGroupsOperation(options: .init(appIds: [], names: []))
+        let groupIds = try ListBetaGroupsOperation(options: .init(appIds: [], names: [], sort: nil))
             .execute(with: requestor)
             .await()
             .filter {
