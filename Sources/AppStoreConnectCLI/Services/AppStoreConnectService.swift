@@ -260,7 +260,6 @@ class AppStoreConnectService {
                         apps: [app.attributes?.name ?? ""]
                     )
                     modelBetaTesters.append(modelBetaTester)
-
                 }
             }
 
