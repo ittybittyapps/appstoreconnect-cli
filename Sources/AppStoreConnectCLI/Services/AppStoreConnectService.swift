@@ -230,8 +230,11 @@ class AppStoreConnectService {
 
         var groupIds: [String] = []
         if !groupNames.isEmpty {
-            groupIds = try groupNames.map {
-                try betaGroupIdentifier(matching: $0).await()
+            groupIds = try groupNames.flatMap {
+                try ListBetaGroupsOperation(options: .init(appIds: [], names: [$0], sort: nil))
+                    .execute(with: requestor)
+                    .await()
+                    .map { $0.betaGroup.id }
             }
         }
 
@@ -262,7 +265,12 @@ class AppStoreConnectService {
             .betaTester
             .id
 
-        let groupIds = try groupNames.map { try betaGroupIdentifier(matching: $0).await() }
+        let groupIds = try groupNames.flatMap {
+            try ListBetaGroupsOperation(options: .init(appIds: [], names: [$0], sort: nil))
+                .execute(with: requestor)
+                .await()
+                .map { $0.betaGroup.id }
+        }
 
         let operation = RemoveTesterOperation(
             options: .init(
@@ -274,7 +282,10 @@ class AppStoreConnectService {
     }
 
     func removeTestersFromGroup(groupName: String, emails: [String]) throws {
-        let groupId = try betaGroupIdentifier(matching: groupName).await()
+        let groupId = try GetBetaGroupOperation(options: .init(app: nil, betaGroupName: groupName))
+            .execute(with: requestor)
+            .await()
+            .id
 
         let testerIds = try emails.map {
             try GetBetaTesterOperation(
