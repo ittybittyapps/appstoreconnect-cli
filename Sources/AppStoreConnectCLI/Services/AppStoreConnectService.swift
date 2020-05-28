@@ -360,7 +360,8 @@ class AppStoreConnectService {
     func listBetaGroups(
         filterIdentifiers: [AppLookupIdentifier],
         names: [String],
-        sort: ListBetaGroups.Sort?
+        sort: ListBetaGroups.Sort?,
+        excludeInternal: Bool
     ) throws -> [Model.BetaGroup] {
         var filterAppIds: [String] = []
         var filterBundleIds: [String] = []
@@ -379,7 +380,10 @@ class AppStoreConnectService {
             filterAppIds += try appsOperation.execute(with: requestor).await().map(\.id)
         }
 
-        let operation = ListBetaGroupsOperation(options: .init(appIds: filterAppIds, names: names, sort: sort))
+        let operation = ListBetaGroupsOperation(
+            options: .init(appIds: filterAppIds, names: names, sort: sort, excludeInternal: excludeInternal)
+        )
+
         return try operation.execute(with: requestor).await().map(Model.BetaGroup.init)
     }
 
