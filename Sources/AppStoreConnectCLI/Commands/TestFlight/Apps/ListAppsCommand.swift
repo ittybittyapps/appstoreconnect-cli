@@ -27,37 +27,15 @@ struct ListAppsCommand: CommonParsableCommand {
     @Option(parsing: .upToNextOption, help: "Filter the results by the specified app SKUs")
     var filterSkus: [String]
 
-    private var listFilters: [ListApps.Filter]? {
-        var filters = [ListApps.Filter]()
-
-        if filterBundleIds.isEmpty == false {
-            filters += [ListApps.Filter.bundleId(filterBundleIds)]
-        }
-
-        if filterNames.isEmpty == false {
-            filters += [ListApps.Filter.name(filterNames)]
-        }
-
-        if filterSkus.isEmpty == false {
-            filters += [ListApps.Filter.sku(filterSkus)]
-        }
-
-        return filters
-    }
-
     func run() throws {
         let service = try makeService()
 
-        let limits = limit.map { [ListApps.Limit.apps($0)] }
-
-        let request = APIEndpoint.apps(
-            filters: listFilters,
-            limits: limits
+        let apps = try service.listApps(
+            bundleIds: filterBundleIds,
+            names: filterNames,
+            skus: filterSkus,
+            limit: limit
         )
-
-        let apps = try service.request(request)
-            .map { $0.data.map(App.init) }
-            .await()
 
         apps.render(format: common.outputFormat)
     }
