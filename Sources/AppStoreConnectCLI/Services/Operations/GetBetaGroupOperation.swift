@@ -6,7 +6,7 @@ import Foundation
 
 struct GetBetaGroupOperation: APIOperation {
     struct Options {
-        let app: App
+        let app: App?
         let betaGroupName: String
     }
 
@@ -35,11 +35,14 @@ struct GetBetaGroupOperation: APIOperation {
 
     func execute(with requestor: EndpointRequestor) -> AnyPublisher<BetaGroup, Swift.Error> {
         let betaGroupName = options.betaGroupName
-        let bundleId = options.app.attributes?.bundleId ?? ""
+        let bundleId = options.app?.attributes?.bundleId ?? ""
 
-        let endpoint = APIEndpoint.betaGroups(
-            filter: [.app([options.app.id]), .name([betaGroupName])]
-        )
+        var filter: [ListBetaGroups.Filter] = [.name([betaGroupName])]
+        if let app = options.app {
+            filter.append(.app([app.id]))
+        }
+
+        let endpoint = APIEndpoint.betaGroups(filter: filter)
 
         let betaGroup = requestor.request(endpoint).tryMap { response -> BetaGroup in
             let betaGroups = response.data.filter { $0.attributes?.name == betaGroupName }
