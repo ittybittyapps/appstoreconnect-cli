@@ -231,7 +231,7 @@ class AppStoreConnectService {
         var groupIds: [String] = []
         if !groupNames.isEmpty {
             groupIds = try groupNames.flatMap {
-                try ListBetaGroupsOperation(options: .init(appIds: [], names: [$0], sort: nil))
+                try ListBetaGroupsOperation(options: .init(appIds: [], names: [$0], sort: nil, include: [.app]))
                     .execute(with: requestor)
                     .await()
                     .map { $0.betaGroup.id }
@@ -295,7 +295,7 @@ class AppStoreConnectService {
             .id
 
         let groupIds = try groupNames.flatMap {
-            try ListBetaGroupsOperation(options: .init(appIds: [], names: [$0], sort: nil))
+            try ListBetaGroupsOperation(options: .init(appIds: [], names: [$0], sort: nil, include: [.app]))
                 .execute(with: requestor)
                 .await()
                 .map { $0.betaGroup.id }

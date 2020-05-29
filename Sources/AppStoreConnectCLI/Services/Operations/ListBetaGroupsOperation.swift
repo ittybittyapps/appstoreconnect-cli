@@ -16,7 +16,6 @@ struct ListBetaGroupsOperation: APIOperation {
 
     typealias BetaGroup = AppStoreConnect_Swift_SDK.BetaGroup
     typealias App = AppStoreConnect_Swift_SDK.App
-     
 
     typealias Output = [(app: App, betaGroup: BetaGroup, betaTester: [BetaTester]?)]
 
