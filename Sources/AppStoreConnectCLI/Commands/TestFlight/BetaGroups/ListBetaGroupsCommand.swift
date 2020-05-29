@@ -35,11 +35,20 @@ struct ListBetaGroupsCommand: CommonParsableCommand {
         )
     ) var sort: ListBetaGroups.Sort?
 
+    @Flag(
+        help: "Exclude apple store connect internal beta groups."
+    ) var excludeInternal: Bool
+
     func run() throws {
         let service = try makeService()
 
-        let betaGroups = try service.listBetaGroups(filterIdentifiers: appLookupOptions.filterIdentifiers, names: filterNames, sort: sort)
-
+        let betaGroups = try service.listBetaGroups(
+            filterIdentifiers: appLookupOptions.filterIdentifiers,
+            names: filterNames,
+            sort: sort,
+            excludeInternal: excludeInternal
+        )
+        
         betaGroups.render(format: common.outputFormat)
     }
 }

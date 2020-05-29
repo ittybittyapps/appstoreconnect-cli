@@ -10,6 +10,7 @@ struct ListBetaGroupsOperation: APIOperation {
         let appIds: [String]
         let names: [String]
         let sort: ListBetaGroups.Sort?
+        var excludeInternal: Bool?
     }
 
     typealias BetaGroup = AppStoreConnect_Swift_SDK.BetaGroup
@@ -38,6 +39,10 @@ struct ListBetaGroupsOperation: APIOperation {
         var filters: [ListBetaGroups.Filter] = []
         filters += options.appIds.isEmpty ? [] : [.app(options.appIds)]
         filters += options.names.isEmpty ? [] : [.name(options.names)]
+
+        if let excludeInternal = options.excludeInternal, excludeInternal {
+            filters += [.isInternalGroup(["\(!excludeInternal)"])]
+        }
 
         let response = requestor.requestAllPages {
             APIEndpoint.betaGroups(
