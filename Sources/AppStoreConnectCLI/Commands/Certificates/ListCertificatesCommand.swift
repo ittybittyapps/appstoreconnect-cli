@@ -41,17 +41,14 @@ struct ListCertificatesCommand: CommonParsableCommand {
     func run() throws {
         let service = try makeService()
 
-        let options = ListCertificatesOptions(
-            filterSerial: filterSerial,
-            sort: sort,
-            filterType: filterType,
-            filterDisplayName: filterDisplayName,
-            limit: limit
-        )
-
         let certificates = try service
-            .listCertificates(with: options)
-            .await()
+            .listCertificates(
+                filterSerial: filterSerial,
+                sort: sort,
+                filterType: filterType,
+                filterDisplayName: filterDisplayName,
+                limit: limit
+            )
 
         if let downloadPath = downloadPath {
             try certificates.forEach { certificate in

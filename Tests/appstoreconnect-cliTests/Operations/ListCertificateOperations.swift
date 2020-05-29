@@ -15,7 +15,7 @@ final class ListCertificateOperationsTests: XCTestCase {
     )
 
     func testCouldNotFindCertificate() {
-        let options = ListCertificatesOptions(
+        let options = ListCertificatesOperation.Options(
             filterSerial: nil,
             sort: nil,
             filterType: nil,

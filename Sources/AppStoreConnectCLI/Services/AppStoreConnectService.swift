@@ -78,9 +78,23 @@ class AppStoreConnectService {
     }
 
     func listCertificates(
-        with options: ListCertificatesOptions
-    ) -> AnyPublisher<[Model.Certificate], Error> {
-        ListCertificatesOperation(options: options).execute(with: requestor)
+        filterSerial: String?,
+        sort: Certificates.Sort?,
+        filterType: CertificateType?,
+        filterDisplayName: String?,
+        limit: Int?
+    ) throws -> [Model.Certificate] {
+        try ListCertificatesOperation(
+                options: .init(
+                    filterSerial: filterSerial,
+                    sort: sort,
+                    filterType: filterType,
+                    filterDisplayName: filterDisplayName,
+                    limit: limit
+                )
+            )
+            .execute(with: requestor)
+            .await()
     }
 
     func readCertificate(serial: String) throws -> Model.Certificate {
