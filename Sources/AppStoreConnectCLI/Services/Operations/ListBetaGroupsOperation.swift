@@ -40,8 +40,8 @@ struct ListBetaGroupsOperation: APIOperation {
         filters += options.appIds.isEmpty ? [] : [.app(options.appIds)]
         filters += options.names.isEmpty ? [] : [.name(options.names)]
 
-        if let excludeInternal = options.excludeInternal {
-            filters += [.isInternalGroup(["\(excludeInternal)"])]
+        if let excludeInternal = options.excludeInternal, excludeInternal {
+            filters += [.isInternalGroup(["\(!excludeInternal)"])]
         }
 
         let response = requestor.requestAllPages {
