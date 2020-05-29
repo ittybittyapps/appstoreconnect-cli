@@ -10,18 +10,6 @@ struct ListBundleIdsOperation: APIOperation {
         let platforms: [String]
         let seedIds: [String]
         let limit: Int?
-
-        fileprivate var endpoint: APIEndpoint<BundleIdsResponse> {
-            let platforms = self.platforms.compactMap(Platform.init(rawValue:))
-
-            var filters: [BundleIds.Filter] = []
-            filters += identifiers.isEmpty ? [] : [.identifier(identifiers)]
-            filters += names.isEmpty ? [] : [.name(names)]
-            filters += platforms.isEmpty ? [] : [.platform(platforms)]
-            filters += seedIds.isEmpty ? [] : [.seedId(seedIds)]
-
-            return .listBundleIds(filter: filters, limit: limit)
-        }
     }
 
     private let options: Options
@@ -33,6 +21,24 @@ struct ListBundleIdsOperation: APIOperation {
     typealias BundleId = AppStoreConnect_Swift_SDK.BundleId
 
     func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<[BundleId], Error> {
-        requestor.request(options.endpoint).map(\.data).eraseToAnyPublisher()
+        let platforms = options.platforms.compactMap(Platform.init(rawValue:))
+
+        var filters: [BundleIds.Filter] = []
+        filters += options.identifiers.isEmpty ? [] : [.identifier(options.identifiers)]
+        filters += options.names.isEmpty ? [] : [.name(options.names)]
+        filters += options.platforms.isEmpty ? [] : [.platform(platforms)]
+        filters += options.seedIds.isEmpty ? [] : [.seedId(options.seedIds)]
+
+        let limit = options.limit
+
+        return requestor.requestAllPages {
+                .listBundleIds(filter: filters, limit: limit, next: $0)
+            }
+            .map {
+                $0.flatMap(\.data)
+            }
+            .eraseToAnyPublisher()
     }
 }
+
+extension BundleIdsResponse: PaginatedResponse { }
