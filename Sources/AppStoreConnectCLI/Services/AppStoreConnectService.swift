@@ -72,9 +72,14 @@ class AppStoreConnectService {
     }
 
     func createCertificate(
-        with options: CreateCertificateOptions
-    ) -> AnyPublisher<Model.Certificate, Error> {
-        CreateCertificateOperation(options: options).execute(with: requestor)
+        certificateType: CertificateType,
+        csrContent: String
+    ) throws -> Model.Certificate {
+        try CreateCertificateOperation(
+                options: .init(certificateType: certificateType, csrContent: csrContent)
+            )
+            .execute(with: requestor)
+            .await()
     }
 
     func revokeCertificates(serials: [String]) throws {
