@@ -313,6 +313,64 @@ class AppStoreConnectService {
         .map(Model.BetaTester.init)
     }
 
+    func listBetaTestersForGroup(identifier: AppLookupIdentifier, groupName: String)
+        throws -> [Model.BetaTester]  {
+
+            var appId: String = ""
+
+            switch (identifier) {
+            case .appId(let id):
+                appId = id
+            case .bundleId(let bundleId):
+                let appsOperation = GetAppsOperation(options: .init(bundleIds: [bundleId]))
+                appId = try appsOperation.execute(with: requestor).compactMap(\.first).await().id
+            }
+
+            enum Error: LocalizedError {
+                case noGroupId
+                case multipleGroupIds
+
+                var errorDescription: String? {
+                    switch self {
+                    case .noGroupId:
+                        return "No group id exists"
+                    case .multipleGroupIds:
+                        return "More than 1 group ids returned"
+                    }
+                }
+            }
+
+            var groupIds: [String] = []
+            if !groupName.isEmpty {
+                groupIds = try ListBetaGroupsOperation(options: .init(appIds: [appId], names: [groupName], sort: nil))
+                .execute(with: requestor)
+                .await()
+                .filter { $0.app.id == appId }
+                .map { $0.betaGroup.id }
+            }
+
+            switch groupIds.count {
+            case 0:
+                throw Error.noGroupId
+            case 1:
+                let operation = ListBetaTestersByGroupOperation(options: .init(groupId: groupIds.first!))
+                let output = try operation.execute(with: requestor).await()
+
+                return output.map { (betatester: AppStoreConnect_Swift_SDK.BetaTester) -> Model.BetaTester in
+                    Model.BetaTester(
+                        email: betatester.attributes?.email,
+                        firstName: betatester.attributes?.firstName,
+                        lastName: betatester.attributes?.lastName,
+                        inviteType: (betatester.attributes?.inviteType).map { $0.rawValue },
+                        betaGroups: [groupName],
+                        apps: [appId]
+                    )
+                }
+            default:
+                throw Error.multipleGroupIds
+            }
+    }
+
     func removeTesterFromGroups(email: String, groupNames: [String]) throws {
         let testerId = try GetBetaTesterOperation(
                 options: .init(identifier: .email(email))
