@@ -53,8 +53,8 @@ class AppStoreConnectService {
         ListUsersOperation(options: options).execute(with: requestor)
     }
 
-    func getUserInfo(with options: GetUserInfoOptions) -> AnyPublisher<Model.User, Error> {
-        GetUserInfoOperation(options: options).execute(with: requestor)
+    func getUserInfo(with email: String) -> AnyPublisher<Model.User, Error> {
+        GetUserInfoOperation(options: .init(email: email)).execute(with: requestor)
     }
 
     func listCertificates(

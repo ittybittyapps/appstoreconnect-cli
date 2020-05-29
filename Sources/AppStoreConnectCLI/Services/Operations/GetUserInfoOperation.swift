@@ -7,7 +7,7 @@ import struct Model.User
 
 struct GetUserInfoOperation: APIOperation {
 
-    enum GetUserInfoError: LocalizedError {
+    enum Error: LocalizedError {
         case couldNotFindUser(email: String)
 
         var failureReason: String? {
@@ -18,21 +18,26 @@ struct GetUserInfoOperation: APIOperation {
         }
     }
 
-    private let endpoint: APIEndpoint<UsersResponse>
-    private let email: String
-
-    init(options: GetUserInfoOptions) {
-        let filters: [ListUsers.Filter] = [.username([options.email])]
-        endpoint = APIEndpoint.users(filter: filters)
-        email = options.email
+    struct Options {
+        let email: String
     }
 
-    func execute(with requestor: EndpointRequestor) -> AnyPublisher<User, Error> {
+    let options: Options
+
+    private let endpoint: APIEndpoint<UsersResponse>
+
+    init(options: Options) {
+        let filters: [ListUsers.Filter] = [.username([options.email])]
+        endpoint = APIEndpoint.users(filter: filters)
+        self.options = options
+    }
+
+    func execute(with requestor: EndpointRequestor) -> AnyPublisher<User, Swift.Error> {
         requestor.request(endpoint)
-            .tryMap { [email] response in
+            .tryMap { [options] response in
                 let users = User.fromAPIResponse(response)
                 guard let user = users.first, users.count == 1 else {
-                    throw GetUserInfoError.couldNotFindUser(email: email)
+                    throw Error.couldNotFindUser(email: options.email)
                 }
 
                 return user
