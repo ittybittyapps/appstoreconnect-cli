@@ -48,9 +48,9 @@ struct ListBetaGroupsOperation: APIOperation {
 
         let response = requestor.requestAllPages {
             APIEndpoint.betaGroups(
-                filter: filters, 
-                sort: [self.options.sort].compactMap { $0 },
+                filter: filters,
                 include: self.options.include,
+                sort: [self.options.sort].compactMap { $0 },
                 next: $0
             )
         }
