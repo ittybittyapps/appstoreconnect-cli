@@ -28,7 +28,7 @@ class AppStoreConnectService {
 
         return output.map(Model.App.init)
     }
-
+    
     func listBundleIds(
         identifiers: [String],
         names: [String],
@@ -49,8 +49,28 @@ class AppStoreConnectService {
         return try operation.execute(with: requestor).await().map(Model.BundleId.init)
     }
 
-    func listUsers(with options: ListUsersOptions) -> AnyPublisher<[Model.User], Error> {
-        ListUsersOperation(options: options).execute(with: requestor)
+    func listUsers(
+        limitVisibleApps: Int?,
+        limitUsers: Int?,
+        sort: ListUsers.Sort?,
+        filterUsername: [String],
+        filterRole: [UserRole],
+        filterVisibleApps: [String],
+        includeVisibleApps: Bool
+    ) throws -> [Model.User] {
+        try ListUsersOperation(
+                options: .init(
+                    limitVisibleApps: limitVisibleApps,
+                    limitUsers: limitUsers,
+                    sort: sort,
+                    filterUsername: filterUsername,
+                    filterRole: filterRole,
+                    filterVisibleApps: filterVisibleApps,
+                    includeVisibleApps: includeVisibleApps
+                )
+            )
+            .execute(with: requestor)
+            .await()
     }
 
     func getUserInfo(with email: String) -> AnyPublisher<Model.User, Error> {

@@ -53,19 +53,16 @@ public struct ListUsersCommand: CommonParsableCommand {
     public func run() throws {
         let service = try makeService()
 
-        let options = ListUsersOptions(
-            limitVisibleApps: limitVisibleApps,
-            limitUsers: limitUsers,
-            sort: sort,
-            filterUsername: filterUsername,
-            filterRole: filterRole,
-            filterVisibleApps: filterVisibleApps,
-            includeVisibleApps: includeVisibleApps
-        )
-
         let users = try service
-            .listUsers(with: options)
-            .await()
+            .listUsers(
+                limitVisibleApps: limitVisibleApps,
+                limitUsers: limitUsers,
+                sort: sort,
+                filterUsername: filterUsername,
+                filterRole: filterRole,
+                filterVisibleApps: filterVisibleApps,
+                includeVisibleApps: includeVisibleApps
+            )
 
         users.render(format: common.outputFormat)
     }
