@@ -7,7 +7,7 @@ import Foundation
 import XCTest
 
 final class CreateCertificateOperationTests: XCTestCase {
-    let options = CreateCertificateOptions(
+    let options = CreateCertificateOperation.Options(
         certificateType: .iOSDevelopment,
         csrContent: "")
 

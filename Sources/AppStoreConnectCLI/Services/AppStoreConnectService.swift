@@ -28,7 +28,7 @@ class AppStoreConnectService {
 
         return output.map(Model.App.init)
     }
-
+    
     func listBundleIds(
         identifiers: [String],
         names: [String],
@@ -49,18 +49,52 @@ class AppStoreConnectService {
         return try operation.execute(with: requestor).await().map(Model.BundleId.init)
     }
 
-    func listUsers(with options: ListUsersOptions) -> AnyPublisher<[Model.User], Error> {
-        ListUsersOperation(options: options).execute(with: requestor)
+    func listUsers(
+        limitVisibleApps: Int?,
+        limitUsers: Int?,
+        sort: ListUsers.Sort?,
+        filterUsername: [String],
+        filterRole: [UserRole],
+        filterVisibleApps: [String],
+        includeVisibleApps: Bool
+    ) throws -> [Model.User] {
+        try ListUsersOperation(
+                options: .init(
+                    limitVisibleApps: limitVisibleApps,
+                    limitUsers: limitUsers,
+                    sort: sort,
+                    filterUsername: filterUsername,
+                    filterRole: filterRole,
+                    filterVisibleApps: filterVisibleApps,
+                    includeVisibleApps: includeVisibleApps
+                )
+            )
+            .execute(with: requestor)
+            .await()
     }
 
-    func getUserInfo(with options: GetUserInfoOptions) -> AnyPublisher<Model.User, Error> {
-        GetUserInfoOperation(options: options).execute(with: requestor)
+    func getUserInfo(with email: String) throws -> Model.User {
+        try GetUserInfoOperation(options: .init(email: email)).execute(with: requestor).await()
     }
 
     func listCertificates(
-        with options: ListCertificatesOptions
-    ) -> AnyPublisher<[Model.Certificate], Error> {
-        ListCertificatesOperation(options: options).execute(with: requestor)
+        filterSerial: String?,
+        sort: Certificates.Sort?,
+        filterType: CertificateType?,
+        filterDisplayName: String?,
+        limit: Int?
+    ) throws -> [Model.Certificate] {
+        try ListCertificatesOperation(
+                options: .init(
+                    filterSerial: filterSerial,
+                    sort: sort,
+                    filterType: filterType,
+                    filterDisplayName: filterDisplayName,
+                    limit: limit
+                )
+            )
+            .execute(with: requestor)
+            .await()
     }
 
     func readCertificate(serial: String) throws -> Model.Certificate {
@@ -72,9 +106,14 @@ class AppStoreConnectService {
     }
 
     func createCertificate(
-        with options: CreateCertificateOptions
-    ) -> AnyPublisher<Model.Certificate, Error> {
-        CreateCertificateOperation(options: options).execute(with: requestor)
+        certificateType: CertificateType,
+        csrContent: String
+    ) throws -> Model.Certificate {
+        try CreateCertificateOperation(
+                options: .init(certificateType: certificateType, csrContent: csrContent)
+            )
+            .execute(with: requestor)
+            .await()
     }
 
     func revokeCertificates(serials: [String]) throws {

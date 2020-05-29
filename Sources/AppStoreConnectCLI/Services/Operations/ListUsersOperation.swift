@@ -6,9 +6,19 @@ import struct Model.User
 
 struct ListUsersOperation: APIOperation {
 
+    struct Options {
+        let limitVisibleApps: Int?
+        let limitUsers: Int?
+        let sort: ListUsers.Sort?
+        let filterUsername: [String]
+        let filterRole: [UserRole]
+        let filterVisibleApps: [String]
+        let includeVisibleApps: Bool
+    }
+
     private let endpoint: APIEndpoint<UsersResponse>
 
-    init(options: ListUsersOptions) {
+    init(options: Options) {
         let include = options.includeVisibleApps ? [ListUsers.Include.visibleApps] : nil
 
         let limit = [

@@ -18,9 +18,17 @@ struct ListCertificatesOperation: APIOperation {
         }
     }
 
+    struct Options {
+        let filterSerial: String?
+        let sort: Certificates.Sort?
+        let filterType: CertificateType?
+        let filterDisplayName: String?
+        let limit: Int?
+    }
+
     private let endpoint: APIEndpoint<CertificatesResponse>
 
-    init(options: ListCertificatesOptions) {
+    init(options: Options) {
         typealias Filter = Certificates.Filter
 
         var filters = [Certificates.Filter]()

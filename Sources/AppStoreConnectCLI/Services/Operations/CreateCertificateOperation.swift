@@ -7,9 +7,14 @@ import struct Model.Certificate
 
 struct CreateCertificateOperation: APIOperation {
 
+    struct Options {
+        let certificateType: CertificateType
+        let csrContent: String
+    }
+
     private let endpoint: APIEndpoint<CertificateResponse>
 
-    init(options: CreateCertificateOptions) {
+    init(options: Options) {
         endpoint = APIEndpoint.create(
             certificateWithCertificateType: options.certificateType,
             csrContent: options.csrContent

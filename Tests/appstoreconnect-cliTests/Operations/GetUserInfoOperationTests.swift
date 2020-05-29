@@ -9,7 +9,7 @@ import XCTest
 final class GetUserInfoOperationTests: XCTestCase {
 
     typealias Options = GetUserInfoOperation.Options
-    typealias OperationError = GetUserInfoOperation.GetUserInfoError
+    typealias OperationError = GetUserInfoOperation.Error
 
     let noUsersRequestor = OneEndpointTestRequestor(
         response: { _ in Future({ $0(.success(noUsersResponse)) }) }
