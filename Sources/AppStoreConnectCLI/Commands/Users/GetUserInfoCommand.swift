@@ -18,7 +18,7 @@ struct GetUserInfoCommand: CommonParsableCommand {
     func run() throws {
         let service = try makeService()
 
-        let user = try service.getUserInfo(with: email).await()
+        let user = try service.getUserInfo(with: email)
 
         user.render(format: common.outputFormat)
     }

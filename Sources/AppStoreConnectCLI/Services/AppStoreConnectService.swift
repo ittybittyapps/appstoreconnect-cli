@@ -73,8 +73,8 @@ class AppStoreConnectService {
             .await()
     }
 
-    func getUserInfo(with email: String) -> AnyPublisher<Model.User, Error> {
-        GetUserInfoOperation(options: .init(email: email)).execute(with: requestor)
+    func getUserInfo(with email: String) throws -> Model.User {
+        try GetUserInfoOperation(options: .init(email: email)).execute(with: requestor).await()
     }
 
     func listCertificates(
