@@ -215,8 +215,7 @@ class AppStoreConnectService {
         }
 
         try AddTesterToGroupOperation(
-            options: .init(addStrategy: .addTesterToGroups(testerId: testerId, groupIds: groupIds)
-            )
+            options: .init(addStrategy: .addTesterToGroups(testerId: testerId, groupIds: groupIds))
         )
         .execute(with: requestor)
         .await()
@@ -340,10 +339,12 @@ class AppStoreConnectService {
     }
 
     func removeTestersFromGroup(groupName: String, emails: [String]) throws {
-        let groupId = try GetBetaGroupOperation(options: .init(appId: nil, bundleId: nil,betaGroupName: groupName))
-            .execute(with: requestor)
-            .await()
-            .id
+        let groupId = try GetBetaGroupOperation(
+            options: .init(appId: nil, bundleId: nil, betaGroupName: groupName)
+        )
+        .execute(with: requestor)
+        .await()
+        .id
 
         let testerIds = try emails.map {
             try GetBetaTesterOperation(
