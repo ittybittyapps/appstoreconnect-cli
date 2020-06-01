@@ -1,9 +1,6 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
 import ArgumentParser
-import AppStoreConnect_Swift_SDK
-import Combine
-import struct Model.BetaTester
 
 struct ListBetaTesterByGroupCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
@@ -19,7 +16,7 @@ struct ListBetaTesterByGroupCommand: CommonParsableCommand {
 
     @Argument(
         help: ArgumentHelp(
-            "TestFlight beta group names.",
+            "TestFlight beta group name.",
             discussion: "Please input a specific group name"
         )
     )
