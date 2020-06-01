@@ -12,8 +12,8 @@ struct GetBetaGroupOperation: APIOperation {
     }
 
     enum Error: LocalizedError {
-        case betaGroupNotFound(groupName: String, bundleId: String, appid: String)
-        case betaGroupNotUniqueToApp(groupName: String, bundleId: String, appid: String)
+        case betaGroupNotFound(groupName: String, bundleId: String, appId: String)
+        case betaGroupNotUniqueToApp(groupName: String, bundleId: String, appId: String)
 
         var errorDescription: String? {
             switch self {
@@ -51,9 +51,9 @@ struct GetBetaGroupOperation: APIOperation {
             case (.some(let betaGroup), 1):
                 return betaGroup
             case (.some, _):
-                throw Error.betaGroupNotUniqueToApp(groupName: betaGroupName, bundleId: bundleId, appid: appId)
+                throw Error.betaGroupNotUniqueToApp(groupName: betaGroupName, bundleId: bundleId, appId: appId)
             case (.none, _):
-                throw Error.betaGroupNotFound(groupName: betaGroupName, bundleId: bundleId, appid: appId)
+                throw Error.betaGroupNotFound(groupName: betaGroupName, bundleId: bundleId, appId: appId)
             }
         }
 
