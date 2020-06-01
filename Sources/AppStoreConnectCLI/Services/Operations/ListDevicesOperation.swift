@@ -45,17 +45,27 @@ struct ListDevicesOperation: APIOperation {
         }
 
         let sort = [options.sort].compactMap { $0 }
-        let limit = options.limit
 
-        return requestor.requestAllPages {
+        guard let limit = options.limit else {
+            return requestor.requestAllPages {
+                    .listDevices(
+                        filter: filters,
+                        sort: sort,
+                        next: $0
+                    )
+                }
+                .map { $0.flatMap { $0.data } }
+                .eraseToAnyPublisher()
+        }
+
+        return requestor.request(
                 .listDevices(
                     filter: filters,
                     sort: sort,
-                    limit: limit,
-                    next: $0
+                    limit: limit
                 )
-            }
-            .map { $0.flatMap { $0.data } }
+            )
+            .map(\.data)
             .eraseToAnyPublisher()
     }
 }
