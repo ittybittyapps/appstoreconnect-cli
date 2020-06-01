@@ -704,6 +704,24 @@ class AppStoreConnectService {
             .map(Model.Profile.init)
     }
 
+    func listUserInvitaions(
+        filterEmail: [String],
+        filterRole: [UserRole],
+        limitVisibleApps: Int?,
+        includeVisibleApps: Bool
+    ) throws -> [UserInvitation] {
+        try ListUserInvitationsOperation(
+                options: .init(
+                    filterEmail: filterEmail,
+                    filterRole: filterRole,
+                    includeVisibleApps: includeVisibleApps,
+                    limitVisibleApps: limitVisibleApps
+                )
+            )
+            .execute(with: requestor)
+            .await()
+    }
+
     /// Make a request for something `Decodable`.
     ///
     /// - Parameters:
