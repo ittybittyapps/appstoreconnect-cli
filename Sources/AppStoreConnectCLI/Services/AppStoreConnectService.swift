@@ -175,7 +175,7 @@ class AppStoreConnectService {
             .await()
 
         let groupId = try GetBetaGroupOperation(
-                options: .init(app: app, betaGroupName: groupName)
+                options: .init(appId: app.id, bundleId: bundleId, betaGroupName: groupName)
             )
             .execute(with: requestor)
             .await()
@@ -207,20 +207,18 @@ class AppStoreConnectService {
 
         let groupIds = try groupNames.map {
             try GetBetaGroupOperation(
-                    options: .init(app: app, betaGroupName: $0)
-                )
-                .execute(with: requestor)
-                .await()
-                .id
-        }
-
-        try AddTesterToGroupOperation(
-                options: .init(
-                    addStrategy: .addTesterToGroups(testerId: testerId, groupIds: groupIds)
-                )
+                options: .init(appId: app.id, bundleId: bundleId, betaGroupName: $0)
             )
             .execute(with: requestor)
             .await()
+            .id
+        }
+
+        try AddTesterToGroupOperation(
+            options: .init(addStrategy: .addTesterToGroups(testerId: testerId, groupIds: groupIds))
+        )
+        .execute(with: requestor)
+        .await()
     }
 
     func getBetaTester(
@@ -341,10 +339,12 @@ class AppStoreConnectService {
     }
 
     func removeTestersFromGroup(groupName: String, emails: [String]) throws {
-        let groupId = try GetBetaGroupOperation(options: .init(app: nil, betaGroupName: groupName))
-            .execute(with: requestor)
-            .await()
-            .id
+        let groupId = try GetBetaGroupOperation(
+            options: .init(appId: nil, bundleId: nil, betaGroupName: groupName)
+        )
+        .execute(with: requestor)
+        .await()
+        .id
 
         let testerIds = try emails.map {
             try GetBetaTesterOperation(
@@ -370,7 +370,7 @@ class AppStoreConnectService {
             .execute(with: requestor)
             .await()
 
-        let options = GetBetaGroupOperation.Options(app: app, betaGroupName: groupName)
+        let options = GetBetaGroupOperation.Options(appId: app.id, bundleId: bundleId, betaGroupName: groupName)
         let betaGroup = try GetBetaGroupOperation(options: options)
             .execute(with: requestor)
             .await()
@@ -401,13 +401,15 @@ class AppStoreConnectService {
     }
 
     func deleteBetaGroup(appBundleId: String, betaGroupName: String) throws {
-        let app = try GetAppsOperation(options: .init(bundleIds: [appBundleId]))
+        let appId = try GetAppsOperation(options: .init(bundleIds: [appBundleId]))
             .execute(with: requestor)
             .compactMap(\.first)
             .await()
+            .id
 
         let betaGroup = try GetBetaGroupOperation(
-            options: .init(app: app, betaGroupName: betaGroupName))
+                options: .init(appId: appId, bundleId: appBundleId, betaGroupName: betaGroupName)
+            )
             .execute(with: requestor)
             .await()
 
@@ -458,7 +460,7 @@ class AppStoreConnectService {
         let app = try getAppsOperation.execute(with: requestor).compactMap(\.first).await()
 
         let getBetaGroupOperation = GetBetaGroupOperation(
-            options: .init(app: app, betaGroupName: currentGroupName))
+            options: .init(appId: app.id, bundleId: appBundleId, betaGroupName: currentGroupName))
         let betaGroup = try getBetaGroupOperation.execute(with: requestor).await()
 
         let modifyBetaGroupOptions = ModifyBetaGroupOperation.Options(
