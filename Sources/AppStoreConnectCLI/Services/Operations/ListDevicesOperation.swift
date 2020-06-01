@@ -24,25 +24,13 @@ struct ListDevicesOperation: APIOperation {
 
         var filters = [Devices.Filter]()
 
-        if !options.filterName.isEmpty {
-            filters.append(.name(options.filterName))
-        }
+        filters += options.filterName.isEmpty ? [] : [.name(options.filterName)]
 
-        if !options.filterPlatform.isEmpty {
-            // API Device attributes use the BundleIdPlatform enum,
-            // rather than a Platform, so there is no support for
-            // tvOs or watchOs.
-            // This appears to be an API issue.
-            filters.append(.platform(options.filterPlatform))
-        }
+        filters += options.filterPlatform.isEmpty ? [] : [.platform(options.filterPlatform)]
 
-        if !options.filterUDID.isEmpty {
-            filters.append(.udid(options.filterUDID))
-        }
+        filters += options.filterUDID.isEmpty ? [] : [.udid(options.filterUDID)]
 
-        if let filterStatus = options.filterStatus {
-            filters.append(.status([filterStatus]))
-        }
+        filters += options.filterStatus != nil ? [.status([options.filterStatus!])] : []
 
         let sort = [options.sort].compactMap { $0 }
 
