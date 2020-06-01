@@ -14,24 +14,9 @@ final class GetBetaGroupOperationTests: XCTestCase {
 
     let testUrl = URL(fileURLWithPath: "test")
 
-    var app: App {
-        App(
-            attributes: App.Attributes(
-                bundleId: "com.example.test",
-                name: nil,
-                primaryLocale: nil,
-                sku: nil
-            ),
-            id: "1234567890",
-            relationships: nil,
-            links: ResourceLinks(self: testUrl)
-        )
-    }
-
     var options: Options {
         Options(
-            app: app,
-            betaGroupName: "Some Group"
+            appId: "1234567890", bundleId: "com.example.test", betaGroupName: "Some Group"
         )
     }
 
