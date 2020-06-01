@@ -326,48 +326,25 @@ class AppStoreConnectService {
                 appId = try appsOperation.execute(with: requestor).compactMap(\.first).await().id
             }
 
-            enum Error: LocalizedError {
-                case noGroupId
-                case multipleGroupIds
+            let groupId = try GetBetaGroupOperation(
+                options: .init(appId: appId, bundleId: nil, betaGroupName: groupName)
+            )
+            .execute(with: requestor)
+            .await()
+            .id
 
-                var errorDescription: String? {
-                    switch self {
-                    case .noGroupId:
-                        return "No group id exists"
-                    case .multipleGroupIds:
-                        return "More than 1 group ids returned"
-                    }
-                }
-            }
+            let operation = ListBetaTestersByGroupOperation(options: .init(groupId: groupId))
+            let output = try operation.execute(with: requestor).await()
 
-            var groupIds: [String] = []
-            if !groupName.isEmpty {
-                groupIds = try ListBetaGroupsOperation(options: .init(appIds: [appId], names: [groupName], sort: nil))
-                .execute(with: requestor)
-                .await()
-                .filter { $0.app.id == appId }
-                .map { $0.betaGroup.id }
-            }
-
-            switch groupIds.count {
-            case 0:
-                throw Error.noGroupId
-            case 1:
-                let operation = ListBetaTestersByGroupOperation(options: .init(groupId: groupIds.first!))
-                let output = try operation.execute(with: requestor).await()
-
-                return output.map { (betatester: AppStoreConnect_Swift_SDK.BetaTester) -> Model.BetaTester in
-                    Model.BetaTester(
-                        email: betatester.attributes?.email,
-                        firstName: betatester.attributes?.firstName,
-                        lastName: betatester.attributes?.lastName,
-                        inviteType: (betatester.attributes?.inviteType).map { $0.rawValue },
-                        betaGroups: [groupName],
-                        apps: [appId]
-                    )
-                }
-            default:
-                throw Error.multipleGroupIds
+            return output.map { (betatester: AppStoreConnect_Swift_SDK.BetaTester) -> Model.BetaTester in
+                Model.BetaTester(
+                    email: betatester.attributes?.email,
+                    firstName: betatester.attributes?.firstName,
+                    lastName: betatester.attributes?.lastName,
+                    inviteType: (betatester.attributes?.inviteType).map { $0.rawValue },
+                    betaGroups: [groupName],
+                    apps: [appId]
+                )
             }
     }
 
