@@ -20,7 +20,7 @@ struct GetBetaGroupOperation: APIOperation {
             case .betaGroupNotFound(let groupName, let bundleId, let appId):
                 return "No beta group found with name: \(groupName) and bundle id: \(bundleId) and app id: \(appId)"
             case .betaGroupNotUniqueToApp(let groupName, let bundleId, let appId):
-                return "Multiple beta groups found with name: \(groupName) and app id: \(bundleId) and app id: \(appId)"
+                return "Multiple beta groups found with name: \(groupName) and bundle id: \(bundleId) and app id: \(appId)"
             }
         }
     }

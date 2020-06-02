@@ -10,17 +10,6 @@ struct ListBetaTestersByGroupOperation: APIOperation {
         let groupId: String
     }
 
-    enum Error: LocalizedError {
-        case notFound
-
-        var errorDescription: String? {
-            switch self {
-            case .notFound:
-                return "Beta testers not found."
-            }
-        }
-    }
-
     private let options: Options
 
     typealias BetaTester = AppStoreConnect_Swift_SDK.BetaTester
@@ -31,18 +20,10 @@ struct ListBetaTestersByGroupOperation: APIOperation {
     }
 
     func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<Output, Swift.Error> {
-        return requestor.requestAllPages {
-            .betaTesters(inBetaGroupWithId: self.options.groupId,next: $0)
+        requestor.requestAllPages {
+            .betaTesters(inBetaGroupWithId: self.options.groupId, next: $0)
         }
-        .tryMap{ (responses: [BetaTestersResponse]) throws -> Output in
-            try responses.flatMap { (response: BetaTestersResponse) -> Output in
-                guard !response.data.isEmpty else {
-                    throw Error.notFound
-                }
-
-                return response.data
-            }
-        }
+        .map{ $0.flatMap(\.data) }
         .eraseToAnyPublisher()
     }
 }
