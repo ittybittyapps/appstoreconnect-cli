@@ -318,7 +318,7 @@ class AppStoreConnectService {
 
             var appId: String = ""
 
-            switch (identifier) {
+            switch identifier {
             case .appId(let id):
                 appId = id
             case .bundleId(let bundleId):
