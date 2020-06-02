@@ -23,25 +23,15 @@ struct ListProfilesOperation: APIOperation {
 
         var filters = [Profiles.Filter]()
 
-        if !options.filterName.isEmpty {
-            filters.append(.name(options.filterName))
-        }
+        filters += options.filterName.isEmpty ? [] : [.name(options.filterName)]
 
-        if let filterProfileState = options.filterProfileState {
-            filters.append(.profileState([filterProfileState]))
-        }
+        filters += options.filterProfileType.isEmpty ? [] : [.profileType(options.filterProfileType)]
 
-        if !options.filterProfileType.isEmpty {
-            filters.append(.profileType(options.filterProfileType))
-        }
+        filters += options.filterProfileState != nil ? [.profileState([options.filterProfileState!])] : []
+
+        let limits: [Profiles.Limit] = options.limit != nil ? [.profiles(options.limit!)] : []
 
         let sort = [options.sort].compactMap { $0 }
-
-        var limits = [Profiles.Limit]()
-        
-        if let limit = options.limit {
-            limits.append(.profiles(limit))
-        }
 
         let endpoint = APIEndpoint.listProfiles(
             filter: filters,
