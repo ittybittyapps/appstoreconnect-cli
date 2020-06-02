@@ -625,6 +625,29 @@ class AppStoreConnectService {
         return PreReleaseVersion(output.preReleaseVersion, output.relationships)
     }
 
+    func listDevices(
+        filterName: [String],
+        filterPlatform: [Platform],
+        filterUDID: [String],
+        filterStatus: DeviceStatus?,
+        sort: Devices.Sort?,
+        limit: Int?
+    ) throws -> [Model.Device] {
+        try ListDevicesOperation(
+                options: .init(
+                    filterName: filterName,
+                    filterPlatform: filterPlatform,
+                    filterUDID: filterUDID,
+                    filterStatus: filterStatus,
+                    sort: sort,
+                    limit: limit
+                )
+            )
+            .execute(with: requestor)
+            .await()
+            .map(Device.init)
+    }
+
     /// Make a request for something `Decodable`.
     ///
     /// - Parameters:

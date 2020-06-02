@@ -2,9 +2,6 @@
 
 import AppStoreConnect_Swift_SDK
 import ArgumentParser
-import Combine
-import Foundation
-import struct Model.Device
 
 struct ListDevicesCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
@@ -66,37 +63,14 @@ struct ListDevicesCommand: CommonParsableCommand {
     func run() throws {
         let service = try makeService()
 
-        var filters = [Devices.Filter]()
-
-        if !filterName.isEmpty {
-            filters.append(.name(filterName))
-        }
-
-        if !filterPlatform.isEmpty {
-            // API Device attributes use the BundleIdPlatform enum,
-            // rather than a Platform, so there is no support for
-            // tvOs or watchOs.
-            // This appears to be an API issue.
-            filters.append(.platform(filterPlatform))
-        }
-
-        if !filterUDID.isEmpty {
-            filters.append(.udid(filterUDID))
-        }
-
-        if let filterStatus = filterStatus {
-            filters.append(.status([filterStatus]))
-        }
-
-        let request = APIEndpoint.listDevices(
-            filter: filters,
-            sort: [sort].compactMap { $0 },
+        let devices = try service.listDevices(
+            filterName: filterName,
+            filterPlatform: filterPlatform,
+            filterUDID: filterUDID,
+            filterStatus: filterStatus,
+            sort: sort,
             limit: limit
         )
-
-        let devices = try service.request(request)
-            .map { $0.data.map(Device.init) }
-            .await()
 
         devices.render(format: common.outputFormat)
     }
