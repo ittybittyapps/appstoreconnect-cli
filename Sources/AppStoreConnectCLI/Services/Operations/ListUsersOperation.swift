@@ -5,7 +5,11 @@ import Combine
 import struct Model.User
 
 struct ListUsersOperation: APIOperation {
-
+    
+    typealias Filter = ListUsers.Filter
+    typealias Limit = ListUsers.Limit
+    typealias Include = ListUsers.Include
+    
     struct Options {
         let limitVisibleApps: Int?
         let limitUsers: Int?
@@ -16,42 +20,48 @@ struct ListUsersOperation: APIOperation {
         let includeVisibleApps: Bool
     }
 
-    private let endpoint: APIEndpoint<UsersResponse>
+    var limit: [Limit]? {
+        [options.limitUsers.map(Limit.users), options.limitVisibleApps.map(Limit.visibleApps)]
+        .compactMap { $0 }
+        .nilIfEmpty()
+    }
+
+    var include: [Include]? {
+        options.includeVisibleApps ? [ListUsers.Include.visibleApps] : nil
+    }
+
+    var filter: [Filter]? {
+        let roles = options.filterRole.map(\.rawValue).nilIfEmpty().map(Filter.roles)
+        let usernames = options.filterUsername.nilIfEmpty().map(Filter.username)
+        let visibleApps = options.filterVisibleApps.nilIfEmpty().map(Filter.visibleApps)
+
+        return [roles, usernames, visibleApps].compactMap({ $0 }).nilIfEmpty()
+    }
+
+    let options: Options
 
     init(options: Options) {
-        let include = options.includeVisibleApps ? [ListUsers.Include.visibleApps] : nil
-
-        let limit = [
-            options.limitUsers.map(ListUsers.Limit.users),
-            options.limitVisibleApps.map(ListUsers.Limit.visibleApps)]
-            .compactMap { $0 }
-            .nilIfEmpty()
-
-        let sort = options.sort.map { [$0] }
-
-        typealias Filter = ListUsers.Filter
-
-        let filter: [Filter]? = {
-            let roles = options.filterRole.map(\.rawValue).nilIfEmpty().map(Filter.roles)
-            let usernames = options.filterUsername.nilIfEmpty().map(Filter.username)
-            let visibleApps = options.filterVisibleApps.nilIfEmpty().map(Filter.visibleApps)
-
-            return [roles, usernames, visibleApps].compactMap({ $0 }).nilIfEmpty()
-        }()
-
-        endpoint = APIEndpoint.users(
-            fields: nil,
-            include: include,
-            limit: limit,
-            sort: sort,
-            filter: filter,
-            next: nil
-        )
+        self.options = options
     }
 
     func execute(with requestor: EndpointRequestor) -> AnyPublisher<[User], Error> {
-        requestor.request(endpoint)
-            .map(User.fromAPIResponse)
-            .eraseToAnyPublisher()
+        let include = self.include
+        let limit = self.limit
+        let sort = options.sort.map { [$0] }
+        let filter = self.filter
+
+        return requestor.requestAllPages {
+            .users(
+                include: include,
+                limit: limit,
+                sort: sort,
+                filter: filter,
+                next: $0
+            )
+        }
+        .map { $0.flatMap(User.fromAPIResponse) }
+        .eraseToAnyPublisher()
     }
 }
+
+extension UsersResponse: PaginatedResponse { }

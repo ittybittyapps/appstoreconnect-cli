@@ -7,7 +7,9 @@ import struct Model.Certificate
 
 struct ListCertificatesOperation: APIOperation {
 
-    enum ListCertificatesError: LocalizedError {
+    typealias Filter = Certificates.Filter
+
+    enum Error: LocalizedError {
         case couldNotFindCertificate
 
         var errorDescription: String? {
@@ -17,7 +19,7 @@ struct ListCertificatesOperation: APIOperation {
             }
         }
     }
-
+    
     struct Options {
         let filterSerial: String?
         let sort: Certificates.Sort?
@@ -26,12 +28,8 @@ struct ListCertificatesOperation: APIOperation {
         let limit: Int?
     }
 
-    private let endpoint: APIEndpoint<CertificatesResponse>
-
-    init(options: Options) {
-        typealias Filter = Certificates.Filter
-
-        var filters = [Certificates.Filter]()
+    var filters: [Filter] {
+        var filters = [Filter]()
 
         if let filterSerial = options.filterSerial {
             filters.append(.serialNumber([filterSerial]))
@@ -45,23 +43,40 @@ struct ListCertificatesOperation: APIOperation {
             filters.append(.displayName([filterDisplayName]))
         }
 
-        endpoint = APIEndpoint.listDownloadCertificates(
-            filter: filters,
-            sort: [options.sort].compactMap { $0 },
-            limit: options.limit
-        )
+        return filters
     }
 
-    func execute(with requestor: EndpointRequestor) -> AnyPublisher<[Certificate], Error> {
-        requestor.request(endpoint)
-            .tryMap { (response: CertificatesResponse) -> [Certificate] in
+    let options: Options
+
+    init(options: Options) {
+        self.options = options
+    }
+
+    func execute(with requestor: EndpointRequestor) -> AnyPublisher<[Certificate], Swift.Error> {
+        let filters = self.filters
+        let sort = [options.sort].compactMap { $0 }
+        let limit = options.limit
+
+        return requestor.requestAllPages {
+            .listDownloadCertificates(
+                filter: filters,
+                sort: sort,
+                limit: limit,
+                next: $0
+            )
+        }
+        .tryMap {
+            try $0.flatMap { (response: CertificatesResponse) -> [Certificate] in
                 guard !response.data.isEmpty else {
-                    throw ListCertificatesError.couldNotFindCertificate
+                    throw Error.couldNotFindCertificate
                 }
 
                 return response.data.map(Certificate.init)
             }
-            .eraseToAnyPublisher()
+        }
+        .eraseToAnyPublisher()
     }
 
 }
+
+extension CertificatesResponse: PaginatedResponse { }
