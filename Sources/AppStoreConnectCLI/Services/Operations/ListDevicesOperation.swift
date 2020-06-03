@@ -24,13 +24,10 @@ struct ListDevicesOperation: APIOperation {
 
         var filters = [Devices.Filter]()
 
-        filters += options.filterName.isEmpty ? [] : [.name(options.filterName)]
-
-        filters += options.filterPlatform.isEmpty ? [] : [.platform(options.filterPlatform)]
-
-        filters += options.filterUDID.isEmpty ? [] : [.udid(options.filterUDID)]
-
-        filters += options.filterStatus != nil ? [.status([options.filterStatus!])] : []
+        if options.filterName.isNotEmpty { filters.append(.name(options.filterName)) }
+        if options.filterPlatform.isNotEmpty { filters.append(.platform(options.filterPlatform)) }
+        if options.filterUDID.isNotEmpty { filters.append(.udid(options.filterUDID)) }
+        if let filterStatus = options.filterStatus { filters.append(.status([filterStatus])) }
 
         let sort = [options.sort].compactMap { $0 }
 
