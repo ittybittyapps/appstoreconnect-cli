@@ -12,15 +12,15 @@ struct GetBetaGroupOperation: APIOperation {
     }
 
     enum Error: LocalizedError {
-        case betaGroupNotFound(groupName: String, bundleId: String)
-        case betaGroupNotUniqueToApp(groupName: String, bundleId: String)
+        case betaGroupNotFound(groupName: String, bundleId: String, appId: String)
+        case betaGroupNotUniqueToApp(groupName: String, bundleId: String, appId: String)
 
         var errorDescription: String? {
             switch self {
-            case .betaGroupNotFound(let groupName, let bundleId):
-                return "No beta group found with name: \(groupName) and bundle id: \(bundleId)"
-            case .betaGroupNotUniqueToApp(let groupName, let bundleId):
-                return "Multiple beta groups found with name: \(groupName) and app id: \(bundleId)"
+            case .betaGroupNotFound(let groupName, let bundleId, let appId):
+                return "No beta group found with name: \(groupName) and bundle id: \(bundleId) and app id: \(appId)"
+            case .betaGroupNotUniqueToApp(let groupName, let bundleId, let appId):
+                return "Multiple beta groups found with name: \(groupName) and bundle id: \(bundleId) and app id: \(appId)"
             }
         }
     }
@@ -37,9 +37,10 @@ struct GetBetaGroupOperation: APIOperation {
     func execute(with requestor: EndpointRequestor) -> AnyPublisher<BetaGroup, Swift.Error> {
         let betaGroupName = options.betaGroupName
         let bundleId = options.bundleId ?? ""
+        let appId = options.appId ?? ""
 
         var filters: [ListBetaGroups.Filter] = [.name([betaGroupName])]
-        filters += options.appId != nil ? [.app([options.appId!])] : []
+        filters += appId.isEmpty ? [] : [.app([appId])]
 
         let endpoint = APIEndpoint.betaGroups(filter: filters)
 
@@ -50,9 +51,9 @@ struct GetBetaGroupOperation: APIOperation {
             case (.some(let betaGroup), 1):
                 return betaGroup
             case (.some, _):
-                throw Error.betaGroupNotUniqueToApp(groupName: betaGroupName, bundleId: bundleId)
+                throw Error.betaGroupNotUniqueToApp(groupName: betaGroupName, bundleId: bundleId, appId: appId)
             case (.none, _):
-                throw Error.betaGroupNotFound(groupName: betaGroupName, bundleId: bundleId)
+                throw Error.betaGroupNotFound(groupName: betaGroupName, bundleId: bundleId, appId: appId)
             }
         }
 

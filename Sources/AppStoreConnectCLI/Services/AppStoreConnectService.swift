@@ -313,6 +313,41 @@ class AppStoreConnectService {
         .map(Model.BetaTester.init)
     }
 
+    func listBetaTestersForGroup(identifier: AppLookupIdentifier, groupName: String)
+        throws -> [Model.BetaTester]  {
+
+            var appId: String = ""
+
+            switch identifier {
+            case .appId(let id):
+                appId = id
+            case .bundleId(let bundleId):
+                let appsOperation = GetAppsOperation(options: .init(bundleIds: [bundleId]))
+                appId = try appsOperation.execute(with: requestor).compactMap(\.first).await().id
+            }
+
+            let groupId = try GetBetaGroupOperation(
+                options: .init(appId: appId, bundleId: nil, betaGroupName: groupName)
+            )
+            .execute(with: requestor)
+            .await()
+            .id
+
+            let operation = ListBetaTestersByGroupOperation(options: .init(groupId: groupId))
+            let output = try operation.execute(with: requestor).await()
+
+            return output.map { (betatester: AppStoreConnect_Swift_SDK.BetaTester) -> Model.BetaTester in
+                Model.BetaTester(
+                    email: betatester.attributes?.email,
+                    firstName: betatester.attributes?.firstName,
+                    lastName: betatester.attributes?.lastName,
+                    inviteType: (betatester.attributes?.inviteType).map { $0.rawValue },
+                    betaGroups: [groupName],
+                    apps: [appId]
+                )
+            }
+    }
+
     func removeTesterFromGroups(email: String, groupNames: [String]) throws {
         let testerId = try GetBetaTesterOperation(
                 options: .init(identifier: .email(email))

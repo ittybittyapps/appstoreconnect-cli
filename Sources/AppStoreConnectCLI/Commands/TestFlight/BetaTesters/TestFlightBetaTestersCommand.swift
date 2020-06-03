@@ -12,6 +12,7 @@ public struct TestFlightBetaTestersCommand: ParsableCommand {
             DeleteBetaTesterCommand.self,
             ListBetaTestersCommand.self,
             ListBetaTesterByBuildsCommand.self,
+            ListBetaTesterByGroupCommand.self,
             ReadBetaTesterCommand.self,
             RemoveTesterFromGroupsCommand.self,
             AddTesterToGroupsCommand.self
