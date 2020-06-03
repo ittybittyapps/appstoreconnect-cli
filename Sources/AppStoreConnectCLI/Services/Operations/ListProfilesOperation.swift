@@ -23,11 +23,9 @@ struct ListProfilesOperation: APIOperation {
 
         var filters = [Profiles.Filter]()
 
-        filters += options.filterName.isEmpty ? [] : [.name(options.filterName)]
-
-        filters += options.filterProfileType.isEmpty ? [] : [.profileType(options.filterProfileType)]
-
-        filters += options.filterProfileState != nil ? [.profileState([options.filterProfileState!])] : []
+        if options.filterName.isNotEmpty { filters.append(.name(options.filterName)) }
+        if options.filterProfileType.isNotEmpty { filters.append(.profileType(options.filterProfileType)) }
+        if let filterProfileState = options.filterProfileState { filters.append(.profileState([filterProfileState])) }
 
         let limits: [Profiles.Limit] = options.limit != nil ? [.profiles(options.limit!)] : []
 
