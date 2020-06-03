@@ -683,6 +683,27 @@ class AppStoreConnectService {
             .map(Device.init)
     }
 
+    func listProfiles(
+        filterName: [String],
+        filterProfileState: ProfileState?,
+        filterProfileType: [ProfileType],
+        sort: Profiles.Sort?,
+        limit: Int?
+    ) throws -> [Model.Profile] {
+        try ListProfilesOperation(
+                options: .init(
+                    filterName: filterName,
+                    filterProfileState: filterProfileState,
+                    filterProfileType: filterProfileType,
+                    sort: sort,
+                    limit: limit
+                )
+            )
+            .execute(with: requestor)
+            .await()
+            .map(Model.Profile.init)
+    }
+
     /// Make a request for something `Decodable`.
     ///
     /// - Parameters:

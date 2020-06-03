@@ -2,10 +2,8 @@
 
 import AppStoreConnect_Swift_SDK
 import ArgumentParser
-import Combine
 import Foundation
 import Files
-import Model
 
 struct ListProfilesCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
@@ -67,59 +65,28 @@ struct ListProfilesCommand: CommonParsableCommand {
     static let profileExtension = "mobileprovision"
 
     func run() throws {
-        let api = try makeService()
+        let service = try makeService()
 
-        var filters = [Profiles.Filter]()
-
-        if !filterName.isEmpty {
-            filters.append(.name(filterName))
-        }
-
-        if let filterProfileState = filterProfileState {
-            filters.append(.profileState([filterProfileState]))
-        }
-
-        if !filterProfileType.isEmpty {
-            filters.append(.profileType(filterProfileType))
-        }
-
-        var limits = [Profiles.Limit]()
-        if let limit = limit {
-            limits.append(.profiles(limit))
-        }
-
-        let request = APIEndpoint.listProfiles(
-            filter: filters,
-            include: [.bundleId, .certificates, .devices],
-            sort: [sort].compactMap { $0 },
-            limit: limits
+        let profiles = try service.listProfiles(
+            filterName: filterName,
+            filterProfileState: filterProfileState,
+            filterProfileType: filterProfileType,
+            sort: sort,
+            limit: limit
         )
 
-        let profiles = try api.request(request)
-            .map { $0.data.map(Model.Profile.init) }
-            .saveProfile(downloadPath: self.downloadPath) // FIXME: This feels like a hack.
-            .await()
+        if let path = downloadPath {
+            let folder = try Folder(path: path)
+
+            try profiles.forEach {
+                let file = try folder.createFile(
+                    named: "\($0.uuid!).\(ListProfilesCommand.profileExtension)",
+                    contents: Data(base64Encoded: $0.profileContent!)!
+                )
+                print("📥 Profile '\($0.name!)' downloaded to: \(file.path)")
+            }
+        }
 
         profiles.render(format: common.outputFormat)
-    }
-}
-
-private extension Publisher where Output == [Model.Profile], Failure == Error {
-    func saveProfile(downloadPath: String?) -> AnyPublisher<Output, Failure> {
-        tryMap { profiles -> Output in
-            if let path = downloadPath {
-
-                let folder = try Folder(path: path)
-                for profile in profiles {
-                    let file = try folder.createFile(
-                        named: "\(profile.uuid!).\(ListProfilesCommand.profileExtension)",
-                        contents: Data(base64Encoded: profile.profileContent!)!
-                    )
-                    Swift.print("📥 Profile '\(profile.name!)' downloaded to: \(file.path)")
-                }
-            }
-
-            return profiles
-        }.eraseToAnyPublisher()
     }
 }
