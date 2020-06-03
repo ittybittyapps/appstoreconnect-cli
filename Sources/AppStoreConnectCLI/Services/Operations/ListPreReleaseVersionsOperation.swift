@@ -25,9 +25,10 @@ struct ListPreReleaseVersionsOperation: APIOperation {
 
     func execute(with requestor: EndpointRequestor) -> AnyPublisher<Output, Swift.Error> {
         var filters: [ListPrereleaseVersions.Filter] = []
-        filters += options.filterAppIds.isEmpty ? [] : [.app(options.filterAppIds)]
-        filters += options.filterVersions.isEmpty ? [] : [.version(options.filterVersions)]
-        filters += options.filterPlatforms.isEmpty ? [] : [.platform(options.filterPlatforms)]
+        
+        if options.filterAppIds.isNotEmpty { filters.append(.app(options.filterAppIds)) }
+        if options.filterVersions.isNotEmpty { filters.append(.version(options.filterVersions)) }
+        if options.filterPlatforms.isNotEmpty { filters.append(.platform(options.filterPlatforms)) }
 
         let sort = [options.sort].compactMap { $0 }
 

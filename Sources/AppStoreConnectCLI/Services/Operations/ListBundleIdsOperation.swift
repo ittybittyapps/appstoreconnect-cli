@@ -24,10 +24,11 @@ struct ListBundleIdsOperation: APIOperation {
         let platforms = options.platforms.compactMap(Platform.init(rawValue:))
 
         var filters: [BundleIds.Filter] = []
-        filters += options.identifiers.isEmpty ? [] : [.identifier(options.identifiers)]
-        filters += options.names.isEmpty ? [] : [.name(options.names)]
-        filters += options.platforms.isEmpty ? [] : [.platform(platforms)]
-        filters += options.seedIds.isEmpty ? [] : [.seedId(options.seedIds)]
+
+        if options.identifiers.isNotEmpty { filters.append(.identifier(options.identifiers)) }
+        if options.names.isNotEmpty { filters.append(.name(options.names)) }
+        if options.platforms.isNotEmpty { filters.append(.platform(platforms)) }
+        if options.seedIds.isNotEmpty { filters.append(.seedId(options.seedIds)) }
 
         let limit = options.limit
 

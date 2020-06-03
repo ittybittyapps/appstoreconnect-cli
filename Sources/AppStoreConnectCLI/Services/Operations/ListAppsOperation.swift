@@ -23,9 +23,9 @@ struct ListAppsOperation: APIOperation {
     func execute(with requestor: EndpointRequestor) -> AnyPublisher<[App], Error> {
         var filters: [ListApps.Filter] = []
 
-        options.bundleIds.isEmpty ? () : filters.append(.bundleId(options.bundleIds))
-        options.names.isEmpty ? () : filters.append(.name(options.names))
-        options.skus.isEmpty ? () : filters.append(.sku(options.skus))
+        if options.bundleIds.isNotEmpty { filters.append(.bundleId(options.bundleIds)) }
+        if options.names.isNotEmpty { filters.append(.name(options.names)) }
+        if options.skus.isNotEmpty { filters.append(.sku(options.skus)) }
 
         let limits = options.limit.map { [ListApps.Limit.apps($0)] }
 
