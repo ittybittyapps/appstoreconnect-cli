@@ -22,13 +22,8 @@ struct ListUserInvitationsOperation: APIOperation {
     func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<[UserInvitation], Error> {
         var filters = [ListInvitedUsers.Filter]()
 
-        if options.filterEmail.isEmpty == false {
-            filters += [ListInvitedUsers.Filter.email(options.filterEmail)]
-        }
-
-        if options.filterRole.isEmpty == false {
-            filters += [ListInvitedUsers.Filter.roles(options.filterRole.map { $0.rawValue })]
-        }
+        if options.filterEmail.isNotEmpty { filters.append(.email(options.filterEmail)) }
+        if options.filterRole.isNotEmpty { filters.append(.roles(options.filterRole.map { $0.rawValue })) }
 
         let limit = options.limitVisibleApps.map { [ListInvitedUsers.Limit.visibleApps($0)] }
 
