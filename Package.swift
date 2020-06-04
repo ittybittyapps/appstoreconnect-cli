@@ -49,6 +49,7 @@ let package = Package(
                 dependencies: [
                     .product(name: "CodableCSV", package: "CodableCSV"),
                     .product(name: "Yams", package: "Yams"),
+                    .product(name: "Files", package: "Files"),
                 ]
         ),
         .target(
@@ -56,7 +57,6 @@ let package = Package(
             dependencies: [
                 .target(name: "Model"),
                 .target(name: "FileSystem"),
-                .product(name: "Files", package: "Files"),
                 .product(name: "AppStoreConnect-Swift-SDK", package: "AppStoreConnect-Swift-SDK"),
                 .product(name: "Yams", package: "Yams"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
