@@ -3,7 +3,7 @@
 import AppStoreConnect_Swift_SDK
 import ArgumentParser
 import Foundation
-import Files
+import FileSystem
 
 struct ListProfilesCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
@@ -56,13 +56,11 @@ struct ListProfilesCommand: CommonParsableCommand {
     @Option(help:
         ArgumentHelp(
             "If set, the provisioning profiles will be saved as files to this path.",
-            discussion: "Profiles will be saved to files with names of the pattern '<UUID>.\(profileExtension)'.",
+            discussion: "Profiles will be saved to files with names of the pattern '<UUID>.\(ProfileProcessor.profileExtension)'.",
             valueName: "path"
         )
     )
     var downloadPath: String?
-
-    static let profileExtension = "mobileprovision"
 
     func run() throws {
         let service = try makeService()
@@ -76,13 +74,11 @@ struct ListProfilesCommand: CommonParsableCommand {
         )
 
         if let path = downloadPath {
-            let folder = try Folder(path: path)
+            let processor = ProfileProcessor(path: .folder(path: path))
 
             try profiles.forEach {
-                let file = try folder.createFile(
-                    named: "\($0.uuid!).\(ListProfilesCommand.profileExtension)",
-                    contents: Data(base64Encoded: $0.profileContent!)!
-                )
+                let file = try processor.write($0)
+
                 print("📥 Profile '\($0.name!)' downloaded to: \(file.path)")
             }
         }
