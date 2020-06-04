@@ -45,10 +45,17 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
         .target(name: "appstoreconnect-cli", dependencies: ["AppStoreConnectCLI"]),
         .target(name: "Model"),
+        .target(name: "FileSystem",
+                dependencies: [
+                    .product(name: "CodableCSV", package: "CodableCSV"),
+                    .product(name: "Yams", package: "Yams"),
+                ]
+        ),
         .target(
             name: "AppStoreConnectCLI",
             dependencies: [
                 .target(name: "Model"),
+                .target(name: "FileSystem"),
                 .product(name: "Files", package: "Files"),
                 .product(name: "AppStoreConnect-Swift-SDK", package: "AppStoreConnect-Swift-SDK"),
                 .product(name: "Yams", package: "Yams"),
