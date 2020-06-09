@@ -10,17 +10,6 @@ struct ListAppsOperation: APIOperation {
         let names: [String]
         let skus: [String]
         let limit: Int?
-
-        fileprivate var endpoint: APIEndpoint<AppsResponse> {
-            var filters: [ListApps.Filter] = []
-            bundleIds.isEmpty ? () : filters.append(.bundleId(bundleIds))
-            names.isEmpty ? () : filters.append(.name(names))
-            skus.isEmpty ? () : filters.append(.sku(skus))
-
-            let limits = limit.map { [ListApps.Limit.apps($0)] }
-
-            return .apps(filters: filters, limits: limits)
-        }
     }
 
     private let options: Options
@@ -32,7 +21,27 @@ struct ListAppsOperation: APIOperation {
     typealias App = AppStoreConnect_Swift_SDK.App
 
     func execute(with requestor: EndpointRequestor) -> AnyPublisher<[App], Error> {
-        requestor.request(options.endpoint).map(\.data).eraseToAnyPublisher()
+        var filters: [ListApps.Filter] = []
+
+        if options.bundleIds.isNotEmpty { filters.append(.bundleId(options.bundleIds)) }
+        if options.names.isNotEmpty { filters.append(.name(options.names)) }
+        if options.skus.isNotEmpty { filters.append(.sku(options.skus)) }
+
+        let limits = options.limit.map { [ListApps.Limit.apps($0)] }
+
+        guard limits != nil else {
+            return requestor.requestAllPages {
+                .apps(filters: filters, next: $0)
+            }
+            .map { $0.flatMap(\.data) }
+            .eraseToAnyPublisher()
+        }
+
+        return requestor.request(.apps(filters: filters, limits: limits))
+            .map(\.data)
+            .eraseToAnyPublisher()
     }
 
 }
+
+extension AppsResponse: PaginatedResponse { }

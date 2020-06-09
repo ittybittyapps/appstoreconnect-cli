@@ -2,7 +2,6 @@
 
 import AppStoreConnect_Swift_SDK
 import ArgumentParser
-import Foundation
 
 struct ListUserInvitationsCommand: CommonParsableCommand {
     public static var configuration = CommandConfiguration(
@@ -19,37 +18,21 @@ struct ListUserInvitationsCommand: CommonParsableCommand {
     @Option(parsing: .upToNextOption, help: "Filter the results by the specified username")
     var filterEmail: [String]
 
-    @Option(parsing: .upToNextOption, help: "Filter the results by the specified roles")
+    @Option(parsing: .upToNextOption, help: "Filter the results by the specified roles, (eg. \(UserRole.allCases.compactMap { $0.rawValue.lowercased() })")
     var filterRole: [UserRole]
 
     @Flag(help: "Include visible apps in results.")
     var includeVisibleApps: Bool
 
-    private var filters: [ListInvitedUsers.Filter]? {
-        var filters = [ListInvitedUsers.Filter]()
-
-        if filterEmail.isEmpty == false {
-            filters += [ListInvitedUsers.Filter.email(filterEmail)]
-        }
-
-        if filterRole.isEmpty == false {
-            filters += [ListInvitedUsers.Filter.roles(filterRole.map { $0.rawValue })]
-        }
-
-        return filters
-    }
-
     public func run() throws {
         let service = try makeService()
 
-        let endpoint = APIEndpoint.invitedUsers(
-            limit: limitVisibleApps.map { [ListInvitedUsers.Limit.visibleApps($0)] },
-            filter: filters
+        let invitations = try service.listUserInvitaions(
+            filterEmail: filterEmail,
+            filterRole: filterRole,
+            limitVisibleApps: limitVisibleApps,
+            includeVisibleApps: includeVisibleApps
         )
-
-        let invitations = try service.request(endpoint)
-            .map(\.data)
-            .await()
 
         invitations.render(format: common.outputFormat)
     }
