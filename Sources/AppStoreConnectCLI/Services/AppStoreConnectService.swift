@@ -722,6 +722,24 @@ class AppStoreConnectService {
             .await()
     }
 
+    func enableBundleIdCapability(
+        bundleId: String,
+        capabilityType: CapabilityType
+    ) throws {
+        let bundleIdResourceId = try ReadBundleIdOperation(
+                options: .init(bundleId: bundleId)
+            )
+            .execute(with: requestor)
+            .await()
+            .id
+
+        _ = try EnableBundleIdCapabilityOperation(
+                options: .init(bundleIdResourceId: bundleIdResourceId, capabilityType: capabilityType)
+            )
+            .execute(with: requestor)
+            .await()
+    }
+
     /// Make a request for something `Decodable`.
     ///
     /// - Parameters:
