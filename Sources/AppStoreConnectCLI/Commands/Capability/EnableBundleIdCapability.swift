@@ -16,7 +16,7 @@ struct EnableBundleIdCapabilityCommand: CommonParsableCommand {
     @Argument(help: "The reverse-DNS bundle ID identifier to delete. Must be unique. (eg. com.example.app)")
     var bundleId: String
 
-    @Argument(help: "Bundle Id capability type. \n \(CapabilityType.allCases)")
+    @Argument(help: ArgumentHelp("Bundle Id capability type.", discussion: "One of \(CapabilityType.allCases)"))
     var capabilityType: CapabilityType
 
     // TODO: CapabilitySetting
