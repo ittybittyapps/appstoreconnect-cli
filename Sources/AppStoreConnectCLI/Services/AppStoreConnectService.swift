@@ -28,7 +28,7 @@ class AppStoreConnectService {
 
         return output.map(Model.App.init)
     }
-    
+
     func listBundleIds(
         identifiers: [String],
         names: [String],
@@ -314,7 +314,7 @@ class AppStoreConnectService {
     }
 
     func listBetaTestersForGroup(identifier: AppLookupIdentifier, groupName: String)
-        throws -> [Model.BetaTester]  {
+        throws -> [Model.BetaTester] {
 
             var appId: String = ""
 
@@ -412,7 +412,7 @@ class AppStoreConnectService {
 
         return Model.BetaGroup(app, betaGroup)
     }
-        
+
     func createBetaGroup(
         appBundleId: String,
         groupName: String,
@@ -520,7 +520,7 @@ class AppStoreConnectService {
         return Model.Build(output.build, output.relationships)
     }
 
-    func expireBuild(bundleId: String, buildNumber: String, preReleaseVersion: String) throws -> Void {
+    func expireBuild(bundleId: String, buildNumber: String, preReleaseVersion: String) throws {
         let appsOperation = GetAppsOperation(options: .init(bundleIds: [bundleId]))
         let appId = try appsOperation.execute(with: requestor).compactMap(\.first).await().id
 
@@ -536,7 +536,7 @@ class AppStoreConnectService {
         filterExpired: [String],
         filterPreReleaseVersions: [String],
         filterBuildNumbers: [String],
-        filterProcessingStates:[ListBuilds.Filter.ProcessingState],
+        filterProcessingStates: [ListBuilds.Filter.ProcessingState],
         filterBetaReviewStates: [String],
         limit: Int?
     ) throws -> [Model.Build] {
@@ -621,7 +621,7 @@ class AppStoreConnectService {
         filterIdentifiers.forEach { identifier in
             switch identifier {
             case .appId(let filterAppId):
-                filterAppIds.append(filterAppId)  
+                filterAppIds.append(filterAppId)
             case .bundleId(let filterBundleId):
                 filterBundleIds.append(filterBundleId)
             }
@@ -647,7 +647,7 @@ class AppStoreConnectService {
     func readPreReleaseVersion(filterIdentifier: AppLookupIdentifier, filterVersion: String) throws -> PreReleaseVersion {
         var filterAppId: String = ""
 
-        switch (filterIdentifier) {
+        switch filterIdentifier {
         case .appId(let appId):
             filterAppId = appId
         case .bundleId(let bundleId):

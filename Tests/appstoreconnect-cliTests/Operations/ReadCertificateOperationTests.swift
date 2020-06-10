@@ -22,12 +22,12 @@ final class ReadCertificateOperationTests: XCTestCase {
     )
 
     let noResponseRequestor = OneEndpointTestRequestor(response: { _ in
-            Future{ $0(.success(noCertificateResponse)) }
+            Future { $0(.success(noCertificateResponse)) }
         }
     )
 
     let notUniqueRequestor = OneEndpointTestRequestor(response: { _ in
-            Future{ $0(.success(notUniqueResponse)) }
+            Future { $0(.success(notUniqueResponse)) }
         }
     )
 

@@ -54,7 +54,7 @@ extension Model.User {
             roles: attributes.roles?.map(\.rawValue) ?? [],
             provisioningAllowed: attributes.provisioningAllowed ?? false,
             allAppsVisible: attributes.provisioningAllowed ?? false,
-            visibleApps: visibleApps?.compactMap{ $0.attributes?.bundleId }
+            visibleApps: visibleApps?.compactMap { $0.attributes?.bundleId }
         )
     }
 }

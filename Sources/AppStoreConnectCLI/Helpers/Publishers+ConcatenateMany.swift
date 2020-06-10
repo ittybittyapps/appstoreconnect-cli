@@ -25,7 +25,7 @@ extension Publishers {
             self.init(upstream)
         }
 
-        public init<S>(_ upstream: S) where Upstream == S.Element, S : Swift.Sequence {
+        public init<S>(_ upstream: S) where Upstream == S.Element, S: Swift.Sequence {
             publishers = Array(upstream)
             let partialResult = Empty<Upstream.Output, Upstream.Failure>().eraseToAnyPublisher()
             concatenatePublisher = publishers

@@ -23,7 +23,7 @@ struct ListBetaTestersByGroupOperation: APIOperation {
         requestor.requestAllPages {
             .betaTesters(inBetaGroupWithId: self.options.groupId, next: $0)
         }
-        .map{ $0.flatMap(\.data) }
+        .map { $0.flatMap(\.data) }
         .eraseToAnyPublisher()
     }
 }

@@ -15,7 +15,7 @@ struct ExpireBuildOperation: APIOperation {
     init(options: Options) {
         self.options = options
     }
-    
+
     func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<Void, Error> {
 
         let buildModifyEndpoint = APIEndpoint.modify(

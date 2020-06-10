@@ -41,7 +41,7 @@ struct InviteTesterOperation: APIOperation {
     func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<AppStoreConnect_Swift_SDK.BetaTester, Error> {
 
         let groupIds: [String]
-        
+
         switch options.identifers {
         case .bundleIdWithGroupNames(let bundleId, let groupNames):
             let appIds = try GetAppsOperation(

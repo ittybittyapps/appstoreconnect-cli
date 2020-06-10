@@ -60,7 +60,7 @@ extension ResultRenderable {
         return String(data: json, encoding: .utf8)!
     }
 
-    func renderAsYAML() -> String  {
+    func renderAsYAML() -> String {
         let yamlEncoder = YAMLEncoder()
         let yaml = try! yamlEncoder.encode(self)
         return yaml

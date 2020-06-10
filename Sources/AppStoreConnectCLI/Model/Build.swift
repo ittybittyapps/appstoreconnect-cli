@@ -7,7 +7,7 @@ import SwiftyTextTable
 
 extension Model.Build {
 
-    init(_ build: AppStoreConnect_Swift_SDK.Build ,_ includes: [AppStoreConnect_Swift_SDK.BuildRelationship]?) {
+    init(_ build: AppStoreConnect_Swift_SDK.Build, _ includes: [AppStoreConnect_Swift_SDK.BuildRelationship]?) {
 
         let relationships = build.relationships
 
@@ -86,7 +86,7 @@ extension Model.Build: ResultRenderable, TableInfoProvider {
         ]
     }
 
-    var tableRow: [CustomStringConvertible]  {
+    var tableRow: [CustomStringConvertible] {
         let row = [
             app?.bundleId,
             app?.name,

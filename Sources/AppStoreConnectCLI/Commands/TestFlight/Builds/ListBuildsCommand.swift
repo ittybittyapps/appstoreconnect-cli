@@ -71,7 +71,6 @@ struct ListBuildsCommand: CommonParsableCommand {
     @Option(help: "Limit the number of individualTesters & betaBuildLocalizations")
     var limit: Int?
 
-    
     func run() throws {
         let service = try makeService()
 

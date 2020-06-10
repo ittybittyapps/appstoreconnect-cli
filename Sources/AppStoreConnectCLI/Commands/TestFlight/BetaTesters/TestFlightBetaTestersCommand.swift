@@ -19,7 +19,7 @@ public struct TestFlightBetaTestersCommand: ParsableCommand {
         ],
         defaultSubcommand: ListBetaTestersCommand.self
     )
-    
+
     public init() {
     }
 }

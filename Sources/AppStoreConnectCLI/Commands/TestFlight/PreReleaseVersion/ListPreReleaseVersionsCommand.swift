@@ -40,7 +40,7 @@ struct ListPreReleaseVersionsCommand: CommonParsableCommand {
         )
     )
     var sort: ListPrereleaseVersions.Sort?
-    
+
     func run() throws {
         let service = try makeService()
 
@@ -49,4 +49,3 @@ struct ListPreReleaseVersionsCommand: CommonParsableCommand {
         prereleaseVersions.render(format: common.outputFormat)
     }
 }
-

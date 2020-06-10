@@ -20,7 +20,6 @@ final class ListPreReleaseVersionsOperationTests: XCTestCase {
         XCTAssertEqual(output.first?.preReleaseVersion.attributes?.version, "1.1")
     }
 
-    
     static let dataResponse: PreReleaseVersionsResponse = """
         {
         "data": [

@@ -16,7 +16,7 @@ public struct TestFlightBuildsCommand: ParsableCommand {
         ],
         defaultSubcommand: ListBuildsCommand.self
     )
-    
+
     public init() {
     }
 }

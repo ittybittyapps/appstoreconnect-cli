@@ -6,7 +6,7 @@ import Combine
 import Foundation
 
 extension EndpointRequestor {
-    func request<T>(_ endpoint: APIEndpoint<T>) -> Future<T, Error> where T : Decodable {
+    func request<T>(_ endpoint: APIEndpoint<T>) -> Future<T, Error> where T: Decodable {
         Future { $0(.failure(TestError.somethingBadHappened)) }
     }
 
@@ -34,7 +34,7 @@ struct TwoEndpointTestRequestor<U: Decodable, V: Decodable>: EndpointRequestor {
     let response: (APIEndpoint<U>) -> Future<U, Error>
     let response2: (APIEndpoint<V>) -> Future<V, Error>
 
-    func request<T>(_ endpoint: APIEndpoint<T>) -> Future<T, Error> where T : Decodable {
+    func request<T>(_ endpoint: APIEndpoint<T>) -> Future<T, Error> where T: Decodable {
         if
             let endpoint = endpoint as? APIEndpoint<U>,
             let response = response(endpoint) as? Future<T, Error>

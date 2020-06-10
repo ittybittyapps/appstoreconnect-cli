@@ -61,7 +61,7 @@ final class GetBetaGroupOperationTests: XCTestCase {
 
     func testBetaGroupNotFound() {
         let betaGroupNotFoundRequestor = OneEndpointTestRequestor(
-            response: { (endpoint: APIEndpoint<BetaGroupsResponse>) -> Future<BetaGroupsResponse, Error> in
+            response: { (_: APIEndpoint<BetaGroupsResponse>) -> Future<BetaGroupsResponse, Error> in
                 let response = BetaGroupsResponse(
                     data: [],
                     included: nil,
@@ -103,7 +103,7 @@ final class GetBetaGroupOperationTests: XCTestCase {
         )
 
         let betaGroupNotFoundRequestor = OneEndpointTestRequestor(
-            response: { (endpoint: APIEndpoint<BetaGroupsResponse>) -> Future<BetaGroupsResponse, Error> in
+            response: { (_: APIEndpoint<BetaGroupsResponse>) -> Future<BetaGroupsResponse, Error> in
                 let response = BetaGroupsResponse(
                     data: [betaGroup],
                     included: nil,
@@ -129,7 +129,7 @@ final class GetBetaGroupOperationTests: XCTestCase {
 
     func testBetaGroupNotUniqueToApp() {
         let betaGroupNotUniqueRequestor = OneEndpointTestRequestor(
-            response: { (endpoint: APIEndpoint<BetaGroupsResponse>) -> Future<BetaGroupsResponse, Error> in
+            response: { (_: APIEndpoint<BetaGroupsResponse>) -> Future<BetaGroupsResponse, Error> in
                 let response = BetaGroupsResponse(
                     data: [self.betaGroup, self.betaGroup],
                     included: nil,
