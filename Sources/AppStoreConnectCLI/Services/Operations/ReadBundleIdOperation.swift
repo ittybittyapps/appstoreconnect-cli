@@ -17,9 +17,9 @@ struct ReadBundleIdOperation: APIOperation {
         var errorDescription: String? {
             switch self {
             case .couldNotFindBundleId(let bundleId):
-                return "Couldn't find bundleId: '\(bundleId)'."
-            case .bundleIdNotUnique(let serial):
-                return "The bundleId your provided '\(serial)' is not unique."
+                return "Couldn't find Bundle ID: '\(bundleId)'."
+            case .bundleIdNotUnique(let bundleId):
+                return "The Bundle ID you provided '\(bundleId)' is not unique."
             }
         }
     }
