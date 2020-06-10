@@ -2,6 +2,7 @@
 
 import ArgumentParser
 import Foundation
+import FileSystem
 
 enum OutputFormat: String, CaseIterable, Codable {
     case csv
@@ -22,20 +23,14 @@ extension OutputFormat: ExpressibleByArgument {
     }
 }
 
-enum InputFormat: String, CaseIterable, Codable {
-    case json
-    case yaml
-    case csv
-}
-
 extension InputFormat: CustomStringConvertible {
-    var description: String {
+    public var description: String {
         self.rawValue
     }
 }
 
 extension InputFormat: ExpressibleByArgument {
-    init?(argument: String) {
+    public init?(argument: String) {
         self.init(rawValue: argument.lowercased())
     }
 }

@@ -2,10 +2,8 @@
 
 import Foundation
 import CodableCSV
-import Combine
 import SwiftyTextTable
 import Yams
-import AppStoreConnect_Swift_SDK
 
 protocol Reader {
     associatedtype Output
@@ -13,12 +11,17 @@ protocol Reader {
     func read(filePath: String) -> Output
 }
 
-enum Readers {
+public enum Readers {
 
-    struct FileReader<T: Decodable>: Reader {
+    public struct FileReader<T: Decodable>: Reader {
+
         let format: InputFormat
 
-        func read(filePath: String) -> T {
+        public init(format: InputFormat) {
+            self.format = format
+        }
+
+        public func read(filePath: String) -> T {
             switch format {
             case .json:
                 return readJSON(from: filePath)
@@ -29,7 +32,7 @@ enum Readers {
             }
         }
 
-        private func readJSON<T: Decodable>(from filePath: String) -> T {
+        public func readJSON<T: Decodable>(from filePath: String) -> T {
             guard
                 let fileContents = try? String(contentsOfFile: filePath, encoding: .utf8),
                 let data = fileContents.data(using: .utf8),
@@ -40,7 +43,7 @@ enum Readers {
             return result
         }
 
-        private func readYAML<T: Decodable>(from filePath: String) -> T {
+        public func readYAML<T: Decodable>(from filePath: String) -> T {
             guard
                 let fileContents = try? String(contentsOfFile: filePath, encoding: .utf8),
                 let result = try? YAMLDecoder().decode(T.self, from: fileContents) else {
@@ -50,7 +53,7 @@ enum Readers {
             return result
         }
 
-        private func readCSV<T: Decodable>(from filePath: String) -> T {
+        public func readCSV<T: Decodable>(from filePath: String) -> T {
             let decoder = CSVDecoder {
                 $0.encoding = .utf8
                 $0.headerStrategy = .firstLine

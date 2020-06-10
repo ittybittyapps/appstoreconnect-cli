@@ -2,9 +2,7 @@
 
 import AppStoreConnect_Swift_SDK
 import ArgumentParser
-import Combine
-import Foundation
-import Files
+import FileSystem
 
 struct ListCertificatesCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
@@ -51,21 +49,13 @@ struct ListCertificatesCommand: CommonParsableCommand {
             )
 
         if let downloadPath = downloadPath {
-            try certificates.forEach { certificate in
-                guard
-                    let content = certificate.content,
-                    let data = Data(base64Encoded: content)
-                else {
-                    throw CertificatesError.noContent
-                }
+            let certificateProcessor = CertificateProcessor(path: .folder(path: downloadPath))
 
-                let file = try Folder(path: downloadPath)
-                    .createFile(
-                        named: "\(certificate.serialNumber ?? "serial").cer",
-                        contents: data
-                    )
+            try certificates.forEach {
 
-                print("📥 Certificate '\(certificate.name ?? "")' downloaded to: \(file.path)")
+                let file = try certificateProcessor.write($0)
+
+                print("📥 Certificate '\($0.name ?? "")' downloaded to: \(file.path)")
             }
         }
 

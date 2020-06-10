@@ -1,10 +1,7 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
-import AppStoreConnect_Swift_SDK
 import ArgumentParser
-import Combine
-import Foundation
-import Files
+import FileSystem
 
 struct ReadCertificateCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
@@ -27,20 +24,9 @@ struct ReadCertificateCommand: CommonParsableCommand {
             .readCertificate(serial: serial)
 
         if let certificateOutput = certificateOutput {
-            guard
-                let content = certificate.content,
-                let data = Data(base64Encoded: content)
-            else {
-                throw CertificatesError.noContent
-            }
+            let fileProcessor = CertificateProcessor(path: .file(path: certificateOutput))
 
-            let standardizedPath = certificateOutput as NSString
-
-            let file = try Folder(path: standardizedPath.deletingLastPathComponent)
-                .createFile(
-                    named: standardizedPath.lastPathComponent,
-                    contents: data
-                )
+            let file = try fileProcessor.write(certificate)
 
             print("📥 Certificate '\(certificate.name ?? "")' downloaded to: \(file.path)")
         }
