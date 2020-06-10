@@ -3,11 +3,11 @@
 import AppStoreConnect_Swift_SDK
 import ArgumentParser
 
-struct EnableBundleIdCapabilityCommand: CommonParsableCommand {
+struct DisableBundleIdCapabilityCommand: CommonParsableCommand {
 
     public static var configuration = CommandConfiguration(
-        commandName: "enable",
-        abstract: "Enable a capability for a bundle ID."
+        commandName: "disable",
+        abstract: "Disable a capability for a bundle ID."
     )
 
     @OptionGroup()
@@ -19,13 +19,9 @@ struct EnableBundleIdCapabilityCommand: CommonParsableCommand {
     @Argument(help: ArgumentHelp("Bundle Id capability type.", discussion: "One of \(CapabilityType.allCases)"))
     var capabilityType: CapabilityType
 
-    // TODO: CapabilitySetting
-
     func run() throws {
         let service = try makeService()
 
-        try service.enableBundleIdCapability(
-            bundleId: bundleId, capabilityType: capabilityType
-        )
+        try service.disableBundleIdCapability(bundleId: bundleId, capabilityType: capabilityType)
     }
 }
