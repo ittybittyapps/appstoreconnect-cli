@@ -32,12 +32,7 @@ extension Publishers {
                 .reduce(partialResult) { Concatenate(prefix: $0, suffix: $1).eraseToAnyPublisher() }
         }
 
-        public func receive<S>(subscriber: S)
-            where
-            S: Subscriber,
-            ConcatenateMany.Failure == S.Failure,
-            ConcatenateMany.Output == S.Input
-        {
+        public func receive<S>(subscriber: S) where S: Subscriber, ConcatenateMany.Failure == S.Failure, ConcatenateMany.Output == S.Input {
             concatenatePublisher.receive(subscriber: subscriber)
         }
 

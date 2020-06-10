@@ -239,5 +239,5 @@ final class ListPreReleaseVersionsOperationTests: XCTestCase {
         }
         """
         .data(using: .utf8)
-        .map({ try! jsonDecoder.decode(PreReleaseVersionsResponse.self, from: $0) })!
+        .map({ try! jsonDecoder.decode(PreReleaseVersionsResponse.self, from: $0) })! // swiftlint:disable:this force_try
 }

@@ -82,7 +82,7 @@ extension Model.Build: ResultRenderable, TableInfoProvider {
             TextTableColumn(header: "Uploaded Date"),
             TextTableColumn(header: "Expiration Date"),
             TextTableColumn(header: "Expired"),
-            TextTableColumn(header: "Uses Non Exempt Encryption")
+            TextTableColumn(header: "Uses Non Exempt Encryption"),
         ]
     }
 
@@ -102,7 +102,7 @@ extension Model.Build: ResultRenderable, TableInfoProvider {
             uploadedDate,
             expirationDate,
             expired,
-            usesNonExemptEncryption
+            usesNonExemptEncryption,
         ]
 
         return row.map { $0 ?? ""}

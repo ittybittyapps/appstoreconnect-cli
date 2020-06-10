@@ -47,7 +47,7 @@ extension Model.PreReleaseVersion: ResultRenderable, TableInfoProvider {
             app?.bundleId,
             app?.name,
             platform,
-            version
+            version,
         ].map { $0 ?? "" }
     }
 }

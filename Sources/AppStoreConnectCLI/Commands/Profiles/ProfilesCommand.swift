@@ -10,7 +10,7 @@ struct ProfilesCommand: ParsableCommand {
         subcommands: [
             ListProfilesCommand.self,
             CreateProfileCommand.self,
-            DeleteProfileCommand.self
+            DeleteProfileCommand.self,
         ],
         defaultSubcommand: ListProfilesCommand.self
     )

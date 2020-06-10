@@ -41,6 +41,6 @@ final class GetUserInfoOperationTests: XCTestCase {
     }
     """
     .data(using: .utf8)
-    .map({ try! jsonDecoder.decode(UsersResponse.self, from: $0) })!
+    .map({ try! jsonDecoder.decode(UsersResponse.self, from: $0) })! // swiftlint:disable:this force_try
 
 }

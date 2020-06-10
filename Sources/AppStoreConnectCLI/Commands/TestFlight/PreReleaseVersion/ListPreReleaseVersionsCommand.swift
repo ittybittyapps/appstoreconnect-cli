@@ -44,7 +44,12 @@ struct ListPreReleaseVersionsCommand: CommonParsableCommand {
     func run() throws {
         let service = try makeService()
 
-        let prereleaseVersions = try service.listPreReleaseVersions(filterIdentifiers: appLookupOptions.filterIdentifiers, filterVersions: filterVersions, filterPlatforms: filterPlatforms, sort: sort)
+        let prereleaseVersions = try service.listPreReleaseVersions(
+            filterIdentifiers: appLookupOptions.filterIdentifiers,
+            filterVersions: filterVersions,
+            filterPlatforms: filterPlatforms,
+            sort: sort
+        )
 
         prereleaseVersions.render(format: common.outputFormat)
     }

@@ -17,7 +17,7 @@ extension UserInvitation: TableInfoProvider {
             TextTableColumn(header: "Roles"),
             TextTableColumn(header: "Expiration Date"),
             TextTableColumn(header: "Provisioning Allowed"),
-            TextTableColumn(header: "All Apps Visible")
+            TextTableColumn(header: "All Apps Visible"),
         ]
     }
 
@@ -29,7 +29,7 @@ extension UserInvitation: TableInfoProvider {
             attributes?.roles?.map { $0.rawValue }.joined(separator: ", ") ?? "",
             attributes?.expirationDate ?? "",
             attributes?.provisioningAllowed?.toYesNo() ?? "",
-            attributes?.allAppsVisible?.toYesNo() ?? ""
+            attributes?.allAppsVisible?.toYesNo() ?? "",
         ]
     }
 }
@@ -55,9 +55,7 @@ extension AppStoreConnectService {
     /// This is an App Store Connect internal identifier
     func invitationIdentifier(matching email: String) throws -> AnyPublisher<String, Error> {
         let endpoint = APIEndpoint.invitedUsers(
-            filter: [
-                ListInvitedUsers.Filter.email([email])
-            ]
+            filter: [.email([email])]
         )
 
         return self.request(endpoint)

@@ -81,7 +81,7 @@ final class GetBetaGroupOperationTests: XCTestCase {
         case .failure(Operation.Error.betaGroupNotFound(groupName: "Some Group", bundleId: "com.example.test", appId: "1234567890")):
             break
         default:
-            XCTFail()
+            XCTFail("Unexpected case!")
         }
     }
 
@@ -123,7 +123,7 @@ final class GetBetaGroupOperationTests: XCTestCase {
         case .failure(Operation.Error.betaGroupNotFound(groupName: "Some Group", bundleId: "com.example.test", appId: "1234567890")):
             break
         default:
-            XCTFail()
+            XCTFail("Unexpected case!")
         }
     }
 
@@ -149,7 +149,7 @@ final class GetBetaGroupOperationTests: XCTestCase {
         case .failure(Operation.Error.betaGroupNotUniqueToApp(groupName: "Some Group", bundleId: "com.example.test", appId: "1234567890")):
             break
         default:
-            XCTFail()
+            XCTFail("Unexpected case!")
         }
     }
 }

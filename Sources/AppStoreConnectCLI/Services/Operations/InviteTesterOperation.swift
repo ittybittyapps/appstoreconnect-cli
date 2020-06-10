@@ -69,16 +69,16 @@ struct InviteTesterOperation: APIOperation {
                 }
 
             groupIds = getGroupIds(in: betaGroups, matching: groupNames)
-        case .resourceId(let ids):
-            groupIds = ids
+        case .resourceId(let identifiers):
+            groupIds = identifiers
         }
 
-        let requests = groupIds.map { (id: String) -> AnyPublisher<BetaTesterResponse, Error> in
+        let requests = groupIds.map { (identifier: String) -> AnyPublisher<BetaTesterResponse, Error> in
             let endpoint = APIEndpoint.create(
                 betaTesterWithEmail: options.email,
                 firstName: options.firstName,
                 lastName: options.lastName,
-                betaGroupIds: [id]
+                betaGroupIds: [identifier]
             )
 
             return requestor

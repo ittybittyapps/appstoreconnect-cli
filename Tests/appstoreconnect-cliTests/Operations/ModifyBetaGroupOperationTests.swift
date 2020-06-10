@@ -85,14 +85,15 @@ final class ModifyBetaGroupOperationTests: XCTestCase {
             let betaGroup = json["data"] as? NSDictionary,
             let attributes = betaGroup["attributes"] as? NSDictionary
         else {
-            XCTFail(); return
+            XCTFail("Expected attributes to be non-nil!")
+            return
         }
 
         let expectedAttributes: [String: Any] = [
             "name": "New Group Name",
             "publicLinkEnabled": true,
             "publicLinkLimit": 10,
-            "publicLinkLimitEnabled": true
+            "publicLinkLimitEnabled": true,
         ]
 
         XCTAssert(attributes.isEqual(to: expectedAttributes))

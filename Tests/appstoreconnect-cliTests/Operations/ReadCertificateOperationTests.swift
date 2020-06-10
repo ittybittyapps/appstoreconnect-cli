@@ -106,14 +106,14 @@ final class ReadCertificateOperationTests: XCTestCase {
 
     static let readCertificateResponse = Certificate
         .readCertificateResponse
-        .map({ try! jsonDecoder.decode(CertificatesResponse.self, from: $0) })!
+        .map({ try! jsonDecoder.decode(CertificatesResponse.self, from: $0) })! // swiftlint:disable:this force_try
 
     static let noCertificateResponse = Certificate
         .noCertificateResponse
-        .map({ try! jsonDecoder.decode(CertificatesResponse.self, from: $0) })!
+        .map({ try! jsonDecoder.decode(CertificatesResponse.self, from: $0) })! // swiftlint:disable:this force_try
 
     static let notUniqueResponse = Certificate
         .notUniqueResponse
-        .map({ try! jsonDecoder.decode(CertificatesResponse.self, from: $0) })!
+        .map({ try! jsonDecoder.decode(CertificatesResponse.self, from: $0) })! // swiftlint:disable:this force_try
 
 }

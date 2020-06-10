@@ -22,9 +22,7 @@ extension AppStoreConnectService {
     /// - returns: The App Store Connect API resource identifier for the Bundle Identifier.
     func bundleIdResourceId(matching identifier: String) throws -> AnyPublisher<String, Error> {
         let request = APIEndpoint.listBundleIds(
-            filter: [
-                BundleIds.Filter.identifier([identifier])
-            ]
+            filter: [BundleIds.Filter.identifier([identifier])]
         )
 
         return self.request(request)

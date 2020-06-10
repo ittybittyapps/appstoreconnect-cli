@@ -9,7 +9,7 @@ public struct TestFlightPreReleaseVersionCommand: ParsableCommand {
         abstract: "Platform-specific versions of your app intended for distribution to beta testers.",
         subcommands: [
             ListPreReleaseVersionsCommand.self,
-            ReadPreReleaseVersionCommand.self
+            ReadPreReleaseVersionCommand.self,
         ],
         defaultSubcommand: ListPreReleaseVersionsCommand.self)
 

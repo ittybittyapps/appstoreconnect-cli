@@ -80,7 +80,8 @@ final class CreateBetaGroupOperationTests: XCTestCase {
             let relationships = data["relationships"] as? [String: [String: Any]],
             let appData = relationships["app"]?["data"] as? [String: Any]
         else {
-            XCTFail(); return
+            XCTFail("Expected app data to be non-nil!")
+            return
         }
 
         XCTAssertEqual(appData["id"] as? String, "0123456789")
@@ -113,7 +114,7 @@ final class CreateBetaGroupOperationTests: XCTestCase {
         }
         """
         .data(using: .utf8)
-        .map({ try! jsonDecoder.decode(AppsResponse.self, from: $0) })!
+        .map({ try! jsonDecoder.decode(AppsResponse.self, from: $0) })! // swiftlint:disable:this force_try
 
     static let betaGroupResponse = """
         {
@@ -141,5 +142,5 @@ final class CreateBetaGroupOperationTests: XCTestCase {
         }
         """
         .data(using: .utf8)
-        .map({ try! jsonDecoder.decode(BetaGroupResponse.self, from: $0) })!
+        .map({ try! jsonDecoder.decode(BetaGroupResponse.self, from: $0) })! // swiftlint:disable:this force_try
 }

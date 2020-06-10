@@ -14,7 +14,7 @@ extension CertificateType: CaseIterable, ExpressibleByArgument, CustomStringConv
             .macInstallerDistribution,
             .macAppDevelopment,
             .developerIdKext,
-            .developerIdApplication
+            .developerIdApplication,
         ]
     }
 
