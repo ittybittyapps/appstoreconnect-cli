@@ -16,7 +16,7 @@ struct ReadAppCommand: CommonParsableCommand {
 
     @OptionGroup()
     var appLookupArgument: AppLookupArgument
-    
+
     func run() throws {
         let service = try makeService()
 

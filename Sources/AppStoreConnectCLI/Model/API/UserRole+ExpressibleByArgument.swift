@@ -4,7 +4,7 @@ import ArgumentParser
 import AppStoreConnect_Swift_SDK
 import Foundation
 
-extension UserRole : ExpressibleByArgument {
+extension UserRole: ExpressibleByArgument {
     public init?(argument: String) {
         self.init(rawValue: argument.uppercased())
     }

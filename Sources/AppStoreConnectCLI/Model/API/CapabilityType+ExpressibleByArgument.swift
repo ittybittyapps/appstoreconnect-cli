@@ -31,7 +31,7 @@ extension CapabilityType: CaseIterable, ExpressibleByArgument, CustomStringConve
             .nfcTagReading,
             .classkit,
             .autofillCredentialProvider,
-            .accessWifiInformation
+            .accessWifiInformation,
         ]
     }
 

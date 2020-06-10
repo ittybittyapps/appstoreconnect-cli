@@ -25,6 +25,7 @@ struct AuthOptions: ParsableArguments {
     )
     var apiIssuer: IssuerID
 
+    // swiftlint:disable line_length
     @Option(
         default: .environment("APPSTORE_CONNECT_API_KEY_ID"),
         help: ArgumentHelp(

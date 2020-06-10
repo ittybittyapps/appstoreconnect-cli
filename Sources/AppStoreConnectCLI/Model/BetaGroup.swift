@@ -35,7 +35,7 @@ extension BetaGroup: TableInfoProvider, ResultRenderable {
             publicLinkEnabled ?? "",
             publicLinkLimit ?? "",
             publicLinkEnabled ?? "",
-            creationDate ?? ""
+            creationDate ?? "",
         ]
     }
 }

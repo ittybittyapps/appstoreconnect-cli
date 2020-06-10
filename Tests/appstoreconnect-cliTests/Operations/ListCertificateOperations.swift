@@ -39,5 +39,5 @@ final class ListCertificateOperationsTests: XCTestCase {
 
     static let noCertificatesResponse = Certificate
         .noCertificateResponse
-        .map({ try! jsonDecoder.decode(CertificatesResponse.self, from: $0) })!
+        .map({ try! jsonDecoder.decode(CertificatesResponse.self, from: $0) })! // swiftlint:disable:this force_try
 }

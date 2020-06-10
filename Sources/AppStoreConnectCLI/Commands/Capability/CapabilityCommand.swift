@@ -8,7 +8,7 @@ struct CapabilityCommand: ParsableCommand {
         abstract: "Manage the app capabilities for a bundle ID.",
         subcommands: [
             EnableBundleIdCapabilityCommand.self,
-            DisableBundleIdCapabilityCommand.self
+            DisableBundleIdCapabilityCommand.self,
         ]
     )
 }

@@ -10,7 +10,7 @@ struct ListPreReleaseVersionsOperation: APIOperation {
         var filterAppIds: [String] = []
         var filterVersions: [String] = []
         var filterPlatforms: [String] = []
-        var sort: ListPrereleaseVersions.Sort? = nil
+        var sort: ListPrereleaseVersions.Sort?
     }
 
     typealias PreReleaseVersion =  AppStoreConnect_Swift_SDK.PrereleaseVersion
@@ -25,7 +25,7 @@ struct ListPreReleaseVersionsOperation: APIOperation {
 
     func execute(with requestor: EndpointRequestor) -> AnyPublisher<Output, Swift.Error> {
         var filters: [ListPrereleaseVersions.Filter] = []
-        
+
         if options.filterAppIds.isNotEmpty { filters.append(.app(options.filterAppIds)) }
         if options.filterVersions.isNotEmpty { filters.append(.version(options.filterVersions)) }
         if options.filterPlatforms.isNotEmpty { filters.append(.platform(options.filterPlatforms)) }

@@ -26,9 +26,7 @@ extension AppStoreConnectService {
     /// - returns: The App Store Connect API resource identifier for the Device UDID.
     func deviceUDIDResourceId(matching udid: String) -> AnyPublisher<String, Error> {
         let request = APIEndpoint.listDevices(
-            filter: [
-                .udid([udid])
-            ]
+            filter: [.udid([udid])]
         )
 
         return self.request(request)

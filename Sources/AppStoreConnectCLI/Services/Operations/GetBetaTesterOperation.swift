@@ -99,44 +99,44 @@ struct GetBetaTesterOperation: APIOperation {
 
     func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<Output, Swift.Error> {
         switch options.identifier {
-            case .id(let id):
-                let endpoint = APIEndpoint.betaTester(
-                    withId: id,
-                    include: [.betaGroups, .apps],
-                    limit: getTesterlimits
-                )
+        case .id(let id):
+            let endpoint = APIEndpoint.betaTester(
+                withId: id,
+                include: [.betaGroups, .apps],
+                limit: getTesterlimits
+            )
 
-                return requestor.request(endpoint)
-                    .tryMap { (response: BetaTesterResponse) -> Output in
+            return requestor.request(endpoint)
+                .tryMap { (response: BetaTesterResponse) -> Output in
+                    return Output(
+                        betaTester: response.data,
+                        includes: response.included
+                    )
+            }
+            .eraseToAnyPublisher()
+
+        case .email(let email):
+            let endpoint = APIEndpoint.betaTesters(
+                filter: [.email([email])],
+                include: [.betaGroups, .apps],
+                limit: listTesterslimits
+            )
+
+            return requestor.request(endpoint)
+                .tryMap { (response: BetaTestersResponse) -> Output in
+                    switch response.data.count {
+                    case 0:
+                        throw Error.betaTesterNotFound(email)
+                    case 1:
                         return Output(
-                            betaTester: response.data,
+                            betaTester: response.data.first!,
                             includes: response.included
                         )
+                    default:
+                        throw Error.betaTesterNotUnique(email)
                     }
-                    .eraseToAnyPublisher()
-
-            case .email(let email):
-                let endpoint = APIEndpoint.betaTesters(
-                    filter: [.email([email])],
-                    include: [.betaGroups, .apps],
-                    limit: listTesterslimits
-                )
-
-                return requestor.request(endpoint)
-                    .tryMap { (response: BetaTestersResponse) -> Output in
-                        switch response.data.count {
-                        case 0:
-                            throw Error.betaTesterNotFound(email)
-                        case 1:
-                            return Output(
-                                betaTester: response.data.first!,
-                                includes: response.included
-                            )
-                        default:
-                            throw Error.betaTesterNotUnique(email)
-                        }
-                    }
-                    .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
         }
     }
 

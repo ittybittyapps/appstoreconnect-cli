@@ -11,8 +11,8 @@ extension AppStoreConnectService {
 
         var failureReason: String? {
             switch self {
-                case .couldntFindBetaTester(let email):
-                    return "Couldn't find beta tester with input email  \(email) or email not unique"
+            case .couldntFindBetaTester(let email):
+                return "Couldn't find beta tester with input email  \(email) or email not unique"
             }
         }
     }

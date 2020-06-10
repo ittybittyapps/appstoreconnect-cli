@@ -56,8 +56,7 @@ struct ListBetaGroupsOperation: APIOperation {
         let output = response.tryMap { (responses: [BetaGroupsResponse]) in
             try responses.flatMap { response -> Output in
                 let apps = response.included?.reduce(
-                    into: [String: AppStoreConnect_Swift_SDK.App](),
-                    { result, relationship in
+                    into: [String: AppStoreConnect_Swift_SDK.App](), { result, relationship in
                         switch relationship {
                         case .app(let app):
                             result[app.id] = app

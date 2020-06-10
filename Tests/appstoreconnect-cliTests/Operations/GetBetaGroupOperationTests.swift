@@ -61,7 +61,7 @@ final class GetBetaGroupOperationTests: XCTestCase {
 
     func testBetaGroupNotFound() {
         let betaGroupNotFoundRequestor = OneEndpointTestRequestor(
-            response: { (endpoint: APIEndpoint<BetaGroupsResponse>) -> Future<BetaGroupsResponse, Error> in
+            response: { (_: APIEndpoint<BetaGroupsResponse>) -> Future<BetaGroupsResponse, Error> in
                 let response = BetaGroupsResponse(
                     data: [],
                     included: nil,
@@ -81,7 +81,7 @@ final class GetBetaGroupOperationTests: XCTestCase {
         case .failure(Operation.Error.betaGroupNotFound(groupName: "Some Group", bundleId: "com.example.test", appId: "1234567890")):
             break
         default:
-            XCTFail()
+            XCTFail("Unexpected case!")
         }
     }
 
@@ -103,7 +103,7 @@ final class GetBetaGroupOperationTests: XCTestCase {
         )
 
         let betaGroupNotFoundRequestor = OneEndpointTestRequestor(
-            response: { (endpoint: APIEndpoint<BetaGroupsResponse>) -> Future<BetaGroupsResponse, Error> in
+            response: { (_: APIEndpoint<BetaGroupsResponse>) -> Future<BetaGroupsResponse, Error> in
                 let response = BetaGroupsResponse(
                     data: [betaGroup],
                     included: nil,
@@ -123,13 +123,13 @@ final class GetBetaGroupOperationTests: XCTestCase {
         case .failure(Operation.Error.betaGroupNotFound(groupName: "Some Group", bundleId: "com.example.test", appId: "1234567890")):
             break
         default:
-            XCTFail()
+            XCTFail("Unexpected case!")
         }
     }
 
     func testBetaGroupNotUniqueToApp() {
         let betaGroupNotUniqueRequestor = OneEndpointTestRequestor(
-            response: { (endpoint: APIEndpoint<BetaGroupsResponse>) -> Future<BetaGroupsResponse, Error> in
+            response: { (_: APIEndpoint<BetaGroupsResponse>) -> Future<BetaGroupsResponse, Error> in
                 let response = BetaGroupsResponse(
                     data: [self.betaGroup, self.betaGroup],
                     included: nil,
@@ -149,7 +149,7 @@ final class GetBetaGroupOperationTests: XCTestCase {
         case .failure(Operation.Error.betaGroupNotUniqueToApp(groupName: "Some Group", bundleId: "com.example.test", appId: "1234567890")):
             break
         default:
-            XCTFail()
+            XCTFail("Unexpected case!")
         }
     }
 }

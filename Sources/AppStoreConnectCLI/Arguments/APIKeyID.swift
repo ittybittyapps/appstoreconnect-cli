@@ -42,7 +42,6 @@ struct APIKeyID: EnvironmentLoadableArgument {
             throw Error.apiKeyNotFound
         }
 
-
         return apiKeyFileContent
             .components(separatedBy: .newlines)
             .filter { $0.hasSuffix("PRIVATE KEY-----") == false }

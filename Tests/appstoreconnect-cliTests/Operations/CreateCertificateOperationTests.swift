@@ -44,10 +44,10 @@ final class CreateCertificateOperationTests: XCTestCase {
         let expectedError = TestError.somethingBadHappened
 
         switch result {
-            case .failure(let error as TestError):
-                XCTAssertEqual(expectedError, error)
-            default:
-                XCTFail("Expected failure with: \(expectedError), got: \(result)")
+        case .failure(let error as TestError):
+            XCTAssertEqual(expectedError, error)
+        default:
+            XCTFail("Expected failure with: \(expectedError), got: \(result)")
         }
     }
 
@@ -76,5 +76,5 @@ final class CreateCertificateOperationTests: XCTestCase {
     }
     """
     .data(using: .utf8)
-    .map({ try! jsonDecoder.decode(CertificateResponse.self, from: $0) })!
+    .map({ try! jsonDecoder.decode(CertificateResponse.self, from: $0) })! // swiftlint:disable:this force_try
 }

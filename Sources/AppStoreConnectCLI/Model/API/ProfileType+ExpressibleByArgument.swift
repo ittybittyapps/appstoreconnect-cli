@@ -18,7 +18,7 @@ extension ProfileType: CaseIterable, ExpressibleByArgument, CustomStringConverti
             .tvOSAppDevelopment,
             .tvOSAppStore,
             .tvOSAppAdHoc,
-            .tvOSAppInHouse
+            .tvOSAppInHouse,
         ]
     }
 

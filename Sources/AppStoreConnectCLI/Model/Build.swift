@@ -7,7 +7,7 @@ import SwiftyTextTable
 
 extension Model.Build {
 
-    init(_ build: AppStoreConnect_Swift_SDK.Build ,_ includes: [AppStoreConnect_Swift_SDK.BuildRelationship]?) {
+    init(_ build: AppStoreConnect_Swift_SDK.Build, _ includes: [AppStoreConnect_Swift_SDK.BuildRelationship]?) {
 
         let relationships = build.relationships
 
@@ -82,11 +82,11 @@ extension Model.Build: ResultRenderable, TableInfoProvider {
             TextTableColumn(header: "Uploaded Date"),
             TextTableColumn(header: "Expiration Date"),
             TextTableColumn(header: "Expired"),
-            TextTableColumn(header: "Uses Non Exempt Encryption")
+            TextTableColumn(header: "Uses Non Exempt Encryption"),
         ]
     }
 
-    var tableRow: [CustomStringConvertible]  {
+    var tableRow: [CustomStringConvertible] {
         let row = [
             app?.bundleId,
             app?.name,
@@ -102,7 +102,7 @@ extension Model.Build: ResultRenderable, TableInfoProvider {
             uploadedDate,
             expirationDate,
             expired,
-            usesNonExemptEncryption
+            usesNonExemptEncryption,
         ]
 
         return row.map { $0 ?? ""}

@@ -5,11 +5,11 @@ import Combine
 import struct Model.User
 
 struct ListUsersOperation: APIOperation {
-    
+
     typealias Filter = ListUsers.Filter
     typealias Limit = ListUsers.Limit
     typealias Include = ListUsers.Include
-    
+
     struct Options {
         let limitVisibleApps: Int?
         let limitUsers: Int?

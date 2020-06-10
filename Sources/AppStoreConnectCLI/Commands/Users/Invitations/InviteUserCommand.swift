@@ -12,7 +12,12 @@ struct InviteUserCommand: CommonParsableCommand {
     @OptionGroup()
     var common: CommonOptions
 
-    @Argument(help: "The email address of a pending user invitation. The email address must be valid to activate the account. It can be any email address, not necessarily one associated with an Apple ID.")
+    @Argument(
+        help: ArgumentHelp(
+            "The email address of a pending user invitation.",
+            discussion: "The email address must be valid to activate the account. It can be any email address, not necessarily one associated with an Apple ID."
+        )
+    )
     var email: String
 
     @Argument(help: "The user invitation recipient's first name.")

@@ -43,7 +43,7 @@ extension BetaTester: ResultRenderable, TableInfoProvider {
             TextTableColumn(header: "Last Name"),
             TextTableColumn(header: "Invite Type"),
             TextTableColumn(header: "Beta Groups"),
-            TextTableColumn(header: "Apps")
+            TextTableColumn(header: "Apps"),
         ]
     }
 
@@ -54,7 +54,7 @@ extension BetaTester: ResultRenderable, TableInfoProvider {
             lastName ?? "",
             inviteType ?? "",
             betaGroups?.joined(separator: ", ") ?? [],
-            apps?.joined(separator: ", ") ?? []
+            apps?.joined(separator: ", ") ?? [],
         ]
     }
 }

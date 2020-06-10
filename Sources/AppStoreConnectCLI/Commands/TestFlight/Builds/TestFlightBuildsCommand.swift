@@ -12,11 +12,11 @@ public struct TestFlightBuildsCommand: ParsableCommand {
             ReadBuildCommand.self,
             ExpireBuildCommand.self,
             RemoveBuildFromGroupsCommand.self,
-            AddGroupsToBuildCommand.self
+            AddGroupsToBuildCommand.self,
         ],
         defaultSubcommand: ListBuildsCommand.self
     )
-    
+
     public init() {
     }
 }

@@ -35,7 +35,7 @@ extension Model.BundleId: ResultRenderable, TableInfoProvider {
             TextTableColumn(header: "Identifier"),
             TextTableColumn(header: "Name"),
             TextTableColumn(header: "Platform"),
-            TextTableColumn(header: "Seed ID")
+            TextTableColumn(header: "Seed ID"),
         ]
     }
 
@@ -44,7 +44,7 @@ extension Model.BundleId: ResultRenderable, TableInfoProvider {
             identifier ?? "",
             name ?? "",
             platform ?? "",
-            seedId ?? ""
+            seedId ?? "",
         ]
     }
 }

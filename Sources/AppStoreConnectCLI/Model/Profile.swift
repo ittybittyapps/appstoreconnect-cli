@@ -37,7 +37,7 @@ extension Model.Profile: TableInfoProvider {
             TextTableColumn(header: "State"),
             TextTableColumn(header: "Type"),
             TextTableColumn(header: "Created Date"),
-            TextTableColumn(header: "Expiration Date")
+            TextTableColumn(header: "Expiration Date"),
         ]
     }
 
@@ -49,7 +49,7 @@ extension Model.Profile: TableInfoProvider {
             profileState ?? "",
             profileType ?? "",
             createdDate?.formattedDate ?? "",
-            expirationDate?.formattedDate ?? ""
+            expirationDate?.formattedDate ?? "",
         ]
     }
 }

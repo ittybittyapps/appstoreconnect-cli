@@ -4,8 +4,6 @@ import Foundation
 import AppStoreConnect_Swift_SDK
 import Yams
 
-
-
 extension APIConfiguration {
     init(_ authOptions: AuthOptions) throws {
 
@@ -22,5 +20,5 @@ extension APIConfiguration {
             privateKeyID: authOptions.apiKeyId.value,
             privateKey: try authOptions.apiKeyId.load()
         )
-    }    
+    }
 }

@@ -19,7 +19,7 @@ struct ListCertificatesOperation: APIOperation {
             }
         }
     }
-    
+
     struct Options {
         let filterSerial: String?
         let sort: Certificates.Sort?

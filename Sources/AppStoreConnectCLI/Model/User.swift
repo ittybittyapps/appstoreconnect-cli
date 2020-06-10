@@ -54,7 +54,7 @@ extension Model.User {
             roles: attributes.roles?.map(\.rawValue) ?? [],
             provisioningAllowed: attributes.provisioningAllowed ?? false,
             allAppsVisible: attributes.provisioningAllowed ?? false,
-            visibleApps: visibleApps?.compactMap{ $0.attributes?.bundleId }
+            visibleApps: visibleApps?.compactMap { $0.attributes?.bundleId }
         )
     }
 }
@@ -70,7 +70,7 @@ extension Model.User: ResultRenderable, TableInfoProvider {
             TextTableColumn(header: "Role"),
             TextTableColumn(header: "Provisioning Allowed"),
             TextTableColumn(header: "All Apps Visible"),
-            TextTableColumn(header: "Visible Apps")
+            TextTableColumn(header: "Visible Apps"),
         ]
     }
 
@@ -82,7 +82,7 @@ extension Model.User: ResultRenderable, TableInfoProvider {
             roles.joined(separator: ", "),
             provisioningAllowed.toYesNo(),
             allAppsVisible.toYesNo(),
-            visibleApps?.joined(separator: ", ") ?? ""
+            visibleApps?.joined(separator: ", ") ?? "",
         ]
     }
 }
@@ -94,9 +94,7 @@ extension AppStoreConnectService {
     /// This is an App Store Connect internal identifier
     func userIdentifier(matching email: String) -> AnyPublisher<String, Error> {
         let endpoint = APIEndpoint.users(
-            filter: [
-                ListUsers.Filter.username([email])
-            ]
+            filter: [.username([email])]
         )
 
         return self.request(endpoint)

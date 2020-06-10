@@ -1,6 +1,7 @@
 import XCTest
 import class Foundation.Bundle
 
+// swiftlint:disable:next type_name
 final class appstoreconnect_cliTests: XCTestCase {
     func testExample() throws {
         // This is an example of a functional test case.

@@ -39,7 +39,7 @@ extension Model.Certificate: ResultRenderable, TableInfoProvider {
             self.name ?? "",
             self.type ?? "",
             self.platform ?? "",
-            self.expirationDate ?? ""
+            self.expirationDate ?? "",
         ]
     }
 }

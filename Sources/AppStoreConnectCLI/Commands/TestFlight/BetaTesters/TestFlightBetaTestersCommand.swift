@@ -15,11 +15,11 @@ public struct TestFlightBetaTestersCommand: ParsableCommand {
             ListBetaTesterByGroupCommand.self,
             ReadBetaTesterCommand.self,
             RemoveTesterFromGroupsCommand.self,
-            AddTesterToGroupsCommand.self
+            AddTesterToGroupsCommand.self,
         ],
         defaultSubcommand: ListBetaTestersCommand.self
     )
-    
+
     public init() {
     }
 }

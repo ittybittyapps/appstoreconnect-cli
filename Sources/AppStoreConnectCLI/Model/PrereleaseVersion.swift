@@ -19,7 +19,7 @@ extension Model.PreReleaseVersion {
           return nil
         }
 
-        let appDetails = includedApps?.first(where: { relationships?.app?.data?.id == $0.id }) 
+        let appDetails = includedApps?.first(where: { relationships?.app?.data?.id == $0.id })
         let app = appDetails.map(Model.App.init)
 
         self.init(
@@ -47,7 +47,7 @@ extension Model.PreReleaseVersion: ResultRenderable, TableInfoProvider {
             app?.bundleId,
             app?.name,
             platform,
-            version
+            version,
         ].map { $0 ?? "" }
     }
 }

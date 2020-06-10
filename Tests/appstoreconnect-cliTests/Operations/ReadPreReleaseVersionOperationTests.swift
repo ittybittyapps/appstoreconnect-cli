@@ -15,11 +15,11 @@ final class ReadPreReleaseVersionOperationTests: XCTestCase {
     )
 
     let noResponseRequestor = OneEndpointTestRequestor(response: { _ in
-        Future{ $0(.success(noPreReleaseVersionResponse)) }}
+        Future { $0(.success(noPreReleaseVersionResponse)) }}
     )
 
     let notUniqueRequestor = OneEndpointTestRequestor(response: { _ in
-        Future{ $0(.success(notUniqueResponse)) }}
+        Future { $0(.success(notUniqueResponse)) }}
     )
 
     func testOnePreReleaseVersion() throws {
@@ -83,7 +83,7 @@ final class ReadPreReleaseVersionOperationTests: XCTestCase {
         }
         """
         .data(using: .utf8)
-        .map({ try! jsonDecoder.decode(PreReleaseVersionsResponse.self, from: $0) })!
+        .map({ try! jsonDecoder.decode(PreReleaseVersionsResponse.self, from: $0) })! // swiftlint:disable:this force_try
 
     static let notUniqueResponse: PreReleaseVersionsResponse  = """
     {
@@ -149,8 +149,7 @@ final class ReadPreReleaseVersionOperationTests: XCTestCase {
     }
     """
         .data(using: .utf8)
-        .map({ try! jsonDecoder.decode(PreReleaseVersionsResponse.self, from: $0) })!
-
+        .map({ try! jsonDecoder.decode(PreReleaseVersionsResponse.self, from: $0) })! // swiftlint:disable:this force_try
 
     static let noPreReleaseVersionResponse: PreReleaseVersionsResponse = """
     {
@@ -167,5 +166,5 @@ final class ReadPreReleaseVersionOperationTests: XCTestCase {
     }
     """
         .data(using: .utf8)
-        .map({ try! jsonDecoder.decode(PreReleaseVersionsResponse.self, from: $0) })!
+        .map({ try! jsonDecoder.decode(PreReleaseVersionsResponse.self, from: $0) })! // swiftlint:disable:this force_try
 }

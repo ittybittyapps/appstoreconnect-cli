@@ -6,7 +6,7 @@ import Foundation
 
 struct GetBetaGroupOperation: APIOperation {
     struct Options {
-        let appId: String? 
+        let appId: String?
         let bundleId: String?
         let betaGroupName: String
     }
@@ -46,7 +46,7 @@ struct GetBetaGroupOperation: APIOperation {
 
         let betaGroup = requestor.request(endpoint).tryMap { response -> BetaGroup in
             let betaGroups = response.data.filter { $0.attributes?.name == betaGroupName }
-            
+
             switch (betaGroups.first, betaGroups.count) {
             case (.some(let betaGroup), 1):
                 return betaGroup
