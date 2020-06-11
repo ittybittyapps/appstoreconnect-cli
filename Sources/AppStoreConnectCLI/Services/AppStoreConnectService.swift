@@ -410,7 +410,7 @@ class AppStoreConnectService {
             .execute(with: requestor)
             .await()
 
-        return Model.BetaGroup(app, betaGroup)
+        return try Model.BetaGroup(app, betaGroup)
     }
 
     func createBetaGroup(
@@ -432,7 +432,7 @@ class AppStoreConnectService {
         )
 
         let betaGroupResponse = createBetaGroupOperation.execute(with: requestor)
-        return try betaGroupResponse.map(Model.BetaGroup.init).await()
+        return try betaGroupResponse.tryMap(Model.BetaGroup.init).await()
     }
 
     func deleteBetaGroup(appBundleId: String, betaGroupName: String) throws {
@@ -507,7 +507,29 @@ class AppStoreConnectService {
         let modifyBetaGroupOperation = ModifyBetaGroupOperation(options: modifyBetaGroupOptions)
         let modifiedBetaGroup = try modifyBetaGroupOperation.execute(with: requestor).await()
 
-        return Model.BetaGroup(app, modifiedBetaGroup)
+        return try Model.BetaGroup(app, modifiedBetaGroup)
+    }
+
+    func pullBetaGroups() throws -> [(betaGroup: Model.BetaGroup, testers: [Model.BetaTester])] {
+        let groupOutputs = try ListBetaGroupsOperation(options: .init(appIds: [], names: [], sort: nil)).execute(with: requestor).await()
+
+        return try groupOutputs.map {
+            let testers = try ListBetaTestersOperation(
+                    options: .init(groupIds: [$0.betaGroup.id])
+                )
+                .execute(with: requestor)
+                .await()
+                .map(BetaTester.init)
+
+            return (try BetaGroup($0.app, $0.betaGroup), testers)
+        }
+    }
+
+    func updateBetaGroup(betaGroup: Model.BetaGroup) throws {
+        // TODO
+//        _ = try UpdateBetaGroupOperation(options: .init(betaGroup: betaGroup))
+//            .execute(with: requestor)
+//            .await()
     }
 
     func readBuild(bundleId: String, buildNumber: String, preReleaseVersion: String) throws -> Model.Build {
