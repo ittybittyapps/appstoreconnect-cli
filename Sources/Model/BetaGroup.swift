@@ -4,25 +4,30 @@ import Foundation
 
 public struct BetaGroup: Codable, Equatable {
     public let app: App
-    public let groupName: String?
+    public let id: String?
+    public let groupName: String
     public let isInternal: Bool?
     public let publicLink: String?
     public let publicLinkEnabled: Bool?
     public let publicLinkLimit: Int?
     public let publicLinkLimitEnabled: Bool?
     public let creationDate: String?
+    public var testers: String? // tester csv file path
 
     public init(
         app: App,
-        groupName: String?,
+        id: String?,
+        groupName: String,
         isInternal: Bool?,
         publicLink: String?,
         publicLinkEnabled: Bool?,
         publicLinkLimit: Int?,
         publicLinkLimitEnabled: Bool?,
-        creationDate: String?
+        creationDate: String?,
+        testers: String? = nil
     ) {
         self.app = app
+        self.id = id
         self.groupName = groupName
         self.isInternal = isInternal
         self.publicLink = publicLink
@@ -30,5 +35,6 @@ public struct BetaGroup: Codable, Equatable {
         self.publicLinkLimit = publicLinkLimit
         self.publicLinkLimitEnabled = publicLinkLimitEnabled
         self.creationDate = creationDate
+        self.testers = testers
     }
 }
