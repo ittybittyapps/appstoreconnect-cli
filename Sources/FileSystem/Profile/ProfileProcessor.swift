@@ -38,14 +38,14 @@ extension Profile: FileProvider {
         }
     }
 
-    func fileContent() throws -> Data {
+    func fileContent() throws -> FileContent {
         guard
             let content = profileContent,
             let data = Data(base64Encoded: content) else {
                 throw Error.noContent
             }
 
-        return data
+        return .data(data)
     }
 
     var fileName: String {
