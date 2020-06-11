@@ -37,33 +37,47 @@ extension ResourceWriter {
 
     func writeFile(_ resource: FileProvider) throws -> File {
         var file: File
+        var folder: Folder
+        var fileName: String
 
         switch path {
         case .file(let path):
             let standardizedPath = path as NSString
-            file = try Folder(path: standardizedPath.deletingLastPathComponent)
-                .createFile(
-                    named: standardizedPath.lastPathComponent,
-                    contents: resource.fileContent()
-                )
+            folder = try Folder(path: "").createSubfolderIfNeeded(at: standardizedPath.deletingLastPathComponent)
+            fileName = standardizedPath.lastPathComponent
         case .folder(let folderPath):
-            file = try Folder(path: folderPath)
-                .createFile(
-                    named: resource.fileName,
-                    contents: resource.fileContent()
-                )
+            fileName = resource.fileName
+            folder = try Folder(path: "").createSubfolderIfNeeded(at: folderPath)
+        }
+
+        switch try resource.fileContent() {
+        case .data(let data):
+            file = try folder.createFileIfNeeded(withName: fileName, contents: data)
+        case .string(let string):
+            file = try folder.createFileIfNeeded(at: fileName)
+            try file.write(string)
         }
 
         return file
     }
-}
 
-protocol FileProvider: FileNameProvider, FileContentProvider { }
-
-protocol FileNameProvider {
-    var fileName: String { get }
-}
-
-protocol FileContentProvider {
-    func fileContent() throws -> Data
+    func deleteFile() {
+        do {
+            switch path {
+            case .file(let filePath):
+                let standardizedPath = filePath as NSString
+                try Folder(path: standardizedPath.deletingLastPathComponent)
+                    .files.forEach {
+                        if $0.name == standardizedPath.lastPathComponent {
+                            try $0.delete()
+                        }
+                    }
+            case .folder(let folderPath):
+                try Folder(path: folderPath)
+                    .files.forEach { try $0.delete() }
+            }
+        } catch {
+            print("\(error)")
+        }
+    }
 }
