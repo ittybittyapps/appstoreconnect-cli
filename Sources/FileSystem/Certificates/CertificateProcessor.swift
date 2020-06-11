@@ -36,7 +36,7 @@ extension Certificate: FileProvider {
         }
     }
 
-    func fileContent() throws -> Data {
+    func fileContent() throws -> FileContent {
         guard
             let content = content,
             let data = Data(base64Encoded: content)
@@ -44,7 +44,7 @@ extension Certificate: FileProvider {
                 throw Error.noContent
         }
 
-        return data
+        return .data(data)
     }
 
     var fileName: String {
