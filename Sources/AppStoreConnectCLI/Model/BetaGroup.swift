@@ -29,7 +29,7 @@ extension BetaGroup: TableInfoProvider, ResultRenderable {
             app.id,
             app.bundleId ?? "",
             app.name ?? "",
-            groupName ?? "",
+            groupName,
             isInternal ?? "",
             publicLink ?? "",
             publicLinkEnabled ?? "",
@@ -41,13 +41,29 @@ extension BetaGroup: TableInfoProvider, ResultRenderable {
 }
 
 extension BetaGroup {
+    enum Error: LocalizedError {
+        case invalidName
+
+        var errorDescription: String? {
+            switch self {
+            case .invalidName:
+                return "Beta group doesn't have a valid group name."
+            }
+        }
+    }
+
     init(
         _ apiApp: AppStoreConnect_Swift_SDK.App,
         _ apiBetaGroup: AppStoreConnect_Swift_SDK.BetaGroup
-    ) {
+    ) throws {
+        guard let groupName = apiBetaGroup.attributes?.name else {
+            throw Error.invalidName
+        }
+
         self.init(
             app: App(apiApp),
-            groupName: apiBetaGroup.attributes?.name,
+            id: apiBetaGroup.id,
+            groupName: groupName,
             isInternal: apiBetaGroup.attributes?.isInternalGroup,
             publicLink: apiBetaGroup.attributes?.publicLink,
             publicLinkEnabled: apiBetaGroup.attributes?.publicLinkEnabled,
