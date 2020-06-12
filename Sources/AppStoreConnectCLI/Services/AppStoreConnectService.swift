@@ -526,10 +526,15 @@ class AppStoreConnectService {
     }
 
     func updateBetaGroup(betaGroup: Model.BetaGroup) throws {
-        // TODO
-//        _ = try UpdateBetaGroupOperation(options: .init(betaGroup: betaGroup))
-//            .execute(with: requestor)
-//            .await()
+        _ = try UpdateBetaGroupOperation(options: .init(betaGroup: betaGroup))
+            .execute(with: requestor)
+            .await()
+    }
+
+    func deleteBetaGroup(with id: String) throws {
+        try DeleteBetaGroupOperation(options: .init(betaGroupId: id))
+            .execute(with: requestor)
+            .await()
     }
 
     func readBuild(bundleId: String, buildNumber: String, preReleaseVersion: String) throws -> Model.Build {
