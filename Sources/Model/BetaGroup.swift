@@ -38,3 +38,21 @@ public struct BetaGroup: Codable, Equatable {
         self.testers = testers
     }
 }
+
+extension BetaGroup: Hashable {
+    public static func == (lhs: BetaGroup, rhs: BetaGroup) -> Bool {
+        return lhs.id == rhs.id &&
+            lhs.groupName == rhs.groupName &&
+            lhs.publicLinkEnabled == rhs.publicLinkEnabled &&
+            lhs.publicLinkLimit == rhs.publicLinkLimit &&
+            lhs.publicLinkLimitEnabled == rhs.publicLinkLimitEnabled
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+        hasher.combine(groupName)
+        hasher.combine(publicLinkEnabled)
+        hasher.combine(publicLinkLimit)
+        hasher.combine(publicLinkLimitEnabled)
+    }
+}
