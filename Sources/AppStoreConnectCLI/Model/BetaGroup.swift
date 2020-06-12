@@ -73,3 +73,9 @@ extension BetaGroup {
         )
     }
 }
+
+extension BetaGroup: SyncResultRenderable {
+    var syncResultText: String {
+        "\(app.bundleId ?? "" )_\(groupName)"
+    }
+}
