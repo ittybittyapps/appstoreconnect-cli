@@ -58,7 +58,7 @@ extension ResourceWriter {
         case .file(let path):
             let standardizedPath = path as NSString
             fileName = standardizedPath.lastPathComponent
-        case .folder(_):
+        case .folder:
             fileName = resource.fileName
         }
 
