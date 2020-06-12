@@ -150,5 +150,5 @@ extension Renderers {
             print("\(isDryRun ? "" : "✅") \(resultText)")
         }
     }
-    
+
 }

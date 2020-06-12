@@ -28,7 +28,7 @@ struct PushBetaGroupsCommand: CommonParsableCommand {
 
         let resourceProcessor = BetaGroupProcessor(path: .folder(path: inputPath))
 
-        let serverGroups = Set(try service.pullBetaGroups().map{ $0.betaGroup })
+        let serverGroups = Set(try service.pullBetaGroups().map { $0.betaGroup })
         let localGroups = Set(try resourceProcessor.read())
 
         let strategies = compareGroups(
