@@ -33,22 +33,36 @@ protocol PathProvider {
     var path: ResourcePath { get }
 }
 
+extension PathProvider {
+    func getFolder() throws -> Folder {
+        var folder: Folder
+        switch path {
+        case .file(let path):
+            let standardizedPath = path as NSString
+            folder = try Folder(path: "").createSubfolderIfNeeded(at: standardizedPath.deletingLastPathComponent)
+        case .folder(let folderPath):
+            folder = try Folder(path: "").createSubfolderIfNeeded(at: folderPath)
+        }
+
+        return folder
+    }
+}
+
 extension ResourceWriter {
 
     func writeFile(_ resource: FileProvider) throws -> File {
         var file: File
-        var folder: Folder
         var fileName: String
 
         switch path {
         case .file(let path):
             let standardizedPath = path as NSString
-            folder = try Folder(path: "").createSubfolderIfNeeded(at: standardizedPath.deletingLastPathComponent)
             fileName = standardizedPath.lastPathComponent
-        case .folder(let folderPath):
+        case .folder(_):
             fileName = resource.fileName
-            folder = try Folder(path: "").createSubfolderIfNeeded(at: folderPath)
         }
+
+        let folder: Folder = try getFolder()
 
         switch try resource.fileContent() {
         case .data(let data):
@@ -77,7 +91,7 @@ extension ResourceWriter {
                     .files.forEach { try $0.delete() }
             }
         } catch {
-            print("\(error)")
+            // Skip delete failed error, if folder is missing.
         }
     }
 }
