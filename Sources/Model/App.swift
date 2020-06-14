@@ -3,14 +3,14 @@
 import Foundation
 
 public struct App: Codable, Equatable {
-    public let id: String
+    public let id: String?
     public var bundleId: String?
     public var name: String?
     public var primaryLocale: String?
     public var sku: String?
 
     public init(
-        id: String,
+        id: String?,
         bundleId: String?,
         name: String?,
         primaryLocale: String?,
