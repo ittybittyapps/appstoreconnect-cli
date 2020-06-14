@@ -114,7 +114,7 @@ extension ResultRenderable where Self: TableInfoProvider {
     }
 }
 
-protocol SyncResultRenderable {
+protocol SyncResultRenderable: Equatable {
     var syncResultText: String { get }
 }
 

@@ -26,7 +26,7 @@ extension BetaGroup: TableInfoProvider, ResultRenderable {
 
     var tableRow: [CustomStringConvertible] {
         [
-            app.id,
+            app.id ?? "",
             app.bundleId ?? "",
             app.name ?? "",
             groupName,
@@ -77,5 +77,11 @@ extension BetaGroup {
 extension BetaGroup: SyncResultRenderable {
     var syncResultText: String {
         "\(app.bundleId ?? "" )_\(groupName)"
+    }
+}
+
+extension BetaGroup: SyncResourceProcessable {
+    var compareIdentity: String? {
+        id
     }
 }

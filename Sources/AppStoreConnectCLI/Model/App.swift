@@ -38,7 +38,7 @@ extension App: TableInfoProvider {
 
     var tableRow: [CustomStringConvertible] {
         return [
-            id,
+            id ?? "",
             bundleId ?? "",
             name ?? "",
             primaryLocale ?? "",

@@ -28,13 +28,14 @@ struct PushBetaGroupsCommand: CommonParsableCommand {
 
         let resourceProcessor = BetaGroupProcessor(path: .folder(path: inputPath))
 
-        let serverGroups = Set(try service.pullBetaGroups().map { $0.betaGroup })
-        let localGroups = Set(try resourceProcessor.read())
+        let serverGroups = try service.pullBetaGroups().map { $0.betaGroup }
+        let localGroups = try resourceProcessor.read()
 
-        let strategies = compareGroups(
-            localGroups: localGroups,
-            serverGroups: serverGroups
-        )
+        let strategies = SyncResourceComparator(
+                localResources: localGroups,
+                serverResources: serverGroups
+            )
+            .compare()
 
         let renderer = Renderers.SyncResultRenderer<BetaGroup>()
 
@@ -63,27 +64,6 @@ struct PushBetaGroupsCommand: CommonParsableCommand {
 
             try resourceProcessor.write(groupsWithTesters: betaGroupWithTesters)
         }
-    }
-
-    func compareGroups(localGroups: Set<BetaGroup>, serverGroups: Set<BetaGroup>) -> [SyncStrategy<BetaGroup>] {
-        var strategies: [SyncStrategy<BetaGroup>] = []
-
-        let groupToCreate = localGroups.subtracting(serverGroups)
-        let groupToDelete = serverGroups.subtracting(localGroups)
-
-        groupToDelete.forEach { group in
-            if !localGroups.contains(where: { group.id == $0.id }) {
-                strategies.append(.delete(group))
-            }
-        }
-
-        groupToCreate.forEach { group in
-            serverGroups.contains(where: { group.id == $0.id })
-                ? strategies.append(.update(group))
-                : strategies.append(.create(group))
-        }
-
-        return strategies
     }
 
 }
