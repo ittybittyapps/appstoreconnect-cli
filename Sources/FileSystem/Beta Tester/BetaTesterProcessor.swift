@@ -16,7 +16,7 @@ struct BetaTesterProcessor {
 
         try file.write(testers.renderAsCSV())
 
-        return file.name
+        return file.path(relativeTo: try Folder(path: FileManager.default.currentDirectoryPath))
     }
 }
 
