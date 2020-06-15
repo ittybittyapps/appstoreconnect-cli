@@ -157,6 +157,22 @@ class AppStoreConnectService {
         return Model.BetaTester(output)
     }
 
+    func inviteBetaTesterToGroups(
+        firstName: String?,
+        lastName: String?,
+        email: String,
+        groupIds: [String]
+    ) throws {
+        _ = try InviteTesterOperation(options: .init(
+                firstName: firstName,
+                lastName: lastName,
+                email: email,
+                identifers: .resourceId(groupIds))
+            )
+            .execute(with: requestor)
+            .await()
+    }
+
     func addTestersToGroup(
         bundleId: String,
         groupName: String,
@@ -398,6 +414,30 @@ class AppStoreConnectService {
         )
 
         try operation.execute(with: requestor).await()
+    }
+
+    func removeTesterFromGroups(
+        email: String,
+        groupIds: [String]
+    ) throws {
+        let testerId = try GetBetaTesterOperation(
+                options: .init(identifier: .email(email))
+            )
+            .execute(with: requestor)
+            .await()
+            .betaTester
+            .id
+
+        try RemoveTesterOperation(
+                options: .init(
+                    removeStrategy: .removeTesterFromGroups(
+                        testerId: testerId,
+                        groupIds: groupIds
+                    )
+                )
+            )
+            .execute(with: requestor)
+            .await()
     }
 
     func readBetaGroup(bundleId: String, groupName: String) throws -> Model.BetaGroup {
