@@ -26,3 +26,19 @@ public struct BetaTester: Codable, Equatable {
         self.apps = apps
     }
 }
+
+extension BetaTester: Hashable {
+
+    public static func == (lhs: BetaTester, rhs: BetaTester) -> Bool {
+        return lhs.email == rhs.email &&
+            lhs.firstName == rhs.firstName &&
+            lhs.lastName == rhs.lastName
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(email)
+        hasher.combine(firstName)
+        hasher.combine(lastName)
+    }
+
+}

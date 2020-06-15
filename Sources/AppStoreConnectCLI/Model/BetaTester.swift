@@ -58,3 +58,13 @@ extension BetaTester: ResultRenderable, TableInfoProvider {
         ]
     }
 }
+
+extension BetaTester: SyncResourceProcessable {
+    var syncResultText: String {
+        email!
+    }
+
+    var compareIdentity: String? {
+        email
+    }
+}
