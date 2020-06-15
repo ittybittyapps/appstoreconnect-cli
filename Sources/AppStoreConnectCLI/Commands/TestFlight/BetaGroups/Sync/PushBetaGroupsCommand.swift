@@ -43,26 +43,32 @@ struct PushBetaGroupsCommand: CommonParsableCommand {
             renderer.render(strategies, isDryRun: true)
         } else {
             try strategies.forEach { (strategy: SyncStrategy) in
-                switch strategy {
-                case .create(let group):
-                    _ = try service.createBetaGroup(
-                        appBundleId: group.app.bundleId!,
-                        groupName: group.groupName,
-                        publicLinkEnabled: group.publicLinkEnabled ?? false,
-                        publicLinkLimit: group.publicLinkLimit
-                    )
-                case .delete(let group):
-                    try service.deleteBetaGroup(with: group.id!)
-                case .update(let group):
-                    try service.updateBetaGroup(betaGroup: group)
-                }
-
+                try syncBetaGroup(strategy: strategy, with: service)
                 renderer.render(strategy, isDryRun: false)
             }
 
             let betaGroupWithTesters = try service.pullBetaGroups()
 
             try resourceProcessor.write(groupsWithTesters: betaGroupWithTesters)
+        }
+    }
+
+    func syncBetaGroup(
+        strategy: SyncStrategy<BetaGroup>,
+        with service: AppStoreConnectService
+    ) throws {
+        switch strategy {
+        case .create(let group):
+            _ = try service.createBetaGroup(
+                appBundleId: group.app.bundleId!,
+                groupName: group.groupName,
+                publicLinkEnabled: group.publicLinkEnabled ?? false,
+                publicLinkLimit: group.publicLinkLimit
+            )
+        case .delete(let group):
+            try service.deleteBetaGroup(with: group.id!)
+        case .update(let group):
+            try service.updateBetaGroup(betaGroup: group)
         }
     }
 
