@@ -4,6 +4,7 @@ import ArgumentParser
 import FileSystem
 import Foundation
 import struct Model.BetaGroup
+import struct Model.BetaTester
 
 struct PushBetaGroupsCommand: CommonParsableCommand {
 
@@ -28,12 +29,45 @@ struct PushBetaGroupsCommand: CommonParsableCommand {
 
         let resourceProcessor = BetaGroupProcessor(path: .folder(path: inputPath))
 
-        let serverGroups = try service.pullBetaGroups().map { $0.betaGroup }
+        let serverGroupsWithTesters = try service.pullBetaGroups()
         let localGroups = try resourceProcessor.read()
 
+        // Sync Beta Testers
+        let localGroupWithTesters = try resourceProcessor.readGroupAndTesters()
+
+        try localGroupWithTesters.forEach {
+            let localGroupId = $0.betaGroup.id
+            let localTesters = $0.testers
+
+            let serverTesters = serverGroupsWithTesters.first {
+                $0.betaGroup.id == localGroupId
+            }?.testers ?? []
+
+            let testerStrategies = SyncResourceComparator(
+                    localResources: localTesters,
+                    serverResources: serverTesters
+                )
+                .compare()
+
+            let renderer = Renderers.SyncResultRenderer<BetaTester>()
+
+            if dryRun {
+                renderer.render(testerStrategies, isDryRun: true)
+            } else {
+                let renderer = Renderers.SyncResultRenderer<BetaTester>()
+
+                try testerStrategies.forEach {
+                    try syncTester(with: service, groupId: localGroupId!, strategies: $0)
+
+                    renderer.render($0, isDryRun: false)
+                }
+            }
+        }
+
+        // Sync Beta Groups
         let strategies = SyncResourceComparator(
                 localResources: localGroups,
-                serverResources: serverGroups
+                serverResources: serverGroupsWithTesters.map { $0.betaGroup }
             )
             .compare()
 
@@ -69,6 +103,26 @@ struct PushBetaGroupsCommand: CommonParsableCommand {
             try service.deleteBetaGroup(with: group.id!)
         case .update(let group):
             try service.updateBetaGroup(betaGroup: group)
+        }
+    }
+
+    func syncTester(
+        with service: AppStoreConnectService,
+        groupId: String,
+        strategies: SyncStrategy<BetaTester>
+    ) throws {
+        switch strategies {
+        case .create(let tester):
+            try service.inviteBetaTesterToGroups(
+                firstName: tester.firstName,
+                lastName: tester.lastName,
+                email: tester.email!,
+                groupIds: [groupId]
+            )
+        case .update:
+            print("Update single beta tester is not supported.")
+        case .delete(let tester):
+            try service.removeTesterFromGroups(email: tester.email!, groupIds: [groupId])
         }
     }
 
