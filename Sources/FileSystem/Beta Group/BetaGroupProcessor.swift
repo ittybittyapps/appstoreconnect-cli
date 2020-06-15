@@ -25,6 +25,19 @@ public struct BetaGroupProcessor: ResourceProcessor {
         }
     }
 
+    public func readGroupAndTesters() throws -> [(betaGroup: BetaGroup, testers: [BetaTester])] {
+        try read().map { group -> (BetaGroup, [BetaTester]) in
+            guard let testercsv = group.testers else {
+                return (group, [])
+            }
+
+            let testers = Readers.FileReader<[BetaTester]>(format: .csv)
+                .read(filePath: testercsv)
+
+            return (group, testers)
+        }
+    }
+
     public func write(groupsWithTesters: [(betaGroup: BetaGroup, testers: [BetaTester])]) throws {
         deleteFile()
 
