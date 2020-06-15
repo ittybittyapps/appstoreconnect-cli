@@ -64,7 +64,7 @@ extension BetaTester: SyncResourceProcessable {
         email!
     }
 
-    var compareIdentity: String? {
-        email
+    var compareIdentity: String {
+        email!
     }
 }

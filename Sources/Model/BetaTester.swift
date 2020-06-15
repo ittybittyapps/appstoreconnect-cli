@@ -42,3 +42,16 @@ extension BetaTester: Hashable {
     }
 
 }
+
+extension BetaTester {
+
+    private enum CodingKeys: String, CodingKey {
+        case email = "Email"
+        case firstName = "First Name"
+        case lastName = "Last Name"
+        case inviteType = "Invite Type"
+        case betaGroups
+        case apps
+    }
+
+}
