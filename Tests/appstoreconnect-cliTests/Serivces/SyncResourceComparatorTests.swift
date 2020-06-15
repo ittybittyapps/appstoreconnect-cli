@@ -7,7 +7,7 @@ import XCTest
 
 final class SyncResourceComparatorTests: XCTestCase {
     func testCompare_returnCreateStrategies() throws {
-        let localGroups = [generateGroup(id: "123")]
+        let localGroups = [generateGroup(name: "a new group")]
 
         let strategies = SyncResourceComparator(
                 localResources: localGroups,

@@ -81,7 +81,7 @@ extension BetaGroup: SyncResultRenderable {
 }
 
 extension BetaGroup: SyncResourceProcessable {
-    var compareIdentity: String? {
-        id
+    var compareIdentity: String {
+        id ?? ""
     }
 }

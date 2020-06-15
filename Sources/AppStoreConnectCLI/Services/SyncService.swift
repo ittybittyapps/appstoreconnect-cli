@@ -7,7 +7,7 @@ protocol SyncResourceProcessable: SyncResourceComparable, SyncResultRenderable {
 protocol SyncResourceComparable: Hashable {
     associatedtype T: Comparable
 
-    var compareIdentity: T? { get }
+    var compareIdentity: T { get }
 }
 
 struct SyncResourceComparator<T: SyncResourceProcessable> {
