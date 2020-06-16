@@ -36,11 +36,11 @@ struct PushBetaGroupsCommand: CommonParsableCommand {
         let localGroupWithTesters = try resourceProcessor.readGroupAndTesters()
 
         try localGroupWithTesters.forEach {
-            let localGroupId = $0.betaGroup.id
+            let localGroup = $0.betaGroup
             let localTesters = $0.testers
 
             let serverTesters = serverGroupsWithTesters.first {
-                $0.betaGroup.id == localGroupId
+                $0.betaGroup.id == localGroup.id
             }?.testers ?? []
 
             let testerStrategies = SyncResourceComparator(
@@ -51,13 +51,17 @@ struct PushBetaGroupsCommand: CommonParsableCommand {
 
             let renderer = Renderers.SyncResultRenderer<BetaTester>()
 
+            if testerStrategies.count > 0 {
+                print("\(localGroup.groupName): ")
+            }
+
             if dryRun {
                 renderer.render(testerStrategies, isDryRun: true)
             } else {
                 let renderer = Renderers.SyncResultRenderer<BetaTester>()
 
                 try testerStrategies.forEach {
-                    try syncTester(with: service, groupId: localGroupId!, strategies: $0)
+                    try syncTester(with: service, groupId: localGroup.id!, strategies: $0)
 
                     renderer.render($0, isDryRun: false)
                 }
