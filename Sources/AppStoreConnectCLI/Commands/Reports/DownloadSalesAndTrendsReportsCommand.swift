@@ -3,6 +3,7 @@
 import AppStoreConnect_Swift_SDK
 import ArgumentParser
 import Foundation
+import FileSystem
 
 struct DownloadSalesAndTrendsReportsCommand: CommonParsableCommand {
 
@@ -30,7 +31,7 @@ struct DownloadSalesAndTrendsReportsCommand: CommonParsableCommand {
     @Argument(help: "Your vendor number.")
     var vendorNumber: String
 
-    @Argument(help: "TODO. outputFilename")
+    @Argument(help: "The downloaded report file name.")
     var outputFilename: String
 
     @Option(help: "The version of the report.")
@@ -53,5 +54,7 @@ struct DownloadSalesAndTrendsReportsCommand: CommonParsableCommand {
             reportDate: [reportDate],
             version: version
         )
+
+        try ReportProcessor(path: outputFilename).write(result)
     }
 }
