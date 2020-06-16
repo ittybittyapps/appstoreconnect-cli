@@ -9,6 +9,7 @@ struct ReportsCommand: ParsableCommand {
         abstract: "Download your sales and financial reports.",
         subcommands: [
              DownloadSalesAndTrendsReportsCommand.self,
+             DownloadFinancialReportsCommand.self,
         ]
     )
 }
