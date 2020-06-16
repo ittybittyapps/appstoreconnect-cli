@@ -769,8 +769,8 @@ class AppStoreConnectService {
         vendorNumber: [String],
         reportDate: [String],
         version: [String]
-    ) throws {
-        return try DownloadSalesOperation(options: .init(
+    ) throws -> Data {
+        try DownloadSalesOperation(options: .init(
                 frequency: frequency,
                 reportType: reportType,
                 reportSubType: reportSubType,

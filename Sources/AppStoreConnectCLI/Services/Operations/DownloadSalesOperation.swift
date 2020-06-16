@@ -23,7 +23,7 @@ struct DownloadSalesOperation: APIOperation {
         self.options = options
     }
 
-    func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<Void, Error> {
+    func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<Data, Error> {
         var filter: [Filter] = [.frequency(options.frequency),
                                 .reportDate(options.reportDate),
                                 .reportSubType(options.reportSubType),
