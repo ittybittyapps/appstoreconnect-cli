@@ -2,7 +2,6 @@
 
 import AppStoreConnect_Swift_SDK
 import ArgumentParser
-import Foundation
 import FileSystem
 
 struct DownloadSalesAndTrendsReportsCommand: CommonParsableCommand {
@@ -11,7 +10,7 @@ struct DownloadSalesAndTrendsReportsCommand: CommonParsableCommand {
 
     static var configuration = CommandConfiguration(
         commandName: "sales",
-        abstract: "Create a new certificate using a certificate signing request.")
+        abstract: "Download sales and trends reports filtered by your specified criteria.")
 
     @OptionGroup()
     var common: CommonOptions
@@ -19,8 +18,12 @@ struct DownloadSalesAndTrendsReportsCommand: CommonParsableCommand {
     @Argument(help: "Frequency of the report to download. (\(Filter.Frequency.allCases.description))")
     var frequency: Filter.Frequency
 
-    @Argument(help: "The report date to download. The date is specified in the YYYY-MM-DD format for all report frequencies except DAILY, which does not require a specified date.")
-    var reportDate: String
+    @Argument(help:
+        ArgumentHelp(
+            "The report date to download.",
+            discussion: "The date is specified in the YYYY-MM-DD format for all report frequencies except DAILY, which does not require a specified date."
+        )
+    ) var reportDate: String
 
     @Argument(help: "The report to download.  (\(Filter.ReportType.allCases.description))")
     var reportType: Filter.ReportType
@@ -36,12 +39,6 @@ struct DownloadSalesAndTrendsReportsCommand: CommonParsableCommand {
 
     @Option(help: "The version of the report.")
     var version: [String]
-
-    func validate() throws {
-        if vendorNumber.isEmpty {
-            throw ValidationError("Your vendor number is required when downloading sales and trends report.")
-        }
-    }
 
     func run() throws {
         let service = try makeService()

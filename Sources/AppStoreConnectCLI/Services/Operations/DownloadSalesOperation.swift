@@ -24,10 +24,12 @@ struct DownloadSalesOperation: APIOperation {
     }
 
     func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<Data, Error> {
-        var filter: [Filter] = [.frequency(options.frequency),
-                                .reportDate(options.reportDate),
-                                .reportSubType(options.reportSubType),
-                                .vendorNumber(options.vendorNumber)]
+        var filter: [Filter] = [
+            .frequency(options.frequency),
+            .reportDate(options.reportDate),
+            .reportSubType(options.reportSubType),
+            .vendorNumber(options.vendorNumber),
+        ]
 
         !options.reportDate.isEmpty ? filter += [.reportType(options.reportType)] : nil
         !options.version.isEmpty ? filter += [.version(options.version)] : nil
