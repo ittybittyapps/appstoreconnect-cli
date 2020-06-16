@@ -32,6 +32,24 @@ struct PushBetaGroupsCommand: CommonParsableCommand {
         let serverGroupsWithTesters = try service.pullBetaGroups()
         let localGroups = try resourceProcessor.read()
 
+        // Sync Beta Groups
+        let strategies = SyncResourceComparator(
+                localResources: localGroups,
+                serverResources: serverGroupsWithTesters.map { $0.betaGroup }
+            )
+            .compare()
+
+        let renderer = Renderers.SyncResultRenderer<BetaGroup>()
+
+        if dryRun {
+            renderer.render(strategies, isDryRun: true)
+        } else {
+            try strategies.forEach { (strategy: SyncStrategy) in
+                try syncBetaGroup(strategy: strategy, with: service)
+                renderer.render(strategy, isDryRun: false)
+            }
+        }
+
         // Sync Beta Testers
         let localGroupWithTesters = try resourceProcessor.readGroupAndTesters()
 
@@ -58,36 +76,20 @@ struct PushBetaGroupsCommand: CommonParsableCommand {
             if dryRun {
                 renderer.render(testerStrategies, isDryRun: true)
             } else {
-                let renderer = Renderers.SyncResultRenderer<BetaTester>()
-
                 try testerStrategies.forEach {
-                    try syncTester(with: service, groupId: localGroup.id!, strategies: $0)
+                    try syncTester(with: service,
+                                   bundleId: localGroup.app.bundleId!,
+                                   groupName: localGroup.groupName,
+                                   strategies: $0)
 
                     renderer.render($0, isDryRun: false)
                 }
             }
         }
 
-        // Sync Beta Groups
-        let strategies = SyncResourceComparator(
-                localResources: localGroups,
-                serverResources: serverGroupsWithTesters.map { $0.betaGroup }
-            )
-            .compare()
-
-        let renderer = Renderers.SyncResultRenderer<BetaGroup>()
-
-        if dryRun {
-            renderer.render(strategies, isDryRun: true)
-        } else {
-            try strategies.forEach { (strategy: SyncStrategy) in
-                try syncBetaGroup(strategy: strategy, with: service)
-                renderer.render(strategy, isDryRun: false)
-            }
-
-            let betaGroupWithTesters = try service.pullBetaGroups()
-
-            try resourceProcessor.write(groupsWithTesters: betaGroupWithTesters)
+        // After all operations, sync group and testers
+        if !dryRun {
+            try resourceProcessor.write(groupsWithTesters: try service.pullBetaGroups())
         }
     }
 
@@ -112,21 +114,23 @@ struct PushBetaGroupsCommand: CommonParsableCommand {
 
     func syncTester(
         with service: AppStoreConnectService,
-        groupId: String,
+        bundleId: String,
+        groupName: String,
         strategies: SyncStrategy<BetaTester>
     ) throws {
         switch strategies {
         case .create(let tester):
-            try service.inviteBetaTesterToGroups(
+            _ = try service.inviteBetaTesterToGroups(
                 firstName: tester.firstName,
                 lastName: tester.lastName,
                 email: tester.email!,
-                groupIds: [groupId]
+                bundleId: bundleId,
+                groupNames: [groupName]
             )
         case .update:
             print("Update single beta tester is not supported.")
         case .delete(let tester):
-            try service.removeTesterFromGroups(email: tester.email!, groupIds: [groupId])
+            try service.removeTesterFromGroups(email: tester.email!, groupNames: [groupName])
         }
     }
 
