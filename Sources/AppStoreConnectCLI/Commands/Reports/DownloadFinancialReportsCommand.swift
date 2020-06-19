@@ -18,14 +18,16 @@ struct DownloadFinancialReportsCommand: CommonParsableCommand {
             "You can download consolidated or separate financial reports per territory.",
             discussion: "Possible values: (\(DownloadFinanceReports.RegionCode.allCases.map { $0.rawValue }.joined(separator: ", ")))"
         )
-    ) var regionCode: DownloadFinanceReports.RegionCode
+    )
+    var regionCode: DownloadFinanceReports.RegionCode
 
     @Argument(help:
         ArgumentHelp(
             "The date of the report you wish to download based on the Apple Fiscal Calendar.",
             discussion: "The date is specified in the YYYY-MM format."
         )
-    ) var reportDate: String
+    )
+    var reportDate: String
 
     @Argument(help: "Your vendor number.")
     var vendorNumber: String
