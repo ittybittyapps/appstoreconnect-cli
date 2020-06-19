@@ -30,14 +30,18 @@ struct ListBundleIdsOperation: APIOperation {
         if options.platforms.isNotEmpty { filters.append(.platform(platforms)) }
         if options.seedIds.isNotEmpty { filters.append(.seedId(options.seedIds)) }
 
-        let limit = options.limit
+        guard let limit = options.limit else {
+            return requestor.requestAllPages {
+                    .listBundleIds(filter: filters, next: $0)
+                }
+                .map { $0.flatMap(\.data) }
+                .eraseToAnyPublisher()
+        }
 
-        return requestor.requestAllPages {
-                .listBundleIds(filter: filters, limit: limit, next: $0)
-            }
-            .map {
-                $0.flatMap(\.data)
-            }
+        return requestor.request(
+                .listBundleIds(filter: filters, limit: limit)
+            )
+            .map(\.data)
             .eraseToAnyPublisher()
     }
 }
