@@ -23,9 +23,10 @@ struct DownloadSalesAndTrendsReportsCommand: CommonParsableCommand {
             "The report date to download.",
             discussion: "The date is specified in the YYYY-MM-DD format for all report frequencies except DAILY, which does not require a specified date."
         )
-    ) var reportDate: String
+    )
+    var reportDate: String
 
-    @Argument(help: "The report to download.  (\(Filter.ReportType.allCases.description))")
+    @Argument(help: "The report to download.  (\(Filter.ReportType.allCases))")
     var reportType: Filter.ReportType
 
     @Argument(help: "The report sub type to download.  (\(Filter.ReportSubType.allCases.description))")

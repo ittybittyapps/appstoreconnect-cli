@@ -31,8 +31,8 @@ struct DownloadSalesOperation: APIOperation {
             .vendorNumber(options.vendorNumber),
         ]
 
-        !options.reportDate.isEmpty ? filter += [.reportType(options.reportType)] : nil
-        !options.version.isEmpty ? filter += [.version(options.version)] : nil
+        if options.reportDate.isNotEmpty { filter.append(.reportType(options.reportType)) }
+        if options.version.isNotEmpty { filter.append(.version(options.version)) }
 
         return requestor
             .request(.downloadSalesAndTrendsReports(filter: filter))
