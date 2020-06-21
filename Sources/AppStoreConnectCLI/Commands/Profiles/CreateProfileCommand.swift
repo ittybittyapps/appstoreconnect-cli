@@ -6,7 +6,7 @@ import Foundation
 
 struct CreateProfileCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
-        commandName: "delete",
+        commandName: "create",
         abstract: "Create a new provisioning profile.")
 
     @OptionGroup()
