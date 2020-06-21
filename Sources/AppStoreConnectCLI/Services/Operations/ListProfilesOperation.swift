@@ -31,16 +31,19 @@ struct ListProfilesOperation: APIOperation {
 
         let sort = [options.sort].compactMap { $0 }
 
-        let endpoint = APIEndpoint.listProfiles(
-            filter: filters,
-            include: [.bundleId, .certificates, .devices],
-            sort: sort,
-            limit: limits
-        )
-
         return requestor
-            .request(endpoint)
-            .map(\.data)
+            .requestAllPages {
+                .listProfiles(
+                    filter: filters,
+                    include: [.bundleId, .certificates, .devices],
+                    sort: sort,
+                    limit: limits,
+                    next: $0
+                )
+            }
+            .map { $0.flatMap(\.data) }
             .eraseToAnyPublisher()
     }
 }
+
+extension ProfilesResponse: PaginatedResponse { }
