@@ -8,7 +8,8 @@ struct ReportsCommand: ParsableCommand {
         commandName: "reports",
         abstract: "Download your sales and financial reports.",
         subcommands: [
-            /* TODO */
+             DownloadSalesAndTrendsReportsCommand.self,
+             DownloadFinancialReportsCommand.self,
         ]
     )
 }

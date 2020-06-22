@@ -762,6 +762,42 @@ class AppStoreConnectService {
             .await()
     }
 
+    func downloadSales(
+        frequency: [DownloadSalesAndTrendsReports.Filter.Frequency],
+        reportType: [DownloadSalesAndTrendsReports.Filter.ReportType],
+        reportSubType: [DownloadSalesAndTrendsReports.Filter.ReportSubType],
+        vendorNumber: [String],
+        reportDate: [String],
+        version: [String]
+    ) throws -> Data {
+        try DownloadSalesOperation(options: .init(
+                frequency: frequency,
+                reportType: reportType,
+                reportSubType: reportSubType,
+                vendorNumber: vendorNumber,
+                reportDate: reportDate,
+                version: version)
+            )
+            .execute(with: requestor)
+            .await()
+    }
+
+    func downloadFinanceReports(
+        regionCode: DownloadFinanceReports.RegionCode,
+        reportDate: String,
+        vendorNumber: String
+    ) throws -> Data {
+        try DownloadFinanceReportsOperation(
+                options: .init(
+                    regionCode: [regionCode],
+                    reportDate: reportDate,
+                    vendorNumber: vendorNumber
+                )
+            )
+            .execute(with: requestor)
+            .await()
+    }
+
     /// Make a request for something `Decodable`.
     ///
     /// - Parameters:
