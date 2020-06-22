@@ -11,7 +11,7 @@ final class ListCertificateOperationsTests: XCTestCase {
     typealias OperationError = ListCertificatesOperation.Error
 
     let noCertificatesRequestor = OneEndpointTestRequestor(
-        response: { _ in Future({ $0(.success(noCertificatesResponse)) }) }
+        response: { _ in Future({ $0(.success(Certificate.noCertificateResponse)) }) }
     )
 
     func testCouldNotFindCertificate() {
@@ -36,8 +36,4 @@ final class ListCertificateOperationsTests: XCTestCase {
             XCTFail("Expected failed with \(OperationError.couldNotFindCertificate), got: \(result)")
         }
     }
-
-    static let noCertificatesResponse = Certificate
-        .noCertificateResponse
-        .map({ try! jsonDecoder.decode(CertificatesResponse.self, from: $0) })! // swiftlint:disable:this force_try
 }

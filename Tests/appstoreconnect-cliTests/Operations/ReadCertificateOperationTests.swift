@@ -10,7 +10,7 @@ import Model
 final class ReadCertificateOperationTests: XCTestCase {
 
     let successRequestor = OneEndpointTestRequestor(response: { _ in
-            Future { $0(.success(readCertificateResponse)) }
+            Future { $0(.success(Certificate.readCertificateResponse)) }
         }
     )
 
@@ -22,12 +22,12 @@ final class ReadCertificateOperationTests: XCTestCase {
     )
 
     let noResponseRequestor = OneEndpointTestRequestor(response: { _ in
-            Future { $0(.success(noCertificateResponse)) }
+            Future { $0(.success(Certificate.noCertificateResponse)) }
         }
     )
 
     let notUniqueRequestor = OneEndpointTestRequestor(response: { _ in
-            Future { $0(.success(notUniqueResponse)) }
+            Future { $0(.success(Certificate.notUniqueResponse)) }
         }
     )
 
@@ -103,17 +103,5 @@ final class ReadCertificateOperationTests: XCTestCase {
             XCTFail("Expected failed with \(expectedError), got: \(result)")
         }
     }
-
-    static let readCertificateResponse = Certificate
-        .readCertificateResponse
-        .map({ try! jsonDecoder.decode(CertificatesResponse.self, from: $0) })! // swiftlint:disable:this force_try
-
-    static let noCertificateResponse = Certificate
-        .noCertificateResponse
-        .map({ try! jsonDecoder.decode(CertificatesResponse.self, from: $0) })! // swiftlint:disable:this force_try
-
-    static let notUniqueResponse = Certificate
-        .notUniqueResponse
-        .map({ try! jsonDecoder.decode(CertificatesResponse.self, from: $0) })! // swiftlint:disable:this force_try
 
 }
