@@ -782,6 +782,22 @@ class AppStoreConnectService {
             .await()
     }
 
+    func downloadFinanceReports(
+        regionCode: DownloadFinanceReports.RegionCode,
+        reportDate: String,
+        vendorNumber: String
+    ) throws -> Data {
+        try DownloadFinanceReportsOperation(
+                options: .init(
+                    regionCode: [regionCode],
+                    reportDate: reportDate,
+                    vendorNumber: vendorNumber
+                )
+            )
+            .execute(with: requestor)
+            .await()
+    }
+
     /// Make a request for something `Decodable`.
     ///
     /// - Parameters:
