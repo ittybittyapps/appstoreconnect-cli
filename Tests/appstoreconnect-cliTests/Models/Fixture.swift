@@ -1,16 +1,14 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
+import Files
 import Foundation
 import XCTest
 
 struct Fixture {
     let data: Data
 
-    init(named: String, in bundle: Bundle = .tests) throws {
-        guard
-            let url = bundle.url(forResource: named, withExtension: "json") else {
-                fatalError("Unable to find fixture named: \(named)")
-        }
-        try data = Data(contentsOf: url)
+    init(named: String, in folder: Folder = .tests) throws {
+        let file = try folder.file(named: "\(named).json")
+        try data = file.read()
     }
 }

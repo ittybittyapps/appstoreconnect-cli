@@ -1,10 +1,14 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
+import Files
 import Foundation
 
-extension Bundle {
-    static let tests: Bundle =
-        Bundle(url: URL(fileURLWithPath: #file)
+extension Folder {
+
+    // swiftlint:disable force_try
+    static let tests: Folder = try! Folder(
+        path: URL(fileURLWithPath: #file)
             .deletingLastPathComponent()
-            .appendingPathComponent("Fixtures.bundle"))!
+            .appendingPathComponent("Fixtures.bundle").path
+    )
 }

@@ -16,8 +16,10 @@ enum TestError: Error, Equatable {
 }
 
 extension JSONDecoder {
-    func decodeFixture<T: Decodable>(named: String) throws -> T {
-        let fixture = try Fixture(named: named)
-        return try decode(T.self, from: fixture.data)
+
+    // swiftlint:disable force_try
+    func decodeFixture<T: Decodable>(named: String) -> T {
+        let fixture = try! Fixture(named: named)
+        return try! decode(T.self, from: fixture.data)
     }
 }
