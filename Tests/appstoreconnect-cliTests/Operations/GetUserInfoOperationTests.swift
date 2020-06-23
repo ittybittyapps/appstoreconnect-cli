@@ -32,15 +32,6 @@ final class GetUserInfoOperationTests: XCTestCase {
         }
     }
 
-    static let noUsersResponse = """
-    {
-      "data" : [],
-      "links" : {
-        "self" : "https://api.appstoreconnect.apple.com/v1/users?filter%5Busername%5D=bob%40bob.com"
-      }
-    }
-    """
-    .data(using: .utf8)
-    .map({ try! jsonDecoder.decode(UsersResponse.self, from: $0) })! // swiftlint:disable:this force_try
+    static let noUsersResponse: UsersResponse = jsonDecoder.decodeFixture(named: "v1/users/no_user")
 
 }

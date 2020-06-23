@@ -37,60 +37,6 @@ final class ListBetaGroupsOperationTests: XCTestCase {
         }
     }
 
-    static let response: BetaGroupsResponse = """
-    {
-        "data": [
-            {
-                "type": "betaGroups",
-                "id": "12345678-90ab-cdef-1234-567890abcdef",
-                "attributes": {
-                    "name": "Example Group 1",
-                    "createdDate": "2020-04-08T07:40:14.179Z",
-                    "isInternalGroup": true,
-                    "publicLinkEnabled": null,
-                    "publicLinkId": null,
-                    "publicLinkLimitEnabled": null,
-                    "publicLinkLimit": null,
-                    "publicLink": null,
-                    "feedbackEnabled": true
-                },
-                "relationships": {
-                    "app": {
-                        "data": {
-                            "type": "apps",
-                            "id": "1234567890"
-                        },
-                        "links": {
-                            "self": "https://api.appstoreconnect.apple.com/v1/betaGroups/12345678-90ab-cdef-1234-567890abcdef/relationships/app",
-                            "related": "https://api.appstoreconnect.apple.com/v1/betaGroups/12345678-90ab-cdef-1234-567890abcdef/app"
-                        }
-                    }
-                },
-                "links": {
-                    "self": "https://api.appstoreconnect.apple.com/v1/betaGroups/12345678-90ab-cdef-1234-567890abcdef"
-                }
-            }
-        ],
-        "included": [
-            {
-                "type": "apps",
-                "id": "1234567890",
-                "attributes": {
-                    "name": "Test App",
-                    "bundleId": "com.example.test",
-                    "sku": "TEST1",
-                    "primaryLocale": "en-AU"
-                },
-                "links": {
-                    "self": "https://api.appstoreconnect.apple.com/v1/apps/1234567890"
-                }
-            }
-        ],
-        "links": {
-            "self": "https://api.appstoreconnect.apple.com/v1/betaGroups?include=app"
-        }
-    }
-    """
-    .data(using: .utf8)
-    .map({ try! jsonDecoder.decode(BetaGroupsResponse.self, from: $0) })! // swiftlint:disable:this force_try
+    static let response: BetaGroupsResponse = jsonDecoder.decodeFixture(named: "v1/betagroups/list_betagroup")
+
 }

@@ -12,7 +12,7 @@ final class CreateCertificateOperationTests: XCTestCase {
         csrContent: "")
 
     let successRequestor = OneEndpointTestRequestor(
-        response: { _ in Future({ $0(.success(response)) }) }
+        response: { _ in Future({ $0(.success(Certificate.createCertificateResponse)) }) }
     )
 
     func testExecute_success() {
@@ -50,31 +50,4 @@ final class CreateCertificateOperationTests: XCTestCase {
             XCTFail("Expected failure with: \(expectedError), got: \(result)")
         }
     }
-
-    static let response = """
-    {
-      "data" : {
-        "type" : "certificates",
-        "id" : "1234ABCD",
-        "attributes" : {
-          "serialNumber" : "6E06FFECD4B8D8C8",
-          "certificateContent" : "MIIFpDCCBIygAwIBAgIIbgb/7NS42MgwDQ",
-          "displayName" : "Hello",
-          "name" : "Mac Installer Distribution: Hello",
-          "csrContent" : null,
-          "platform" : "MAC_OS",
-          "expirationDate" : "2021-04-22T08:02:15.000+0000",
-          "certificateType" : "MAC_INSTALLER_DISTRIBUTION"
-        },
-        "links" : {
-          "self" : "https://api.appstoreconnect.apple.com/v1/certificates/1234ABCD"
-        }
-      },
-      "links" : {
-        "self" : "https://api.appstoreconnect.apple.com/v1/certificates"
-      }
-    }
-    """
-    .data(using: .utf8)
-    .map({ try! jsonDecoder.decode(CertificateResponse.self, from: $0) })! // swiftlint:disable:this force_try
 }
