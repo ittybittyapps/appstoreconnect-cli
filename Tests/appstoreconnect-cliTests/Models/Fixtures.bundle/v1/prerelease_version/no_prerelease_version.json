@@ -1,0 +1,12 @@
+{
+    "data": [],
+    "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/preReleaseVersions/bc4bba16-2af1-4517-8de7-21790799ca72"
+    },
+    "meta": {
+        "paging": {
+            "total": 0,
+            "limit": 50
+        }
+    }
+}

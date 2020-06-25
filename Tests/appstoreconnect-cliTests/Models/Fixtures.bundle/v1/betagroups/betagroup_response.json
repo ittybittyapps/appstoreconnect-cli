@@ -1,0 +1,23 @@
+{
+    "data": {
+        "type": "betaGroups",
+        "id": "12345678-90ab-cdef-1234-567890abcdef",
+        "attributes": {
+            "name": "test-group",
+            "createdDate": "2020-04-24T05:40:26.0Z",
+            "isInternalGroup": false,
+            "publicLinkEnabled": false,
+            "publicLinkId": null,
+            "publicLinkLimitEnabled": false,
+            "publicLinkLimit": null,
+            "publicLink": null,
+            "feedbackEnabled": true
+        },
+        "links": {
+            "self": "https://api.appstoreconnect.apple.com/v1/betaGroups/12345678-90ab-cdef-1234-567890abcdef"
+        }
+    },
+    "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/betaGroups"
+    }
+}

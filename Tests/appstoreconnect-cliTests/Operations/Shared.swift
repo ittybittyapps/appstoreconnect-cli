@@ -14,3 +14,12 @@ let jsonDecoder: JSONDecoder = {
 enum TestError: Error, Equatable {
     case somethingBadHappened
 }
+
+extension JSONDecoder {
+
+    // swiftlint:disable force_try
+    func decodeFixture<T: Decodable>(named: String) -> T {
+        let fixture = try! Fixture(named: named)
+        return try! decode(T.self, from: fixture.data)
+    }
+}

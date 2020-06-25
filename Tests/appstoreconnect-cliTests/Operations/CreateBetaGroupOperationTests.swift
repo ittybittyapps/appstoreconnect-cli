@@ -91,56 +91,7 @@ final class CreateBetaGroupOperationTests: XCTestCase {
         XCTAssertEqual(attributes["publicLinkLimit"] as? Int, 10)
     }
 
-    static let appsResponse = """
-        {
-            "data": [
-                {
-                    "type": "apps",
-                    "id": "0123456789",
-                    "attributes": {
-                        "name": "Test App",
-                        "bundleId": "com.example.test",
-                        "sku": "TEST1",
-                        "primaryLocale": "en-AU"
-                    },
-                    "links": {
-                        "self": "https://api.appstoreconnect.apple.com/v1/apps/0123456789"
-                    }
-                }
-            ],
-            "links": {
-                "self": "https://api.appstoreconnect.apple.com/v1/apps?filter%5BbundleId%5D=com.example.test"
-            }
-        }
-        """
-        .data(using: .utf8)
-        .map({ try! jsonDecoder.decode(AppsResponse.self, from: $0) })! // swiftlint:disable:this force_try
+    static let appsResponse: AppsResponse = jsonDecoder.decodeFixture(named: "v1/apps/app_response")
 
-    static let betaGroupResponse = """
-        {
-            "data": {
-                "type": "betaGroups",
-                "id": "12345678-90ab-cdef-1234-567890abcdef",
-                "attributes": {
-                    "name": "test-group",
-                    "createdDate": "2020-04-24T05:40:26.0Z",
-                    "isInternalGroup": false,
-                    "publicLinkEnabled": false,
-                    "publicLinkId": null,
-                    "publicLinkLimitEnabled": false,
-                    "publicLinkLimit": null,
-                    "publicLink": null,
-                    "feedbackEnabled": true
-                },
-                "links": {
-                    "self": "https://api.appstoreconnect.apple.com/v1/betaGroups/12345678-90ab-cdef-1234-567890abcdef"
-                }
-            },
-            "links": {
-                "self": "https://api.appstoreconnect.apple.com/v1/betaGroups"
-            }
-        }
-        """
-        .data(using: .utf8)
-        .map({ try! jsonDecoder.decode(BetaGroupResponse.self, from: $0) })! // swiftlint:disable:this force_try
+    static let betaGroupResponse: BetaGroupResponse = jsonDecoder.decodeFixture(named: "v1/betagroups/betagroup_response")
 }

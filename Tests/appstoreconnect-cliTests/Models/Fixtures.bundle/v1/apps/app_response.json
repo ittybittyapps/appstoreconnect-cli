@@ -1,0 +1,20 @@
+{
+    "data": [
+        {
+            "type": "apps",
+            "id": "0123456789",
+            "attributes": {
+                "name": "Test App",
+                "bundleId": "com.example.test",
+                "sku": "TEST1",
+                "primaryLocale": "en-AU"
+            },
+            "links": {
+                "self": "https://api.appstoreconnect.apple.com/v1/apps/0123456789"
+            }
+        }
+    ],
+    "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/apps?filter%5BbundleId%5D=com.example.test"
+    }
+}

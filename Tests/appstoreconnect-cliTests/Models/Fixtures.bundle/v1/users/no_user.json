@@ -1,0 +1,6 @@
+{
+    "data": [],
+    "links": {
+        "self": "https://api.appstoreconnect.apple.com/v1/users?filter%5Busername%5D=bob%40bob.com"
+    }
+}
