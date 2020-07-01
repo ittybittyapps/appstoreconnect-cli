@@ -7,7 +7,7 @@ struct PullBetaGroupsCommand: CommonParsableCommand {
 
     static var configuration = CommandConfiguration(
         commandName: "pull",
-        abstract: "Pull down server beta groups, refresh local beta group config files"
+        abstract: "Pull down existing beta groups, refreshing local beta group config files"
     )
 
     @OptionGroup()
@@ -15,7 +15,7 @@ struct PullBetaGroupsCommand: CommonParsableCommand {
 
     @Option(
         default: "./config/betagroups",
-        help: "Path to the Folder containing the information about beta groups. (default: './config/betagroups')"
+        help: "Path to the Folder containing the information about beta groups."
     ) var outputPath: String
 
     func run() throws {

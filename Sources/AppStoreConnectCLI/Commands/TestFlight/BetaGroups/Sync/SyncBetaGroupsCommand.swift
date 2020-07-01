@@ -5,13 +5,10 @@ import ArgumentParser
 struct SyncBetaGroupsCommand: ParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "sync",
-        abstract: """
-        Sync information about beta groups with provided configuration file.
-        """,
+        abstract: "Sync information about beta groups with provided configuration file.",
         subcommands: [
             PullBetaGroupsCommand.self,
             PushBetaGroupsCommand.self,
-        ],
-        defaultSubcommand: PullBetaGroupsCommand.self
+        ]
     )
 }
