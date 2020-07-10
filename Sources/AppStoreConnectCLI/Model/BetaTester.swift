@@ -3,6 +3,7 @@
 import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
+import FileSystem
 import struct Model.BetaTester
 import SwiftyTextTable
 
@@ -56,5 +57,27 @@ extension BetaTester: ResultRenderable, TableInfoProvider {
             betaGroups?.joined(separator: ", ") ?? [],
             apps?.joined(separator: ", ") ?? [],
         ]
+    }
+}
+
+extension FileSystem.BetaTester: SyncResourceProcessable {
+
+    var syncResultText: String {
+        email
+    }
+
+    var compareIdentity: String {
+        email
+    }
+
+}
+
+extension String: SyncResourceProcessable {
+    var syncResultText: String {
+        self
+    }
+
+    var compareIdentity: String {
+        self
     }
 }

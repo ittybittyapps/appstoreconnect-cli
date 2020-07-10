@@ -3,6 +3,7 @@
 import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
+import FileSystem
 import Model
 
 class AppStoreConnectService {
@@ -796,6 +797,62 @@ class AppStoreConnectService {
             )
             .execute(with: requestor)
             .await()
+    }
+
+    func pullTestFlightConfigs() throws -> [TestFlightConfiguration] {
+
+        let apps = try listApps(bundleIds: [], names: [], skus: [], limit: nil)
+
+
+        testPrint(json: apps)
+
+        return try apps.map {
+            let testers: [FileSystem.BetaTester] = try ListBetaTestersOperation(options:
+                    .init(appIds: [$0.id])
+                )
+                .execute(with: requestor)
+                .await()
+                .map{
+                    FileSystem.BetaTester(
+                        email: ($0.betaTester.attributes?.email)!,
+                        firstName: $0.betaTester.attributes?.firstName,
+                        lastName: $0.betaTester.attributes?.lastName,
+                        inviteType: $0.betaTester.attributes?.inviteType?.rawValue
+                    )
+                }
+
+            testPrint(json: testers)
+            
+            let betagroups = try ListBetaGroupsOperation(
+                    options: .init(appIds: [$0.id], names: [], sort: nil)
+                )
+                .execute(with: requestor)
+                .await()
+                .map { output -> FileSystem.BetaGroup in
+                    let testersEmails = try ListBetaTestersOperation(
+                            options: .init(groupIds: [output.betaGroup.id])
+                        )
+                        .execute(with: requestor)
+                        .await()
+                        .compactMap { $0.betaTester.attributes?.email }
+
+                    return FileSystem.BetaGroup(
+                        id: output.betaGroup.id,
+                        groupName: (output.betaGroup.attributes?.name)!,
+                        isInternal: output.betaGroup.attributes?.isInternalGroup,
+                        publicLink: output.betaGroup.attributes?.publicLink,
+                        publicLinkEnabled: output.betaGroup.attributes?.publicLinkEnabled,
+                        publicLinkLimit: output.betaGroup.attributes?.publicLinkLimit,
+                        publicLinkLimitEnabled: output.betaGroup.attributes?.publicLinkLimitEnabled,
+                        creationDate: output.betaGroup.attributes?.createdDate?.formattedDate,
+                        testers: testersEmails
+                    )
+                }
+
+            testPrint(json: betagroups)
+
+            return TestFlightConfiguration(app: $0, testers: testers, betagroups: betagroups)
+        }
     }
 
     /// Make a request for something `Decodable`.

@@ -3,6 +3,7 @@
 import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
+import FileSystem
 import struct Model.App
 import struct Model.BetaGroup
 import SwiftyTextTable
@@ -56,4 +57,16 @@ extension BetaGroup {
             creationDate: apiBetaGroup.attributes?.createdDate?.formattedDate
         )
     }
+}
+
+extension FileSystem.BetaGroup: SyncResourceProcessable {
+
+    var compareIdentity: String {
+        id
+    }
+
+    var syncResultText: String {
+        groupName
+    }
+
 }
