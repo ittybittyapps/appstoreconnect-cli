@@ -7,26 +7,15 @@ import Foundation
 struct ListBetaTestersOperation: APIOperation {
 
     struct Options {
-        let email: String?
-        let firstName: String?
-        let lastName: String?
-        let inviteType: BetaInviteType?
-        let appIds: [String]?
-        let groupIds: [String]?
-        let sort: ListBetaTesters.Sort?
-        let limit: Int?
-        let relatedResourcesLimit: Int?
-    }
-
-    enum Error: LocalizedError {
-        case notFound
-
-        var errorDescription: String? {
-            switch self {
-            case .notFound:
-                return "Beta testers with provided filters not found."
-            }
-        }
+        var email: String?
+        var firstName: String?
+        var lastName: String?
+        var inviteType: BetaInviteType?
+        var appIds: [String]?
+        var groupIds: [String]?
+        var sort: ListBetaTesters.Sort?
+        var limit: Int?
+        var relatedResourcesLimit: Int?
     }
 
     private let options: Options
@@ -108,11 +97,7 @@ struct ListBetaTestersOperation: APIOperation {
                 )
             }
             .tryMap { (responses: [BetaTestersResponse]) throws -> Output in
-                try responses.flatMap { (response: BetaTestersResponse) -> Output in
-                    guard !response.data.isEmpty else {
-                        throw Error.notFound
-                    }
-
+                responses.flatMap { (response: BetaTestersResponse) -> Output in
                     return response.data.map {
                         .init(betaTester: $0, includes: response.included)
                     }
