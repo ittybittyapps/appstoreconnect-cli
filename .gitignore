@@ -30,4 +30,4 @@ Temporary Items
 /Packages
 /*.xcodeproj
 xcuserdata/
-config/auth.yml
+/config
