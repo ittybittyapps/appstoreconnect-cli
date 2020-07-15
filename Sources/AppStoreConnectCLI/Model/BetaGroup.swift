@@ -62,7 +62,7 @@ extension BetaGroup {
 extension FileSystem.BetaGroup: SyncResourceProcessable {
 
     var compareIdentity: String {
-        id
+        id ?? ""
     }
 
     var syncResultText: String {

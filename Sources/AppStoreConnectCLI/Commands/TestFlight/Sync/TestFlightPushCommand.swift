@@ -81,7 +81,7 @@ struct TestFlightPushCommand: CommonParsableCommand {
                 ).compare()
 
                 // 3.1 handling adding/deleting testers per group
-                processTestersInBetaGroupStrategies(testersInGroupHandlingStrategies, betagroupId: betagroupId, appTesters: localConfig.testers)
+                processTestersInBetaGroupStrategies(testersInGroupHandlingStrategies, betagroupId: betagroupId!, appTesters: localConfig.testers)
             }
         }
     }

@@ -6,7 +6,7 @@ public struct BetaGroup: Codable, Equatable, Hashable {
 
     public typealias EmailAddress = String
 
-    public let id: String
+    public let id: String?
     public let groupName: String
     public let isInternal: Bool?
     public let publicLink: String?
@@ -17,7 +17,7 @@ public struct BetaGroup: Codable, Equatable, Hashable {
     public let testers: [EmailAddress]
 
     public init(
-        id: String,
+        id: String?,
         groupName: String,
         isInternal: Bool?,
         publicLink: String?,

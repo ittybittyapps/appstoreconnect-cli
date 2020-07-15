@@ -5,9 +5,9 @@ import FileSystem
 import Foundation
 import XCTest
 
-final class SyncTestFlightTestersTests: XCTestCase {
+final class ResourceComparatorCompareTestersTests: XCTestCase {
 
-    func testCompareTesters() throws {
+    func testCompareTesters() {
         let serverTesters = [
             BetaTester(
                 email: "foo@gmail.com",
@@ -36,12 +36,46 @@ final class SyncTestFlightTestersTests: XCTestCase {
         }))
     }
 
-    func testCompareBetaGroups() {
-        // TODO
+    func testCompareTestersInGroups() {
+        let serverTestersInGroup = ["foo@gmail.com", "bar@gmail.com"]
+
+        let localTestersInGroup = ["hi@gmail.com", "hello@gmail.com", "foo@gmail.com"]
+
+        let strategies = SyncResourceComparator(
+                localResources: localTestersInGroup,
+                serverResources: serverTestersInGroup
+            )
+            .compare()
+
+        XCTAssertEqual(strategies.count, 3)
+
+        XCTAssertTrue(strategies.contains(where: {
+            $0 == .delete(serverTestersInGroup[1])
+        }))
+
+        XCTAssertTrue(strategies.contains(where: {
+            $0 == .create(localTestersInGroup[0])
+        }))
+
+        XCTAssertTrue(strategies.contains(where: {
+            $0 == .create(localTestersInGroup[1])
+        }))
     }
 
-    func testCompareTestersInGroup() {
-        // TODO
+    private func generateGroupWithTesters(
+        emails: [String]
+    ) -> BetaGroup {
+        BetaGroup(
+            id: "0001",
+            groupName: name,
+            isInternal: true,
+            publicLink: "",
+            publicLinkEnabled: true,
+            publicLinkLimit: 10,
+            publicLinkLimitEnabled: true,
+            creationDate: "",
+            testers: emails
+        )
     }
 
 }
