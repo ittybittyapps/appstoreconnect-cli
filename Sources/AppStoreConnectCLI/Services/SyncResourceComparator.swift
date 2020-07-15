@@ -2,7 +2,7 @@
 
 import Foundation
 
-enum SyncStrategy<T: SyncResultRenderable> {
+enum SyncStrategy<T: SyncResultRenderable>: Equatable {
     case delete(T)
     case create(T)
     case update(T)

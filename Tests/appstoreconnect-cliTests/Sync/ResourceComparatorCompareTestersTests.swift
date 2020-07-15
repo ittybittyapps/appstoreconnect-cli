@@ -79,18 +79,3 @@ final class ResourceComparatorCompareTestersTests: XCTestCase {
     }
 
 }
-
-extension SyncStrategy: Equatable {
-    public static func == (lhs: SyncStrategy<T>, rhs: SyncStrategy<T>) -> Bool {
-        switch (lhs, rhs) {
-        case (let .create(lhsItem), let .create(rhsItem)):
-            return lhsItem == rhsItem
-        case (let .update(lhsItem), let .update(rhsItem)):
-            return lhsItem == rhsItem
-        case (let .delete(lhsItem), let .delete(rhsItem)):
-            return lhsItem == rhsItem
-        default:
-            return false
-        }
-    }
-}
