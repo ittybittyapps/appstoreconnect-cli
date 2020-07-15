@@ -8,7 +8,7 @@ struct TestFlightPushCommand: CommonParsableCommand {
 
     static var configuration =  CommandConfiguration(
         commandName: "push",
-        abstract: "Push local testflight config files to server, update server configs"
+        abstract: "Push the local configuration to TestFlight."
     )
 
     @OptionGroup()
@@ -16,7 +16,7 @@ struct TestFlightPushCommand: CommonParsableCommand {
 
     @Option(
         default: "./config/apps",
-        help: "Path to the Folder containing the testflight configs."
+        help: "Path to the folder containing the TestFlight configuration."
     ) var inputPath: String
 
     @Flag(help: "Perform a dry run.")
@@ -47,7 +47,6 @@ struct TestFlightPushCommand: CommonParsableCommand {
             // 1.1 handle shared testers delete only
             processAppTesterStrategies(sharedTestersHandleStrategies, appId: appId)
 
-
             // 2. compare beta groups
             let localBetagroups = localConfig.betagroups
             let serverBetagroups = serverConfig.betagroups
@@ -61,11 +60,10 @@ struct TestFlightPushCommand: CommonParsableCommand {
             // 2.1 handle groups create, update, delete
             processBetagroupsStrategies(betaGroupHandlingStrategies, appId: appId)
 
-
             // 3. compare testers in group and add, delete
             localBetagroups.forEach { localBetagroup in
                 guard let serverBetagroup = serverBetagroups
-                    .first(where: {  $0.id == localBetagroup.id } ) else {
+                    .first(where: {  $0.id == localBetagroup.id }) else {
                         return
                 }
 
@@ -137,12 +135,4 @@ struct TestFlightPushCommand: CommonParsableCommand {
         }
     }
 
-}
-
-
-func testPrint<T: Codable>(json: T) {
-    let jsonEncoder = JSONEncoder()
-    jsonEncoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-    let json = try! jsonEncoder.encode(json) // swiftlint:disable:this force_try
-    print(String(data: json, encoding: .utf8)!)
 }

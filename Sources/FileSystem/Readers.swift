@@ -60,7 +60,7 @@ public enum Readers {
             }
 
             guard
-                let result = try? decoder.decode(T.self, from: URL(fileURLWithPath: "\(filePath)")) else {
+                let result = try? decoder.decode(T.self, from: URL(fileURLWithPath: filePath)) else {
                     fatalError("Could not read CSV file: \(filePath)")
             }
 

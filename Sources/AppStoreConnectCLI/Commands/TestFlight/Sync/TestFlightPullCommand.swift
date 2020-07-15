@@ -8,7 +8,7 @@ struct TestFlightPullCommand: CommonParsableCommand {
 
     static var configuration = CommandConfiguration(
         commandName: "pull",
-        abstract: "Pull down existing testflight configs, refreshing local config files"
+        abstract: "Pull down existing TestFlight configuration, refreshing local configuration files."
     )
 
     @OptionGroup()
@@ -16,18 +16,13 @@ struct TestFlightPullCommand: CommonParsableCommand {
 
     @Option(
         default: "./config/apps",
-        help: "Path to the Folder containing the testflight configs."
+        help: "Path to the folder containing the TestFlight configuration."
     ) var outputPath: String
 
     func run() throws {
         let service = try makeService()
 
         let configs = try service.pullTestFlightConfigs()
-
-        configs.forEach {
-            print($0.app.name)
-            print($0.betagroups.count)
-        }
 
         try TestFlightConfigLoader().save(configs, in: outputPath)
     }

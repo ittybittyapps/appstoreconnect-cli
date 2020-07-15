@@ -18,7 +18,7 @@ final class ResourceComparatorCompareTestersTests: XCTestCase {
                 email: "bar@gmail.com",
                 firstName: nil,
                 lastName: nil,
-                inviteType: nil)
+                inviteType: nil),
         ]
 
         let localTesters: [BetaTester] = []

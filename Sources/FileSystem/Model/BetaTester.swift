@@ -34,7 +34,6 @@ extension BetaTester {
 
 }
 
-
 protocol CSVRenderable: Codable {
     var headers: [String] { get }
     var rows: [[String]] { get }

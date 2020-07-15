@@ -10,7 +10,7 @@ final class ResourceComparatorCompareGroupsTests: XCTestCase {
     func testCompareBetaGroups() {
         let localBetaGroups = [
             generateGroup(id: nil, name: "group to create", publicLinkEnabled: true),
-            generateGroup(id: "1002", name: "group to update", publicLinkEnabled: false)
+            generateGroup(id: "1002", name: "group to update", publicLinkEnabled: false),
         ]
 
         let serverBetaGroups = [

@@ -8,7 +8,7 @@ struct TestFlightSyncCommand: ParsableCommand {
         abstract: "Sync information about testflight with provided configuration file.",
         subcommands: [
             TestFlightPullCommand.self,
-            TestFlightPushCommand.self
+            TestFlightPushCommand.self,
         ]
     )
 }

@@ -803,16 +803,13 @@ class AppStoreConnectService {
 
         let apps = try listApps(bundleIds: [], names: [], skus: [], limit: nil)
 
-
-        testPrint(json: apps)
-
         return try apps.map {
             let testers: [FileSystem.BetaTester] = try ListBetaTestersOperation(options:
                     .init(appIds: [$0.id])
                 )
                 .execute(with: requestor)
                 .await()
-                .map{
+                .map {
                     FileSystem.BetaTester(
                         email: ($0.betaTester.attributes?.email)!,
                         firstName: $0.betaTester.attributes?.firstName,
@@ -821,8 +818,6 @@ class AppStoreConnectService {
                     )
                 }
 
-            testPrint(json: testers)
-            
             let betagroups = try ListBetaGroupsOperation(
                     options: .init(appIds: [$0.id], names: [], sort: nil)
                 )
@@ -848,8 +843,6 @@ class AppStoreConnectService {
                         testers: testersEmails
                     )
                 }
-
-            testPrint(json: betagroups)
 
             return TestFlightConfiguration(app: $0, testers: testers, betagroups: betagroups)
         }
