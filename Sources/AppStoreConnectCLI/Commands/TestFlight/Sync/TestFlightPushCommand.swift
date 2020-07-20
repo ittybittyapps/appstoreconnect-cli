@@ -144,7 +144,8 @@ struct TestFlightPushCommand: CommonParsableCommand {
         if dryRun {
             renderer.render(strategies, isDryRun: true)
         } else {
-            let deletingEmailsWithStrategy = strategies.compactMap { (strategy: SyncStrategy<BetaGroup.EmailAddress>) -> (email: String, strategy: SyncStrategy<BetaGroup.EmailAddress>)? in
+            let deletingEmailsWithStrategy = strategies
+                .compactMap { (strategy: SyncStrategy<BetaGroup.EmailAddress>) -> (email: String, strategy: SyncStrategy<BetaGroup.EmailAddress>)? in
                 if case .delete(let email) = strategy {
                     return (email, strategy)
                 }
