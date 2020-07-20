@@ -26,8 +26,14 @@ struct TestFlightPushCommand: CommonParsableCommand {
     func run() throws {
         let service = try makeService()
 
+        if dryRun {
+            print("'Dry Run' mode activated, changes will not be applied. \n")
+        }
+
+        print("Loading local TestFlight configs... \n")
         let localConfigs = try TestFlightConfigLoader().load(appsFolderPath: inputPath)
 
+        print("Loading server TestFlight configs... \n")
         let serverConfigs = try service.pullTestFlightConfigs()
 
         try serverConfigs.forEach { serverConfig in
@@ -39,51 +45,99 @@ struct TestFlightPushCommand: CommonParsableCommand {
 
             let appId = localConfig.app.id
 
-            // 1. compare shared testers in app
-            let sharedTestersHandleStrategies = SyncResourceComparator(
-                localResources: localConfig.testers,
-                serverResources: serverConfig.testers
-            ).compare()
+            print("Syncing App '\(localConfig.app.bundleId ?? appId)':")
 
-            // 1.1 handle shared testers delete only
-            try processAppTesterStrategies(sharedTestersHandleStrategies, appId: appId, service: service)
+            try processAppSharedTesters(
+                localTesters: localConfig.testers,
+                serverTesters: serverConfig.testers,
+                appId: appId,
+                service: service
+            )
 
-            // 2. compare beta groups
             let localBetagroups = localConfig.betagroups
             let serverBetagroups = serverConfig.betagroups
 
-            let betaGroupHandlingStrategies = SyncResourceComparator(
-                    localResources: localBetagroups,
-                    serverResources: serverBetagroups
-                )
-                .compare()
+            try processBetaGroups(
+                localGroups: localBetagroups,
+                serverGroups: serverBetagroups,
+                appId: appId,
+                service: service
+            )
 
-            // 2.1 handle groups create, update, delete
+            try processTestersInGroups(localGroups: localBetagroups, serverGroups: serverBetagroups, sharedTesters: localConfig.testers, service: service)
+
+            print("Syncing Completed. \n")
+        }
+    }
+
+    private func processAppSharedTesters(
+        localTesters: [BetaTester],
+        serverTesters: [BetaTester],
+        appId: String,
+        service: AppStoreConnectService
+    ) throws {
+        // 1. compare shared testers in app
+        let sharedTestersHandleStrategies = SyncResourceComparator(
+            localResources: localTesters,
+            serverResources: serverTesters
+        )
+        .compare()
+
+        // 1.1 handle shared testers delete only
+        if sharedTestersHandleStrategies.isNotEmpty {
+            print("- App Testers Changes: ")
+            try processAppTesterStrategies(sharedTestersHandleStrategies, appId: appId, service: service)
+        }
+    }
+
+    private func processBetaGroups(
+        localGroups: [BetaGroup],
+        serverGroups: [BetaGroup],
+        appId: String,
+        service: AppStoreConnectService
+    ) throws {
+        // 2. compare beta groups
+        let betaGroupHandlingStrategies = SyncResourceComparator(
+            localResources: localGroups,
+            serverResources: serverGroups
+        ).compare()
+
+        // 2.1 handle groups create, update, delete
+        if betaGroupHandlingStrategies.isNotEmpty {
+            print("- Beta Group Changes: ")
             try processBetagroupsStrategies(betaGroupHandlingStrategies, appId: appId, service: service)
+        }
+    }
 
-            // 3. compare testers in group and add, delete
-            try localBetagroups.forEach { localBetagroup in
-                guard
-                    let serverBetagroup = serverBetagroups.first(where: {  $0.id == localBetagroup.id }) else {
-                    return
-                }
+    private func processTestersInGroups(
+        localGroups: [BetaGroup],
+        serverGroups: [BetaGroup],
+        sharedTesters: [BetaTester],
+        service: AppStoreConnectService
+    ) throws {
+        // 3. compare testers in group, perform adding/deleting
+        try localGroups.forEach { localBetagroup in
+            guard
+                let serverBetagroup = serverGroups.first(where: {  $0.id == localBetagroup.id }) else {
+                return
+            }
 
-                let betagroupId = serverBetagroup.id
+            let localGroupTesters = localBetagroup.testers
 
-                let localGroupTesters = localBetagroup.testers
+            let serverGroupTesters = serverBetagroup.testers
 
-                let serverGroupTesters = serverBetagroup.testers
+            let testersInGroupHandlingStrategies = SyncResourceComparator(
+                localResources: localGroupTesters,
+                serverResources: serverGroupTesters
+            ).compare()
 
-                let testersInGroupHandlingStrategies = SyncResourceComparator(
-                    localResources: localGroupTesters,
-                    serverResources: serverGroupTesters
-                ).compare()
-
-                // 3.1 handling adding/deleting testers per group
+            // 3.1 handling adding/deleting testers per group
+            if testersInGroupHandlingStrategies.isNotEmpty {
+                print("- Beta Group '\(serverBetagroup.groupName)' Testers Changes: ")
                 try processTestersInBetaGroupStrategies(
                     testersInGroupHandlingStrategies,
-                    betagroupId: betagroupId!,
-                    appTesters: localConfig.testers,
+                    betagroupId: serverBetagroup.id!,
+                    appTesters: sharedTesters,
                     service: service
                 )
             }
