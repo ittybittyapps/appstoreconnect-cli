@@ -158,6 +158,24 @@ class AppStoreConnectService {
         return Model.BetaTester(output)
     }
 
+    func inviteBetaTesterToGroups(
+        firstName: String?,
+        lastName: String?,
+        email: String,
+        groupId: String
+    ) throws {
+        _ = try InviteTesterOperation(
+            options: .init(
+                firstName: firstName,
+                lastName: lastName,
+                email: email,
+                identifers: .resourceId([groupId])
+            )
+        )
+        .execute(with: requestor)
+        .await()
+    }
+
     func addTestersToGroup(
         bundleId: String,
         groupName: String,
@@ -181,6 +199,27 @@ class AppStoreConnectService {
             .execute(with: requestor)
             .await()
             .id
+
+        try AddTesterToGroupOperation(
+                options: .init(
+                    addStrategy: .addTestersToGroup(testerIds: testerIds, groupId: groupId)
+                )
+            )
+            .execute(with: requestor)
+            .await()
+    }
+
+    func addTestersToGroup(
+        groupId: String,
+        emails: [String]
+    ) throws {
+        let testerIds = try emails.map {
+            try GetBetaTesterOperation(options: .init(identifier: .email($0)))
+                .execute(with: requestor)
+                .await()
+                .betaTester
+                .id
+        }
 
         try AddTesterToGroupOperation(
                 options: .init(
@@ -401,6 +440,52 @@ class AppStoreConnectService {
         try operation.execute(with: requestor).await()
     }
 
+    func removeTestersFromGroup(emails: [String], groupId: String) throws {
+        let testerIds = try emails.map {
+            try GetBetaTesterOperation(
+                    options: .init(identifier: .email($0))
+                )
+                .execute(with: requestor)
+                .await()
+                .betaTester
+                .id
+        }
+
+        let operation = RemoveTesterOperation(
+            options: .init(
+                removeStrategy: .removeTestersFromGroup(testerIds: testerIds, groupId: groupId)
+            )
+        )
+
+        try operation.execute(with: requestor).await()
+    }
+
+    func removeTesterFromApp(testerEmail: String, appId: String) throws {
+        let testerId = try GetBetaTesterOperation(
+            options: .init(
+                identifier: .email(testerEmail),
+                limitApps: nil,
+                limitBuilds: nil,
+                limitBetaGroups: nil
+            )
+        )
+        .execute(with: requestor)
+        .await()
+        .betaTester
+        .id
+
+        try RemoveTesterOperation(
+            options: .init(
+                removeStrategy: .removeTestersFromApp(
+                    testerId: testerId,
+                    appId: appId
+                )
+            )
+        )
+        .execute(with: requestor)
+        .await()
+    }
+
     func readBetaGroup(bundleId: String, groupName: String) throws -> Model.BetaGroup {
         let app = try ReadAppOperation(options: .init(identifier: .bundleId(bundleId)))
             .execute(with: requestor)
@@ -436,6 +521,30 @@ class AppStoreConnectService {
         return try betaGroupResponse.map(Model.BetaGroup.init).await()
     }
 
+    func createBetaGroup(
+        appId: String,
+        groupName: String,
+        publicLinkEnabled: Bool,
+        publicLinkLimit: Int?
+    ) throws {
+        _ = try CreateBetaGroupWithAppIdOperation(
+            options: .init(
+                appId: appId,
+                groupName: groupName,
+                publicLinkEnabled: publicLinkEnabled,
+                publicLinkLimit: publicLinkLimit
+            )
+        )
+        .execute(with: requestor)
+        .await()
+    }
+
+    func updateBetaGroup(betaGroup: FileSystem.BetaGroup) throws {
+        _ = try UpdateBetaGroupOperation(options: .init(betaGroup: betaGroup))
+            .execute(with: requestor)
+            .await()
+    }
+
     func deleteBetaGroup(appBundleId: String, betaGroupName: String) throws {
         let appId = try GetAppsOperation(options: .init(bundleIds: [appBundleId]))
             .execute(with: requestor)
@@ -450,6 +559,12 @@ class AppStoreConnectService {
             .await()
 
         try DeleteBetaGroupOperation(options: .init(betaGroupId: betaGroup.id))
+            .execute(with: requestor)
+            .await()
+    }
+
+    func deleteBetaGroup(with id: String) throws {
+        try DeleteBetaGroupOperation(options: .init(betaGroupId: id))
             .execute(with: requestor)
             .await()
     }
@@ -800,49 +915,48 @@ class AppStoreConnectService {
     }
 
     func pullTestFlightConfigs() throws -> [TestFlightConfiguration] {
-
         let apps = try listApps(bundleIds: [], names: [], skus: [], limit: nil)
 
         return try apps.map {
-            let testers: [FileSystem.BetaTester] = try ListBetaTestersOperation(options:
-                    .init(appIds: [$0.id])
+            let testers: [FileSystem.BetaTester] = try ListBetaTestersOperation(
+                options: .init(appIds: [$0.id])
+            )
+            .execute(with: requestor)
+            .await()
+            .map {
+                FileSystem.BetaTester(
+                    email: ($0.betaTester.attributes?.email)!,
+                    firstName: $0.betaTester.attributes?.firstName,
+                    lastName: $0.betaTester.attributes?.lastName,
+                    inviteType: $0.betaTester.attributes?.inviteType?.rawValue
                 )
-                .execute(with: requestor)
-                .await()
-                .map {
-                    FileSystem.BetaTester(
-                        email: ($0.betaTester.attributes?.email)!,
-                        firstName: $0.betaTester.attributes?.firstName,
-                        lastName: $0.betaTester.attributes?.lastName,
-                        inviteType: $0.betaTester.attributes?.inviteType?.rawValue
-                    )
-                }
+            }
 
             let betagroups = try ListBetaGroupsOperation(
-                    options: .init(appIds: [$0.id], names: [], sort: nil)
+                options: .init(appIds: [$0.id], names: [], sort: nil)
+            )
+            .execute(with: requestor)
+            .await()
+            .map { output -> FileSystem.BetaGroup in
+                let testersEmails = try ListBetaTestersOperation(
+                    options: .init(groupIds: [output.betaGroup.id])
                 )
                 .execute(with: requestor)
                 .await()
-                .map { output -> FileSystem.BetaGroup in
-                    let testersEmails = try ListBetaTestersOperation(
-                            options: .init(groupIds: [output.betaGroup.id])
-                        )
-                        .execute(with: requestor)
-                        .await()
-                        .compactMap { $0.betaTester.attributes?.email }
+                .compactMap { $0.betaTester.attributes?.email }
 
-                    return FileSystem.BetaGroup(
-                        id: output.betaGroup.id,
-                        groupName: (output.betaGroup.attributes?.name)!,
-                        isInternal: output.betaGroup.attributes?.isInternalGroup,
-                        publicLink: output.betaGroup.attributes?.publicLink,
-                        publicLinkEnabled: output.betaGroup.attributes?.publicLinkEnabled,
-                        publicLinkLimit: output.betaGroup.attributes?.publicLinkLimit,
-                        publicLinkLimitEnabled: output.betaGroup.attributes?.publicLinkLimitEnabled,
-                        creationDate: output.betaGroup.attributes?.createdDate?.formattedDate,
-                        testers: testersEmails
-                    )
-                }
+                return FileSystem.BetaGroup(
+                    id: output.betaGroup.id,
+                    groupName: (output.betaGroup.attributes?.name)!,
+                    isInternal: output.betaGroup.attributes?.isInternalGroup,
+                    publicLink: output.betaGroup.attributes?.publicLink,
+                    publicLinkEnabled: output.betaGroup.attributes?.publicLinkEnabled,
+                    publicLinkLimit: output.betaGroup.attributes?.publicLinkLimit,
+                    publicLinkLimitEnabled: output.betaGroup.attributes?.publicLinkLimitEnabled,
+                    creationDate: output.betaGroup.attributes?.createdDate?.formattedDate,
+                    testers: testersEmails
+                )
+            }
 
             return TestFlightConfiguration(app: $0, testers: testers, betagroups: betagroups)
         }

@@ -9,7 +9,7 @@ private typealias Filter = DownloadSalesAndTrendsReports.Filter
 extension Filter.Frequency: ExpressibleByArgument, CustomStringConvertible {
     private typealias AllCases = [Filter.Frequency]
 
-    public static var allCases: AllCases {
+    private static var allCases: AllCases {
         [.DAILY, .MONTHLY, .WEEKLY, .YEARLY]
     }
 
@@ -25,7 +25,7 @@ extension Filter.Frequency: ExpressibleByArgument, CustomStringConvertible {
 extension Filter.ReportType: ExpressibleByArgument, CustomStringConvertible {
     private typealias AllCases = [Filter.ReportType]
 
-    public static var allCases: AllCases {
+    private static var allCases: AllCases {
         [.SALES, .PRE_ORDER, .NEWSSTAND, .SUBSCRIPTION, .SUBSCRIPTION_EVENT, .SUBSCRIBER]
     }
 
@@ -41,7 +41,7 @@ extension Filter.ReportType: ExpressibleByArgument, CustomStringConvertible {
 extension Filter.ReportSubType: ExpressibleByArgument, CustomStringConvertible {
     private typealias AllCases = [Filter.ReportSubType]
 
-    public static var allCases: AllCases {
+    private static var allCases: AllCases {
         [.SUMMARY, .DETAILED, .OPT_IN]
     }
 
