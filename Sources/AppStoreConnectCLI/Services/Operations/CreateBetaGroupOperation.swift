@@ -39,3 +39,36 @@ struct CreateBetaGroupOperation: APIOperation {
             .eraseToAnyPublisher()
     }
 }
+
+struct CreateBetaGroupWithAppIdOperation: APIOperation {
+
+    struct Options {
+        let appId: String
+        let groupName: String
+        let publicLinkEnabled: Bool
+        let publicLinkLimit: Int?
+    }
+
+    typealias BetaGroup = AppStoreConnect_Swift_SDK.BetaGroup
+
+    private let options: Options
+
+    init(options: Options) {
+        self.options = options
+    }
+
+    func execute(with requestor: EndpointRequestor) -> AnyPublisher<BetaGroup, Error> {
+        let endpoint = APIEndpoint.create(
+            betaGroupForAppWithId: options.appId,
+            name: options.groupName,
+            publicLinkEnabled: options.publicLinkEnabled,
+            publicLinkLimit: options.publicLinkLimit,
+            publicLinkLimitEnabled: options.publicLinkLimit != nil
+        )
+
+        return requestor
+            .request(endpoint)
+            .map { $0.data }
+            .eraseToAnyPublisher()
+    }
+}

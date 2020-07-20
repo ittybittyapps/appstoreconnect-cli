@@ -10,6 +10,7 @@ struct RemoveTesterOperation: APIOperation {
         enum RemoveStrategy {
             case removeTestersFromGroup(testerIds: [String], groupId: String)
             case removeTesterFromGroups(testerId: String, groupIds: [String])
+            case removeTestersFromApp(testerId: String, appId: String)
         }
 
         let removeStrategy: RemoveStrategy
@@ -23,6 +24,8 @@ struct RemoveTesterOperation: APIOperation {
             return APIEndpoint.remove(betaTesterWithId: testerId, fromBetaGroupsWithIds: groupIds)
         case .removeTestersFromGroup(let testerIds, let groupId):
             return APIEndpoint.remove(betaTestersWithIds: testerIds, fromBetaGroupWithId: groupId)
+        case .removeTestersFromApp(let testerId, let appId):
+            return APIEndpoint.remove(accessOfBetaTesterWithId: testerId, toAppsWithIds: [appId])
         }
     }
 
