@@ -9,13 +9,13 @@ public struct AppStoreConnectCLI: ParsableCommand {
         abstract: "A utility for interacting with the AppStore Connect API.",
         subcommands: [
             BundleIdsCommand.self,
+            CapabilityCommand.self,
             CertificatesCommand.self,
             DevicesCommand.self,
             ProfilesCommand.self,
             ReportsCommand.self,
             TestFlightCommand.self,
             UsersCommand.self,
-            CapabilityCommand.self,
         ])
 
     public init() {
