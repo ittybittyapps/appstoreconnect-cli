@@ -64,10 +64,24 @@ struct TestFlightPushCommand: CommonParsableCommand {
                 service: service
             )
 
-            try processTestersInGroups(localGroups: localBetagroups, serverGroups: serverBetagroups, sharedTesters: localConfig.testers, service: service)
+            try processTestersInGroups(
+                localGroups: localBetagroups,
+                serverGroups: serverBetagroups,
+                sharedTesters: localConfig.testers,
+                service: service
+            )
 
-            print("Syncing Completed. \n")
+            print("Syncing completed. \n")
         }
+
+        print("Refreshing local configurations...")
+
+        try TestFlightConfigLoader().save(
+            try service.pullTestFlightConfigs(),
+            in: inputPath
+        )
+
+        print("Refreshing completed.")
     }
 
     private func processAppSharedTesters(
