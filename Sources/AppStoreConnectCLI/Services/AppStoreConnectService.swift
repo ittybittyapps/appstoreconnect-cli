@@ -95,6 +95,7 @@ class AppStoreConnectService {
             )
             .execute(with: requestor)
             .await()
+            .map(Model.Certificate.init)
     }
 
     func readCertificate(serial: String) throws -> Model.Certificate {
@@ -708,18 +709,53 @@ class AppStoreConnectService {
         name: String,
         bundleId: String,
         profileType: ProfileType,
-        certificateIds: [String],
-        deviceIds: [String]
+        certificateSerialNumbers: [String],
+        deviceUDIDs: [String]
     ) throws -> Model.Profile {
-        let appId = try ReadAppOperation(options: .init(identifier: .bundleId(bundleId)))
+        let bundleIdResourceId = try ReadBundleIdOperation(
+            options: .init(bundleId: bundleId)
+        )
+        .execute(with: requestor)
+        .await()
+        .id
+
+        let deviceIds = try deviceUDIDs.compactMap {
+            try ListDevicesOperation(
+                options: .init(
+                    filterName: [],
+                    filterPlatform: [],
+                    filterUDID: [$0],
+                    filterStatus: nil,
+                    sort: nil,
+                    limit: nil
+                )
+            )
             .execute(with: requestor)
             .await()
+            .first?
             .id
+        }
+
+        let certificateIds = try certificateSerialNumbers.compactMap {
+            try ListCertificatesOperation(
+                options: .init(
+                    filterSerial: $0,
+                    sort: nil,
+                    filterType: nil,
+                    filterDisplayName: nil,
+                    limit: nil
+                )
+            )
+            .execute(with: requestor)
+            .await()
+            .first?
+            .id
+        }
 
         return try CreateProfileOperation(
             options: .init(
                 name: name,
-                bundleId: appId,
+                bundleId: bundleIdResourceId,
                 profileType: profileType,
                 certificateIds: certificateIds,
                 deviceIds: deviceIds

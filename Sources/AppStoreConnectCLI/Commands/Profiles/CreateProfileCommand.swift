@@ -24,12 +24,22 @@ struct CreateProfileCommand: CommonParsableCommand {
 
     @Option(
         parsing: .upToNextOption,
-        help: "The resource ids of Certificates."
+        help: "The serial numbers of Certificates. (eg. 1A2B3C4D5E6FD798)"
     )
-    var certificates: [String]
+    var certificatesSerialNumbers: [String]
 
-    @Option(help: "The resource ids of Devices.")
-    var devices: [String]
+    @Option(help: "The UDIDs of Devices.")
+    var devicesUdids: [String]
+
+    func validate() throws {
+        if certificatesSerialNumbers.isEmpty {
+            throw ValidationError("Expected at least one certificate serial number.")
+        }
+
+        if devicesUdids.isEmpty {
+            throw ValidationError("Expected at least one device udid.")
+        }
+    }
 
     func run() throws {
         let service = try makeService()
@@ -38,8 +48,8 @@ struct CreateProfileCommand: CommonParsableCommand {
             name: name,
             bundleId: bundleId,
             profileType: profileType,
-            certificateIds: certificates,
-            deviceIds: devices
+            certificateSerialNumbers: certificatesSerialNumbers,
+            deviceUDIDs: devicesUdids
         )
 
         [profile].render(format: common.outputFormat)
