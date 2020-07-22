@@ -704,6 +704,32 @@ class AppStoreConnectService {
             .map(Model.Profile.init)
     }
 
+    func createProfile(
+        name: String,
+        bundleId: String,
+        profileType: ProfileType,
+        certificateIds: [String],
+        deviceIds: [String]
+    ) throws -> Model.Profile {
+        let appId = try ReadAppOperation(options: .init(identifier: .bundleId(bundleId)))
+            .execute(with: requestor)
+            .await()
+            .id
+
+        return try CreateProfileOperation(
+            options: .init(
+                name: name,
+                bundleId: appId,
+                profileType: profileType,
+                certificateIds: certificateIds,
+                deviceIds: deviceIds
+            )
+        )
+        .execute(with: requestor)
+        .map(Model.Profile.init)
+        .await()
+    }
+
     func listUserInvitaions(
         filterEmail: [String],
         filterRole: [UserRole],
