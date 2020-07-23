@@ -96,6 +96,7 @@ class AppStoreConnectService {
             )
             .execute(with: requestor)
             .await()
+            .map(Model.Certificate.init)
     }
 
     func readCertificate(serial: String) throws -> Model.Certificate {
@@ -818,6 +819,64 @@ class AppStoreConnectService {
             .execute(with: requestor)
             .await()
             .map(Model.Profile.init)
+    }
+
+    func createProfile(
+        name: String,
+        bundleId: String,
+        profileType: ProfileType,
+        certificateSerialNumbers: [String],
+        deviceUDIDs: [String]
+    ) throws -> Model.Profile {
+        let bundleIdResourceId = try ReadBundleIdOperation(
+            options: .init(bundleId: bundleId)
+        )
+        .execute(with: requestor)
+        .await()
+        .id
+
+        let deviceIds = try ListDevicesOperation(
+            options: .init(
+                filterName: [],
+                filterPlatform: [],
+                filterUDID: deviceUDIDs,
+                filterStatus: nil,
+                sort: nil,
+                limit: nil
+            )
+        )
+        .execute(with: requestor)
+        .await()
+        .map { $0.id }
+
+        let certificateIds = try certificateSerialNumbers.compactMap {
+            try ListCertificatesOperation(
+                options: .init(
+                    filterSerial: $0,
+                    sort: nil,
+                    filterType: nil,
+                    filterDisplayName: nil,
+                    limit: nil
+                )
+            )
+            .execute(with: requestor)
+            .await()
+            .first?
+            .id
+        }
+
+        return try CreateProfileOperation(
+            options: .init(
+                name: name,
+                bundleId: bundleIdResourceId,
+                profileType: profileType,
+                certificateIds: certificateIds,
+                deviceIds: deviceIds
+            )
+        )
+        .execute(with: requestor)
+        .map(Model.Profile.init)
+        .await()
     }
 
     func listUserInvitaions(

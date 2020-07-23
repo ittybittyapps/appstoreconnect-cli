@@ -5,6 +5,7 @@ import ArgumentParser
 import Foundation
 
 struct CreateProfileCommand: CommonParsableCommand {
+
     static var configuration = CommandConfiguration(
         commandName: "create",
         abstract: "Create a new provisioning profile.")
@@ -13,21 +14,48 @@ struct CreateProfileCommand: CommonParsableCommand {
     var common: CommonOptions
 
     @Argument(help: "The name of the provisioning profile to create.")
-    var string: String
+    var name: String
 
-    @Argument(help: "The type of profile to create \(ProfileType.allCases)")
+    @Argument(help: "The type of profile to create \(ProfileType.allCases).")
     var profileType: ProfileType
 
     @Argument(help: "The reverse-DNS bundle ID identifier to associate with this profile (must already exist).")
     var bundleId: String
 
-    @Argument(help: "Certificates") // TODO
-    var certificates: [String]
+    @Option(
+        parsing: .upToNextOption,
+        help: "The serial numbers of Certificates. (eg. 1A2B3C4D5E6FD798)"
+    )
+    var certificatesSerialNumbers: [String]
 
-    @Option(help: "Devices") // TODO
-    var devices: [String]
+    @Option(
+        parsing: .upToNextOption,
+        help: "The UDIDs of Devices."
+    )
+    var devicesUdids: [String]
+
+    func validate() throws {
+        if certificatesSerialNumbers.isEmpty {
+            throw ValidationError("Expected at least one certificate serial number.")
+        }
+
+        if devicesUdids.isEmpty {
+            throw ValidationError("Expected at least one device udid.")
+        }
+    }
 
     func run() throws {
-        fatalError("Not implementedf")
+        let service = try makeService()
+
+        let profile = try service.createProfile(
+            name: name,
+            bundleId: bundleId,
+            profileType: profileType,
+            certificateSerialNumbers: certificatesSerialNumbers,
+            deviceUDIDs: devicesUdids
+        )
+
+        [profile].render(format: common.outputFormat)
     }
+
 }
