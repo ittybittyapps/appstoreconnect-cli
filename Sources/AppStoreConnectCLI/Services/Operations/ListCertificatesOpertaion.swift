@@ -3,7 +3,6 @@
 import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
-import struct Model.Certificate
 
 struct ListCertificatesOperation: APIOperation {
 
@@ -71,7 +70,7 @@ struct ListCertificatesOperation: APIOperation {
                     throw Error.couldNotFindCertificate
                 }
 
-                return response.data.map(Certificate.init)
+                return response.data
             }
         }
         .eraseToAnyPublisher()
