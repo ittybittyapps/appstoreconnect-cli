@@ -6,15 +6,15 @@ public struct BetaGroup: Codable, Equatable {
 
     public typealias EmailAddress = String
 
-    public let id: String?
-    public let groupName: String
-    public let isInternal: Bool?
-    public let publicLink: String?
-    public let publicLinkEnabled: Bool?
-    public let publicLinkLimit: Int?
-    public let publicLinkLimitEnabled: Bool?
-    public let creationDate: String?
-    public let testers: [EmailAddress]
+    public var id: String?
+    public var groupName: String
+    public var isInternal: Bool?
+    public var publicLink: String?
+    public var publicLinkEnabled: Bool?
+    public var publicLinkLimit: Int?
+    public var publicLinkLimitEnabled: Bool?
+    public var creationDate: String?
+    public var testers: [EmailAddress]
 
     public init(
         id: String?,

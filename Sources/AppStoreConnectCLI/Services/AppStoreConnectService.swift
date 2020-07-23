@@ -160,10 +160,10 @@ class AppStoreConnectService {
     }
 
     func inviteBetaTesterToGroups(
-        firstName: String?,
-        lastName: String?,
         email: String,
-        groupId: String
+        groupId: String,
+        firstName: String?,
+        lastName: String?
     ) throws {
         _ = try InviteTesterOperation(
             options: .init(
@@ -973,7 +973,7 @@ class AppStoreConnectService {
             .await()
     }
 
-    func pullTestFlightConfigs() throws -> [TestFlightConfiguration] {
+    func pullTestFlightConfigurations() throws -> [TestFlightConfiguration] {
         let apps = try listApps(bundleIds: [], names: [], skus: [], limit: nil)
 
         return try apps.map {
@@ -986,8 +986,7 @@ class AppStoreConnectService {
                 FileSystem.BetaTester(
                     email: ($0.betaTester.attributes?.email)!,
                     firstName: $0.betaTester.attributes?.firstName,
-                    lastName: $0.betaTester.attributes?.lastName,
-                    inviteType: $0.betaTester.attributes?.inviteType?.rawValue
+                    lastName: $0.betaTester.attributes?.lastName
                 )
             }
 

@@ -5,21 +5,18 @@ import Foundation
 import Model
 
 public struct BetaTester: Codable, Equatable, Hashable {
-    public let email: String
-    public let firstName: String
-    public let lastName: String
-    public let inviteType: String
+    public var email: String
+    public var firstName: String
+    public var lastName: String
 
     public init(
         email: String,
         firstName: String?,
-        lastName: String?,
-        inviteType: String?
+        lastName: String?
     ) {
         self.email = email
         self.firstName = firstName ?? ""
         self.lastName = lastName ?? ""
-        self.inviteType = inviteType ?? ""
     }
 }
 
@@ -29,7 +26,6 @@ extension BetaTester {
         case email = "Email"
         case firstName = "First Name"
         case lastName = "Last Name"
-        case inviteType = "Invite Type"
     }
 
 }
@@ -49,10 +45,10 @@ extension CSVRenderable {
 
 extension Array: CSVRenderable where Element == BetaTester {
     var headers: [String] {
-        ["Email", "First Name", "Last Name", "Invite Type"]
+        ["Email", "First Name", "Last Name"]
     }
 
     var rows: [[String]] {
-        self.map { [$0.email, $0.firstName, $0.lastName, $0.inviteType] }
+        self.map { [$0.email, $0.firstName, $0.lastName] }
     }
 }

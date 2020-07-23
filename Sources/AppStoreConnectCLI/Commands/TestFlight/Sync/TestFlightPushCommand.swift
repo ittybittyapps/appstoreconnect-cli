@@ -235,7 +235,7 @@ struct TestFlightPushCommand: CommonParsableCommand {
                 }
 
             try creatingTestersWithStrategy.forEach {
-                
+
                 try service.inviteBetaTesterToGroups(
                     email: $0.tester.email,
                     groupId: betagroupId,
