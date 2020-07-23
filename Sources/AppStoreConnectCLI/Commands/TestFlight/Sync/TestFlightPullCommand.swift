@@ -22,9 +22,9 @@ struct TestFlightPullCommand: CommonParsableCommand {
     func run() throws {
         let service = try makeService()
 
-        let configs = try service.pullTestFlightConfigs()
+        let configs = try service.pullTestFlightConfigurations()
 
-        try TestFlightConfigLoader().save(configs, in: outputPath)
+        try configs.save(in: outputPath)
     }
 
 }

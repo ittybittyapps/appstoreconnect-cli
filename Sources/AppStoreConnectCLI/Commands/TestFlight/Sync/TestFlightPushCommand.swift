@@ -31,14 +31,15 @@ struct TestFlightPushCommand: CommonParsableCommand {
         }
 
         print("Loading local TestFlight configs... \n")
-        let localConfigs = try TestFlightConfigLoader().load(appsFolderPath: inputPath)
+
+        let localConfigurations = try [TestFlightConfiguration](from: inputPath)
 
         print("Loading server TestFlight configs... \n")
-        let serverConfigs = try service.pullTestFlightConfigs()
+        let serverConfigs = try service.pullTestFlightConfigurations()
 
         try serverConfigs.forEach { serverConfig in
             guard
-                let localConfig = localConfigs
+                let localConfig = localConfigurations
                     .first(where: { $0.app.id == serverConfig.app.id }) else {
                 return
             }
@@ -76,10 +77,7 @@ struct TestFlightPushCommand: CommonParsableCommand {
 
         print("Refreshing local configurations...")
 
-        try TestFlightConfigLoader().save(
-            try service.pullTestFlightConfigs(),
-            in: inputPath
-        )
+        try service.pullTestFlightConfigurations().save(in: inputPath)
 
         print("Refreshing completed.")
     }
@@ -237,11 +235,12 @@ struct TestFlightPushCommand: CommonParsableCommand {
                 }
 
             try creatingTestersWithStrategy.forEach {
+                
                 try service.inviteBetaTesterToGroups(
-                    firstName: $0.tester.firstName,
-                    lastName: $0.tester.lastName,
                     email: $0.tester.email,
-                    groupId: betagroupId
+                    groupId: betagroupId,
+                    firstName: $0.tester.firstName,
+                    lastName: $0.tester.lastName
                 )
 
                 renderer.render($0.strategy, isDryRun: false)
