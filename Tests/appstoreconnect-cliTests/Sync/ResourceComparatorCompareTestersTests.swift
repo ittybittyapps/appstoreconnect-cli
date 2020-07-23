@@ -12,13 +12,11 @@ final class ResourceComparatorCompareTestersTests: XCTestCase {
             BetaTester(
                 email: "foo@gmail.com",
                 firstName: nil,
-                lastName: nil,
-                inviteType: nil),
+                lastName: nil),
             BetaTester(
                 email: "bar@gmail.com",
                 firstName: nil,
-                lastName: nil,
-                inviteType: nil),
+                lastName: nil),
         ]
 
         let localTesters: [BetaTester] = []
@@ -60,22 +58,6 @@ final class ResourceComparatorCompareTestersTests: XCTestCase {
         XCTAssertTrue(strategies.contains(where: {
             $0 == .create(localTestersInGroup[1])
         }))
-    }
-
-    private func generateGroupWithTesters(
-        emails: [String]
-    ) -> BetaGroup {
-        BetaGroup(
-            id: "0001",
-            groupName: name,
-            isInternal: true,
-            publicLink: "",
-            publicLinkEnabled: true,
-            publicLinkLimit: 10,
-            publicLinkLimitEnabled: true,
-            creationDate: "",
-            testers: emails
-        )
     }
 
 }

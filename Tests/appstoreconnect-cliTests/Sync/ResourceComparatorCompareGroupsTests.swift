@@ -9,13 +9,13 @@ final class ResourceComparatorCompareGroupsTests: XCTestCase {
 
     func testCompareBetaGroups() {
         let localBetaGroups = [
-            generateGroup(id: nil, name: "group to create", publicLinkEnabled: true),
-            generateGroup(id: "1002", name: "group to update", publicLinkEnabled: false),
+            BetaGroup(id: nil, name: "group to create", publicLinkEnabled: true),
+            BetaGroup(id: "1002", name: "group to update", publicLinkEnabled: false),
         ]
 
         let serverBetaGroups = [
-            generateGroup(id: "1002", name: "group to update", publicLinkEnabled: true),
-            generateGroup(id: "1003", name: "group to delete", publicLinkEnabled: true),
+            BetaGroup(id: "1002", name: "group to update", publicLinkEnabled: true),
+            BetaGroup(id: "1003", name: "group to delete", publicLinkEnabled: true),
         ]
 
         let strategies = SyncResourceComparator(
@@ -39,13 +39,16 @@ final class ResourceComparatorCompareGroupsTests: XCTestCase {
         }))
     }
 
-    private func generateGroup(
+}
+
+private extension BetaGroup {
+    init(
         id: String?,
         name: String,
         publicLinkEnabled: Bool = true,
         publicLinkLimitEnabled: Bool = true
-    ) -> BetaGroup {
-        BetaGroup(
+    ) {
+        self = BetaGroup(
             id: id,
             groupName: name,
             isInternal: true,
@@ -57,5 +60,4 @@ final class ResourceComparatorCompareGroupsTests: XCTestCase {
             testers: []
         )
     }
-
 }
