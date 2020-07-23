@@ -28,7 +28,10 @@ struct CreateProfileCommand: CommonParsableCommand {
     )
     var certificatesSerialNumbers: [String]
 
-    @Option(help: "The UDIDs of Devices.")
+    @Option(
+        parsing: .upToNextOption,
+        help: "The UDIDs of Devices."
+    )
     var devicesUdids: [String]
 
     func validate() throws {

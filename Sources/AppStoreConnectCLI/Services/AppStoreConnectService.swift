@@ -719,22 +719,19 @@ class AppStoreConnectService {
         .await()
         .id
 
-        let deviceIds = try deviceUDIDs.compactMap {
-            try ListDevicesOperation(
-                options: .init(
-                    filterName: [],
-                    filterPlatform: [],
-                    filterUDID: [$0],
-                    filterStatus: nil,
-                    sort: nil,
-                    limit: nil
-                )
+        let deviceIds = try ListDevicesOperation(
+            options: .init(
+                filterName: [],
+                filterPlatform: [],
+                filterUDID: deviceUDIDs,
+                filterStatus: nil,
+                sort: nil,
+                limit: nil
             )
-            .execute(with: requestor)
-            .await()
-            .first?
-            .id
-        }
+        )
+        .execute(with: requestor)
+        .await()
+        .map { $0.id }
 
         let certificateIds = try certificateSerialNumbers.compactMap {
             try ListCertificatesOperation(
