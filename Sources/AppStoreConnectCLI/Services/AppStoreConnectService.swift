@@ -527,8 +527,8 @@ class AppStoreConnectService {
         groupName: String,
         publicLinkEnabled: Bool,
         publicLinkLimit: Int?
-    ) throws {
-        _ = try CreateBetaGroupWithAppIdOperation(
+    ) throws -> FileSystem.BetaGroup {
+        let sdkGroup = try CreateBetaGroupWithAppIdOperation(
             options: .init(
                 appId: appId,
                 groupName: groupName,
@@ -538,6 +538,18 @@ class AppStoreConnectService {
         )
         .execute(with: requestor)
         .await()
+        
+        return FileSystem.BetaGroup(
+            id: sdkGroup.id,
+            groupName: (sdkGroup.attributes?.name)!,
+            isInternal: sdkGroup.attributes?.isInternalGroup,
+            publicLink: sdkGroup.attributes?.publicLink,
+            publicLinkEnabled: sdkGroup.attributes?.publicLinkEnabled,
+            publicLinkLimit: sdkGroup.attributes?.publicLinkLimit,
+            publicLinkLimitEnabled: sdkGroup.attributes?.publicLinkLimitEnabled,
+            creationDate: sdkGroup.attributes?.createdDate?.formattedDate,
+            testers: []
+        )
     }
 
     func updateBetaGroup(betaGroup: FileSystem.BetaGroup) throws {

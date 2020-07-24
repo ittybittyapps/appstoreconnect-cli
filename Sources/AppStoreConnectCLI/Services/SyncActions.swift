@@ -4,14 +4,28 @@ import Foundation
 import FileSystem
 import Model
 
-struct AppSyncActions {
-    let app: Model.App
-    let appTesters: [FileSystem.BetaTester]
+class AppSyncActions {
+    var app: Model.App
+    var appTesters: [FileSystem.BetaTester]
 
-    let appTestersSyncActions: [SyncAction<FileSystem.BetaTester>]
-    let betaGroupSyncActions: [SyncAction<FileSystem.BetaGroup>]
+    var appTestersSyncActions: [SyncAction<FileSystem.BetaTester>]
+    var betaGroupSyncActions: [SyncAction<FileSystem.BetaGroup>]
 
-    let testerInGroupsAction: [BetaTestersInGroupActions]
+    var testerInGroupsAction: [BetaTestersInGroupActions]
+
+    init(
+        app: Model.App,
+        appTesters: [FileSystem.BetaTester],
+        appTestersSyncActions: [SyncAction<FileSystem.BetaTester>],
+        betaGroupSyncActions: [SyncAction<FileSystem.BetaGroup>],
+        testerInGroupsAction: [BetaTestersInGroupActions]
+    ) {
+        self.app = app
+        self.appTesters = appTesters
+        self.appTestersSyncActions = appTestersSyncActions
+        self.betaGroupSyncActions = betaGroupSyncActions
+        self.testerInGroupsAction = testerInGroupsAction
+    }
 }
 
 struct BetaTestersInGroupActions {
