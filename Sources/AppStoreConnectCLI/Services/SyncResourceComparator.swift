@@ -2,7 +2,7 @@
 
 import Foundation
 
-enum SyncStrategy<T: SyncResultRenderable>: Equatable {
+enum SyncAction<T: SyncResultRenderable>: Equatable {
     case delete(T)
     case create(T)
     case update(T)
@@ -24,10 +24,10 @@ struct SyncResourceComparator<T: SyncResourceProcessable> {
     private var localResourcesSet: Set<T> { Set(localResources) }
     private var serverResourcesSet: Set<T> { Set(serverResources) }
 
-    func compare() -> [SyncStrategy<T>] {
+    func compare() -> [SyncAction<T>] {
         serverResourcesSet
             .subtracting(localResourcesSet)
-            .compactMap { resource -> SyncStrategy<T>? in
+            .compactMap { resource -> SyncAction<T>? in
                 localResources
                     .contains(where: { resource.compareIdentity == $0.compareIdentity })
                     ? nil
@@ -36,7 +36,7 @@ struct SyncResourceComparator<T: SyncResourceProcessable> {
         +
         localResourcesSet
             .subtracting(serverResourcesSet)
-            .compactMap { resource -> SyncStrategy<T>? in
+            .compactMap { resource -> SyncAction<T>? in
                 serverResourcesSet
                     .contains(
                         where: { resource.compareIdentity == $0.compareIdentity }

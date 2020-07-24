@@ -119,15 +119,15 @@ protocol SyncResultRenderable: Equatable {
 }
 
 struct SyncResultRenderer<T: SyncResultRenderable> {
-    func render(_ strategy: [SyncStrategy<T>], isDryRun: Bool) {
+    func render(_ strategy: [SyncAction<T>], isDryRun: Bool) {
         strategy.forEach { renderResultText($0, isDryRun) }
     }
 
-    func render(_ strategy: SyncStrategy<T>, isDryRun: Bool) {
+    func render(_ strategy: SyncAction<T>, isDryRun: Bool) {
         renderResultText(strategy, isDryRun)
     }
 
-    private func renderResultText(_ strategy: SyncStrategy<T>, _ isDryRun: Bool) {
+    private func renderResultText(_ strategy: SyncAction<T>, _ isDryRun: Bool) {
         let resultText: String
         switch strategy {
         case .create(let input):

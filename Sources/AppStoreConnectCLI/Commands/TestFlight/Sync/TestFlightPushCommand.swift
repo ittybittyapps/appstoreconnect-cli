@@ -3,6 +3,7 @@
 import ArgumentParser
 import FileSystem
 import Foundation
+import Model
 
 struct TestFlightPushCommand: CommonParsableCommand {
 
@@ -26,53 +27,22 @@ struct TestFlightPushCommand: CommonParsableCommand {
     func run() throws {
         let service = try makeService()
 
-        if dryRun {
-            print("'Dry Run' mode activated, changes will not be applied. \n")
-        }
-
         print("Loading local TestFlight configs... \n")
 
         let localConfigurations = try [TestFlightConfiguration](from: inputPath)
 
         print("Loading server TestFlight configs... \n")
-        let serverConfigs = try service.pullTestFlightConfigurations()
+        let serverConfigurations = try service.pullTestFlightConfigurations()
 
-        try serverConfigs.forEach { serverConfig in
-            guard
-                let localConfig = localConfigurations
-                    .first(where: { $0.app.id == serverConfig.app.id }) else {
-                return
-            }
+        let actions = compare(
+            serverConfigurations: serverConfigurations,
+            with: localConfigurations
+        )
 
-            let appId = localConfig.app.id
-
-            print("Syncing App '\(localConfig.app.bundleId ?? appId)':")
-
-            try processAppSharedTesters(
-                localTesters: localConfig.testers,
-                serverTesters: serverConfig.testers,
-                appId: appId,
-                service: service
-            )
-
-            let localBetagroups = localConfig.betagroups
-            let serverBetagroups = serverConfig.betagroups
-
-            try processBetaGroups(
-                localGroups: localBetagroups,
-                serverGroups: serverBetagroups,
-                appId: appId,
-                service: service
-            )
-
-            try processTestersInGroups(
-                localGroups: localBetagroups,
-                serverGroups: serverBetagroups,
-                sharedTesters: localConfig.testers,
-                service: service
-            )
-
-            print("Syncing completed. \n")
+        if dryRun {
+            render(actions: actions)
+        } else {
+            try process(actions: actions, with: service)
         }
 
         print("Refreshing local configurations...")
@@ -82,160 +52,177 @@ struct TestFlightPushCommand: CommonParsableCommand {
         print("Refreshing completed.")
     }
 
-    private func processAppSharedTesters(
-        localTesters: [BetaTester],
-        serverTesters: [BetaTester],
-        appId: String,
-        service: AppStoreConnectService
-    ) throws {
-        // 1. compare shared testers in app
-        let sharedTestersHandleStrategies = SyncResourceComparator(
-            localResources: localTesters,
-            serverResources: serverTesters
-        )
-        .compare()
+    func render(actions: [AppSyncActions]) {
+        print("'Dry Run' mode activated, changes will not be applied. \n")
 
-        // 1.1 handle shared testers delete only
-        if sharedTestersHandleStrategies.isNotEmpty {
-            print("- App Testers Changes: ")
-            try processAppTesterStrategies(sharedTestersHandleStrategies, appId: appId, service: service)
-        }
-    }
+        actions.forEach {
+            print("\($0.app.name ?? ""):")
+            // 1. app testers
+            print("- Testers in App: ")
+            $0.appTestersSyncActions.forEach { $0.render(dryRun: dryRun) }
 
-    private func processBetaGroups(
-        localGroups: [BetaGroup],
-        serverGroups: [BetaGroup],
-        appId: String,
-        service: AppStoreConnectService
-    ) throws {
-        // 2. compare beta groups
-        let betaGroupHandlingStrategies = SyncResourceComparator(
-            localResources: localGroups,
-            serverResources: serverGroups
-        ).compare()
+            // 2. BetaGroups in App
+            print("- BetaGroups in App: ")
+            $0.betaGroupSyncActions.forEach { $0.render(dryRun: dryRun) }
 
-        // 2.1 handle groups create, update, delete
-        if betaGroupHandlingStrategies.isNotEmpty {
-            print("- Beta Group Changes: ")
-            try processBetagroupsStrategies(betaGroupHandlingStrategies, appId: appId, service: service)
-        }
-    }
-
-    private func processTestersInGroups(
-        localGroups: [BetaGroup],
-        serverGroups: [BetaGroup],
-        sharedTesters: [BetaTester],
-        service: AppStoreConnectService
-    ) throws {
-        // 3. compare testers in group, perform adding/deleting
-        try localGroups.forEach { localBetagroup in
-            guard
-                let serverBetagroup = serverGroups.first(where: {  $0.id == localBetagroup.id }) else {
-                return
+            // 3. Testers in BetaGroup
+            print("- Testers In Beta Group: ")
+            $0.testerInGroupsAction.forEach {
+                print("\($0.betaGroup.groupName):")
+                $0.testerActions.forEach { $0.render(dryRun: dryRun) }
             }
+        }
+    }
 
-            let localGroupTesters = localBetagroup.testers
+    private func process(actions: [AppSyncActions], with service: AppStoreConnectService) throws {
+        try actions.forEach { appAction in
+            print("\(appAction.app.name ?? ""): ")
+            // 1. app testers
+            print("- Testers in App: ")
+            try processAppTesterActions(
+                appAction.appTestersSyncActions,
+                appId: appAction.app.id,
+                service: service
+            )
 
-            let serverGroupTesters = serverBetagroup.testers
+            // 2. beta groups in app
+            print("- BetaGroups in App: ")
+            try processBetagroupsActions(
+                appAction.betaGroupSyncActions,
+                appId: appAction.app.id,
+                service: service
+            )
 
-            let testersInGroupHandlingStrategies = SyncResourceComparator(
-                localResources: localGroupTesters,
-                serverResources: serverGroupTesters
-            ).compare()
-
-            // 3.1 handling adding/deleting testers per group
-            if testersInGroupHandlingStrategies.isNotEmpty {
-                print("- Beta Group '\(serverBetagroup.groupName)' Testers Changes: ")
-                try processTestersInBetaGroupStrategies(
-                    testersInGroupHandlingStrategies,
-                    betagroupId: serverBetagroup.id!,
-                    appTesters: sharedTesters,
+            // 3. testers in beta group
+            print("- Testers In Beta Group: ")
+            try appAction.testerInGroupsAction.forEach {
+                try processTestersInBetaGroupActions(
+                    $0.testerActions,
+                    betagroupId: $0.betaGroup.id!,
+                    appTesters: appAction.appTesters,
                     service: service
                 )
             }
         }
     }
 
-    func processAppTesterStrategies(_ strategies: [SyncStrategy<FileSystem.BetaTester>], appId: String, service: AppStoreConnectService) throws {
-        if dryRun {
-            SyncResultRenderer<FileSystem.BetaTester>().render(strategies, isDryRun: true)
-        } else {
-            try strategies.forEach { strategy in
-                switch strategy {
-                case .delete(let betatester):
-                    try service.removeTesterFromApp(testerEmail: betatester.email, appId: appId)
-                    SyncResultRenderer<FileSystem.BetaTester>().render(strategies, isDryRun: false)
-                default:
-                    return
-                }
+    private func compare(
+        serverConfigurations: [TestFlightConfiguration],
+        with localConfigurations: [TestFlightConfiguration]
+    ) -> [AppSyncActions] {
+        return serverConfigurations.compactMap { serverConfiguration in
+            guard
+                let localConfiguration = localConfigurations
+                    .first(where: { $0.app.id == serverConfiguration.app.id }) else {
+                return nil
             }
-        }
-    }
 
-    func processBetagroupsStrategies(_ strategies: [SyncStrategy<FileSystem.BetaGroup>], appId: String, service: AppStoreConnectService) throws {
-        let renderer = SyncResultRenderer<FileSystem.BetaGroup>()
+            let appTesterSyncActions = SyncResourceComparator(
+                localResources: localConfiguration.testers,
+                serverResources: serverConfiguration.testers
+            )
+            .compare()
 
-        if dryRun {
-            renderer.render(strategies, isDryRun: true)
-        } else {
-            try strategies.forEach { strategy in
-                switch strategy {
-                case .create(let betagroup):
-                    _ = try service.createBetaGroup(
-                        appId: appId,
-                        groupName: betagroup.groupName,
-                        publicLinkEnabled: betagroup.publicLinkEnabled ?? false,
-                        publicLinkLimit: betagroup.publicLinkLimit
+            let betaGroupSyncActions = SyncResourceComparator(
+                localResources: localConfiguration.betagroups,
+                serverResources: serverConfiguration.betagroups
+            )
+            .compare()
+
+            let testerInGroupsAction = localConfiguration.betagroups.compactMap { localBetagroup -> BetaTestersInGroupActions?  in
+                guard
+                    let serverBetaGroup = serverConfiguration
+                        .betagroups
+                        .first(where: { $0.id == localBetagroup.id }) else {
+                    return nil
+                }
+
+                return BetaTestersInGroupActions(
+                    betaGroup: localBetagroup,
+                    testerActions: SyncResourceComparator(
+                        localResources: localBetagroup.testers,
+                        serverResources: serverBetaGroup.testers
                     )
-                    renderer.render(strategy, isDryRun: false)
-                case .delete(let betagroup):
-                    try service.deleteBetaGroup(with: betagroup.id!)
-                    renderer.render(strategy, isDryRun: false)
-                case .update(let betagroup):
-                    try service.updateBetaGroup(betaGroup: betagroup)
-                    renderer.render(strategy, isDryRun: false)
-                }
+                    .compare()
+                )
+            }
+
+            return AppSyncActions(
+                app: localConfiguration.app,
+                appTesters: localConfiguration.testers,
+                appTestersSyncActions: appTesterSyncActions,
+                betaGroupSyncActions: betaGroupSyncActions,
+                testerInGroupsAction: testerInGroupsAction
+            )
+        }
+    }
+
+    func processAppTesterActions(_ actions: [SyncAction<FileSystem.BetaTester>], appId: String, service: AppStoreConnectService) throws {
+        try actions.forEach { action in
+            switch action {
+            case .delete(let betatester):
+                try service.removeTesterFromApp(testerEmail: betatester.email, appId: appId)
+                action.render(dryRun: dryRun)
+            default:
+                return
             }
         }
     }
 
-    func processTestersInBetaGroupStrategies(
-        _ strategies: [SyncStrategy<BetaGroup.EmailAddress>],
+    func processBetagroupsActions(_ actions: [SyncAction<FileSystem.BetaGroup>], appId: String, service: AppStoreConnectService) throws {
+        try actions.forEach { action in
+            switch action {
+            case .create(let betagroup):
+                _ = try service.createBetaGroup(
+                    appId: appId,
+                    groupName: betagroup.groupName,
+                    publicLinkEnabled: betagroup.publicLinkEnabled ?? false,
+                    publicLinkLimit: betagroup.publicLinkLimit
+                )
+                action.render(dryRun: dryRun)
+            case .delete(let betagroup):
+                try service.deleteBetaGroup(with: betagroup.id!)
+                action.render(dryRun: dryRun)
+            case .update(let betagroup):
+                try service.updateBetaGroup(betaGroup: betagroup)
+                action.render(dryRun: dryRun)
+            }
+        }
+    }
+
+    func processTestersInBetaGroupActions(
+        _ actions: [SyncAction<FileSystem.BetaGroup.EmailAddress>],
         betagroupId: String,
-        appTesters: [BetaTester],
+        appTesters: [FileSystem.BetaTester],
         service: AppStoreConnectService
     ) throws {
-        let renderer = SyncResultRenderer<FileSystem.BetaGroup.EmailAddress>()
-
-        if dryRun {
-            renderer.render(strategies, isDryRun: true)
-        } else {
-            let deletingEmailsWithStrategy = strategies
-                .compactMap { (strategy: SyncStrategy<BetaGroup.EmailAddress>) -> (email: String, strategy: SyncStrategy<BetaGroup.EmailAddress>)? in
-                if case .delete(let email) = strategy {
-                    return (email, strategy)
+        let deletingEmailsWithStrategy = actions
+            .compactMap { (action: SyncAction<FileSystem.BetaGroup.EmailAddress>) ->
+                (email: String, strategy: SyncAction<FileSystem.BetaGroup.EmailAddress>)? in
+                if case .delete(let email) = action {
+                    return (email, action)
                 }
                 return nil
             }
 
-            try service.removeTestersFromGroup(
-                emails: deletingEmailsWithStrategy.map { $0.email },
-                groupId: betagroupId
-            )
-            renderer.render(deletingEmailsWithStrategy.map { $0.strategy }, isDryRun: false)
+        try service.removeTestersFromGroup(
+            emails: deletingEmailsWithStrategy.map { $0.email },
+            groupId: betagroupId
+        )
 
-            let creatingTestersWithStrategy = strategies
-                .compactMap { (strategy: SyncStrategy<BetaGroup.EmailAddress>) ->
-                    (tester: BetaTester, strategy: SyncStrategy<BetaGroup.EmailAddress>)? in
-                    if case .create(let email) = strategy,
-                       let betatester = appTesters.first(where: { $0.email == email }) {
-                        return (betatester, strategy)
-                    }
-                    return nil
+        deletingEmailsWithStrategy.forEach { $0.strategy.render(dryRun: dryRun) }
+
+        let creatingTestersWithStrategy = actions
+            .compactMap { (strategy: SyncAction<FileSystem.BetaGroup.EmailAddress>) ->
+                (tester: FileSystem.BetaTester, strategy: SyncAction<FileSystem.BetaGroup.EmailAddress>)? in
+                if case .create(let email) = strategy,
+                   let betatester = appTesters.first(where: { $0.email == email }) {
+                    return (betatester, strategy)
                 }
+                return nil
+            }
 
             try creatingTestersWithStrategy.forEach {
-
                 try service.inviteBetaTesterToGroups(
                     email: $0.tester.email,
                     groupId: betagroupId,
@@ -243,9 +230,9 @@ struct TestFlightPushCommand: CommonParsableCommand {
                     lastName: $0.tester.lastName
                 )
 
-                renderer.render($0.strategy, isDryRun: false)
-            }
+            $0.strategy.render(dryRun: dryRun)
         }
+
     }
 
 }
