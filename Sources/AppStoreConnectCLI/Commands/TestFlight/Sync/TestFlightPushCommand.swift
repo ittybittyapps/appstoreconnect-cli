@@ -189,7 +189,12 @@ struct TestFlightPushCommand: CommonParsableCommand {
         }
     }
 
-    func processBetagroupsActions(_ actions: [SyncAction<FileSystem.BetaGroup>], appId: String, appAction: inout AppSyncActions, service: AppStoreConnectService) throws {
+    func processBetagroupsActions(
+        _ actions: [SyncAction<FileSystem.BetaGroup>],
+        appId: String,
+        appAction: inout AppSyncActions,
+        service: AppStoreConnectService
+    ) throws {
         try actions.forEach { action in
             switch action {
             case .create(let betagroup):

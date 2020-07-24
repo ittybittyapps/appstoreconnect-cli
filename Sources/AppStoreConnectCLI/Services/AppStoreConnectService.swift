@@ -538,7 +538,7 @@ class AppStoreConnectService {
         )
         .execute(with: requestor)
         .await()
-        
+
         return FileSystem.BetaGroup(
             id: sdkGroup.id,
             groupName: (sdkGroup.attributes?.name)!,
