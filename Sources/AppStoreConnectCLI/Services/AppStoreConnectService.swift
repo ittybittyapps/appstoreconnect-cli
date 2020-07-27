@@ -539,17 +539,7 @@ class AppStoreConnectService {
         .execute(with: requestor)
         .await()
 
-        return FileSystem.BetaGroup(
-            id: sdkGroup.id,
-            groupName: (sdkGroup.attributes?.name)!,
-            isInternal: sdkGroup.attributes?.isInternalGroup,
-            publicLink: sdkGroup.attributes?.publicLink,
-            publicLinkEnabled: sdkGroup.attributes?.publicLinkEnabled,
-            publicLinkLimit: sdkGroup.attributes?.publicLinkLimit,
-            publicLinkLimitEnabled: sdkGroup.attributes?.publicLinkLimitEnabled,
-            creationDate: sdkGroup.attributes?.createdDate?.formattedDate,
-            testers: []
-        )
+        return FileSystem.BetaGroup(sdkGroup, testersEmails: [])
     }
 
     func updateBetaGroup(betaGroup: FileSystem.BetaGroup) throws {
@@ -985,50 +975,56 @@ class AppStoreConnectService {
             .await()
     }
 
+    func populateFileSystemBetaGroup(from sdkGroup: AppStoreConnect_Swift_SDK.BetaGroup) -> AnyPublisher<FileSystem.BetaGroup, Error> {
+        Just(sdkGroup)
+            .setFailureType(to: Error.self)
+            .combineLatest(
+                ListBetaTestersByGroupOperation(
+                    options: .init(groupId: sdkGroup.id)
+                )
+                .execute(with: requestor)
+            )
+            .map { (sdkGroup, testers) -> FileSystem.BetaGroup in
+                FileSystem.BetaGroup(
+                    sdkGroup,
+                    testersEmails: testers.compactMap { $0.attributes?.email }
+                )
+            }
+            .eraseToAnyPublisher()
+    }
+
     func pullTestFlightConfigurations() throws -> [TestFlightConfiguration] {
         let apps = try listApps(bundleIds: [], names: [], skus: [], limit: nil)
 
-        return try apps.map {
-            let testers: [FileSystem.BetaTester] = try ListBetaTestersOperation(
-                options: .init(appIds: [$0.id])
+        return try apps.map { (app: Model.App) -> TestFlightConfiguration in
+            let appTesters = try ListBetaTestersOperation(
+                options: .init(appIds: [app.id])
             )
-            .execute(with: requestor)
-            .await()
-            .map {
-                FileSystem.BetaTester(
-                    email: ($0.betaTester.attributes?.email)!,
-                    firstName: $0.betaTester.attributes?.firstName,
-                    lastName: $0.betaTester.attributes?.lastName
-                )
+            .execute(with: self.requestor)
+            .map { $0.compactMap { $0.betaTester } }
+
+            let fileSystemBetaGroups = ListBetaGroupsOperation(
+                options: .init(appIds: [app.id], names: [], sort: nil)
+            )
+            .execute(with: self.requestor)
+            .map { $0.compactMap { $0.betaGroup } }
+            .flatMap {
+                Publishers
+                    .MergeMany($0.compactMap { self.populateFileSystemBetaGroup(from: $0) })
+                    .collect()
+                    .eraseToAnyPublisher()
             }
 
-            let betagroups = try ListBetaGroupsOperation(
-                options: .init(appIds: [$0.id], names: [], sort: nil)
-            )
-            .execute(with: requestor)
-            .await()
-            .map { output -> FileSystem.BetaGroup in
-                let testersEmails = try ListBetaTestersOperation(
-                    options: .init(groupIds: [output.betaGroup.id])
-                )
-                .execute(with: requestor)
+            return try Publishers
+                .CombineLatest(appTesters, fileSystemBetaGroups)
+                .tryMap { (testers, groups) -> TestFlightConfiguration in
+                    TestFlightConfiguration(
+                        app: app,
+                        testers: testers.map { FileSystem.BetaTester($0) },
+                        betagroups: groups
+                    )
+                }
                 .await()
-                .compactMap { $0.betaTester.attributes?.email }
-
-                return FileSystem.BetaGroup(
-                    id: output.betaGroup.id,
-                    groupName: (output.betaGroup.attributes?.name)!,
-                    isInternal: output.betaGroup.attributes?.isInternalGroup,
-                    publicLink: output.betaGroup.attributes?.publicLink,
-                    publicLinkEnabled: output.betaGroup.attributes?.publicLinkEnabled,
-                    publicLinkLimit: output.betaGroup.attributes?.publicLinkLimit,
-                    publicLinkLimitEnabled: output.betaGroup.attributes?.publicLinkLimitEnabled,
-                    creationDate: output.betaGroup.attributes?.createdDate?.formattedDate,
-                    testers: testersEmails
-                )
-            }
-
-            return TestFlightConfiguration(app: $0, testers: testers, betagroups: betagroups)
         }
     }
 
