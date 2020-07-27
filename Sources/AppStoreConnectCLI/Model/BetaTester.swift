@@ -4,10 +4,10 @@ import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
 import FileSystem
-import struct Model.BetaTester
+import Model
 import SwiftyTextTable
 
-extension BetaTester {
+extension Model.BetaTester {
     init(_ output: GetBetaTesterOperation.Output) {
         let attributes = output.betaTester.attributes
         let relationships = output.betaTester.relationships
@@ -36,7 +36,7 @@ extension BetaTester {
     }
 }
 
-extension BetaTester: ResultRenderable, TableInfoProvider {
+extension Model.BetaTester: ResultRenderable, TableInfoProvider {
     static func tableColumns() -> [TextTableColumn] {
        return [
             TextTableColumn(header: "Email"),
@@ -70,6 +70,16 @@ extension FileSystem.BetaTester: SyncResourceProcessable {
         email
     }
 
+}
+
+extension FileSystem.BetaTester {
+    init(_ betaTester: AppStoreConnect_Swift_SDK.BetaTester) {
+        self.init(
+            email: (betaTester.attributes?.email)!,
+            firstName: betaTester.attributes?.firstName,
+            lastName: betaTester.attributes?.lastName
+        )
+    }
 }
 
 extension String: SyncResourceProcessable {

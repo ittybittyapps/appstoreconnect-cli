@@ -19,7 +19,7 @@ struct ListBetaTestersByGroupOperation: APIOperation {
         self.options = options
     }
 
-    func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<Output, Swift.Error> {
+    func execute(with requestor: EndpointRequestor) -> AnyPublisher<Output, Swift.Error> {
         requestor.requestAllPages {
             .betaTesters(inBetaGroupWithId: self.options.groupId, next: $0)
         }
