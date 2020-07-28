@@ -288,17 +288,12 @@ struct TestFlightPushCommand: CommonParsableCommand {
                 return nil
             }
 
-        try creatingTestersWithStrategy.forEach {
-            try service.inviteBetaTesterToGroups(
-                email: $0.tester.email,
-                groupId: betagroupId,
-                firstName: $0.tester.firstName,
-                lastName: $0.tester.lastName
-            )
+        try service.inviteTestersToGroup(
+            betaTesters: creatingTestersWithStrategy.map { $0.tester },
+            groupId: betagroupId
+        )
 
-            $0.strategy.render(dryRun: dryRun)
-        }
-
+        creatingTestersWithStrategy.forEach { $0.strategy.render(dryRun: dryRun) }
     }
 
 }

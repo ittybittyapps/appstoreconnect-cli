@@ -159,22 +159,24 @@ class AppStoreConnectService {
         return Model.BetaTester(output)
     }
 
-    func inviteBetaTesterToGroups(
-        email: String,
-        groupId: String,
-        firstName: String?,
-        lastName: String?
+    func inviteTestersToGroup(
+        betaTesters: [FileSystem.BetaTester],
+        groupId: String
     ) throws {
-        _ = try InviteTesterOperation(
-            options: .init(
-                firstName: firstName,
-                lastName: lastName,
-                email: email,
-                identifers: .resourceId([groupId])
-            )
+        _ = try Publishers.MergeMany(
+            betaTesters.map {
+                try InviteTesterOperation(
+                    options: .init(
+                        firstName: $0.firstName,
+                        lastName: $0.lastName,
+                        email: $0.email,
+                        identifers: .resourceId([groupId])
+                    )
+                )
+                .execute(with: requestor)
+            }
         )
-        .execute(with: requestor)
-        .await()
+        .awaitMany()
     }
 
     func addTestersToGroup(
