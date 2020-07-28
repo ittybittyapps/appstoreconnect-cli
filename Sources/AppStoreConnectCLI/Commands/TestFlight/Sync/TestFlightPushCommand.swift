@@ -21,18 +21,23 @@ struct TestFlightPushCommand: CommonParsableCommand {
     )
     var inputPath: String
 
+    @Option(
+        parsing: .upToNextOption,
+        help: "Array of bundle IDs that uniquely identifies the apps that you would like to sync."
+    )
+    var bundleIds: [String]
+
     @Flag(help: "Perform a dry run.")
     var dryRun: Bool
 
     func run() throws {
         let service = try makeService()
 
-        print("Loading local TestFlight configs... \n")
+        print("Loading local TestFlight configurations... \n")
+        let localConfigurations = try [TestFlightConfiguration](from: inputPath, with: bundleIds)
 
-        let localConfigurations = try [TestFlightConfiguration](from: inputPath)
-
-        print("Loading server TestFlight configs... \n")
-        let serverConfigurations = try service.pullTestFlightConfigurations()
+        print("Loading server TestFlight configurations... \n")
+        let serverConfigurations = try service.pullTestFlightConfigurations(with: bundleIds)
 
         let actions = compare(
             serverConfigurations: serverConfigurations,
@@ -44,7 +49,7 @@ struct TestFlightPushCommand: CommonParsableCommand {
         } else {
             try process(actions: actions, with: service)
 
-            print("Refreshing local configurations...")
+            print("\nRefreshing local configurations...")
             try service.pullTestFlightConfigurations().save(in: inputPath)
             print("Refreshing completed.")
         }
@@ -53,25 +58,43 @@ struct TestFlightPushCommand: CommonParsableCommand {
     func render(actions: [AppSyncActions]) {
         print("'Dry Run' mode activated, changes will not be applied. ")
 
-        actions.forEach {
-            print("\n\($0.app.name ?? ""): ")
+        actions.forEach { action in
+            if action.appTestersSyncActions.isNotEmpty ||
+                action.testerInGroupsAction.isNotEmpty ||
+                action.betaGroupSyncActions.isNotEmpty {
+                print("\n\(action.app.name ?? ""): ")
+            }
 
             // 1. app testers
-            if $0.appTestersSyncActions.isNotEmpty {
+            if action.appTestersSyncActions.isNotEmpty {
                 print("\n- Testers in App: ")
-                $0.appTestersSyncActions.forEach { $0.render(dryRun: dryRun) }
+                action.appTestersSyncActions.forEach { $0.render(dryRun: dryRun) }
             }
 
             // 2. BetaGroups in App
-            if $0.betaGroupSyncActions.isNotEmpty {
+            if action.betaGroupSyncActions.isNotEmpty {
                 print("\n- BetaGroups in App: ")
-                $0.betaGroupSyncActions.forEach { $0.render(dryRun: dryRun) }
+                action.betaGroupSyncActions.forEach {
+                    $0.render(dryRun: dryRun)
+
+                    if case .create(let betagroup) = $0 {
+                        action.testerInGroupsAction
+                            .append(
+                                .init(
+                                    betaGroup: betagroup,
+                                    testerActions: betagroup.testers.map {
+                                        SyncAction<FileSystem.BetaGroup.EmailAddress>.create($0)
+                                    }
+                                )
+                            )
+                    }
+                }
             }
 
             // 3. Testers in BetaGroup
-            if $0.testerInGroupsAction.isNotEmpty {
+            if action.testerInGroupsAction.isNotEmpty {
                 print("\n- Testers In Beta Group: ")
-                $0.testerInGroupsAction.forEach {
+                action.testerInGroupsAction.forEach {
                     if $0.testerActions.isNotEmpty {
                         print("\($0.betaGroup.groupName):")
                         $0.testerActions.forEach { $0.render(dryRun: dryRun) }
@@ -83,9 +106,14 @@ struct TestFlightPushCommand: CommonParsableCommand {
 
     private func process(actions: [AppSyncActions], with service: AppStoreConnectService) throws {
         try actions.forEach { appAction in
+            if appAction.appTestersSyncActions.isNotEmpty ||
+                appAction.testerInGroupsAction.isNotEmpty ||
+                appAction.betaGroupSyncActions.isNotEmpty {
+                print("\n\(appAction.app.name ?? ""): ")
+            }
+
             var appAction = appAction
 
-            print("\n\(appAction.app.name ?? ""): ")
             // 1. app testers
             if appAction.appTestersSyncActions.isNotEmpty {
                 print("\n- Testers in App: ")

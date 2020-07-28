@@ -76,4 +76,17 @@ extension Array where Element == TestFlightConfiguration {
             try TestFlightConfiguration(from: $0)
         }
     }
+
+    public init(from appsFolderPath: String, with buildIds: [String]) throws {
+        if buildIds.isEmpty {
+            try self.init(from: appsFolderPath)
+        } else {
+            self = try Folder(path: appsFolderPath).subfolders.compactMap {
+                if buildIds.contains($0.name) {
+                    return try TestFlightConfiguration(from: $0)
+                }
+                return nil
+            }
+        }
+    }
 }

@@ -993,8 +993,8 @@ class AppStoreConnectService {
             .eraseToAnyPublisher()
     }
 
-    func pullTestFlightConfigurations() throws -> [TestFlightConfiguration] {
-        let apps = try listApps(bundleIds: [], names: [], skus: [], limit: nil)
+    func pullTestFlightConfigurations(with bundleIds: [String] = []) throws -> [TestFlightConfiguration] {
+        let apps = try listApps(bundleIds: bundleIds, names: [], skus: [], limit: nil)
 
         return try apps.map { (app: Model.App) -> TestFlightConfiguration in
             let appTesters = try ListBetaTestersOperation(
