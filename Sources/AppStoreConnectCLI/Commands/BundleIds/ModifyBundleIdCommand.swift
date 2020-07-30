@@ -26,10 +26,7 @@ struct ModifyBundleIdCommand: CommonParsableCommand {
         let service = try makeService()
 
         let bundleId = try service
-            .bundleIdResourceId(matching: identifier)
-            .flatMap { service.request(APIEndpoint.modifyBundleId(id: $0, name: self.name)) }
-            .map(BundleId.init)
-            .await()
+            .modifyBundleIdInformation(bundleId: identifier, name: name)
 
         bundleId.render(format: common.outputFormat)
     }

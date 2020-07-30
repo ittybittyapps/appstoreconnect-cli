@@ -792,7 +792,7 @@ class AppStoreConnectService {
             .await()
     }
 
-    func modifyBundleIdInfomation(bundleId: String, name: String) throws -> Model.BundleId {
+    func modifyBundleIdInformation(bundleId: String, name: String) throws -> Model.BundleId {
         let id = try ReadBundleIdOperation(
             options: .init(bundleId: bundleId)
         )

@@ -20,9 +20,7 @@ struct DeleteBundleIdCommand: CommonParsableCommand {
 
     func run() throws {
         let service = try makeService()
-        let resourceId = try service.bundleIdResourceId(matching: identifier).await()
-        let deleteBundleId = APIEndpoint.delete(bundleWithId: resourceId)
 
-        try service.request(deleteBundleId).await()
+        try service.deleteBundleId(bundleId: identifier)
     }
 }
