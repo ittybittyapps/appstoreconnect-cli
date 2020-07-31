@@ -781,6 +781,44 @@ class AppStoreConnectService {
             .await()
     }
 
+    func readBundleIdInformation(
+        bundleId: String
+    ) throws -> Model.BundleId {
+        try ReadBundleIdOperation(
+                options: .init(bundleId: bundleId)
+            )
+            .execute(with: requestor)
+            .map(Model.BundleId.init)
+            .await()
+    }
+
+    func modifyBundleIdInformation(bundleId: String, name: String) throws -> Model.BundleId {
+        let id = try ReadBundleIdOperation(
+            options: .init(bundleId: bundleId)
+        )
+        .execute(with: requestor)
+        .await()
+        .id
+
+        return try ModifyBundleIdOperation(options: .init(resourceId: id, name: name))
+            .execute(with: requestor)
+            .map(Model.BundleId.init)
+            .await()
+    }
+
+    func deleteBundleId(bundleId: String) throws {
+        let id = try ReadBundleIdOperation(
+            options: .init(bundleId: bundleId)
+        )
+        .execute(with: requestor)
+        .await()
+        .id
+
+        try DeleteBundleIdOperation(options: .init(resourceId: id))
+            .execute(with: requestor)
+            .await()
+    }
+
     func enableBundleIdCapability(
         bundleId: String,
         capabilityType: CapabilityType

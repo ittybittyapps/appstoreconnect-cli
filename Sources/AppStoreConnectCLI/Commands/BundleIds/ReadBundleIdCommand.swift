@@ -21,11 +21,7 @@ struct ReadBundleIdCommand: CommonParsableCommand {
     func run() throws {
         let service = try makeService()
 
-        let bundleId = try service
-            .bundleIdResourceId(matching: identifier)
-            .flatMap { service.request(APIEndpoint.readBundleIdInformation(id: $0)) }
-            .map(BundleId.init)
-            .await()
+        let bundleId = try service.readBundleIdInformation(bundleId: identifier)
 
         bundleId.render(format: common.outputFormat)
     }
