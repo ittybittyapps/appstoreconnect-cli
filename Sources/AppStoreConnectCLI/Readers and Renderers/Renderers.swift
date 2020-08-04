@@ -113,3 +113,31 @@ extension ResultRenderable where Self: TableInfoProvider {
         return table.render()
     }
 }
+
+protocol SyncResultRenderable: Equatable {
+    var syncResultText: String { get }
+}
+
+struct SyncResultRenderer<T: SyncResultRenderable> {
+    func render(_ strategy: [SyncAction<T>], isDryRun: Bool) {
+        strategy.forEach { renderResultText($0, isDryRun) }
+    }
+
+    func render(_ strategy: SyncAction<T>, isDryRun: Bool) {
+        renderResultText(strategy, isDryRun)
+    }
+
+    private func renderResultText(_ strategy: SyncAction<T>, _ isDryRun: Bool) {
+        let resultText: String
+        switch strategy {
+        case .create(let input):
+            resultText = "➕ \(input.syncResultText)"
+        case .delete(let input):
+            resultText = "➖\(input.syncResultText)"
+        case .update(let input):
+            resultText = "⬆️ \(input.syncResultText)"
+        }
+
+        print("\(isDryRun ? "" : "✅") \(resultText)")
+    }
+}

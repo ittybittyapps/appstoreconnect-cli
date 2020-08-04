@@ -3,6 +3,7 @@
 import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
+import FileSystem
 import Model
 
 class AppStoreConnectService {
@@ -158,6 +159,29 @@ class AppStoreConnectService {
         return Model.BetaTester(output)
     }
 
+    func inviteTestersToGroup(
+        betaTesters: [FileSystem.BetaTester],
+        groupId: String
+    ) throws {
+        _ = try betaTesters
+            .chunked(into: 5)
+            .map {
+                try $0.map {
+                    try InviteTesterOperation(
+                        options: .init(
+                            firstName: $0.firstName,
+                            lastName: $0.lastName,
+                            email: $0.email,
+                            identifers: .resourceId([groupId])
+                        )
+                    )
+                    .execute(with: requestor)
+                }
+                .merge()
+                .awaitMany()
+            }
+    }
+
     func addTestersToGroup(
         bundleId: String,
         groupName: String,
@@ -181,6 +205,27 @@ class AppStoreConnectService {
             .execute(with: requestor)
             .await()
             .id
+
+        try AddTesterToGroupOperation(
+                options: .init(
+                    addStrategy: .addTestersToGroup(testerIds: testerIds, groupId: groupId)
+                )
+            )
+            .execute(with: requestor)
+            .await()
+    }
+
+    func addTestersToGroup(
+        groupId: String,
+        emails: [String]
+    ) throws {
+        let testerIds = try emails.map {
+            try GetBetaTesterOperation(options: .init(identifier: .email($0)))
+                .execute(with: requestor)
+                .await()
+                .betaTester
+                .id
+        }
 
         try AddTesterToGroupOperation(
                 options: .init(
@@ -401,6 +446,62 @@ class AppStoreConnectService {
         try operation.execute(with: requestor).await()
     }
 
+    func removeTestersFromGroup(emails: [String], groupId: String) throws {
+        let testerIds = try emails
+            .chunked(into: 5)
+            .flatMap {
+                try $0.map {
+                    try GetBetaTesterOperation(
+                        options: .init(identifier: .email($0))
+                    )
+                    .execute(with: requestor)
+                }
+                .merge()
+                .awaitMany()
+                .map { $0.betaTester.id }
+            }
+
+        let operation = RemoveTesterOperation(
+            options: .init(
+                removeStrategy: .removeTestersFromGroup(testerIds: testerIds, groupId: groupId)
+            )
+        )
+
+        try operation.execute(with: requestor).await()
+    }
+
+    func removeTestersFromApp(testersEmails: [String], appId: String) throws {
+        let testerIds = try testersEmails
+            .chunked(into: 5)
+            .flatMap {
+                try $0.map {
+                    try GetBetaTesterOperation(
+                        options: .init(
+                            identifier: .email($0),
+                            limitApps: nil,
+                            limitBuilds: nil,
+                            limitBetaGroups: nil
+                        )
+                    )
+                    .execute(with: requestor)
+                    .map { $0.betaTester.id }
+                }
+                .merge()
+                .awaitMany()
+            }
+
+        try RemoveTesterOperation(
+            options: .init(
+                removeStrategy: .removeTestersFromApp(
+                    testerIds: testerIds,
+                    appId: appId
+                )
+            )
+        )
+        .execute(with: requestor)
+        .await()
+    }
+
     func readBetaGroup(bundleId: String, groupName: String) throws -> Model.BetaGroup {
         let app = try ReadAppOperation(options: .init(identifier: .bundleId(bundleId)))
             .execute(with: requestor)
@@ -436,6 +537,32 @@ class AppStoreConnectService {
         return try betaGroupResponse.map(Model.BetaGroup.init).await()
     }
 
+    func createBetaGroup(
+        appId: String,
+        groupName: String,
+        publicLinkEnabled: Bool,
+        publicLinkLimit: Int?
+    ) throws -> FileSystem.BetaGroup {
+        let sdkGroup = try CreateBetaGroupWithAppIdOperation(
+            options: .init(
+                appId: appId,
+                groupName: groupName,
+                publicLinkEnabled: publicLinkEnabled,
+                publicLinkLimit: publicLinkLimit
+            )
+        )
+        .execute(with: requestor)
+        .await()
+
+        return FileSystem.BetaGroup(sdkGroup, testersEmails: [])
+    }
+
+    func updateBetaGroup(betaGroup: FileSystem.BetaGroup) throws {
+        _ = try UpdateBetaGroupOperation(options: .init(betaGroup: betaGroup))
+            .execute(with: requestor)
+            .await()
+    }
+
     func deleteBetaGroup(appBundleId: String, betaGroupName: String) throws {
         let appId = try GetAppsOperation(options: .init(bundleIds: [appBundleId]))
             .execute(with: requestor)
@@ -450,6 +577,12 @@ class AppStoreConnectService {
             .await()
 
         try DeleteBetaGroupOperation(options: .init(betaGroupId: betaGroup.id))
+            .execute(with: requestor)
+            .await()
+    }
+
+    func deleteBetaGroup(with id: String) throws {
+        try DeleteBetaGroupOperation(options: .init(betaGroupId: id))
             .execute(with: requestor)
             .await()
     }
@@ -893,6 +1026,58 @@ class AppStoreConnectService {
             )
             .execute(with: requestor)
             .await()
+    }
+
+    func populateFileSystemBetaGroup(from sdkGroup: AppStoreConnect_Swift_SDK.BetaGroup) -> AnyPublisher<FileSystem.BetaGroup, Error> {
+        Just(sdkGroup)
+            .setFailureType(to: Error.self)
+            .combineLatest(
+                ListBetaTestersByGroupOperation(
+                    options: .init(groupId: sdkGroup.id)
+                )
+                .execute(with: requestor)
+            )
+            .map { (sdkGroup, testers) -> FileSystem.BetaGroup in
+                FileSystem.BetaGroup(
+                    sdkGroup,
+                    testersEmails: testers.compactMap { $0.attributes?.email }
+                )
+            }
+            .eraseToAnyPublisher()
+    }
+
+    func pullTestFlightConfigurations(with bundleIds: [String] = []) throws -> [TestFlightConfiguration] {
+        let apps = try listApps(bundleIds: bundleIds, names: [], skus: [], limit: nil)
+
+        let configurations: [TestFlightConfiguration] = try apps.map { app in
+            let appTesters = try ListBetaTestersOperation(
+                options: .init(appIds: [app.id])
+            )
+            .execute(with: self.requestor)
+            .map { $0.compactMap { $0.betaTester } }
+            .await()
+
+            let fileSystemBetaGroups = try ListBetaGroupsOperation(
+                options: .init(appIds: [app.id], names: [], sort: nil)
+            )
+            .execute(with: self.requestor)
+            .await()
+            .map { $0.betaGroup }
+            .chunked(into: 5)
+            .flatMap {
+                try $0.map(self.populateFileSystemBetaGroup)
+                    .merge()
+                    .awaitMany()
+            }
+
+            return TestFlightConfiguration(
+                app: app,
+                testers: [FileSystem.BetaTester](appTesters),
+                betagroups: fileSystemBetaGroups
+            )
+        }
+
+        return configurations
     }
 
     /// Make a request for something `Decodable`.
