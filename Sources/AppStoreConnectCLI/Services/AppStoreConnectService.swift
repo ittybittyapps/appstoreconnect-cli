@@ -1007,7 +1007,7 @@ class AppStoreConnectService {
     func pullTestFlightConfigurations(with bundleIds: [String] = []) throws -> [TestFlightConfiguration] {
         let apps = try listApps(bundleIds: bundleIds, names: [], skus: [], limit: nil)
 
-        return try apps.map { (app: Model.App) -> TestFlightConfiguration in
+        let configurations: [TestFlightConfiguration] = try apps.map { app in
             let appTesters = try ListBetaTestersOperation(
                 options: .init(appIds: [app.id])
             )
@@ -1034,6 +1034,8 @@ class AppStoreConnectService {
                 betagroups: fileSystemBetaGroups
             )
         }
+
+        return configurations
     }
 
     /// Make a request for something `Decodable`.

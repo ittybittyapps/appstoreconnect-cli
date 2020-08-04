@@ -1,7 +1,9 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
 import ArgumentParser
-import FileSystem
+import struct FileSystem.TestFlightConfiguration
+import struct FileSystem.BetaGroup
+import struct FileSystem.BetaTester
 import Foundation
 import Model
 
@@ -33,11 +35,13 @@ struct TestFlightPushCommand: CommonParsableCommand {
     func run() throws {
         let service = try makeService()
 
-        print("Loading local TestFlight configurations... \n")
+        print("Loading local TestFlight configurations...")
         let localConfigurations = try [TestFlightConfiguration](from: inputPath, with: bundleIds)
+        print("Loading completed.")
 
-        print("Loading server TestFlight configurations... \n")
+        print("\nLoading server TestFlight configurations...")
         let serverConfigurations = try service.pullTestFlightConfigurations(with: bundleIds)
+        print("Loading completed.")
 
         let actions = compare(
             serverConfigurations: serverConfigurations,
@@ -56,14 +60,10 @@ struct TestFlightPushCommand: CommonParsableCommand {
     }
 
     func render(actions: [AppSyncActions]) {
-        print("'Dry Run' mode activated, changes will not be applied. ")
+        print("\n'Dry Run' mode activated, changes will not be applied. ")
 
         actions.forEach { action in
-            if action.appTestersSyncActions.isNotEmpty ||
-                action.testerInGroupsAction.isNotEmpty ||
-                action.betaGroupSyncActions.isNotEmpty {
-                print("\n\(action.app.name ?? ""): ")
-            }
+            print("\n\(action.app.name ?? ""): ")
 
             // 1. app testers
             if action.appTestersSyncActions.isNotEmpty {
@@ -83,7 +83,7 @@ struct TestFlightPushCommand: CommonParsableCommand {
                                 .init(
                                     betaGroup: betagroup,
                                     testerActions: betagroup.testers.map {
-                                        SyncAction<FileSystem.BetaGroup.EmailAddress>.create($0)
+                                        SyncAction<BetaGroup.EmailAddress>.create($0)
                                     }
                                 )
                             )
@@ -106,39 +106,30 @@ struct TestFlightPushCommand: CommonParsableCommand {
 
     private func process(actions: [AppSyncActions], with service: AppStoreConnectService) throws {
         try actions.forEach { appAction in
-            if appAction.appTestersSyncActions.isNotEmpty ||
-                appAction.testerInGroupsAction.isNotEmpty ||
-                appAction.betaGroupSyncActions.isNotEmpty {
-                print("\n\(appAction.app.name ?? ""): ")
-            }
+            print("\n\(appAction.app.name ?? ""): ")
 
             var appAction = appAction
 
             // 1. app testers
-            if appAction.appTestersSyncActions.isNotEmpty {
-                print("\n- Testers in App: ")
-                try processAppTesterActions(
-                    appAction.appTestersSyncActions,
-                    appId: appAction.app.id,
-                    service: service
-                )
-            }
+            try processAppTesterActions(
+                appAction.appTestersSyncActions,
+                appId: appAction.app.id,
+                service: service
+            )
 
             // 2. beta groups in app
-            if appAction.betaGroupSyncActions.isNotEmpty {
-                print("\n- BetaGroups in App: ")
-                try processBetagroupsActions(
-                    appAction.betaGroupSyncActions,
-                    appId: appAction.app.id,
-                    appAction: &appAction,
-                    service: service
-                )
-            }
+            try processBetagroupsActions(
+                appAction.betaGroupSyncActions,
+                appId: appAction.app.id,
+                appAction: &appAction,
+                service: service
+            )
 
             // 3. testers in beta group
             if appAction.testerInGroupsAction.isNotEmpty {
                 print("\n- Testers In Beta Group: ")
                 try appAction.testerInGroupsAction.forEach {
+                    print("\($0.betaGroup.groupName): ")
                     try processTestersInBetaGroupActions(
                         $0.testerActions,
                         betagroupId: $0.betaGroup.id!,
@@ -195,6 +186,12 @@ struct TestFlightPushCommand: CommonParsableCommand {
                 )
             }
 
+            guard appTesterSyncActions.isNotEmpty ||
+                    betaGroupSyncActions.isNotEmpty ||
+                    testerInGroupsAction.isNotEmpty else {
+                return nil
+            }
+
             return AppSyncActions(
                 app: localConfiguration.app,
                 appTesters: localConfiguration.testers,
@@ -205,82 +202,96 @@ struct TestFlightPushCommand: CommonParsableCommand {
         }
     }
 
-    func processAppTesterActions(_ actions: [SyncAction<FileSystem.BetaTester>], appId: String, service: AppStoreConnectService) throws {
-        try actions.forEach { action in
-            switch action {
-            case .delete(let betatester):
-                try service.removeTesterFromApp(testerEmail: betatester.email, appId: appId)
-                action.render(dryRun: dryRun)
-            default:
-                return
+    func processAppTesterActions(
+        _ actions: [SyncAction<BetaTester>],
+        appId: String,
+        service: AppStoreConnectService
+    ) throws {
+        let testersToRemoveActionsWithEmails = actions.compactMap { action ->
+            (action: SyncAction<BetaTester>, email: String)? in
+            if case .delete(let betaTesters) = action {
+                return (action, betaTesters.email)
             }
+            return nil
+        }
+
+        if testersToRemoveActionsWithEmails.isNotEmpty {
+            print("\n- Testers in App: ")
+            try service.removeTestersFromApp(testersEmails: testersToRemoveActionsWithEmails.map { $0.email }, appId: appId)
+
+            testersToRemoveActionsWithEmails.map { $0.action }.forEach { $0.render(dryRun: dryRun) }
         }
     }
 
     func processBetagroupsActions(
-        _ actions: [SyncAction<FileSystem.BetaGroup>],
+        _ actions: [SyncAction<BetaGroup>],
         appId: String,
         appAction: inout AppSyncActions,
         service: AppStoreConnectService
     ) throws {
-        try actions.forEach { action in
-            switch action {
-            case .create(let betagroup):
-                let newCreatedBetaGroup = try service.createBetaGroup(
-                    appId: appId,
-                    groupName: betagroup.groupName,
-                    publicLinkEnabled: betagroup.publicLinkEnabled ?? false,
-                    publicLinkLimit: betagroup.publicLinkLimit
-                )
-                action.render(dryRun: dryRun)
+        if actions.isNotEmpty {
+            print("\n- BetaGroups in App: ")
 
-                if betagroup.testers.isNotEmpty {
-                    appAction.testerInGroupsAction
-                        .append(
-                            .init(
-                                betaGroup: newCreatedBetaGroup,
-                                testerActions: betagroup.testers.map {
-                                    SyncAction<FileSystem.BetaGroup.EmailAddress>.create($0)
-                                }
+            try actions.forEach { action in
+                switch action {
+                case .create(let betagroup):
+                    let newCreatedBetaGroup = try service.createBetaGroup(
+                        appId: appId,
+                        groupName: betagroup.groupName,
+                        publicLinkEnabled: betagroup.publicLinkEnabled ?? false,
+                        publicLinkLimit: betagroup.publicLinkLimit
+                    )
+                    action.render(dryRun: dryRun)
+
+                    if betagroup.testers.isNotEmpty {
+                        appAction.testerInGroupsAction
+                            .append(
+                                .init(
+                                    betaGroup: newCreatedBetaGroup,
+                                    testerActions: betagroup.testers.map {
+                                        SyncAction<BetaGroup.EmailAddress>.create($0)
+                                    }
+                                )
                             )
-                        )
-                }
+                    }
 
-            case .delete(let betagroup):
-                try service.deleteBetaGroup(with: betagroup.id!)
-                action.render(dryRun: dryRun)
-            case .update(let betagroup):
-                try service.updateBetaGroup(betaGroup: betagroup)
-                action.render(dryRun: dryRun)
+                case .delete(let betagroup):
+                    try service.deleteBetaGroup(with: betagroup.id!)
+                    action.render(dryRun: dryRun)
+                case .update(let betagroup):
+                    try service.updateBetaGroup(betaGroup: betagroup)
+                    action.render(dryRun: dryRun)
+                }
             }
         }
     }
 
     func processTestersInBetaGroupActions(
-        _ actions: [SyncAction<FileSystem.BetaGroup.EmailAddress>],
+        _ actions: [SyncAction<BetaGroup.EmailAddress>],
         betagroupId: String,
-        appTesters: [FileSystem.BetaTester],
+        appTesters: [BetaTester],
         service: AppStoreConnectService
     ) throws {
-        let deletingEmailsWithStrategy = actions
-            .compactMap { (action: SyncAction<FileSystem.BetaGroup.EmailAddress>) ->
-                (email: String, strategy: SyncAction<FileSystem.BetaGroup.EmailAddress>)? in
+        let deletingEmailsWithStrategy: [(email: String, strategy: SyncAction<BetaGroup.EmailAddress>)] = actions
+            .compactMap { action in
                 if case .delete(let email) = action {
                     return (email, action)
                 }
                 return nil
             }
 
-        try service.removeTestersFromGroup(
-            emails: deletingEmailsWithStrategy.map { $0.email },
-            groupId: betagroupId
-        )
+        if deletingEmailsWithStrategy.isNotEmpty {
+            try service.removeTestersFromGroup(
+                emails: deletingEmailsWithStrategy.map { $0.email },
+                groupId: betagroupId
+            )
 
-        deletingEmailsWithStrategy.forEach { $0.strategy.render(dryRun: dryRun) }
+            deletingEmailsWithStrategy.forEach { $0.strategy.render(dryRun: dryRun) }
+        }
 
         let creatingTestersWithStrategy = actions
-            .compactMap { (strategy: SyncAction<FileSystem.BetaGroup.EmailAddress>) ->
-                (tester: FileSystem.BetaTester, strategy: SyncAction<FileSystem.BetaGroup.EmailAddress>)? in
+            .compactMap { (strategy: SyncAction<BetaGroup.EmailAddress>) ->
+                (tester: BetaTester, strategy: SyncAction<BetaGroup.EmailAddress>)? in
                 if case .create(let email) = strategy,
                    let betatester = appTesters.first(where: { $0.email == email }) {
                     return (betatester, strategy)
@@ -288,12 +299,14 @@ struct TestFlightPushCommand: CommonParsableCommand {
                 return nil
             }
 
-        try service.inviteTestersToGroup(
-            betaTesters: creatingTestersWithStrategy.map { $0.tester },
-            groupId: betagroupId
-        )
+        if creatingTestersWithStrategy.isNotEmpty {
+            try service.inviteTestersToGroup(
+                betaTesters: creatingTestersWithStrategy.map { $0.tester },
+                groupId: betagroupId
+            )
 
-        creatingTestersWithStrategy.forEach { $0.strategy.render(dryRun: dryRun) }
+            creatingTestersWithStrategy.forEach { $0.strategy.render(dryRun: dryRun) }
+        }
     }
 
 }

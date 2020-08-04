@@ -22,9 +22,13 @@ struct TestFlightPullCommand: CommonParsableCommand {
     func run() throws {
         let service = try makeService()
 
+        print("Loading server TestFlight configurations... \n")
         let configs = try service.pullTestFlightConfigurations()
+        print("Loading completed.")
 
+        print("\nRefreshing local configurations...")
         try configs.save(in: outputPath)
+        print("Refreshing completed.")
     }
 
 }
