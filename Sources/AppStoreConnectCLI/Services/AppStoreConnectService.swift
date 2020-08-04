@@ -447,15 +447,19 @@ class AppStoreConnectService {
     }
 
     func removeTestersFromGroup(emails: [String], groupId: String) throws {
-        let testerIds = try emails.map {
-            try GetBetaTesterOperation(
-                    options: .init(identifier: .email($0))
-                )
-                .execute(with: requestor)
-                .await()
-                .betaTester
-                .id
-        }
+        let testerIds = try emails
+            .chunked(into: 5)
+            .flatMap {
+                try $0.map {
+                    try GetBetaTesterOperation(
+                        options: .init(identifier: .email($0))
+                    )
+                    .execute(with: requestor)
+                }
+                .merge()
+                .awaitMany()
+                .map { $0.betaTester.id }
+            }
 
         let operation = RemoveTesterOperation(
             options: .init(
