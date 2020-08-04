@@ -83,11 +83,27 @@ struct ListBetaTestersOperation: APIOperation {
 
     func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<Output, Swift.Error> {
         let filters = self.filters
-        let limits = self.limits
+        var limits = self.limits
         let sorts = self.sorts
         let includes: [ListBetaTesters.Include] = [.apps, .betaGroups]
 
-        return requestor.requestAllPages {
+        if options.limit != nil {
+            return requestor.request(
+                .betaTesters(
+                    filter: filters,
+                    include: includes,
+                    limit: self.limits,
+                    sort: sorts
+                )
+            )
+            .map { (response: BetaTestersResponse) -> Output in
+                return response.data.map { .init(betaTester: $0, includes: response.included) }
+            }
+            .eraseToAnyPublisher()
+        } else {
+            limits.append(.betaTesters(200))
+
+            return requestor.requestAllPages {
                 .betaTesters(
                     filter: filters,
                     include: includes,
@@ -104,6 +120,7 @@ struct ListBetaTestersOperation: APIOperation {
                 }
             }
             .eraseToAnyPublisher()
+        }
     }
 
 }

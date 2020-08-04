@@ -21,7 +21,7 @@ struct ListBetaTestersByGroupOperation: APIOperation {
 
     func execute(with requestor: EndpointRequestor) -> AnyPublisher<Output, Swift.Error> {
         requestor.requestAllPages {
-            .betaTesters(inBetaGroupWithId: self.options.groupId, next: $0)
+            .betaTesters(inBetaGroupWithId: self.options.groupId, limit: 200, next: $0)
         }
         .map { $0.flatMap(\.data) }
         .eraseToAnyPublisher()
