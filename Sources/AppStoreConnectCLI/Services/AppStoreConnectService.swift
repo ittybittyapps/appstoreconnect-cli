@@ -163,20 +163,23 @@ class AppStoreConnectService {
         betaTesters: [FileSystem.BetaTester],
         groupId: String
     ) throws {
-        _ = try Publishers.MergeMany(
-            betaTesters.map {
-                try InviteTesterOperation(
-                    options: .init(
-                        firstName: $0.firstName,
-                        lastName: $0.lastName,
-                        email: $0.email,
-                        identifers: .resourceId([groupId])
+        _ = try betaTesters
+            .chunked(into: 5)
+            .map {
+                try $0.map {
+                    try InviteTesterOperation(
+                        options: .init(
+                            firstName: $0.firstName,
+                            lastName: $0.lastName,
+                            email: $0.email,
+                            identifers: .resourceId([groupId])
+                        )
                     )
-                )
-                .execute(with: requestor)
+                    .execute(with: requestor)
+                }
+                .merge()
+                .awaitMany()
             }
-        )
-        .awaitMany()
     }
 
     func addTestersToGroup(
@@ -463,24 +466,30 @@ class AppStoreConnectService {
         try operation.execute(with: requestor).await()
     }
 
-    func removeTesterFromApp(testerEmail: String, appId: String) throws {
-        let testerId = try GetBetaTesterOperation(
-            options: .init(
-                identifier: .email(testerEmail),
-                limitApps: nil,
-                limitBuilds: nil,
-                limitBetaGroups: nil
-            )
-        )
-        .execute(with: requestor)
-        .await()
-        .betaTester
-        .id
+    func removeTestersFromApp(testersEmails: [String], appId: String) throws {
+        let testerIds = try testersEmails
+            .chunked(into: 5)
+            .flatMap {
+                try $0.map {
+                    try GetBetaTesterOperation(
+                        options: .init(
+                            identifier: .email($0),
+                            limitApps: nil,
+                            limitBuilds: nil,
+                            limitBetaGroups: nil
+                        )
+                    )
+                    .execute(with: requestor)
+                    .map { $0.betaTester.id }
+                }
+                .merge()
+                .awaitMany()
+            }
 
         try RemoveTesterOperation(
             options: .init(
                 removeStrategy: .removeTestersFromApp(
-                    testerId: testerId,
+                    testerIds: testerIds,
                     appId: appId
                 )
             )
@@ -1004,29 +1013,26 @@ class AppStoreConnectService {
             )
             .execute(with: self.requestor)
             .map { $0.compactMap { $0.betaTester } }
+            .await()
 
-            let fileSystemBetaGroups = ListBetaGroupsOperation(
+            let fileSystemBetaGroups = try ListBetaGroupsOperation(
                 options: .init(appIds: [app.id], names: [], sort: nil)
             )
             .execute(with: self.requestor)
-            .map { $0.compactMap { $0.betaGroup } }
+            .await()
+            .map { $0.betaGroup }
+            .chunked(into: 5)
             .flatMap {
-                Publishers
-                    .MergeMany($0.compactMap { self.populateFileSystemBetaGroup(from: $0) })
-                    .collect()
-                    .eraseToAnyPublisher()
+                try $0.map(self.populateFileSystemBetaGroup)
+                    .merge()
+                    .awaitMany()
             }
 
-            return try Publishers
-                .CombineLatest(appTesters, fileSystemBetaGroups)
-                .tryMap { (testers, groups) -> TestFlightConfiguration in
-                    TestFlightConfiguration(
-                        app: app,
-                        testers: testers.map { FileSystem.BetaTester($0) },
-                        betagroups: groups
-                    )
-                }
-                .await()
+            return TestFlightConfiguration(
+                app: app,
+                testers: [FileSystem.BetaTester](appTesters),
+                betagroups: fileSystemBetaGroups
+            )
         }
     }
 

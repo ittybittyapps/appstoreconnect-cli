@@ -91,3 +91,9 @@ extension String: SyncResourceProcessable {
         self
     }
 }
+
+extension Array where Element == FileSystem.BetaTester {
+    init(_ sdkBetaTesters: [AppStoreConnect_Swift_SDK.BetaTester]) {
+        self = sdkBetaTesters.map { FileSystem.BetaTester($0) }
+    }
+}

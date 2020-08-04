@@ -72,3 +72,9 @@ extension Publisher {
         }
     }
 }
+
+extension Sequence where Element: Publisher {
+    func merge() -> Publishers.MergeMany<Element> {
+        Publishers.MergeMany(self)
+    }
+}
