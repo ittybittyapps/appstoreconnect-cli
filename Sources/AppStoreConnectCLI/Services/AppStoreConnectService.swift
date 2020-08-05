@@ -55,22 +55,34 @@ class AppStoreConnectService {
         sort: ListUsers.Sort?,
         filterUsername: [String],
         filterRole: [UserRole],
-        filterVisibleApps: [String],
+        filterVisibleApps: [AppLookupIdentifier],
         includeVisibleApps: Bool
     ) throws -> [Model.User] {
-        try ListUsersOperation(
-                options: .init(
-                    limitVisibleApps: limitVisibleApps,
-                    limitUsers: limitUsers,
-                    sort: sort,
-                    filterUsername: filterUsername,
-                    filterRole: filterRole,
-                    filterVisibleApps: filterVisibleApps,
-                    includeVisibleApps: includeVisibleApps
-                )
+        let appIds = try filterVisibleApps.map { identifier -> String in
+            switch identifier {
+            case .appId(let appid):
+                return appid
+            case .bundleId(let bundleId):
+                return try ReadAppOperation(options: .init(identifier: .bundleId(bundleId)))
+                    .execute(with: requestor)
+                    .await()
+                    .id
+            }
+        }
+
+        return try ListUsersOperation(
+            options: .init(
+                limitVisibleApps: limitVisibleApps,
+                limitUsers: limitUsers,
+                sort: sort,
+                filterUsername: filterUsername,
+                filterRole: filterRole,
+                filterVisibleApps: appIds,
+                includeVisibleApps: includeVisibleApps
             )
-            .execute(with: requestor)
-            .await()
+        )
+        .execute(with: requestor)
+        .await()
     }
 
     func getUserInfo(with email: String) throws -> Model.User {
