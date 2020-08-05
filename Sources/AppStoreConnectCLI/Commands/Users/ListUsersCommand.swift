@@ -42,10 +42,15 @@ public struct ListUsersCommand: CommonParsableCommand {
 
     @Option(
         parsing: .upToNextOption,
-        help: ArgumentHelp(stringLiteral: "Filter the results by the app(s) visible to each user.\nUsers with access to all apps will always be included."),
-        transform: { $0.lowercased() }
+        help: ArgumentHelp(discussion:
+            """
+            Filter the results by the app(s) resources ids or bundle ids visible to each user.
+            Users with access to all apps will always be included.
+            """
+        ),
+        transform: AppLookupIdentifier.init
     )
-    var filterVisibleApps: [String]
+    var filterVisibleApps: [AppLookupIdentifier]
 
     @Flag(help: "Include visible apps in results.")
     var includeVisibleApps: Bool
