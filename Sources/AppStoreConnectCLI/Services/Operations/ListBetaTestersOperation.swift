@@ -94,7 +94,7 @@ struct ListBetaTestersOperation: APIOperation {
 
     func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<Output, Swift.Error> {
         let filters = self.filters
-        let limits = self.limits
+        let limits = self.limits.nilIfEmpty()
         let sorts = self.sorts
         let includes: [ListBetaTesters.Include] = [.apps, .betaGroups]
 

@@ -27,7 +27,7 @@ struct ListProfilesOperation: APIOperation {
         if options.filterProfileType.isNotEmpty { filters.append(.profileType(options.filterProfileType)) }
         if let filterProfileState = options.filterProfileState { filters.append(.profileState([filterProfileState])) }
 
-        let limits: [Profiles.Limit] = options.limit != nil ? [.profiles(options.limit!)] : []
+        let limits: [Profiles.Limit]? = options.limit != nil ? [.profiles(options.limit!)] : nil
 
         let sort = [options.sort].compactMap { $0 }
 
