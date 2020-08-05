@@ -13,6 +13,9 @@ struct ListProfilesCommand: CommonParsableCommand {
     @OptionGroup()
     var common: CommonOptions
 
+    @Argument(help: "The resource id of the profile.")
+    var id: String?
+
     @Option(help: "Limit the number of profiles to return (maximum 200).")
     var limit: Int?
 
@@ -66,6 +69,7 @@ struct ListProfilesCommand: CommonParsableCommand {
         let service = try makeService()
 
         let profiles = try service.listProfiles(
+            id: id,
             filterName: filterName,
             filterProfileState: filterProfileState,
             filterProfileType: filterProfileType,

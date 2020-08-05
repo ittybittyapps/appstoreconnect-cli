@@ -6,6 +6,7 @@ import Combine
 struct ListProfilesOperation: APIOperation {
 
     struct Options {
+        let id: String?
         let filterName: [String]
         let filterProfileState: ProfileState?
         let filterProfileType: [ProfileType]
@@ -26,6 +27,7 @@ struct ListProfilesOperation: APIOperation {
         if options.filterName.isNotEmpty { filters.append(.name(options.filterName)) }
         if options.filterProfileType.isNotEmpty { filters.append(.profileType(options.filterProfileType)) }
         if let filterProfileState = options.filterProfileState { filters.append(.profileState([filterProfileState])) }
+        if let id = options.id { filters.append(.id([id])) }
 
         let limits: [Profiles.Limit]? = options.limit != nil ? [.profiles(options.limit!)] : nil
 
