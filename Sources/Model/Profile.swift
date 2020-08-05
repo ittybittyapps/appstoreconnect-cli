@@ -3,6 +3,7 @@
 import Foundation
 
 public struct Profile: Codable, Equatable {
+    public let id: String?
     public let name: String?
     public let platform: String?
     public let profileContent: String?
@@ -13,6 +14,7 @@ public struct Profile: Codable, Equatable {
     public let expirationDate: Date?
 
     public init(
+        id: String?,
         name: String?,
         platform: String?,
         profileContent: String?,
@@ -22,6 +24,7 @@ public struct Profile: Codable, Equatable {
         profileType: String?,
         expirationDate: Date?
     ) {
+        self.id = id
         self.name = name
         self.platform = platform
         self.profileContent = profileContent
@@ -30,6 +33,5 @@ public struct Profile: Codable, Equatable {
         self.profileState = profileState
         self.profileType = profileType
         self.expirationDate = expirationDate
-
     }
 }
