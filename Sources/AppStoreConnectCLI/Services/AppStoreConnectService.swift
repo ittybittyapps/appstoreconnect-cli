@@ -696,6 +696,22 @@ class AppStoreConnectService {
             .map(Device.init)
     }
 
+    func listProfilesByBundleId(_ bundleId: String, limit: Int?) throws -> [Model.Profile] {
+        let bundleIdResourceId = try ReadBundleIdOperation(
+            options: .init(bundleId: bundleId)
+        )
+            .execute(with: requestor)
+            .await()
+            .id
+
+        return try ListProfilesByBundleIdOperation(
+            options: .init(bundleId: bundleIdResourceId, limit: limit)
+        )
+            .execute(with: requestor)
+            .await()
+            .map(Model.Profile.init)
+    }
+
     func listProfiles(
         filterName: [String],
         filterProfileState: ProfileState?,
