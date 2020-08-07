@@ -38,10 +38,6 @@ struct CreateProfileCommand: CommonParsableCommand {
         if certificatesSerialNumbers.isEmpty {
             throw ValidationError("Expected at least one certificate serial number.")
         }
-
-        if devicesUdids.isEmpty {
-            throw ValidationError("Expected at least one device udid.")
-        }
     }
 
     func run() throws {
