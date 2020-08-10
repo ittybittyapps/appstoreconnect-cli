@@ -85,8 +85,15 @@ class AppStoreConnectService {
         .await()
     }
 
-    func getUserInfo(with email: String) throws -> Model.User {
-        try GetUserInfoOperation(options: .init(email: email)).execute(with: requestor).await()
+    func getUserInfo(with email: String, includeVisibleApps: Bool) throws -> Model.User {
+        try GetUserInfoOperation(
+            options: .init(
+                email: email,
+                includeVisibleApps: includeVisibleApps
+            )
+        )
+        .execute(with: requestor)
+        .await()
     }
 
     func listCertificates(
