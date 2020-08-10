@@ -17,7 +17,7 @@ final class GetUserInfoOperationTests: XCTestCase {
 
     func testCouldNotFindUserError() {
         let email = "bob@bob.com"
-        let options = Options(email: email)
+        let options = Options(email: email, includeVisibleApps: false)
         let operation = GetUserInfoOperation(options: options)
 
         let result = Result {
