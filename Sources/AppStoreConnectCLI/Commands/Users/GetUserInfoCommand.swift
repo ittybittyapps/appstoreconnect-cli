@@ -15,10 +15,16 @@ struct GetUserInfoCommand: CommonParsableCommand {
     @Argument(help: "The email of the user to find.")
     var email: String
 
+    @Flag(help: "Include visible apps in results.")
+    var includeVisibleApps: Bool
+
     func run() throws {
         let service = try makeService()
 
-        let user = try service.getUserInfo(with: email)
+        let user = try service.getUserInfo(
+            with: email,
+            includeVisibleApps: includeVisibleApps
+        )
 
         user.render(format: common.outputFormat)
     }
