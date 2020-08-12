@@ -712,7 +712,7 @@ class AppStoreConnectService {
             .id
 
         return try ListProfilesByBundleIdOperation(
-            options: .init(bundleId: bundleIdResourceId, limit: limit)
+            options: .init(bundleIdResourceId: bundleIdResourceId, limit: limit)
         )
             .execute(with: requestor)
             .await()
