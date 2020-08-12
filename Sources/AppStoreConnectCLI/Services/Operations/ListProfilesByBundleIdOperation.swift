@@ -6,7 +6,7 @@ import Combine
 struct ListProfilesByBundleIdOperation: APIOperation {
 
     struct Options {
-        let bundleId: String
+        let bundleIdResourceId: String
         let limit: Int?
     }
 
@@ -19,7 +19,7 @@ struct ListProfilesByBundleIdOperation: APIOperation {
     func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<[Profile], Error> {
 
         let endpoint: APIEndpoint<ProfilesResponse> = .listAllProfilesForBundleId(
-            id: options.bundleId,
+            id: options.bundleIdResourceId,
             limit: options.limit
         )
 
