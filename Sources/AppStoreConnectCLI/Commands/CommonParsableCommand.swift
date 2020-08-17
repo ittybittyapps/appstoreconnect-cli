@@ -23,6 +23,6 @@ struct CommonOptions: ParsableArguments {
     @Flag(default: .table, help: "Display results in specified format.")
     var outputFormat: OutputFormat
 
-    @Flag(name: .shortAndLong, help: "Show less messages in stdout")
+    @Flag(name: .shortAndLong, help: "Display less messaging in standard output.")
     var quiet: Bool
 }
