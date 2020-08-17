@@ -31,7 +31,7 @@ struct SyncUsersCommand: CommonParsableCommand {
     var dryRun: Bool
 
     func run() throws {
-        if dryRun {
+        if dryRun, common.quiet == false {
             print("## Dry run ##")
         }
 

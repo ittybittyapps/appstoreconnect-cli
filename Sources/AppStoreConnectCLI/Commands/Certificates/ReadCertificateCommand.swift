@@ -28,7 +28,9 @@ struct ReadCertificateCommand: CommonParsableCommand {
 
             let file = try fileProcessor.write(certificate)
 
-            print("📥 Certificate '\(certificate.name ?? "")' downloaded to: \(file.path)")
+            if common.quiet == false {
+                print("📥 Certificate '\(certificate.name ?? "")' downloaded to: \(file.path)")
+            }
         }
 
         certificate.render(format: common.outputFormat)

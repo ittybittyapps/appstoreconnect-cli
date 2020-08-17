@@ -79,7 +79,9 @@ struct ListProfilesCommand: CommonParsableCommand {
             try profiles.forEach {
                 let file = try processor.write($0)
 
-                print("📥 Profile '\($0.name!)' downloaded to: \(file.path)")
+                if common.quiet == false {
+                    print("📥 Profile '\($0.name!)' downloaded to: \(file.path)")
+                }
             }
         }
 

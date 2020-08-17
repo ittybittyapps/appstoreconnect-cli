@@ -55,7 +55,9 @@ struct ListCertificatesCommand: CommonParsableCommand {
 
                 let file = try certificateProcessor.write($0)
 
-                print("📥 Certificate '\($0.name ?? "")' downloaded to: \(file.path)")
+                if common.quiet == false {
+                    print("📥 Certificate '\($0.name ?? "")' downloaded to: \(file.path)")
+                }
             }
         }
 

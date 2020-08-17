@@ -25,8 +25,10 @@ struct RevokeCertificatesCommand: CommonParsableCommand {
         let service = try makeService()
         _ = try service.revokeCertificates(serials: serials)
 
-        serials.forEach {
-            print("🚮 Certificate `\($0)` revoked.")
+        if common.quiet == false {
+            serials.forEach {
+                print("🚮 Certificate `\($0)` revoked.")
+            }
         }
     }
 
