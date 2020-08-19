@@ -20,6 +20,7 @@ struct GetUserInfoOperation: APIOperation {
 
     struct Options {
         let email: String
+        let includeVisibleApps: Bool
     }
 
     let options: Options
@@ -28,7 +29,10 @@ struct GetUserInfoOperation: APIOperation {
 
     init(options: Options) {
         let filters: [ListUsers.Filter] = [.username([options.email])]
-        endpoint = APIEndpoint.users(filter: filters)
+        let include = options.includeVisibleApps ? [ListUsers.Include.visibleApps] : []
+
+        endpoint = APIEndpoint.users(include: include, filter: filters)
+
         self.options = options
     }
 
