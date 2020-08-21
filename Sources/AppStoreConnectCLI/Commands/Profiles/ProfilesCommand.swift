@@ -11,7 +11,7 @@ struct ProfilesCommand: ParsableCommand {
             CreateProfileCommand.self,
             DeleteProfileCommand.self,
             ListProfilesCommand.self,
-            ReadProfileCommand.self
+            ReadProfileCommand.self,
         ],
         defaultSubcommand: ListProfilesCommand.self
     )
