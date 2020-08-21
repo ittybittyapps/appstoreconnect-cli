@@ -703,6 +703,14 @@ class AppStoreConnectService {
             .map(Device.init)
     }
 
+    func readProfile(id: String) throws -> Model.Profile {
+        Model.Profile(
+            try ReadProfileOperation(options: .init(id: id))
+                .execute(with: requestor)
+                .await()
+        )
+    }
+
     func listProfiles(
         ids: [String],
         filterName: [String],
