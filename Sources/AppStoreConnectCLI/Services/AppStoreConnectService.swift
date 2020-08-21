@@ -704,7 +704,7 @@ class AppStoreConnectService {
     }
 
     func listProfiles(
-        id: String?,
+        ids: [String],
         filterName: [String],
         filterProfileState: ProfileState?,
         filterProfileType: [ProfileType],
@@ -713,7 +713,7 @@ class AppStoreConnectService {
     ) throws -> [Model.Profile] {
         try ListProfilesOperation(
             options: .init(
-                id: id,
+                ids: ids,
                 filterName: filterName,
                 filterProfileState: filterProfileState,
                 filterProfileType: filterProfileType,
