@@ -28,7 +28,8 @@ struct ReadCertificateCommand: CommonParsableCommand {
 
             let file = try fileProcessor.write(certificate)
 
-            if common.quiet == false {
+            // Command output is parsable by default. Only print if user is enabling verbosity or output is a `.table`
+            if common.verbose || common.outputFormat == .table {
                 print("📥 Certificate '\(certificate.name ?? "")' downloaded to: \(file.path)")
             }
         }

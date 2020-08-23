@@ -23,6 +23,7 @@ struct CommonOptions: ParsableArguments {
     @Flag(default: .table, help: "Display results in specified format.")
     var outputFormat: OutputFormat
 
-    @Flag(name: .shortAndLong, help: "Display less messaging in standard output.")
-    var quiet: Bool
+    /// Used to print status messages. Defaults to `false`, except for `--table`, so all commands are parsable by default.
+    @Flag(name: .shortAndLong, help: "Display extra messages as command is running.")
+    var verbose: Bool
 }

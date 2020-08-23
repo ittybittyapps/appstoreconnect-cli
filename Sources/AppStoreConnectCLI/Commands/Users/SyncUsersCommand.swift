@@ -31,7 +31,8 @@ struct SyncUsersCommand: CommonParsableCommand {
     var dryRun: Bool
 
     func run() throws {
-        if dryRun, common.quiet == false {
+        // Command output is parsable by default. Only print if user is enabling verbosity or output is a `.table`
+        if dryRun, common.verbose || common.outputFormat == .table {
             print("## Dry run ##")
         }
 

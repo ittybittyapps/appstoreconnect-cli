@@ -25,7 +25,8 @@ struct RevokeCertificatesCommand: CommonParsableCommand {
         let service = try makeService()
         _ = try service.revokeCertificates(serials: serials)
 
-        if common.quiet == false {
+        // Command output is parsable by default. Only print if user is enabling verbosity or output is a `.table`
+        if common.verbose || common.outputFormat == .table {
             serials.forEach {
                 print("🚮 Certificate `\($0)` revoked.")
             }
