@@ -919,22 +919,11 @@ class AppStoreConnectService {
         preReleaseVersion: String,
         limit: Int?
     ) throws -> [BuildLocalization] {
-        let appId = try ReadAppOperation(options: .init(identifier: .bundleId(bundleId)))
-        .execute(with: requestor)
-        .await()
-        .id
-
-        let buildId = try ReadBuildOperation(
-            options: .init(
-                appId: appId,
-                buildNumber: buildNumber,
-                preReleaseVersion: preReleaseVersion
-            )
+        let buildId = try getBuildIdFrom(
+            bundleId: bundleId,
+            buildNumber: buildNumber,
+            preReleaseVersion: preReleaseVersion
         )
-        .execute(with: requestor)
-        .await()
-        .build
-        .id
 
         return try ListBuildLocalizationOperation(
             options: .init(id: buildId, limit: limit)
@@ -942,6 +931,27 @@ class AppStoreConnectService {
         .execute(with: requestor)
         .await()
         .map(BuildLocalization.init)
+    }
+
+    func readBuildLocaization(
+        bundleId: String,
+        buildNumber: String,
+        preReleaseVersion: String,
+        locale: String
+    ) throws -> BuildLocalization {
+        let buildId = try getBuildIdFrom(
+            bundleId: bundleId,
+            buildNumber: buildNumber,
+            preReleaseVersion: preReleaseVersion
+        )
+
+        return BuildLocalization(
+            try ReadBuildLocalizationOperation(
+                options: .init(id: buildId, locale: locale)
+            )
+            .execute(with: requestor)
+            .await()
+        )
     }
 
     func getTestFlightProgram(bundleIds: [String] = []) throws -> TestFlightProgram {
@@ -1024,6 +1034,29 @@ extension AppStoreConnectService {
             .map(\.betaGroup.id)
 
         return (buildId, groupIds)
+    }
+
+    private func getBuildIdFrom(
+        bundleId: String,
+        buildNumber: String,
+        preReleaseVersion: String
+    ) throws -> String {
+        let appId = try ReadAppOperation(options: .init(identifier: .bundleId(bundleId)))
+        .execute(with: requestor)
+        .await()
+        .id
+
+        return try ReadBuildOperation(
+            options: .init(
+                appId: appId,
+                buildNumber: buildNumber,
+                preReleaseVersion: preReleaseVersion
+            )
+        )
+        .execute(with: requestor)
+        .await()
+        .build
+        .id
     }
 
 }
