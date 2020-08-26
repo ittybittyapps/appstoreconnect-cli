@@ -55,7 +55,10 @@ struct ListCertificatesCommand: CommonParsableCommand {
 
                 let file = try certificateProcessor.write($0)
 
-                print("📥 Certificate '\($0.name ?? "")' downloaded to: \(file.path)")
+                // Only print if the `PrintLevel` is set to verbose.
+                if common.printLevel == .verbose {
+                    print("📥 Certificate '\($0.name ?? "")' downloaded to: \(file.path)")
+                }
             }
         }
 
