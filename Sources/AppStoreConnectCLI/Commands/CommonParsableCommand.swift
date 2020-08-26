@@ -10,7 +10,7 @@ protocol CommonParsableCommand: ParsableCommand {
     func makeService() throws -> AppStoreConnectService
 }
 
-/// A level representing the verbosity of command.
+/// A level representing the verbosity of a command.
 enum PrintLevel {
     // Withholds displaying normal status messages
     case quiet

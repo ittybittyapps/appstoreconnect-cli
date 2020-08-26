@@ -79,8 +79,8 @@ struct ListProfilesCommand: CommonParsableCommand {
             try profiles.forEach {
                 let file = try processor.write($0)
 
-                // Command output is parsable by default. Only print if verbosity is enabled or output is a `.table`
-                if common.verbose || common.outputFormat == .table {
+                // Only print if the `PrintLevel` is set to verbose.
+                if common.printLevel == .verbose {
                     print("📥 Profile '\($0.name!)' downloaded to: \(file.path)")
                 }
             }
