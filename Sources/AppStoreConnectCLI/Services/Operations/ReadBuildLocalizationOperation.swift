@@ -39,7 +39,7 @@ struct ReadBuildLocalizationOperation: APIOperation {
                 next: $0
             )
         }
-        .map { 
+        .map {
             $0.flatMap {
                 $0.data.filter {
                     $0.attributes?.locale?.lowercased() == self.options.locale.lowercased()

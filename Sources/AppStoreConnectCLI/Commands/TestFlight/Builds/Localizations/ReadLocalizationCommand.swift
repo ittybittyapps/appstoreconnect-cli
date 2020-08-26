@@ -2,10 +2,10 @@
 
 import ArgumentParser
 
-struct ListLocalizationsCommand: CommonParsableCommand {
+struct ReadLocalizationCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
-        commandName: "list",
-        abstract: "Find and list beta build localization resources."
+        commandName: "read",
+        abstract: "Get a specific beta build localization resource."
     )
 
     @OptionGroup()
@@ -14,19 +14,19 @@ struct ListLocalizationsCommand: CommonParsableCommand {
     @OptionGroup()
     var build: BuildArguments
 
-    @Option(help: "Limit the number of resources to return.")
-    var limit: Int?
+    @Argument(help: "The locale information of the build localization resource. eg. (en-AU)")
+    var locale: String
 
     func run() throws {
         let service = try makeService()
 
-        let localizations = try service.listBuildsLocalizations(
+        let buildLocalization = try service.readBuildLocaization(
             bundleId: build.bundleId,
             buildNumber: build.buildNumber,
             preReleaseVersion: build.preReleaseVersion,
-            limit: limit
+            locale: locale
         )
 
-        localizations.render(format: common.outputFormat)
+        [buildLocalization].render(format: common.outputFormat)
     }
 }

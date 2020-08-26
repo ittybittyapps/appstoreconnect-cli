@@ -9,6 +9,7 @@ public struct LocalizationsCommand: ParsableCommand {
         abstract: "Beta test information about builds, specific to a locale.",
         subcommands: [
             ListLocalizationsCommand.self,
+            ReadLocalizationCommand.self,
         ],
         defaultSubcommand: ListLocalizationsCommand.self
     )
