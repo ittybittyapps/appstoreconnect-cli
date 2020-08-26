@@ -42,4 +42,3 @@ struct ListBuildLocalizationOperation: APIOperation {
 }
 
 extension BetaBuildLocalizationsResponse: PaginatedResponse { }
-
