@@ -913,6 +913,37 @@ class AppStoreConnectService {
             .await()
     }
 
+    func listBuildsLocalizations(
+        bundleId: String,
+        buildNumber: String,
+        preReleaseVersion: String,
+        limit: Int?
+    ) throws -> [BuildLocalization] {
+        let appId = try ReadAppOperation(options: .init(identifier: .bundleId(bundleId)))
+        .execute(with: requestor)
+        .await()
+        .id
+
+        let buildId = try ReadBuildOperation(
+            options: .init(
+                appId: appId,
+                buildNumber: buildNumber,
+                preReleaseVersion: preReleaseVersion
+            )
+        )
+        .execute(with: requestor)
+        .await()
+        .build
+        .id
+
+        return try ListBuildLocalizationOperation(
+            options: .init(id: buildId, limit: limit)
+        )
+        .execute(with: requestor)
+        .await()
+        .map(BuildLocalization.init)
+    }
+
     func getTestFlightProgram(bundleIds: [String] = []) throws -> TestFlightProgram {
         let appsOperation = ListAppsOperation(options: .init(bundleIds: bundleIds))
         let apps = try appsOperation.execute(with: requestor).await()
