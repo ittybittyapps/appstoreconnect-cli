@@ -35,12 +35,12 @@ struct CommonOptions: ParsableArguments {
     var printLevel: PrintLevel {
         // Commands are parsable by default except for `--table` which is intended to be interactive.
         switch (verbose, outputFormat == .table) {
-            // if `--verbose` or `--table`is used then return a verbose print level
-            case (true, _), (_, true):
-                return .verbose
-            // if both `--verbose` and `--table` are not used, then return a quiet print level
-            case (false, false):
-                return .quiet
+        // if `--verbose` or `--table`is used then return a verbose print level
+        case (true, _), (_, true):
+            return .verbose
+        // if both `--verbose` and `--table` are not used, then return a quiet print level
+        case (false, false):
+            return .quiet
         }
     }
 
