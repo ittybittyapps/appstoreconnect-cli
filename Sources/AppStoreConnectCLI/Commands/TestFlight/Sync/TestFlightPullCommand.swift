@@ -36,6 +36,9 @@ struct TestFlightPullCommand: CommonParsableCommand {
 
         let processor = TestflightConfigurationProcessor(path: .folder(path: outputPath))
         processor.writeConfiguration(apps: apps, testers: testers, groups: groups)
+
+        // TODO: Remove when the pull is completed
+        throw CommandError.unimplemented
     }
 
 }
