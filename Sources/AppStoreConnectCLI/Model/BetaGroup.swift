@@ -46,6 +46,7 @@ extension BetaGroup {
         _ apiBetaGroup: AppStoreConnect_Swift_SDK.BetaGroup
     ) {
         self.init(
+            id: apiBetaGroup.id,
             app: App(apiApp),
             groupName: apiBetaGroup.attributes?.name,
             isInternal: apiBetaGroup.attributes?.isInternalGroup,

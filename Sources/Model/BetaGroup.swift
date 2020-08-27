@@ -3,6 +3,8 @@
 import Foundation
 
 public struct BetaGroup: Codable, Equatable {
+
+    public let id: String
     public let app: App
     public let groupName: String?
     public let isInternal: Bool?
@@ -13,6 +15,7 @@ public struct BetaGroup: Codable, Equatable {
     public let creationDate: String?
 
     public init(
+        id: String,
         app: App,
         groupName: String?,
         isInternal: Bool?,
@@ -22,6 +25,7 @@ public struct BetaGroup: Codable, Equatable {
         publicLinkLimitEnabled: Bool?,
         creationDate: String?
     ) {
+        self.id = id
         self.app = app
         self.groupName = groupName
         self.isInternal = isInternal
@@ -31,4 +35,5 @@ public struct BetaGroup: Codable, Equatable {
         self.publicLinkLimitEnabled = publicLinkLimitEnabled
         self.creationDate = creationDate
     }
+
 }
