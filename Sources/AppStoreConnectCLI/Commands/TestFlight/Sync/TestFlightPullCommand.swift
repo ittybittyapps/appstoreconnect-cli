@@ -3,6 +3,7 @@
 import ArgumentParser
 import Foundation
 import FileSystem
+import Model
 
 struct TestFlightPullCommand: CommonParsableCommand {
 
@@ -25,7 +26,13 @@ struct TestFlightPullCommand: CommonParsableCommand {
     ) var outputPath: String
 
     func run() throws {
-        throw CommandError.unimplemented
+        let service = try makeService()
+
+        // TODO: A new service function should be created to efficiently gather these models
+        let apps = try service.listApps(bundleIds: filterBundleIds)
+        let identifiers = apps.map { app in AppLookupIdentifier.appId(app.id) }
+        let testers = try service.listBetaTesters(filterIdentifiers: identifiers)
+        let groups = try service.listBetaGroups(filterIdentifiers: identifiers)
     }
 
 }

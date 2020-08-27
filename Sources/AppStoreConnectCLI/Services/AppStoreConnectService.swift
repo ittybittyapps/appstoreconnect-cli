@@ -15,10 +15,10 @@ class AppStoreConnectService {
     }
 
     func listApps(
-        bundleIds: [String],
-        names: [String],
-        skus: [String],
-        limit: Int?
+        bundleIds: [String] = [],
+        names: [String] = [],
+        skus: [String] = [],
+        limit: Int? = nil
     ) throws -> [Model.App] {
         let operation = ListAppsOperation(
             options: .init(bundleIds: bundleIds, names: names, skus: skus, limit: limit)
@@ -277,15 +277,15 @@ class AppStoreConnectService {
     }
 
     func listBetaTesters(
-        email: String?,
-        firstName: String?,
-        lastName: String?,
-        inviteType: BetaInviteType?,
-        filterIdentifiers: [AppLookupIdentifier],
-        groupNames: [String],
-        sort: ListBetaTesters.Sort?,
-        limit: Int?,
-        relatedResourcesLimit: Int?
+        email: String? = nil,
+        firstName: String? = nil,
+        lastName: String? = nil,
+        inviteType: BetaInviteType? = nil,
+        filterIdentifiers: [AppLookupIdentifier] = [],
+        groupNames: [String] = [],
+        sort: ListBetaTesters.Sort? = nil,
+        limit: Int? = nil,
+        relatedResourcesLimit: Int? = nil
     ) throws -> [Model.BetaTester] {
 
         var filterAppIds: [String] = []
@@ -474,10 +474,10 @@ class AppStoreConnectService {
     }
 
     func listBetaGroups(
-        filterIdentifiers: [AppLookupIdentifier],
-        names: [String],
-        sort: ListBetaGroups.Sort?,
-        excludeInternal: Bool
+        filterIdentifiers: [AppLookupIdentifier] = [],
+        names: [String] = [],
+        sort: ListBetaGroups.Sort? = nil,
+        excludeInternal: Bool = false
     ) throws -> [Model.BetaGroup] {
         var filterAppIds: [String] = []
         var filterBundleIds: [String] = []
