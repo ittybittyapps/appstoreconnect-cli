@@ -25,8 +25,11 @@ struct RevokeCertificatesCommand: CommonParsableCommand {
         let service = try makeService()
         _ = try service.revokeCertificates(serials: serials)
 
-        serials.forEach {
-            print("🚮 Certificate `\($0)` revoked.")
+        // Only print if the `PrintLevel` is set to verbose.
+        if common.printLevel == .verbose {
+            serials.forEach {
+                print("🚮 Certificate `\($0)` revoked.")
+            }
         }
     }
 
