@@ -2,12 +2,13 @@
 
 import Foundation
 
-public struct BetaTester: Codable, Hashable {
-    public var email: String
-    public var firstName: String
-    public var lastName: String
+struct BetaTester: Codable, Hashable {
 
-    public init(
+    var email: String
+    var firstName: String
+    var lastName: String
+
+    init(
         email: String,
         firstName: String?,
         lastName: String?
@@ -16,4 +17,5 @@ public struct BetaTester: Codable, Hashable {
         self.firstName = firstName ?? ""
         self.lastName = lastName ?? ""
     }
+
 }
