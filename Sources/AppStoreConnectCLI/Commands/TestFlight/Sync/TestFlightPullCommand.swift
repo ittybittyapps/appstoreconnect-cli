@@ -25,7 +25,7 @@ struct TestFlightPullCommand: CommonParsableCommand {
     ) var outputPath: String
 
     func run() throws {
-        fatalError("Unimplemented command")
+        throw CommandError.unimplemented
     }
 
 }
