@@ -33,6 +33,9 @@ struct TestFlightPullCommand: CommonParsableCommand {
         let identifiers = apps.map { app in AppLookupIdentifier.appId(app.id) }
         let testers = try service.listBetaTesters(filterIdentifiers: identifiers)
         let groups = try service.listBetaGroups(filterIdentifiers: identifiers)
+
+        let processor = TestflightConfigurationProcessor(path: .folder(path: outputPath))
+        processor.writeConfiguration(apps: apps, testers: testers, groups: groups)
     }
 
 }
