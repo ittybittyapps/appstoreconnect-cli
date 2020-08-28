@@ -340,14 +340,12 @@ class AppStoreConnectService {
         let readAppOperation = ReadAppOperation(options: .init(identifier: identifier))
         let app = try readAppOperation.execute(with: requestor).await()
 
-        let groupId = try GetBetaGroupOperation(
+        let getBetaGroupOperation = GetBetaGroupOperation(
             options: .init(appId: app.id, bundleId: nil, betaGroupName: groupName)
         )
-        .execute(with: requestor)
-        .await()
-        .id
+        let betaGroup = try getBetaGroupOperation.execute(with: requestor).await()
 
-        let operation = ListBetaTestersByGroupOperation(options: .init(groupId: groupId))
+        let operation = ListBetaTestersByGroupOperation(options: .init(groupId: betaGroup.id))
         let output = try operation.execute(with: requestor).await()
 
         return output.map { apiBetaTester -> Model.BetaTester in
@@ -356,7 +354,7 @@ class AppStoreConnectService {
                 firstName: apiBetaTester.attributes?.firstName,
                 lastName: apiBetaTester.attributes?.lastName,
                 inviteType: (apiBetaTester.attributes?.inviteType).map { $0.rawValue },
-                betaGroups: [groupName],
+                betaGroups: [Model.BetaGroup(app, betaGroup)],
                 apps: [Model.App(app)]
             )
         }

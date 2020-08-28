@@ -5,7 +5,7 @@ import Foundation
 public struct BetaGroup: Codable, Equatable {
 
     public let id: String
-    public let app: App
+    public let app: App?
     public let groupName: String?
     public let isInternal: Bool?
     public let publicLink: String?
@@ -16,7 +16,7 @@ public struct BetaGroup: Codable, Equatable {
 
     public init(
         id: String,
-        app: App,
+        app: App?,
         groupName: String?,
         isInternal: Bool?,
         publicLink: String?,

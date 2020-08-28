@@ -26,7 +26,7 @@ extension Model.BetaTester {
             firstName: betaTester.attributes?.firstName,
             lastName: betaTester.attributes?.lastName,
             inviteType: betaTester.attributes?.inviteType?.rawValue,
-            betaGroups: betaGroups.compactMap(\.attributes?.name),
+            betaGroups: betaGroups.map { Model.BetaGroup(nil, $0) },
             apps: apps.map(Model.App.init)
         )
     }
@@ -51,7 +51,7 @@ extension Model.BetaTester: ResultRenderable, TableInfoProvider {
             firstName ?? "",
             lastName ?? "",
             inviteType ?? "",
-            betaGroups?.joined(separator: ", ") ?? [],
+            betaGroups?.compactMap(\.groupName).joined(separator: ", ") ?? [],
             apps?.compactMap(\.bundleId).joined(separator: ", ") ?? [],
         ]
     }

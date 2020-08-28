@@ -3,11 +3,10 @@
 import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
-import struct Model.App
-import struct Model.BetaGroup
+import Model
 import SwiftyTextTable
 
-extension BetaGroup: TableInfoProvider, ResultRenderable {
+extension Model.BetaGroup: TableInfoProvider, ResultRenderable {
 
     static func tableColumns() -> [TextTableColumn] {
         [
@@ -26,9 +25,9 @@ extension BetaGroup: TableInfoProvider, ResultRenderable {
 
     var tableRow: [CustomStringConvertible] {
         [
-            app.id,
-            app.bundleId ?? "",
-            app.name ?? "",
+            app?.id ?? "",
+            app?.bundleId ?? "",
+            app?.name ?? "",
             groupName ?? "",
             isInternal ?? "",
             publicLink ?? "",
@@ -40,14 +39,14 @@ extension BetaGroup: TableInfoProvider, ResultRenderable {
     }
 }
 
-extension BetaGroup {
+extension Model.BetaGroup {
     init(
-        _ apiApp: AppStoreConnect_Swift_SDK.App,
+        _ apiApp: AppStoreConnect_Swift_SDK.App?,
         _ apiBetaGroup: AppStoreConnect_Swift_SDK.BetaGroup
     ) {
         self.init(
             id: apiBetaGroup.id,
-            app: App(apiApp),
+            app: apiApp.map(Model.App.init),
             groupName: apiBetaGroup.attributes?.name,
             isInternal: apiBetaGroup.attributes?.isInternalGroup,
             publicLink: apiBetaGroup.attributes?.publicLink,
