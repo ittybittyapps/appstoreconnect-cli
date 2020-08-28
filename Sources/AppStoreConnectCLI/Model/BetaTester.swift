@@ -7,32 +7,30 @@ import struct Model.BetaTester
 import SwiftyTextTable
 
 extension BetaTester {
+
     init(_ output: GetBetaTesterOperation.Output) {
-        let attributes = output.betaTester.attributes
-        let relationships = output.betaTester.relationships
+        let betaTester = output.betaTester
+        let appRelationships = (betaTester.relationships?.apps?.data) ?? []
+        let betaGroupRelationships = (betaTester.relationships?.betaGroups?.data) ?? []
 
-        // Find tester related beta groups and apps in included data
-        let betaGroupsNames = relationships?.betaGroups?.data?
-            .compactMap { group -> [AppStoreConnect_Swift_SDK.BetaGroup]? in
-                output.betaGroups?.filter { $0.id == group.id }
-            }
-            .flatMap { $0.compactMap { $0.attributes?.name } }
+        let apps = appRelationships.compactMap { relationship -> App? in
+            output.apps?.first { app in relationship.id == app.id }
+        }
 
-        let appsBundleIds = relationships?.apps?.data?
-            .compactMap { app -> [AppStoreConnect_Swift_SDK.App]? in
-                output.apps?.filter { app.id == $0.id }
-            }
-            .flatMap { $0.compactMap { $0.attributes?.bundleId } }
+        let betaGroups = betaGroupRelationships.compactMap { relationship -> BetaGroup? in
+            output.betaGroups?.first { betaGroup in relationship.id == betaGroup.id }
+        }
 
         self.init(
-            email: attributes?.email,
-            firstName: attributes?.firstName,
-            lastName: attributes?.lastName,
-            inviteType: attributes?.inviteType?.rawValue,
-            betaGroups: betaGroupsNames,
-            apps: appsBundleIds
+            email: betaTester.attributes?.email,
+            firstName: betaTester.attributes?.firstName,
+            lastName: betaTester.attributes?.lastName,
+            inviteType: betaTester.attributes?.inviteType?.rawValue,
+            betaGroups: betaGroups.compactMap(\.attributes?.name),
+            apps: apps.compactMap(\.attributes?.bundleId)
         )
     }
+
 }
 
 extension BetaTester: ResultRenderable, TableInfoProvider {
