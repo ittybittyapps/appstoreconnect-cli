@@ -2,7 +2,7 @@
 
 import ArgumentParser
 
-struct ListLocalizationsCommand: CommonParsableCommand {
+struct ListBuildLocalizationsCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "list",
         abstract: "Find and list beta build localization resources."

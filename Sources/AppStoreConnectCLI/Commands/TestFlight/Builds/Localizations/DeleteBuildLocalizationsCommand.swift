@@ -2,7 +2,7 @@
 
 import ArgumentParser
 
-struct DeleteLocalizationsCommand: CommonParsableCommand {
+struct DeleteBuildLocalizationsCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "delete",
         abstract: "Delete a specific beta build localization associated with a build."
