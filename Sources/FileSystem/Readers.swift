@@ -71,7 +71,9 @@ public enum Readers {
         }
 
         public func readTXT(from filePath: String) -> T {
-            let fileContents = try? String(contentsOfFile: filePath, encoding: .utf8)
+            guard let fileContents = try? String(contentsOfFile: filePath, encoding: .utf8) else {
+                fatalError("Could not read TXT file: \(filePath)")
+            }
 
             return fileContents as! T
         }

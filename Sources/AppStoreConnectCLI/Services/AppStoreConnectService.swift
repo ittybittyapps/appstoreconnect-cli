@@ -1002,6 +1002,38 @@ class AppStoreConnectService {
         )
     }
 
+    func upateBuildLocalization(
+        bundleId: String,
+        buildNumber: String,
+        preReleaseVersion: String,
+        locale: String,
+        whatsNew: String
+    ) throws -> BuildLocalization {
+        let buildId = try getBuildIdFrom(
+            bundleId: bundleId,
+            buildNumber: buildNumber,
+            preReleaseVersion: preReleaseVersion
+        )
+
+        let buildLocalizationId = try ReadBuildLocalizationOperation(
+            options: .init(id: buildId, locale: locale)
+        )
+        .execute(with: requestor)
+        .await()
+        .id
+
+        return BuildLocalization(
+            try UpdateBuildLocalizationOperation(
+                options: .init(
+                    localizationId: buildLocalizationId,
+                    whatsNew: whatsNew
+                )
+            )
+            .execute(with: requestor)
+            .await()
+        )
+    }
+
     func getTestFlightProgram(bundleIds: [String] = []) throws -> TestFlightProgram {
         let appsOperation = ListAppsOperation(options: .init(bundleIds: bundleIds))
         let apps = try appsOperation.execute(with: requestor).await()
