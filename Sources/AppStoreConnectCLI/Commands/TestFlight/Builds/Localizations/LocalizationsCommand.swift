@@ -8,6 +8,7 @@ public struct LocalizationsCommand: ParsableCommand {
         commandName: "localization",
         abstract: "Beta test information about builds, specific to a locale.",
         subcommands: [
+            DeleteLocalizationsCommand.self,
             ListLocalizationsCommand.self,
             ReadLocalizationCommand.self,
         ],
