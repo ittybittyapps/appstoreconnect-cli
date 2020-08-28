@@ -29,6 +29,8 @@ public enum Readers {
                 return readYAML(from: filePath)
             case .csv:
                 return readCSV(from: filePath)
+            case .txt:
+                return readTXT(from: filePath)
             }
         }
 
@@ -66,6 +68,12 @@ public enum Readers {
             }
 
             return result
+        }
+
+        public func readTXT(from filePath: String) -> T {
+            let fileContents = try? String(contentsOfFile: filePath, encoding: .utf8)
+
+            return fileContents as! T
         }
     }
 
