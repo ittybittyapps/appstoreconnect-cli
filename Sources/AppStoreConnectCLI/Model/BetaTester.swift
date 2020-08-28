@@ -3,21 +3,21 @@
 import AppStoreConnect_Swift_SDK
 import Combine
 import Foundation
-import struct Model.BetaTester
+import Model
 import SwiftyTextTable
 
-extension BetaTester {
+extension Model.BetaTester {
 
     init(_ output: GetBetaTesterOperation.Output) {
         let betaTester = output.betaTester
         let appRelationships = (betaTester.relationships?.apps?.data) ?? []
         let betaGroupRelationships = (betaTester.relationships?.betaGroups?.data) ?? []
 
-        let apps = appRelationships.compactMap { relationship -> App? in
+        let apps = appRelationships.compactMap { relationship -> AppStoreConnect_Swift_SDK.App? in
             output.apps?.first { app in relationship.id == app.id }
         }
 
-        let betaGroups = betaGroupRelationships.compactMap { relationship -> BetaGroup? in
+        let betaGroups = betaGroupRelationships.compactMap { relationship -> AppStoreConnect_Swift_SDK.BetaGroup? in
             output.betaGroups?.first { betaGroup in relationship.id == betaGroup.id }
         }
 
@@ -27,13 +27,13 @@ extension BetaTester {
             lastName: betaTester.attributes?.lastName,
             inviteType: betaTester.attributes?.inviteType?.rawValue,
             betaGroups: betaGroups.compactMap(\.attributes?.name),
-            apps: apps.compactMap(\.attributes?.bundleId)
+            apps: apps.map(Model.App.init)
         )
     }
 
 }
 
-extension BetaTester: ResultRenderable, TableInfoProvider {
+extension Model.BetaTester: ResultRenderable, TableInfoProvider {
     static func tableColumns() -> [TextTableColumn] {
        return [
             TextTableColumn(header: "Email"),
@@ -52,7 +52,7 @@ extension BetaTester: ResultRenderable, TableInfoProvider {
             lastName ?? "",
             inviteType ?? "",
             betaGroups?.joined(separator: ", ") ?? [],
-            apps?.joined(separator: ", ") ?? [],
+            apps?.compactMap(\.bundleId).joined(separator: ", ") ?? [],
         ]
     }
 }

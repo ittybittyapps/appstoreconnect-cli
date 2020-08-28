@@ -8,7 +8,7 @@ public struct BetaTester: Codable, Equatable {
     public let lastName: String?
     public let inviteType: String?
     public let betaGroups: [String]?
-    public let apps: [String]?
+    public let apps: [App]?
 
     public init(
         email: String?,
@@ -16,7 +16,7 @@ public struct BetaTester: Codable, Equatable {
         lastName: String?,
         inviteType: String?,
         betaGroups: [String]?,
-        apps: [String]?
+        apps: [App]?
     ) {
         self.email = email
         self.firstName = firstName

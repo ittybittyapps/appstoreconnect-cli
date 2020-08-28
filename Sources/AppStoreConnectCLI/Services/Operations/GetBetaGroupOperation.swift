@@ -5,6 +5,7 @@ import Combine
 import Foundation
 
 struct GetBetaGroupOperation: APIOperation {
+
     struct Options {
         let appId: String?
         let bundleId: String?
@@ -59,4 +60,5 @@ struct GetBetaGroupOperation: APIOperation {
 
         return betaGroup.eraseToAnyPublisher()
     }
+
 }
