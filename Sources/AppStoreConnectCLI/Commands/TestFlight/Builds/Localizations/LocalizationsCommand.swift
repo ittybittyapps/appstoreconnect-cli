@@ -12,6 +12,7 @@ public struct LocalizationsCommand: ParsableCommand {
             DeleteBuildLocalizationsCommand.self,
             ListBuildLocalizationsCommand.self,
             ReadBuildLocalizationCommand.self,
+            UpdateBuildLocalizationsCommand.self,
         ],
         defaultSubcommand: ListBuildLocalizationsCommand.self
     )
