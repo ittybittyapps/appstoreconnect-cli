@@ -7,16 +7,16 @@ public struct BetaTester: Codable, Equatable {
     public let firstName: String?
     public let lastName: String?
     public let inviteType: String?
-    public let betaGroups: [String]?
-    public let apps: [String]?
+    public let betaGroups: [BetaGroup]?
+    public let apps: [App]?
 
     public init(
         email: String?,
         firstName: String?,
         lastName: String?,
         inviteType: String?,
-        betaGroups: [String]?,
-        apps: [String]?
+        betaGroups: [BetaGroup]?,
+        apps: [App]?
     ) {
         self.email = email
         self.firstName = firstName
