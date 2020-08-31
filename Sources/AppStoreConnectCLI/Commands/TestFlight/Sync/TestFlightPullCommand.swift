@@ -34,8 +34,8 @@ struct TestFlightPullCommand: CommonParsableCommand {
         let testers = try service.listBetaTesters(filterIdentifiers: identifiers)
         let groups = try service.listBetaGroups(filterIdentifiers: identifiers)
 
-        let processor = TestflightConfigurationProcessor(path: .folder(path: outputPath))
-        processor.writeConfiguration(apps: apps, testers: testers, groups: groups)
+        let processor = TestflightConfigurationProcessor(appsFolderPath: outputPath)
+        try processor.writeConfiguration(apps: apps, testers: testers, groups: groups)
 
         // TODO: Remove when the pull is completed
         throw CommandError.unimplemented

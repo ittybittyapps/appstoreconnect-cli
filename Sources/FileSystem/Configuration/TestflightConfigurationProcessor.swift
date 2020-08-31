@@ -2,44 +2,39 @@
 
 import Foundation
 import Model
+import Files
 
-public struct TestflightConfigurationProcessor: ResourceWriter {
+public struct TestflightConfigurationProcessor {
 
-    let path: ResourcePath
+    let appsFolderPath: String
 
-    public init(path: ResourcePath) {
-        self.path = path
+    public init(appsFolderPath: String) {
+        self.appsFolderPath = appsFolderPath
     }
-
-    private typealias AppConfiguration = TestflightConfiguration.AppConfiguration
 
     public func writeConfiguration(
         apps: [Model.App],
         testers: [Model.BetaTester],
         groups: [Model.BetaGroup]
-    ) {
-        var appConfigurations: [AppConfiguration] = []
-
+    ) throws {
         let groupsByApp = Dictionary(grouping: groups, by: \.app?.id)
 
-        for app in apps {
-            var appConfiguration = AppConfiguration(app: app)
+        let configurations: [TestflightConfiguration] = apps.map { app in
+            var config = TestflightConfiguration(app: app)
 
-            appConfiguration.betaTesters = testers
-                .filter { tester in (tester.apps).map(\.id).contains(app.id) }
+            config.betaTesters = testers
+                .filter { tester in tester.apps.map(\.id).contains(app.id) }
                 .compactMap(FileSystem.BetaTester.init)
 
-            appConfiguration.betaGroups = (groupsByApp[app.id] ?? []).map { betaGroup in
+            config.betaGroups = (groupsByApp[app.id] ?? []).map { betaGroup in
                 FileSystem.BetaGroup(
                     betaGroup: betaGroup,
-                    betaTesters: testers.filter { ($0.betaGroups).map(\.id).contains(betaGroup.id) }
+                    betaTesters: testers.filter { $0.betaGroups.map(\.id).contains(betaGroup.id) }
                 )
             }
 
-            appConfigurations += [appConfiguration]
+            return config
         }
-
-        let configuration = TestflightConfiguration(appConfigurations: appConfigurations)
     }
 
 }
