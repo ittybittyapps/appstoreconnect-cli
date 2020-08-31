@@ -49,6 +49,13 @@ public struct TestflightConfigurationProcessor {
             return headers + rows
         }
 
+        let filenameForBetaGroup: (BetaGroup) -> String = { betaGroup in
+            return betaGroup.groupName
+                .components(separatedBy: CharacterSet(charactersIn: " *?:/\\."))
+                .joined(separator: "_")
+                + ".yml"
+        }
+
         try configurations.forEach { config in
             // TODO: We can require a bundle id in our file system app model
             let appFolder = try appsFolder.createSubfolder(named: config.app.bundleId!)
@@ -64,7 +71,7 @@ public struct TestflightConfigurationProcessor {
 
             let groupFolder = try appFolder.createSubfolder(named: "betagroups")
             let groupFiles: [(fileName: String, yamlData: String)] = try config.betaGroups.map {
-                ("\($0.groupName.filenameSafe()).yml", try YAMLEncoder().encode($0))
+                (filenameForBetaGroup($0), try YAMLEncoder().encode($0))
             }
 
             try groupFiles.forEach { file in
@@ -73,11 +80,4 @@ public struct TestflightConfigurationProcessor {
         }
     }
 
-}
-
-private extension String {
-  func filenameSafe() -> String {
-    let unsafeFilenameCharacters = CharacterSet(charactersIn: " *?:/\\.")
-    return self.components(separatedBy: unsafeFilenameCharacters).joined(separator: "_")
-  }
 }
