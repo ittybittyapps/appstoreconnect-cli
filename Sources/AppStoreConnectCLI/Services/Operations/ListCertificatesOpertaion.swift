@@ -54,26 +54,40 @@ struct ListCertificatesOperation: APIOperation {
     func execute(with requestor: EndpointRequestor) -> AnyPublisher<[Certificate], Swift.Error> {
         let filters = self.filters
         let sort = [options.sort].compactMap { $0 }
-        let limit = options.limit
 
-        return requestor.requestAllPages {
-            .listDownloadCertificates(
-                filter: filters,
-                sort: sort,
-                limit: limit,
-                next: $0
+        if let limit = options.limit {
+            return requestor.request(
+                .listDownloadCertificates(
+                    filter: filters,
+                    sort: sort,
+                    limit: limit
+                )
             )
-        }
-        .tryMap {
-            try $0.flatMap { (response: CertificatesResponse) -> [Certificate] in
-                guard !response.data.isEmpty else {
-                    throw Error.couldNotFindCertificate
-                }
-
-                return response.data
+            .tryMap(handleCertificateResponse)
+            .eraseToAnyPublisher()
+        } else {
+            return requestor.requestAllPages {
+                .listDownloadCertificates(
+                    filter: filters,
+                    sort: sort,
+                    next: $0
+                )
             }
+            .tryMap { [handleCertificateResponse] in
+                try $0.flatMap(handleCertificateResponse)
+            }
+            .eraseToAnyPublisher()
         }
-        .eraseToAnyPublisher()
+    }
+
+    private func handleCertificateResponse(
+        _ response: CertificatesResponse
+    ) throws -> [Certificate] {
+        guard !response.data.isEmpty else {
+            throw Error.couldNotFindCertificate
+        }
+
+        return response.data
     }
 
 }
