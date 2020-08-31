@@ -9,7 +9,7 @@ struct TestflightConfiguration {
 
     struct AppConfiguration {
         var app: Model.App
-        var testers: [BetaTester]
-        var betagroups: [BetaGroup]
+        var betaTesters: [BetaTester] = []
+        var betaGroups: [BetaGroup] = []
     }
 }

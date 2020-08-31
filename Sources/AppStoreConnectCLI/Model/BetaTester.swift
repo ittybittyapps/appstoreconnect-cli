@@ -51,8 +51,8 @@ extension Model.BetaTester: ResultRenderable, TableInfoProvider {
             firstName ?? "",
             lastName ?? "",
             inviteType ?? "",
-            betaGroups?.compactMap(\.groupName).joined(separator: ", ") ?? [],
-            apps?.compactMap(\.bundleId).joined(separator: ", ") ?? [],
+            betaGroups.compactMap(\.groupName).joined(separator: ", "),
+            apps.compactMap(\.bundleId).joined(separator: ", "),
         ]
     }
 }
