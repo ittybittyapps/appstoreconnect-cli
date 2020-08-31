@@ -9,6 +9,12 @@ struct BetaTester: Codable, Hashable {
     var firstName: String
     var lastName: String
 
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case email = "Email"
+        case firstName = "First Name"
+        case lastName = "Last Name"
+    }
+
     init?(betaTester: Model.BetaTester) {
         guard let email = betaTester.email else {
             return nil
