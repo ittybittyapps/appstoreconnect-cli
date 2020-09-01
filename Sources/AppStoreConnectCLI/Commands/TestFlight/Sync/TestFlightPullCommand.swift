@@ -34,7 +34,7 @@ struct TestFlightPullCommand: CommonParsableCommand {
         let testers = try service.listBetaTesters(filterIdentifiers: identifiers, limit: 200)
         let groups = try service.listBetaGroups(filterIdentifiers: identifiers)
 
-        try writeConfiguration(apps: apps, testers: testers, groups: groups, to: outputPath)
+        try FileSystem.writeConfiguration(apps: apps, testers: testers, groups: groups, to: outputPath)
     }
 
 }
