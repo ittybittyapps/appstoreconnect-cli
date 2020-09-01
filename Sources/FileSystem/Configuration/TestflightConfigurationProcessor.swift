@@ -22,8 +22,8 @@ public struct TestflightConfigurationProcessor {
         // Generate configuration
         let groupsByApp = Dictionary(grouping: groups, by: \.app?.id)
 
-        let configurations: [TestflightConfiguration] = apps.map { app in
-            var config = TestflightConfiguration(app: app)
+        let configurations: [TestflightConfiguration] = try apps.map { app in
+            var config = try TestflightConfiguration(app: FileSystem.App(model: app))
 
             config.betaTesters = testers
                 .filter { tester in tester.apps.map(\.id).contains(app.id) }
@@ -57,8 +57,7 @@ public struct TestflightConfigurationProcessor {
         }
 
         try configurations.forEach { config in
-            // TODO: We can require a bundle id in our file system app model
-            let appFolder = try appsFolder.createSubfolder(named: config.app.bundleId!)
+            let appFolder = try appsFolder.createSubfolder(named: config.app.bundleId)
 
             let appFile = try appFolder.createFile(named: "app.yml")
             let appYAML = try YAMLEncoder().encode(config.app)
