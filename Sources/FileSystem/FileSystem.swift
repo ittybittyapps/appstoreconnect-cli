@@ -9,25 +9,8 @@ public func writeConfiguration(
     groups: [Model.BetaGroup],
     to appsFolderPath: String
 ) throws {
-    let groupsByApp = Dictionary(grouping: groups, by: \.app?.id)
-
-    let configurations: [AppConfiguration] = try apps.map { app in
-        var config = try AppConfiguration(app: App(model: app))
-
-        config.betaTesters = testers
-            .filter { tester in tester.apps.map(\.id).contains(app.id) }
-            .compactMap(FileSystem.BetaTester.init)
-
-        config.betaGroups = (groupsByApp[app.id] ?? []).map { betaGroup in
-            FileSystem.BetaGroup(
-                betaGroup: betaGroup,
-                betaTesters: testers.filter { $0.betaGroups.map(\.id).contains(betaGroup.id) }
-            )
-        }
-
-        return config
-    }
+    let configuration = try TestflightConfiguration(apps: apps, testers: testers, groups: groups)
 
     let processor = TestflightConfigurationProcessor(appsFolderPath: appsFolderPath)
-    try processor.writeConfiguration(TestflightConfiguration(appConfigurations: configurations))
+    try processor.writeConfiguration(configuration)
 }
