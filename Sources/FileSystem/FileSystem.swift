@@ -11,8 +11,8 @@ public func writeConfiguration(
 ) throws {
     let groupsByApp = Dictionary(grouping: groups, by: \.app?.id)
 
-    let configurations: [TestflightConfiguration] = try apps.map { app in
-        var config = try TestflightConfiguration(app: App(model: app))
+    let configurations: [AppConfiguration] = try apps.map { app in
+        var config = try AppConfiguration(app: App(model: app))
 
         config.betaTesters = testers
             .filter { tester in tester.apps.map(\.id).contains(app.id) }
@@ -29,5 +29,5 @@ public func writeConfiguration(
     }
 
     let processor = TestflightConfigurationProcessor(appsFolderPath: appsFolderPath)
-    try processor.writeConfiguration(configurations: configurations)
+    try processor.writeConfiguration(TestflightConfiguration(appConfigurations: configurations))
 }

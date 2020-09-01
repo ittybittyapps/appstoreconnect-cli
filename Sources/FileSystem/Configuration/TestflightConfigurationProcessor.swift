@@ -14,7 +14,7 @@ struct TestflightConfigurationProcessor {
         self.appsFolderPath = appsFolderPath
     }
 
-    func writeConfiguration(configurations: [TestflightConfiguration]) throws {
+    func writeConfiguration(_ configuration: TestflightConfiguration) throws {
         let appsFolder = try Folder(path: appsFolderPath)
         try appsFolder.delete()
 
@@ -31,7 +31,7 @@ struct TestflightConfigurationProcessor {
                 + ".yml"
         }
 
-        try configurations.forEach { config in
+        try configuration.appConfigurations.forEach { config in
             let appFolder = try appsFolder.createSubfolder(named: config.app.bundleId)
 
             let appFile = try appFolder.createFile(named: "app.yml")
