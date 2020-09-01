@@ -6,40 +6,15 @@ import Model
 import Files
 import Yams
 
-public struct TestflightConfigurationProcessor {
+struct TestflightConfigurationProcessor {
 
     let appsFolderPath: String
 
-    public init(appsFolderPath: String) {
+    init(appsFolderPath: String) {
         self.appsFolderPath = appsFolderPath
     }
 
-    public func writeConfiguration(
-        apps: [Model.App],
-        testers: [Model.BetaTester],
-        groups: [Model.BetaGroup]
-    ) throws {
-        // Generate configuration
-        let groupsByApp = Dictionary(grouping: groups, by: \.app?.id)
-
-        let configurations: [TestflightConfiguration] = try apps.map { app in
-            var config = try TestflightConfiguration(app: FileSystem.App(model: app))
-
-            config.betaTesters = testers
-                .filter { tester in tester.apps.map(\.id).contains(app.id) }
-                .compactMap(FileSystem.BetaTester.init)
-
-            config.betaGroups = (groupsByApp[app.id] ?? []).map { betaGroup in
-                FileSystem.BetaGroup(
-                    betaGroup: betaGroup,
-                    betaTesters: testers.filter { $0.betaGroups.map(\.id).contains(betaGroup.id) }
-                )
-            }
-
-            return config
-        }
-
-        // Write out the configuration
+    func writeConfiguration(configurations: [TestflightConfiguration]) throws {
         let appsFolder = try Folder(path: appsFolderPath)
         try appsFolder.delete()
 
