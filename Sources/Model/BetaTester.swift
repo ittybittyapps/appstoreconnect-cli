@@ -3,12 +3,13 @@
 import Foundation
 
 public struct BetaTester: Codable, Equatable {
+
     public let email: String?
     public let firstName: String?
     public let lastName: String?
     public let inviteType: String?
-    public let betaGroups: [BetaGroup]?
-    public let apps: [App]?
+    public let betaGroups: [BetaGroup]
+    public let apps: [App]
 
     public init(
         email: String?,
@@ -22,7 +23,8 @@ public struct BetaTester: Codable, Equatable {
         self.firstName = firstName
         self.lastName = lastName
         self.inviteType = inviteType
-        self.betaGroups = betaGroups
-        self.apps = apps
+        self.betaGroups = betaGroups ?? []
+        self.apps = apps ?? []
     }
+
 }

@@ -1,6 +1,7 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
 import Foundation
+import Model
 
 struct BetaTester: Codable, Hashable {
 
@@ -8,14 +9,20 @@ struct BetaTester: Codable, Hashable {
     var firstName: String
     var lastName: String
 
-    init(
-        email: String,
-        firstName: String?,
-        lastName: String?
-    ) {
+    enum CodingKeys: String, CodingKey, CaseIterable {
+        case email = "Email"
+        case firstName = "First Name"
+        case lastName = "Last Name"
+    }
+
+    init?(betaTester: Model.BetaTester) {
+        guard let email = betaTester.email else {
+            return nil
+        }
+
         self.email = email
-        self.firstName = firstName ?? ""
-        self.lastName = lastName ?? ""
+        self.firstName = betaTester.firstName ?? ""
+        self.lastName = betaTester.lastName ?? ""
     }
 
 }

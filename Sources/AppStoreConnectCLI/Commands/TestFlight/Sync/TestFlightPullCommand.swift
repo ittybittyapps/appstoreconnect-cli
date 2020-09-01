@@ -31,14 +31,11 @@ struct TestFlightPullCommand: CommonParsableCommand {
         // TODO: A new service function should be created to efficiently gather these models
         let apps = try service.listApps(bundleIds: filterBundleIds)
         let identifiers = apps.map { app in AppLookupIdentifier.appId(app.id) }
-        let testers = try service.listBetaTesters(filterIdentifiers: identifiers)
+        let testers = try service.listBetaTesters(filterIdentifiers: identifiers, limit: 200)
         let groups = try service.listBetaGroups(filterIdentifiers: identifiers)
 
-        let processor = TestflightConfigurationProcessor(path: .folder(path: outputPath))
-        processor.writeConfiguration(apps: apps, testers: testers, groups: groups)
-
-        // TODO: Remove when the pull is completed
-        throw CommandError.unimplemented
+        let processor = TestflightConfigurationProcessor(appsFolderPath: outputPath)
+        try processor.writeConfiguration(apps: apps, testers: testers, groups: groups)
     }
 
 }

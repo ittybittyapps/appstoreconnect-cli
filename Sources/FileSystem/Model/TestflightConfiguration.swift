@@ -5,11 +5,8 @@ import Model
 
 struct TestflightConfiguration {
 
-    var appConfigurations: [AppConfiguration]
+    var app: Model.App
+    var betaTesters: [BetaTester] = []
+    var betaGroups: [BetaGroup] = []
 
-    struct AppConfiguration {
-        var app: Model.App
-        var testers: [BetaTester]
-        var betagroups: [BetaGroup]
-    }
 }
