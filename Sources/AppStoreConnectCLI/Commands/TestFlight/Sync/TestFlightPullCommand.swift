@@ -31,7 +31,7 @@ struct TestFlightPullCommand: CommonParsableCommand {
         // TODO: A new service function should be created to efficiently gather these models
         let apps = try service.listApps(bundleIds: filterBundleIds)
         let identifiers = apps.map { app in AppLookupIdentifier.appId(app.id) }
-        let testers = try service.listBetaTesters(filterIdentifiers: identifiers)
+        let testers = try service.listBetaTesters(filterIdentifiers: identifiers, limit: 200)
         let groups = try service.listBetaGroups(filterIdentifiers: identifiers)
 
         let processor = TestflightConfigurationProcessor(appsFolderPath: outputPath)
