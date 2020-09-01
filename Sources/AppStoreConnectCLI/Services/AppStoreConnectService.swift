@@ -315,22 +315,29 @@ class AppStoreConnectService {
             }
         }
 
-        return try ListBetaTestersOperation(options:
-            .init(
+        let operation = ListBetaTestersOperation(
+            options: .init(
                 email: email,
                 firstName: firstName,
                 lastName: lastName,
                 inviteType: inviteType,
-                appIds: filterAppIds,
+                appIds: nil, // Specifying app ids in the API request can cause undefined behaviour
                 groupIds: groupIds,
                 sort: sort,
                 limit: limit,
                 relatedResourcesLimit: relatedResourcesLimit
             )
         )
-        .execute(with: requestor)
-        .await()
-        .map(Model.BetaTester.init)
+
+        var betaTesters = try operation.execute(with: requestor).await()
+
+        if filterAppIds.isEmpty == false {
+            betaTesters = betaTesters.filter { betaTester in
+                betaTester.apps?.first(where: { app in filterAppIds.contains(app.id) }) != nil
+            }
+        }
+
+        return betaTesters.map(Model.BetaTester.init)
     }
 
     func listBetaTestersForGroup(
