@@ -54,4 +54,28 @@ struct TestflightConfigurationProcessor {
         }
     }
 
+    enum ReadError: LocalizedError {
+        case fileIsNotUTF8(filePath: String)
+
+        var errorDescription: String? {
+            return nil
+        }
+    }
+
+    func readConfiguration() throws -> TestflightConfiguration {
+        let folder = try Folder(path: path)
+
+        let apps = try folder.subfolders.map { appFolder -> App in
+            let appFile = try appFolder.file(named: "app.yml")
+
+            guard let yaml = String(data: try appFile.read(), encoding: .utf8) else {
+                throw ReadError.fileIsNotUTF8(filePath: appFile.path(relativeTo: folder))
+            }
+
+            return try YAMLDecoder().decode(from: yaml)
+        }
+
+        return TestflightConfiguration()
+    }
+
 }

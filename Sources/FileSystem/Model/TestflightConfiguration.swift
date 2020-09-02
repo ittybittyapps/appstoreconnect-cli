@@ -5,7 +5,9 @@ import Model
 
 struct TestflightConfiguration {
 
-    var appConfigurations: [AppConfiguration]
+    var appConfigurations: [AppConfiguration] = []
+
+    init() {}
 
     init(program: TestflightProgram) throws {
         let groupsByApp = Dictionary(grouping: program.groups, by: \.app?.id)
