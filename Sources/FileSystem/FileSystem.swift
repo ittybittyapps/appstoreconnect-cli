@@ -6,10 +6,12 @@ import Model
 public func writeTestflightConfiguration(program: TestflightProgram, to folderPath: String) throws {
     let configuration = try TestflightConfiguration(program: program)
 
-    let processor = TestflightConfigurationProcessor(appsFolderPath: folderPath)
+    let processor = TestflightConfigurationProcessor(path: folderPath)
     try processor.writeConfiguration(configuration)
 }
 
-public func readTestflightConfiguration() throws -> TestflightProgram {
+public func readTestflightConfiguration(from folderPath: String) throws -> TestflightProgram {
+    let processor = TestflightConfigurationProcessor(path: folderPath)
+
     return TestflightProgram(apps: [], testers: [], groups: [])
 }

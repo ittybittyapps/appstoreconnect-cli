@@ -8,14 +8,14 @@ import Yams
 
 struct TestflightConfigurationProcessor {
 
-    let appsFolderPath: String
+    let path: String
 
-    init(appsFolderPath: String) {
-        self.appsFolderPath = appsFolderPath
+    init(path: String) {
+        self.path = path
     }
 
     func writeConfiguration(_ configuration: TestflightConfiguration) throws {
-        let appsFolder = try Folder(path: appsFolderPath)
+        let appsFolder = try Folder(path: path)
         try appsFolder.delete()
 
         let rowsForTesters: ([BetaTester]) -> [[String]] = { testers in
