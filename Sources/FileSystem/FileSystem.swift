@@ -9,3 +9,7 @@ public func writeTestflightConfiguration(program: TestflightProgram, to folderPa
     let processor = TestflightConfigurationProcessor(appsFolderPath: folderPath)
     try processor.writeConfiguration(configuration)
 }
+
+public func readTestflightConfiguration() throws -> TestflightProgram {
+    return TestflightProgram(apps: [], testers: [], groups: [])
+}
