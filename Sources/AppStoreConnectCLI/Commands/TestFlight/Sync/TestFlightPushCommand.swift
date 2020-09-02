@@ -24,6 +24,10 @@ struct TestFlightPushCommand: CommonParsableCommand {
         let service = try makeService()
 
         let testflightProgram = try FileSystem.readTestflightConfiguration(from: inputPath)
+
+        // TODO: Push the testflight program to the API
+
+        throw CommandError.unimplemented
     }
 
 }

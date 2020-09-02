@@ -15,5 +15,7 @@ public func readTestflightConfiguration(from folderPath: String) throws -> Testf
 
     let config = try processor.readConfiguration()
 
+    // TODO: Convert a TestflightConfiguration into a TestflightProgram
+
     return TestflightProgram(apps: [], testers: [], groups: [])
 }
