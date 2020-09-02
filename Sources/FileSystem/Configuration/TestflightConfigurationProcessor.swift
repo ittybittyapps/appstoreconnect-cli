@@ -56,7 +56,7 @@ struct TestflightConfigurationProcessor {
 
     func readConfiguration() throws -> TestflightConfiguration {
         let folder = try Folder(path: path)
-        var configurations: [TestflightConfiguration.AppConfiguration] = []
+        var configuration = TestflightConfiguration()
 
         let decodeBetaTesters: (Data) throws -> [BetaTester] = { data in
             var configuration = CSVReader.Configuration()
@@ -73,7 +73,7 @@ struct TestflightConfigurationProcessor {
             }
         }
 
-        for appFolder in folder.subfolders {
+        configuration.appConfigurations = try folder.subfolders.map { appFolder in
             let appYAML = try appFolder.file(named: "app.yml").readAsString()
             let app = try YAMLDecoder().decode(from: appYAML) as App
 
@@ -87,10 +87,10 @@ struct TestflightConfigurationProcessor {
                 try YAMLDecoder().decode(from: try groupFile.readAsString())
             }
 
-            configurations += [appConfiguration]
+            return appConfiguration
         }
 
-        return TestflightConfiguration(appConfigurations: configurations)
+        return configuration
     }
 
 }
