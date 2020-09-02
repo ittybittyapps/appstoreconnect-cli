@@ -7,14 +7,11 @@ struct TestflightConfiguration {
 
     var appConfigurations: [AppConfiguration]
 
-    init(
-        apps: [Model.App],
-        testers: [Model.BetaTester],
-        groups: [Model.BetaGroup]
-    ) throws {
-        let groupsByApp = Dictionary(grouping: groups, by: \.app?.id)
+    init(program: TestflightProgram) throws {
+        let groupsByApp = Dictionary(grouping: program.groups, by: \.app?.id)
+        let testers = program.testers
 
-        appConfigurations = try apps.map { app in
+        appConfigurations = try program.apps.map { app in
             var config = try AppConfiguration(app: App(model: app))
 
             config.betaTesters = testers

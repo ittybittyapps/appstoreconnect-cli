@@ -3,14 +3,9 @@
 import Foundation
 import Model
 
-public func writeConfiguration(
-    apps: [Model.App],
-    testers: [Model.BetaTester],
-    groups: [Model.BetaGroup],
-    to appsFolderPath: String
-) throws {
-    let configuration = try TestflightConfiguration(apps: apps, testers: testers, groups: groups)
+public func writeTestflightConfiguration(program: TestflightProgram, to folderPath: String) throws {
+    let configuration = try TestflightConfiguration(program: program)
 
-    let processor = TestflightConfigurationProcessor(appsFolderPath: appsFolderPath)
+    let processor = TestflightConfigurationProcessor(appsFolderPath: folderPath)
     try processor.writeConfiguration(configuration)
 }
