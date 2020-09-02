@@ -33,7 +33,6 @@ struct CreateBuildLocalizationsCommand: CommonParsableCommand, CreateUpdateBuild
             whatsNew: whatsNew
         )
 
-        // Render long text by SwiftyTable is not supported yet
-        [buildLocalization].render(format: common.outputFormat == .table ? .json : common.outputFormat)
+        [buildLocalization].render(format: common.outputFormat)
     }
 }

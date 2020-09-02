@@ -18,14 +18,18 @@ extension Model.BuildLocalization: ResultRenderable, TableInfoProvider {
     static func tableColumns() -> [TextTableColumn] {
         [
             TextTableColumn(header: "Locale"),
-            TextTableColumn(header: "What's New"),
+            TextTableColumn(header: "What's New (truncated)"),
         ]
     }
 
     var tableRow: [CustomStringConvertible] {
         [
             locale ?? "",
-            "Render whatsNew info in table is currently not support, please use --json or --yaml instead",
+            (whatsNew ?? "")
+                .debugDescription
+                .split(separator: "\n")
+                .joined(separator: " ")
+                .truncate(to: 100)
         ]
     }
 

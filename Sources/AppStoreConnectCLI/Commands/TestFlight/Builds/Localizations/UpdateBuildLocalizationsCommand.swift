@@ -33,6 +33,6 @@ struct UpdateBuildLocalizationsCommand: CommonParsableCommand, CreateUpdateBuild
             whatsNew: whatsNew
         )
 
-        [buildLocalization].render(format: common.outputFormat == .table ? .json : common.outputFormat)
+        [buildLocalization].render(format: common.outputFormat)
     }
 }
