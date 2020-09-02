@@ -9,6 +9,10 @@ struct TestflightConfiguration {
 
     init() {}
 
+    init(appConfigurations: [AppConfiguration]) {
+        self.appConfigurations = appConfigurations
+    }
+
     init(program: TestflightProgram) throws {
         let groupsByApp = Dictionary(grouping: program.groups, by: \.app?.id)
         let testers = program.testers
@@ -16,9 +20,9 @@ struct TestflightConfiguration {
         appConfigurations = try program.apps.map { app in
             var config = try AppConfiguration(app: App(model: app))
 
-            config.betaTesters = testers
+            config.betaTesters = try testers
                 .filter { tester in tester.apps.map(\.id).contains(app.id) }
-                .compactMap(FileSystem.BetaTester.init)
+                .map(FileSystem.BetaTester.init)
 
             config.betaGroups = (groupsByApp[app.id] ?? []).map { betaGroup in
                 FileSystem.BetaGroup(

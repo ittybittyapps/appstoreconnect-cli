@@ -54,28 +54,38 @@ struct TestflightConfigurationProcessor {
         }
     }
 
-    enum ReadError: LocalizedError {
-        case fileIsNotUTF8(filePath: String)
-
-        var errorDescription: String? {
-            return nil
-        }
-    }
-
     func readConfiguration() throws -> TestflightConfiguration {
         let folder = try Folder(path: path)
+        var configurations: [TestflightConfiguration.AppConfiguration] = []
 
-        let apps = try folder.subfolders.map { appFolder -> App in
-            let appFile = try appFolder.file(named: "app.yml")
+        let decodeBetaTesters: (Data) throws -> [BetaTester] = { data in
+            var configuration = CSVReader.Configuration()
+            configuration.headerStrategy = .firstLine
 
-            guard let yaml = String(data: try appFile.read(), encoding: .utf8) else {
-                throw ReadError.fileIsNotUTF8(filePath: appFile.path(relativeTo: folder))
+            let csv = try CSVReader.decode(input: data, configuration: configuration)
+
+            return try csv.records.map { record in
+                try BetaTester(
+                    email: record[BetaTester.CodingKeys.email.rawValue],
+                    firstName: record[BetaTester.CodingKeys.firstName.rawValue],
+                    lastName: record[BetaTester.CodingKeys.lastName.rawValue]
+                )
             }
-
-            return try YAMLDecoder().decode(from: yaml)
         }
 
-        return TestflightConfiguration()
+        for appFolder in folder.subfolders {
+            let appYAML = try appFolder.file(named: "app.yml").readAsString()
+            let app = try YAMLDecoder().decode(from: appYAML) as App
+
+            var appConfiguration = TestflightConfiguration.AppConfiguration(app: app)
+
+            let testersFile = try appFolder.file(named: "beta-testers.csv")
+            appConfiguration.betaTesters = try decodeBetaTesters(try testersFile.read())
+
+            configurations += [appConfiguration]
+        }
+
+        return TestflightConfiguration(appConfigurations: configurations)
     }
 
 }
