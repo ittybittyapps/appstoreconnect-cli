@@ -82,6 +82,11 @@ struct TestflightConfigurationProcessor {
             let testersFile = try appFolder.file(named: "beta-testers.csv")
             appConfiguration.betaTesters = try decodeBetaTesters(try testersFile.read())
 
+            let groupsFolder = try appFolder.subfolder(named: "betagroups")
+            appConfiguration.betaGroups = try groupsFolder.files.map { groupFile in
+                try YAMLDecoder().decode(from: try groupFile.readAsString())
+            }
+
             configurations += [appConfiguration]
         }
 
