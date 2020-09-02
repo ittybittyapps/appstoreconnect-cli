@@ -2,6 +2,7 @@
 
 import ArgumentParser
 import FileSystem
+import Foundation
 
 struct BuildLocalizationInputArguments: ParsableArguments {
     @Argument(help: "The locale information of the build localization resource. eg. (en-AU)")
@@ -39,7 +40,11 @@ extension CreateUpdateBuildLocalizationCommand {
         if let whatsNewFromOption = localization.whatsNew {
             whatsNew = whatsNewFromOption
         } else if let filePath = localization.path {
-            whatsNew = Readers.FileReader<String>(format: .txt).readTXT(from: filePath)
+            guard let whatsNewString = try? String(contentsOfFile: filePath) else {
+                fatalError("Unable to read text from file path")
+            }
+
+            whatsNew = whatsNewString
         } else {
             print("Reading text from stdin. (press CTRL+D to finish)")
             var whatsNewStdin: [String] = []
