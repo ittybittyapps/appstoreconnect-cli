@@ -28,23 +28,30 @@ protocol CreateUpdateBuildLocalizationCommand {
 extension CreateUpdateBuildLocalizationCommand {
 
     func validateWhatsNewInput() throws {
-        if localization.whatsNew == nil && localization.path == nil {
-            throw ValidationError("Please either use --whatsNew or --path option to provide whats new info.")
-        }
-
         if localization.whatsNew != nil && localization.path != nil {
             throw ValidationError("Please provide either a file path or whats new text in terminal.")
         }
     }
 
     var whatsNew: String {
-        if let whatsNew = localization.whatsNew {
-            return whatsNew
+        let whatsNew: String
+
+        if let whatsNewFromOption = localization.whatsNew {
+            whatsNew = whatsNewFromOption
         } else if let filePath = localization.path {
-            return Readers.FileReader<String>(format: .txt).readTXT(from: filePath)
+            whatsNew = Readers.FileReader<String>(format: .txt).readTXT(from: filePath)
+        } else {
+            print("Reading text from stdin. (press CTRL+D to finish)")
+            var whatsNewStdin: [String] = []
+
+            while let line = readLine() {
+                whatsNewStdin.append(line)
+            }
+
+            whatsNew = whatsNewStdin.joined(separator: "\n")
         }
 
-        return ""
+        return whatsNew
     }
 
 }

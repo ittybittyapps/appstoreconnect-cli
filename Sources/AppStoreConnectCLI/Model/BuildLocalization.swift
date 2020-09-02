@@ -27,9 +27,8 @@ extension Model.BuildLocalization: ResultRenderable, TableInfoProvider {
             locale ?? "",
             (whatsNew ?? "")
                 .debugDescription
-                .split(separator: "\n")
-                .joined(separator: " ")
-                .truncate(to: 100)
+                .replacingOccurrences(of: "\\n", with: " ")
+                .truncate(to: 100),
         ]
     }
 
