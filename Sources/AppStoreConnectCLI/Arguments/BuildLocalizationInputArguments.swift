@@ -34,7 +34,7 @@ extension CreateUpdateBuildLocalizationCommand {
         }
     }
 
-    var whatsNew: String {
+    func readWhatsNew() -> String {
         let whatsNew: String
 
         if let whatsNewFromOption = localization.whatsNew {
@@ -46,7 +46,6 @@ extension CreateUpdateBuildLocalizationCommand {
 
             whatsNew = whatsNewString
         } else {
-            print("Reading text from stdin. (press CTRL+D to finish)")
             var whatsNewStdin: [String] = []
 
             while let line = readLine() {

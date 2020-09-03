@@ -6,7 +6,10 @@ import FileSystem
 struct UpdateBuildLocalizationsCommand: CommonParsableCommand, CreateUpdateBuildLocalizationCommand {
     static var configuration = CommandConfiguration(
         commandName: "update",
-        abstract: "Update the localized What’s New text for a specific beta build and locale."
+        abstract: "Update the localized What’s New text for a specific beta build and locale.",
+        discussion: """
+        Text from `stdin` will be read when a file path or what's new isn't specified.
+        """
     )
 
     @OptionGroup()
@@ -30,7 +33,7 @@ struct UpdateBuildLocalizationsCommand: CommonParsableCommand, CreateUpdateBuild
             buildNumber: build.buildNumber,
             preReleaseVersion: build.preReleaseVersion,
             locale: localization.locale,
-            whatsNew: whatsNew
+            whatsNew: readWhatsNew()
         )
 
         [buildLocalization].render(format: common.outputFormat)
