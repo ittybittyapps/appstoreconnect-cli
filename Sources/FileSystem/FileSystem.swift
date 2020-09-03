@@ -13,9 +13,7 @@ public func writeTestFlightConfiguration(program: TestFlightProgram, to folderPa
 public func readTestFlightConfiguration(from folderPath: String) throws -> TestFlightProgram {
     let processor = TestFlightConfigurationProcessor(path: folderPath)
 
-    let config = try processor.readConfiguration()
+    let configuration = try processor.readConfiguration()
 
-    // TODO: Convert a TestFlightConfiguration into a TestFlightProgram
-
-    return TestFlightProgram(apps: [], testers: [], groups: [])
+    return TestFlightProgram(configuration: configuration)
 }
