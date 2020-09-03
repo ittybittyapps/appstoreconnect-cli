@@ -2,8 +2,8 @@
 
 import Foundation
 
-/// Aggregated model data representing the a Testflight Beta Program (Apps, Testers and Groups)
-public struct TestflightProgram {
+/// Aggregated model data representing the a TestFlight Beta Program (Apps, Testers and Groups)
+public struct TestFlightProgram {
 
     public var apps: [App]
     public var testers: [BetaTester]

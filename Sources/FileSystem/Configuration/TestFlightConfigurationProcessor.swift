@@ -6,7 +6,7 @@ import Model
 import Files
 import Yams
 
-struct TestflightConfigurationProcessor {
+struct TestFlightConfigurationProcessor {
 
     let path: String
 
@@ -18,7 +18,7 @@ struct TestflightConfigurationProcessor {
     private let betaTestersCSVName = "beta-testers.csv"
     private let betaGroupFolderName = "betagroups"
 
-    func writeConfiguration(_ configuration: TestflightConfiguration) throws {
+    func writeConfiguration(_ configuration: TestFlightConfiguration) throws {
         let appsFolder = try Folder(path: path)
         try appsFolder.delete()
 
@@ -58,9 +58,9 @@ struct TestflightConfigurationProcessor {
         }
     }
 
-    func readConfiguration() throws -> TestflightConfiguration {
+    func readConfiguration() throws -> TestFlightConfiguration {
         let folder = try Folder(path: path)
-        var configuration = TestflightConfiguration()
+        var configuration = TestFlightConfiguration()
 
         let decodeBetaTesters: (Data) throws -> [BetaTester] = { data in
             var configuration = CSVReader.Configuration()
@@ -81,7 +81,7 @@ struct TestflightConfigurationProcessor {
             let appYAML = try appFolder.file(named: appYAMLName).readAsString()
             let app = try YAMLDecoder().decode(from: appYAML) as App
 
-            var appConfiguration = TestflightConfiguration.AppConfiguration(app: app)
+            var appConfiguration = TestFlightConfiguration.AppConfiguration(app: app)
 
             let testersFile = try appFolder.file(named: betaTestersCSVName)
             appConfiguration.betaTesters = try decodeBetaTesters(try testersFile.read())

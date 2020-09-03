@@ -3,7 +3,7 @@
 import Foundation
 import Model
 
-struct TestflightConfiguration {
+struct TestFlightConfiguration {
 
     var appConfigurations: [AppConfiguration] = []
 
@@ -13,7 +13,7 @@ struct TestflightConfiguration {
         self.appConfigurations = appConfigurations
     }
 
-    init(program: TestflightProgram) throws {
+    init(program: TestFlightProgram) throws {
         let groupsByApp = Dictionary(grouping: program.groups, by: \.app?.id)
         let testers = program.testers
 
