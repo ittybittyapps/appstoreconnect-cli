@@ -3,23 +3,26 @@
 import Foundation
 import Model
 
-struct TestflightConfiguration {
+struct TestFlightConfiguration {
 
-    var appConfigurations: [AppConfiguration]
+    var appConfigurations: [AppConfiguration] = []
 
-    init(
-        apps: [Model.App],
-        testers: [Model.BetaTester],
-        groups: [Model.BetaGroup]
-    ) throws {
-        let groupsByApp = Dictionary(grouping: groups, by: \.app?.id)
+    init() {}
 
-        appConfigurations = try apps.map { app in
+    init(appConfigurations: [AppConfiguration]) {
+        self.appConfigurations = appConfigurations
+    }
+
+    init(program: TestFlightProgram) throws {
+        let groupsByApp = Dictionary(grouping: program.groups, by: \.app?.id)
+        let testers = program.testers
+
+        appConfigurations = try program.apps.map { app in
             var config = try AppConfiguration(app: App(model: app))
 
-            config.betaTesters = testers
+            config.betaTesters = try testers
                 .filter { tester in tester.apps.map(\.id).contains(app.id) }
-                .compactMap(FileSystem.BetaTester.init)
+                .map(FileSystem.BetaTester.init)
 
             config.betaGroups = (groupsByApp[app.id] ?? []).map { betaGroup in
                 FileSystem.BetaGroup(

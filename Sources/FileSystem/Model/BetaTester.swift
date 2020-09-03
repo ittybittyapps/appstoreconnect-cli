@@ -15,14 +15,37 @@ struct BetaTester: Codable, Hashable {
         case lastName = "Last Name"
     }
 
-    init?(betaTester: Model.BetaTester) {
-        guard let email = betaTester.email else {
-            return nil
+    init(betaTester: Model.BetaTester) throws {
+        try self.init(
+            email: betaTester.email,
+            firstName: betaTester.firstName,
+            lastName: betaTester.lastName
+        )
+    }
+
+    init(
+        email: String?,
+        firstName: String?,
+        lastName: String?
+    ) throws {
+        let firstName = firstName ?? ""
+        let lastName = lastName ?? ""
+
+        guard let email = email else {
+            throw ModelError.missingTesterEmail(firstName: firstName, lastName: lastName)
         }
 
+        self.init(email: email, firstName: firstName, lastName: lastName)
+    }
+
+    init(
+        email: String,
+        firstName: String,
+        lastName: String
+    ) {
         self.email = email
-        self.firstName = betaTester.firstName ?? ""
-        self.lastName = betaTester.lastName ?? ""
+        self.firstName = firstName
+        self.lastName = lastName
     }
 
 }

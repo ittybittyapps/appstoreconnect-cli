@@ -3,14 +3,19 @@
 import Foundation
 import Model
 
-public func writeConfiguration(
-    apps: [Model.App],
-    testers: [Model.BetaTester],
-    groups: [Model.BetaGroup],
-    to appsFolderPath: String
-) throws {
-    let configuration = try TestflightConfiguration(apps: apps, testers: testers, groups: groups)
+public func writeTestFlightConfiguration(program: TestFlightProgram, to folderPath: String) throws {
+    let configuration = try TestFlightConfiguration(program: program)
 
-    let processor = TestflightConfigurationProcessor(appsFolderPath: appsFolderPath)
+    let processor = TestFlightConfigurationProcessor(path: folderPath)
     try processor.writeConfiguration(configuration)
+}
+
+public func readTestFlightConfiguration(from folderPath: String) throws -> TestFlightProgram {
+    let processor = TestFlightConfigurationProcessor(path: folderPath)
+
+    let config = try processor.readConfiguration()
+
+    // TODO: Convert a TestFlightConfiguration into a TestFlightProgram
+
+    return TestFlightProgram(apps: [], testers: [], groups: [])
 }
