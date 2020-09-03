@@ -14,6 +14,10 @@ struct TestflightConfigurationProcessor {
         self.path = path
     }
 
+    private let appYAMLName = "app.yml"
+    private let betaTestersCSVName = "beta-testers.csv"
+    private let betaGroupFolderName = "betagroups"
+
     func writeConfiguration(_ configuration: TestflightConfiguration) throws {
         let appsFolder = try Folder(path: path)
         try appsFolder.delete()
@@ -34,16 +38,16 @@ struct TestflightConfigurationProcessor {
         try configuration.appConfigurations.forEach { config in
             let appFolder = try appsFolder.createSubfolder(named: config.app.bundleId)
 
-            let appFile = try appFolder.createFile(named: "app.yml")
+            let appFile = try appFolder.createFile(named: appYAMLName)
             let appYAML = try YAMLEncoder().encode(config.app)
             try appFile.write(appYAML)
 
-            let testersFile = try appFolder.createFile(named: "beta-testers.csv")
+            let testersFile = try appFolder.createFile(named: betaTestersCSVName)
             let testerRows = rowsForTesters(config.betaTesters)
             let testersCSV = try CSVWriter.encode(rows: testerRows, into: String.self)
             try testersFile.write(testersCSV)
 
-            let groupFolder = try appFolder.createSubfolder(named: "betagroups")
+            let groupFolder = try appFolder.createSubfolder(named: betaGroupFolderName)
             let groupFiles: [(fileName: String, yamlData: String)] = try config.betaGroups.map {
                 (filenameForBetaGroup($0), try YAMLEncoder().encode($0))
             }
@@ -74,15 +78,15 @@ struct TestflightConfigurationProcessor {
         }
 
         configuration.appConfigurations = try folder.subfolders.map { appFolder in
-            let appYAML = try appFolder.file(named: "app.yml").readAsString()
+            let appYAML = try appFolder.file(named: appYAMLName).readAsString()
             let app = try YAMLDecoder().decode(from: appYAML) as App
 
             var appConfiguration = TestflightConfiguration.AppConfiguration(app: app)
 
-            let testersFile = try appFolder.file(named: "beta-testers.csv")
+            let testersFile = try appFolder.file(named: betaTestersCSVName)
             appConfiguration.betaTesters = try decodeBetaTesters(try testersFile.read())
 
-            let groupsFolder = try appFolder.subfolder(named: "betagroups")
+            let groupsFolder = try appFolder.subfolder(named: betaGroupFolderName)
             appConfiguration.betaGroups = try groupsFolder.files.map { groupFile in
                 try YAMLDecoder().decode(from: try groupFile.readAsString())
             }
