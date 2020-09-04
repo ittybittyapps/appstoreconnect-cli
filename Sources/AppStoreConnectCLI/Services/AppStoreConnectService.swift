@@ -915,11 +915,22 @@ class AppStoreConnectService {
 
     func getTestFlightProgram(filterBundleIds: [String] = []) throws -> TestFlightProgram {
         let apps = try listApps(bundleIds: filterBundleIds)
-        let identifiers = apps.map { app in AppLookupIdentifier.appId(app.id) }
-        let testers = try listBetaTesters(filterIdentifiers: identifiers, limit: 200)
-        let groups = try listBetaGroups(filterIdentifiers: identifiers)
+        let appIds = apps.map(\.id)
 
-        return TestFlightProgram(apps: apps, testers: testers, groups: groups)
+        // Passing appIds can cause undefined API behaviour for list beta testers so we retrieve all
+        // testers with a large limit to ensure a small number of requests
+        let betaTestersOperation = ListBetaTestersOperation(options: .init(limit: 200))
+        let betaGroupsOperation = ListBetaGroupsOperation(options: .init(appIds: appIds))
+
+        let (testers, groups) = try betaTestersOperation.execute(with: requestor)
+            .zip(betaGroupsOperation.execute(with: requestor))
+            .await()
+
+        return TestFlightProgram(
+            apps: apps,
+            testers: testers.map(Model.BetaTester.init),
+            groups: groups.map(Model.BetaGroup.init)
+        )
     }
 
     /// Make a request for something `Decodable`.

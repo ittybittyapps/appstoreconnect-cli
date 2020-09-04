@@ -7,15 +7,15 @@ import Foundation
 struct ListBetaTestersOperation: APIOperation {
 
     struct Options {
-        let email: String?
-        let firstName: String?
-        let lastName: String?
-        let inviteType: BetaInviteType?
-        let appIds: [String]?
-        let groupIds: [String]?
-        let sort: ListBetaTesters.Sort?
-        let limit: Int?
-        let relatedResourcesLimit: Int?
+        var email: String?
+        var firstName: String?
+        var lastName: String?
+        var inviteType: BetaInviteType?
+        var appIds: [String]?
+        var groupIds: [String]?
+        var sort: ListBetaTesters.Sort?
+        var limit: Int?
+        var relatedResourcesLimit: Int?
     }
 
     enum Error: LocalizedError {
