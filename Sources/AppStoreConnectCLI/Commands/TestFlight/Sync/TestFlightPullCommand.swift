@@ -28,7 +28,7 @@ struct TestFlightPullCommand: CommonParsableCommand {
     func run() throws {
         let service = try makeService()
 
-        let testflightProgram = try service.getTestFlightProgram()
+        let testflightProgram = try service.getTestFlightProgram(bundleIds: filterBundleIds)
 
         try FileSystem.writeTestFlightConfiguration(program: testflightProgram, to: outputPath)
     }
