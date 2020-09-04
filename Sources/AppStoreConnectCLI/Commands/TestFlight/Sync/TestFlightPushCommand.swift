@@ -34,6 +34,16 @@ struct TestFlightPushCommand: CommonParsableCommand {
         let remoteTestFlightProgram = try service.getTestFlightProgram()
 
         // TODO: Compare local and remote Program
+        var actions: [SyncAction] = []
+
+        let localGroups = localTestFlightProgram.groups
+        let groupsToAdd: [BetaGroup] = localGroups.filter { $0.id == nil }
+        actions += groupsToAdd.map(SyncAction.addBetaGroup)
+
+        let localGroupIds = localGroups.map(\.id)
+        let groupsToRemove: [BetaGroup] = remoteTestFlightProgram.groups
+            .filter { group in localGroupIds.contains(group.id) == false }
+        actions += groupsToRemove.map(SyncAction.removeBetaGroup)
 
         // TODO: Push the testflight program to the API
 
