@@ -21,10 +21,29 @@ struct TestFlightPushCommand: CommonParsableCommand {
     ) var inputPath: String
 
     enum SyncAction {
+
         case addBetaGroup(BetaGroup)
         case removeBetaGroup(BetaGroup)
         case addBetaTester(BetaTester, toBetaGroups: [BetaGroup])
         case removeBetaTester(BetaTester, fromBetaGroups: [BetaGroup])
+
+        var description: String {
+            switch self {
+            case .addBetaGroup(let betaGroup):
+                let groupName = betaGroup.groupName ?? "Unnamed BetaGroup"
+                let bundleId = betaGroup.app?.bundleId ?? ""
+                return "Beta group named: \(groupName) will be added to app with bundleId: \(bundleId)"
+            case .removeBetaGroup(let betaGroup):
+                let groupName = betaGroup.groupName ?? "Unnamed BetaGroup"
+                let bundleId = betaGroup.app?.bundleId ?? ""
+                return "Beta group named: \(groupName) will be removed from app with bundleId: \(bundleId)"
+            case .addBetaTester(let betaTester, let betaGroups):
+                return ""
+            case .removeBetaTester(let betaTester, let betaGroups):
+                return ""
+            }
+        }
+
     }
 
     func run() throws {
@@ -44,6 +63,8 @@ struct TestFlightPushCommand: CommonParsableCommand {
         let groupsToRemove: [BetaGroup] = remoteTestFlightProgram.groups
             .filter { group in localGroupIds.contains(group.id) == false }
         actions += groupsToRemove.map(SyncAction.removeBetaGroup)
+
+        actions.forEach { print($0.description) }
 
         // TODO: Push the testflight program to the API
 
