@@ -34,14 +34,14 @@ extension CreateUpdateBuildLocalizationCommand {
         }
     }
 
-    func readWhatsNew() -> String {
+    func readWhatsNew() throws -> String {
         let whatsNew: String
 
         if let whatsNewFromOption = localization.whatsNew {
             whatsNew = whatsNewFromOption
         } else if let filePath = localization.path {
             guard let whatsNewString = try? String(contentsOfFile: filePath) else {
-                fatalError("Unable to read text from file path")
+                throw Error.invalidFilePath(filePath)
             }
 
             whatsNew = whatsNewString
@@ -58,4 +58,15 @@ extension CreateUpdateBuildLocalizationCommand {
         return whatsNew
     }
 
+}
+
+private enum Error: LocalizedError {
+    case invalidFilePath(String)
+
+    var errorDescription: String? {
+        switch self {
+        case .invalidFilePath(let filePath):
+            return "Unable to read text from file path: '\(filePath)'."
+        }
+    }
 }
