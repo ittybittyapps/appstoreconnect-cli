@@ -20,6 +20,13 @@ struct TestFlightPushCommand: CommonParsableCommand {
         help: "Path to read in the TestFlight configuration."
     ) var inputPath: String
 
+    enum SyncAction {
+        case addBetaGroup(BetaGroup)
+        case removeBetaGroup(BetaGroup)
+        case addBetaTester(BetaTester, toBetaGroups: [BetaGroup])
+        case removeBetaTester(BetaTester, fromBetaGroups: [BetaGroup])
+    }
+
     func run() throws {
         let localTestFlightProgram = try FileSystem.readTestFlightConfiguration(from: inputPath)
 
