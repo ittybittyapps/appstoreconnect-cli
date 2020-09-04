@@ -6,10 +6,10 @@ import Combine
 struct ListAppsOperation: APIOperation {
 
     struct Options {
-        let bundleIds: [String]
-        let names: [String]
-        let skus: [String]
-        let limit: Int?
+        var bundleIds: [String] = []
+        var names: [String] = []
+        var skus: [String] = []
+        var limit: Int?
     }
 
     private let options: Options
