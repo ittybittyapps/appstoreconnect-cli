@@ -28,13 +28,8 @@ struct TestFlightPullCommand: CommonParsableCommand {
     func run() throws {
         let service = try makeService()
 
-        // TODO: A new service function should be created to efficiently gather these models
-        let apps = try service.listApps(bundleIds: filterBundleIds)
-        let identifiers = apps.map { app in AppLookupIdentifier.appId(app.id) }
-        let testers = try service.listBetaTesters(filterIdentifiers: identifiers, limit: 200)
-        let groups = try service.listBetaGroups(filterIdentifiers: identifiers)
+        let testflightProgram = try service.getTestFlightProgram()
 
-        let testflightProgram = TestFlightProgram(apps: apps, testers: testers, groups: groups)
         try FileSystem.writeTestFlightConfiguration(program: testflightProgram, to: outputPath)
     }
 

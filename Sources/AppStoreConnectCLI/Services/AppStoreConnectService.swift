@@ -913,6 +913,15 @@ class AppStoreConnectService {
             .await()
     }
 
+    func getTestFlightProgram(filterBundleIds: [String] = []) throws -> TestFlightProgram {
+        let apps = try listApps(bundleIds: filterBundleIds)
+        let identifiers = apps.map { app in AppLookupIdentifier.appId(app.id) }
+        let testers = try listBetaTesters(filterIdentifiers: identifiers, limit: 200)
+        let groups = try listBetaGroups(filterIdentifiers: identifiers)
+
+        return TestFlightProgram(apps: apps, testers: testers, groups: groups)
+    }
+
     /// Make a request for something `Decodable`.
     ///
     /// - Parameters:
