@@ -23,7 +23,7 @@ struct TestFlightPushCommand: CommonParsableCommand {
     func run() throws {
         let service = try makeService()
 
-        let testflightProgram = try FileSystem.readTestFlightConfiguration(from: inputPath)
+        let testFlightProgram = try FileSystem.readTestFlightConfiguration(from: inputPath)
 
         // TODO: Push the testflight program to the API
 
