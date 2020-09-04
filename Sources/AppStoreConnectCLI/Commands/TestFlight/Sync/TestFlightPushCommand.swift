@@ -21,9 +21,12 @@ struct TestFlightPushCommand: CommonParsableCommand {
     ) var inputPath: String
 
     func run() throws {
-        let service = try makeService()
+        let localTestFlightProgram = try FileSystem.readTestFlightConfiguration(from: inputPath)
 
-        let testFlightProgram = try FileSystem.readTestFlightConfiguration(from: inputPath)
+        let service = try makeService()
+        let remoteTestFlightProgram = try service.getTestFlightProgram()
+
+        // TODO: Compare local and remote Program
 
         // TODO: Push the testflight program to the API
 
