@@ -913,8 +913,9 @@ class AppStoreConnectService {
             .await()
     }
 
-    func getTestFlightProgram(filterBundleIds: [String] = []) throws -> TestFlightProgram {
-        let apps = try listApps(bundleIds: filterBundleIds)
+    func getTestFlightProgram(bundleIds: [String] = []) throws -> TestFlightProgram {
+        let appsOperation = ListAppsOperation(options: .init(bundleIds: bundleIds))
+        let apps = try appsOperation.execute(with: requestor).await()
         let appIds = apps.map(\.id)
 
         // Passing appIds can cause undefined API behaviour for list beta testers so we retrieve all
@@ -927,7 +928,7 @@ class AppStoreConnectService {
             .await()
 
         return TestFlightProgram(
-            apps: apps,
+            apps: apps.map(Model.App.init),
             testers: testers.map(Model.BetaTester.init),
             groups: groups.map(Model.BetaGroup.init)
         )
