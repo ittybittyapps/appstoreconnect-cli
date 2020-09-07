@@ -10,4 +10,7 @@ extension String {
         return String(String.UnicodeScalarView(filtered))
     }
 
+    func truncate(to length: Int, with trailing: String = "…") -> String {
+        (self.count > length) ? self.prefix(length) + trailing : self
+    }
 }
