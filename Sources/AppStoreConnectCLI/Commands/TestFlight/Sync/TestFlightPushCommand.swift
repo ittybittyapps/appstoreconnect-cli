@@ -28,19 +28,27 @@ struct TestFlightPushCommand: CommonParsableCommand {
         case removeBetaTester(BetaTester, fromBetaGroups: [BetaGroup])
 
         var description: String {
+
+            let operation: String = {
+                switch self {
+                case .addBetaGroup, .addBetaTester: return "added to"
+                case .removeBetaGroup, .removeBetaTester: return "removed from"
+                }
+            }()
+
             switch self {
-            case .addBetaGroup(let betaGroup):
-                let groupName = betaGroup.groupName ?? "Unnamed BetaGroup"
+            case .addBetaGroup(let betaGroup), .removeBetaGroup(let betaGroup):
+                let name = betaGroup.groupName ?? ""
                 let bundleId = betaGroup.app?.bundleId ?? ""
-                return "Beta group named: \(groupName) will be added to app with bundleId: \(bundleId)"
-            case .removeBetaGroup(let betaGroup):
-                let groupName = betaGroup.groupName ?? "Unnamed BetaGroup"
-                let bundleId = betaGroup.app?.bundleId ?? ""
-                return "Beta group named: \(groupName) will be removed from app with bundleId: \(bundleId)"
-            case .addBetaTester(let betaTester, let betaGroups):
-                return ""
-            case .removeBetaTester(let betaTester, let betaGroups):
-                return ""
+
+                return "Beta group named: \(name) will be \(operation) app with bundleId: \(bundleId)"
+
+            case .addBetaTester(let betaTester, let betaGroups),
+                 .removeBetaTester(let betaTester, let betaGroups):
+                let email = betaTester.email ?? ""
+                let groupNames = betaGroups.map({ $0.groupName ?? "" }).joined(separator: ", ")
+
+                return "Beta Tester with email: \(email) will be \(operation) groups: \(groupNames)"
             }
         }
 
