@@ -60,9 +60,9 @@ struct TestFlightPushCommand: CommonParsableCommand {
         let service = try makeService()
         let remoteTestFlightProgram = try service.getTestFlightProgram()
 
-        // TODO: Compare local and remote Program
         var actions: [SyncAction] = []
 
+        // Groups
         let localGroups = localTestFlightProgram.groups
         let groupsToAdd: [BetaGroup] = localGroups.filter { $0.id == nil }
         actions += groupsToAdd.map(SyncAction.addBetaGroup)
@@ -71,6 +71,30 @@ struct TestFlightPushCommand: CommonParsableCommand {
         let groupsToRemove: [BetaGroup] = remoteTestFlightProgram.groups
             .filter { group in localGroupIds.contains(group.id) == false }
         actions += groupsToRemove.map(SyncAction.removeBetaGroup)
+
+        // Testers
+        let localTesters = localTestFlightProgram.testers
+        let remoteTesters = remoteTestFlightProgram.testers
+
+        // New Testers
+        let newTesters = localTesters.filter { !remoteTesters.map(\.email).contains($0.email) }
+        actions += newTesters.map { SyncAction.addBetaTester($0, toBetaGroups: $0.betaGroups) }
+
+        // Update Existing
+        for remoteTester in remoteTesters {
+            if let localTester = localTesters.first(where: { $0.email == remoteTester.email }) {
+                let groupsToAdd = localTester.betaGroups.filter { $0.id == nil }
+                let addAction = SyncAction.addBetaTester(localTester, toBetaGroups: groupsToAdd)
+                actions += groupsToAdd.isNotEmpty ? [addAction] : []
+
+                let groupsToRemove = remoteTester.betaGroups
+                    .filter { !localTester.betaGroups.map(\.id).contains($0.id) }
+                let removeAction = SyncAction.removeBetaTester(localTester, fromBetaGroups: groupsToRemove)
+                actions += groupsToRemove.isNotEmpty ? [removeAction] : []
+            } else if remoteTester.betaGroups.isNotEmpty {
+                actions.append(.removeBetaTester(remoteTester, fromBetaGroups: remoteTester.betaGroups))
+            }
+        }
 
         actions.forEach { print($0.description) }
 
