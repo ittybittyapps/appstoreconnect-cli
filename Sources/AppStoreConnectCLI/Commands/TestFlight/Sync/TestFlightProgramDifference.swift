@@ -58,7 +58,8 @@ struct TestFlightProgramDifference {
 
         for remoteTester in remote.testers {
             if let localTester = local.testers.first(where: { $0.email == remoteTester.email }) {
-                let groupsToAdd = localTester.betaGroups.filter { $0.id == nil }
+                let groupsToAdd = localTester.betaGroups
+                    .filter { !remoteTester.betaGroups.map(\.id).contains($0.id) }
                 let addAction = Change.addBetaTester(localTester, toBetaGroups: groupsToAdd)
                 changes += groupsToAdd.isNotEmpty ? [addAction] : []
 
