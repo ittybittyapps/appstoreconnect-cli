@@ -7,9 +7,9 @@ import Foundation
 struct ListBetaGroupsOperation: APIOperation {
 
     struct Options {
-        let appIds: [String]
-        let names: [String]
-        let sort: ListBetaGroups.Sort?
+        var appIds: [String] = []
+        var names: [String] = []
+        var sort: ListBetaGroups.Sort?
         var excludeInternal: Bool?
     }
 
