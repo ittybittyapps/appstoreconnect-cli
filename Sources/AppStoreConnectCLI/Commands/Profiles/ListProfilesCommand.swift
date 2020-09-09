@@ -25,7 +25,11 @@ struct ListProfilesCommand: CommonParsableCommand {
     )
     var sort: Profiles.Sort?
 
-    // TODO?: filter[id]
+    @Option(
+        parsing: .upToNextOption,
+        help: "The resource id of the profile."
+    )
+    var filterId: [String]
 
     @Option(
         parsing: .upToNextOption,
@@ -66,6 +70,7 @@ struct ListProfilesCommand: CommonParsableCommand {
         let service = try makeService()
 
         let profiles = try service.listProfiles(
+            ids: filterId,
             filterName: filterName,
             filterProfileState: filterProfileState,
             filterProfileType: filterProfileType,

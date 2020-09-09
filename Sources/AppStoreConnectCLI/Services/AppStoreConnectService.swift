@@ -718,7 +718,16 @@ class AppStoreConnectService {
             .map(Model.Profile.init)
     }
 
+    func readProfile(id: String) throws -> Model.Profile {
+        Model.Profile(
+            try ReadProfileOperation(options: .init(id: id))
+                .execute(with: requestor)
+                .await()
+        )
+    }
+
     func listProfiles(
+        ids: [String],
         filterName: [String],
         filterProfileState: ProfileState?,
         filterProfileType: [ProfileType],
@@ -726,17 +735,18 @@ class AppStoreConnectService {
         limit: Int?
     ) throws -> [Model.Profile] {
         try ListProfilesOperation(
-                options: .init(
-                    filterName: filterName,
-                    filterProfileState: filterProfileState,
-                    filterProfileType: filterProfileType,
-                    sort: sort,
-                    limit: limit
-                )
+            options: .init(
+                ids: ids,
+                filterName: filterName,
+                filterProfileState: filterProfileState,
+                filterProfileType: filterProfileType,
+                sort: sort,
+                limit: limit
             )
-            .execute(with: requestor)
-            .await()
-            .map(Model.Profile.init)
+        )
+        .execute(with: requestor)
+        .await()
+        .map(Model.Profile.init)
     }
 
     func createProfile(

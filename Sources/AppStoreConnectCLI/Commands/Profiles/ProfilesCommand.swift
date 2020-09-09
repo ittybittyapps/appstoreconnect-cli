@@ -12,6 +12,7 @@ struct ProfilesCommand: ParsableCommand {
             DeleteProfileCommand.self,
             ListProfilesCommand.self,
             ListProfilesByBundleIdCommand.self,
+            ReadProfileCommand.self,
         ],
         defaultSubcommand: ListProfilesCommand.self
     )

@@ -7,11 +7,10 @@ import SwiftyTextTable
 
 extension Model.Profile {
     init(_ apiProfile: AppStoreConnect_Swift_SDK.Profile) {
-        self.init(apiProfile.attributes!)
-    }
+        let attributes = apiProfile.attributes!
 
-    init(_ attributes: AppStoreConnect_Swift_SDK.Profile.Attributes) {
         self.init(
+            id: apiProfile.id,
             name: attributes.name,
             platform: attributes.platform?.rawValue,
             profileContent: attributes.profileContent,
@@ -31,6 +30,7 @@ extension Model.Profile {
 extension Model.Profile: TableInfoProvider {
     static func tableColumns() -> [TextTableColumn] {
         return [
+            TextTableColumn(header: "ID"),
             TextTableColumn(header: "UUID"),
             TextTableColumn(header: "Name"),
             TextTableColumn(header: "Platform"),
@@ -43,6 +43,7 @@ extension Model.Profile: TableInfoProvider {
 
     var tableRow: [CustomStringConvertible] {
         return [
+            id ?? "",
             uuid ?? "",
             name ?? "",
             platform ?? "",
