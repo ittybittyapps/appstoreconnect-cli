@@ -79,7 +79,10 @@ struct ListProfilesCommand: CommonParsableCommand {
             try profiles.forEach {
                 let file = try processor.write($0)
 
-                print("📥 Profile '\($0.name!)' downloaded to: \(file.path)")
+                // Only print if the `PrintLevel` is set to verbose.
+                if common.printLevel == .verbose {
+                    print("📥 Profile '\($0.name!)' downloaded to: \(file.path)")
+                }
             }
         }
 

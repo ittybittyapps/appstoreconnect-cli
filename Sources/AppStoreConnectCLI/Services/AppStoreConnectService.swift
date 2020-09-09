@@ -15,10 +15,10 @@ class AppStoreConnectService {
     }
 
     func listApps(
-        bundleIds: [String],
-        names: [String],
-        skus: [String],
-        limit: Int?
+        bundleIds: [String] = [],
+        names: [String] = [],
+        skus: [String] = [],
+        limit: Int? = nil
     ) throws -> [Model.App] {
         let operation = ListAppsOperation(
             options: .init(bundleIds: bundleIds, names: names, skus: skus, limit: limit)
@@ -277,15 +277,15 @@ class AppStoreConnectService {
     }
 
     func listBetaTesters(
-        email: String?,
-        firstName: String?,
-        lastName: String?,
-        inviteType: BetaInviteType?,
-        filterIdentifiers: [AppLookupIdentifier],
-        groupNames: [String],
-        sort: ListBetaTesters.Sort?,
-        limit: Int?,
-        relatedResourcesLimit: Int?
+        email: String? = nil,
+        firstName: String? = nil,
+        lastName: String? = nil,
+        inviteType: BetaInviteType? = nil,
+        filterIdentifiers: [AppLookupIdentifier] = [],
+        groupNames: [String] = [],
+        sort: ListBetaTesters.Sort? = nil,
+        limit: Int? = nil,
+        relatedResourcesLimit: Int? = nil
     ) throws -> [Model.BetaTester] {
 
         var filterAppIds: [String] = []
@@ -315,57 +315,56 @@ class AppStoreConnectService {
             }
         }
 
-        return try ListBetaTestersOperation(options:
-            .init(
+        let operation = ListBetaTestersOperation(
+            options: .init(
                 email: email,
                 firstName: firstName,
                 lastName: lastName,
                 inviteType: inviteType,
-                appIds: filterAppIds,
+                appIds: nil, // Specifying app ids in the API request can cause undefined behaviour
                 groupIds: groupIds,
                 sort: sort,
                 limit: limit,
                 relatedResourcesLimit: relatedResourcesLimit
             )
         )
-        .execute(with: requestor)
-        .await()
-        .map(Model.BetaTester.init)
+
+        var betaTesters = try operation.execute(with: requestor).await()
+
+        if filterAppIds.isEmpty == false {
+            betaTesters = betaTesters.filter { betaTester in
+                betaTester.apps?.first(where: { app in filterAppIds.contains(app.id) }) != nil
+            }
+        }
+
+        return betaTesters.map(Model.BetaTester.init)
     }
 
-    func listBetaTestersForGroup(identifier: AppLookupIdentifier, groupName: String)
-        throws -> [Model.BetaTester] {
+    func listBetaTestersForGroup(
+        identifier: AppLookupIdentifier,
+        groupName: String
+    ) throws -> [Model.BetaTester] {
+        let readAppOperation = ReadAppOperation(options: .init(identifier: identifier))
+        let app = try readAppOperation.execute(with: requestor).await()
 
-            var appId: String = ""
+        let getBetaGroupOperation = GetBetaGroupOperation(
+            options: .init(appId: app.id, bundleId: nil, betaGroupName: groupName)
+        )
+        let betaGroup = try getBetaGroupOperation.execute(with: requestor).await()
 
-            switch identifier {
-            case .appId(let id):
-                appId = id
-            case .bundleId(let bundleId):
-                let appsOperation = GetAppsOperation(options: .init(bundleIds: [bundleId]))
-                appId = try appsOperation.execute(with: requestor).compactMap(\.first).await().id
-            }
+        let operation = ListBetaTestersByGroupOperation(options: .init(groupId: betaGroup.id))
+        let output = try operation.execute(with: requestor).await()
 
-            let groupId = try GetBetaGroupOperation(
-                options: .init(appId: appId, bundleId: nil, betaGroupName: groupName)
+        return output.map { apiBetaTester -> Model.BetaTester in
+            Model.BetaTester(
+                email: apiBetaTester.attributes?.email,
+                firstName: apiBetaTester.attributes?.firstName,
+                lastName: apiBetaTester.attributes?.lastName,
+                inviteType: (apiBetaTester.attributes?.inviteType).map { $0.rawValue },
+                betaGroups: [Model.BetaGroup(app, betaGroup)],
+                apps: [Model.App(app)]
             )
-            .execute(with: requestor)
-            .await()
-            .id
-
-            let operation = ListBetaTestersByGroupOperation(options: .init(groupId: groupId))
-            let output = try operation.execute(with: requestor).await()
-
-            return output.map { (betatester: AppStoreConnect_Swift_SDK.BetaTester) -> Model.BetaTester in
-                Model.BetaTester(
-                    email: betatester.attributes?.email,
-                    firstName: betatester.attributes?.firstName,
-                    lastName: betatester.attributes?.lastName,
-                    inviteType: (betatester.attributes?.inviteType).map { $0.rawValue },
-                    betaGroups: [groupName],
-                    apps: [appId]
-                )
-            }
+        }
     }
 
     func removeTesterFromGroups(email: String, groupNames: [String]) throws {
@@ -474,10 +473,10 @@ class AppStoreConnectService {
     }
 
     func listBetaGroups(
-        filterIdentifiers: [AppLookupIdentifier],
-        names: [String],
-        sort: ListBetaGroups.Sort?,
-        excludeInternal: Bool
+        filterIdentifiers: [AppLookupIdentifier] = [],
+        names: [String] = [],
+        sort: ListBetaGroups.Sort? = nil,
+        excludeInternal: Bool = false
     ) throws -> [Model.BetaGroup] {
         var filterAppIds: [String] = []
         var filterBundleIds: [String] = []
@@ -930,6 +929,148 @@ class AppStoreConnectService {
             .await()
     }
 
+    func listBuildsLocalizations(
+        bundleId: String,
+        buildNumber: String,
+        preReleaseVersion: String,
+        limit: Int?
+    ) throws -> [BuildLocalization] {
+        let buildId = try getBuildIdFrom(
+            bundleId: bundleId,
+            buildNumber: buildNumber,
+            preReleaseVersion: preReleaseVersion
+        )
+
+        return try ListBuildLocalizationOperation(
+            options: .init(id: buildId, limit: limit)
+        )
+        .execute(with: requestor)
+        .await()
+        .map(BuildLocalization.init)
+    }
+
+    func readBuildLocaization(
+        bundleId: String,
+        buildNumber: String,
+        preReleaseVersion: String,
+        locale: String
+    ) throws -> BuildLocalization {
+        let buildId = try getBuildIdFrom(
+            bundleId: bundleId,
+            buildNumber: buildNumber,
+            preReleaseVersion: preReleaseVersion
+        )
+
+        return BuildLocalization(
+            try ReadBuildLocalizationOperation(
+                options: .init(id: buildId, locale: locale)
+            )
+            .execute(with: requestor)
+            .await()
+        )
+    }
+
+    func deleteBuildLocalization(
+        bundleId: String,
+        buildNumber: String,
+        preReleaseVersion: String,
+        locale: String
+    ) throws {
+        let buildId = try getBuildIdFrom(
+            bundleId: bundleId,
+            buildNumber: buildNumber,
+            preReleaseVersion: preReleaseVersion
+        )
+
+        let buildLocalizationId = try ReadBuildLocalizationOperation(
+            options: .init(id: buildId, locale: locale)
+        )
+        .execute(with: requestor)
+        .await()
+        .id
+
+        try DeleteBuildLocalizationOperation(
+            options: .init(localizationId: buildLocalizationId)
+        )
+        .execute(with: requestor)
+        .await()
+    }
+
+    func createBuildLocalization(
+        bundleId: String,
+        buildNumber: String,
+        preReleaseVersion: String,
+        locale: String,
+        whatsNew: String
+    ) throws -> BuildLocalization {
+        let buildId = try getBuildIdFrom(
+            bundleId: bundleId,
+            buildNumber: buildNumber,
+            preReleaseVersion: preReleaseVersion
+        )
+
+        return BuildLocalization(
+            try CreateBuildLocalizationOperation(
+                options: .init(buildId: buildId, locale: locale, whatsNew: whatsNew)
+            )
+            .execute(with: requestor)
+            .await()
+        )
+    }
+
+    func upateBuildLocalization(
+        bundleId: String,
+        buildNumber: String,
+        preReleaseVersion: String,
+        locale: String,
+        whatsNew: String
+    ) throws -> BuildLocalization {
+        let buildId = try getBuildIdFrom(
+            bundleId: bundleId,
+            buildNumber: buildNumber,
+            preReleaseVersion: preReleaseVersion
+        )
+
+        let buildLocalizationId = try ReadBuildLocalizationOperation(
+            options: .init(id: buildId, locale: locale)
+        )
+        .execute(with: requestor)
+        .await()
+        .id
+
+        return BuildLocalization(
+            try UpdateBuildLocalizationOperation(
+                options: .init(
+                    localizationId: buildLocalizationId,
+                    whatsNew: whatsNew
+                )
+            )
+            .execute(with: requestor)
+            .await()
+        )
+    }
+
+    func getTestFlightProgram(bundleIds: [String] = []) throws -> TestFlightProgram {
+        let appsOperation = ListAppsOperation(options: .init(bundleIds: bundleIds))
+        let apps = try appsOperation.execute(with: requestor).await()
+        let appIds = apps.map(\.id)
+
+        // Passing appIds can cause undefined API behaviour for list beta testers so we retrieve all
+        // testers with a large limit to ensure a small number of requests
+        let betaTestersOperation = ListBetaTestersOperation(options: .init(limit: 200))
+        let betaGroupsOperation = ListBetaGroupsOperation(options: .init(appIds: appIds))
+
+        let (testers, groups) = try betaTestersOperation.execute(with: requestor)
+            .zip(betaGroupsOperation.execute(with: requestor))
+            .await()
+
+        return TestFlightProgram(
+            apps: apps.map(Model.App.init),
+            testers: testers.map(Model.BetaTester.init),
+            groups: groups.map(Model.BetaGroup.init)
+        )
+    }
+
     /// Make a request for something `Decodable`.
     ///
     /// - Parameters:
@@ -989,6 +1130,29 @@ extension AppStoreConnectService {
             .map(\.betaGroup.id)
 
         return (buildId, groupIds)
+    }
+
+    private func getBuildIdFrom(
+        bundleId: String,
+        buildNumber: String,
+        preReleaseVersion: String
+    ) throws -> String {
+        let appId = try ReadAppOperation(options: .init(identifier: .bundleId(bundleId)))
+        .execute(with: requestor)
+        .await()
+        .id
+
+        return try ReadBuildOperation(
+            options: .init(
+                appId: appId,
+                buildNumber: buildNumber,
+                preReleaseVersion: preReleaseVersion
+            )
+        )
+        .execute(with: requestor)
+        .await()
+        .build
+        .id
     }
 
 }

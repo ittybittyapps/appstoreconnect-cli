@@ -31,3 +31,4 @@ Temporary Items
 /*.xcodeproj
 xcuserdata/
 config/auth.yml
+config/apps

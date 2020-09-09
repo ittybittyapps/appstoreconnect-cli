@@ -55,7 +55,9 @@ protocol ResultRenderable: Codable {
 extension ResultRenderable {
     func renderAsJSON() -> String {
         let jsonEncoder = JSONEncoder()
-        jsonEncoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        // Withholding `.prettyPrinted` to maintain output that is parsable by default.
+        // Consider adding the option `--pretty` if needed https://github.com/ittybittyapps/appstoreconnect-cli/issues/221
+        jsonEncoder.outputFormatting = [.sortedKeys]
         let json = try! jsonEncoder.encode(self) // swiftlint:disable:this force_try
         return String(data: json, encoding: .utf8)!
     }

@@ -21,13 +21,7 @@ protocol ResourceReader: PathProvider {
     func read() throws -> [T]
 }
 
-protocol ResourceWriter: PathProvider {
-    associatedtype T: Codable, FileProvider
-
-    func write(_: [T]) throws -> [File]
-
-    func write(_: T) throws -> File
-}
+protocol ResourceWriter: PathProvider { }
 
 protocol PathProvider {
     var path: ResourcePath { get }
