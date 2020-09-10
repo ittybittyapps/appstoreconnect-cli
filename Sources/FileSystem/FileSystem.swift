@@ -15,5 +15,5 @@ public func readTestFlightConfiguration(from folderPath: String) throws -> TestF
 
     let configuration = try processor.readConfiguration()
 
-    return TestFlightProgram(configuration: configuration)
+    return try TestFlightProgram(configuration: configuration)
 }

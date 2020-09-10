@@ -3,11 +3,29 @@
 import Foundation
 import Model
 
+enum TestFlightProgramError: LocalizedError {
+
+    case testerWithNoGroups(Model.BetaTester)
+
+    var errorDescription: String? {
+        switch self {
+        case .testerWithNoGroups(let tester):
+            let email = tester.email ?? ""
+            let bundleIds = tester.apps.compactMap(\.bundleId).joined(separator: ", ")
+
+            return "Tester with email: \(email) " +
+                "being added to apps: \(bundleIds) " +
+                "has not been added to any beta groups"
+        }
+    }
+
+}
+
 extension TestFlightProgram {
 
-    init(configuration: TestFlightConfiguration) {
+    init(configuration: TestFlightConfiguration) throws {
         var apps: [Model.App] = []
-        var testers: [String: Model.BetaTester] = [:]
+        var testersByEmail: [String: Model.BetaTester] = [:]
         var groups: [Model.BetaGroup] = []
 
         for appConfiguration in configuration.appConfigurations {
@@ -18,16 +36,22 @@ extension TestFlightProgram {
             groups += appConfiguration.betaGroups.map(betaGroupModel)
 
             for betaTester in appConfiguration.betaTesters {
-                var tester = testers[betaTester.email] ?? Model.BetaTester(betaTester: betaTester)
+                var tester = testersByEmail[betaTester.email] ?? .init(betaTester: betaTester)
                 tester.apps.append(app)
                 tester.betaGroups += appConfiguration.betaGroups
                     .filter { $0.testers.contains(betaTester.email) }
                     .map(betaGroupModel)
-                testers[betaTester.email] = tester
+                testersByEmail[betaTester.email] = tester
             }
         }
 
-        self.init(apps: apps, testers: Array(testers.values), groups: groups)
+        let testers = Array(testersByEmail.values)
+
+        if let testerWithNoGroups = testers.first(where: { $0.betaGroups.isEmpty }) {
+            throw TestFlightProgramError.testerWithNoGroups(testerWithNoGroups)
+        }
+
+        self.init(apps: apps, testers: testers, groups: groups)
     }
 
 }
