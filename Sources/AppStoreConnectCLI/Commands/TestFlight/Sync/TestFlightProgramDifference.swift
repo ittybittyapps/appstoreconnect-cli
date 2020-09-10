@@ -25,14 +25,18 @@ struct TestFlightProgramDifference {
                 let name = betaGroup.groupName ?? ""
                 let bundleId = betaGroup.app?.bundleId ?? ""
 
-                return "Beta group named: \(name) will be \(operation) app with bundleId: \(bundleId)"
+                return "Beta group named: \(name) " +
+                    "will be \(operation) app with bundleId: \(bundleId)"
 
             case .addBetaTester(let betaTester, let betaGroups),
                  .removeBetaTester(let betaTester, let betaGroups):
                 let email = betaTester.email ?? ""
-                let groupNames = betaGroups.map({ $0.groupName ?? "" }).joined(separator: ", ")
+                let groupNames = betaGroups.compactMap(\.groupName).joined(separator: ", ")
+                let bundleIds = betaGroups.compactMap(\.app?.bundleId).joined(separator: ", ")
 
-                return "Beta Tester with email: \(email) will be \(operation) groups: \(groupNames)"
+                return "Beta Tester with email: \(email) " +
+                    "will be \(operation) groups: \(groupNames) " +
+                    "in apps: \(bundleIds)"
             }
         }
     }
