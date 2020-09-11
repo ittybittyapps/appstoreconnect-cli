@@ -85,17 +85,24 @@ struct TestFlightProgramDifference {
                     let appIds = remoteApps.map(\.id) + remoteBetaGroups.compactMap(\.app?.id)
                     return appIds.contains(app.id) == false
                 }
-                let addToApps = Change.addBetaTesterToApps(localTester, appsToAdd)
+                let addToApps = Change.addBetaTesterToApps(remoteTester, appsToAdd)
                 changes += appsToAdd.isNotEmpty ? [addToApps] : []
 
                 let groupsToAdd = localTester.betaGroups
                     .filter { !remoteBetaGroups.map(\.id).contains($0.id) }
-                let addToGroups = Change.addBetaTesterToGroups(localTester, groupsToAdd)
+                let addToGroups = Change.addBetaTesterToGroups(remoteTester, groupsToAdd)
                 changes += groupsToAdd.isNotEmpty ? [addToGroups] : []
+
+                let appsToRemove = remoteApps.filter { app in
+                    let appIds = localTester.apps.map(\.id) + localTester.betaGroups.compactMap(\.app?.id)
+                    return appIds.contains(app.id) == false
+                }
+                let removeFromApps = Change.removeBetaTesterFromApps(remoteTester, appsToRemove)
+                changes += appsToRemove.isNotEmpty ? [removeFromApps] : []
 
                 let groupsToRemove = remoteBetaGroups
                     .filter { !localTester.betaGroups.map(\.id).contains($0.id) }
-                let removeFromGroups = Change.removeBetaTesterFromGroups(localTester, groupsToRemove)
+                let removeFromGroups = Change.removeBetaTesterFromGroups(remoteTester, groupsToRemove)
                 changes += groupsToRemove.isNotEmpty ? [removeFromGroups] : []
             } else if remoteApps.isNotEmpty {
                 changes.append(.removeBetaTesterFromApps(remoteTester, remoteApps))
