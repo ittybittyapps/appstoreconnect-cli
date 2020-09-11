@@ -77,18 +77,28 @@ struct TestFlightProgramDifference {
         }
 
         for remoteTester in remote.testers {
-            if let localTester = local.testers.first(where: { $0.email == remoteTester.email }) {
-                let groupsToAdd = localTester.betaGroups
-                    .filter { !remoteTester.betaGroups.map(\.id).contains($0.id) }
-                let addAction = Change.addBetaTesterToGroups(localTester, groupsToAdd)
-                changes += groupsToAdd.isNotEmpty ? [addAction] : []
+            let remoteApps = remoteTester.apps
+            let remoteBetaGroups = remoteTester.betaGroups
 
-                let groupsToRemove = remoteTester.betaGroups
+            if let localTester = local.testers.first(where: { $0.email == remoteTester.email }) {
+                let appsToAdd = localTester.apps.filter { app in
+                    let appIds = remoteApps.map(\.id) + remoteBetaGroups.compactMap(\.app?.id)
+                    return appIds.contains(app.id) == false
+                }
+                let addToApps = Change.addBetaTesterToApps(localTester, appsToAdd)
+                changes += appsToAdd.isNotEmpty ? [addToApps] : []
+
+                let groupsToAdd = localTester.betaGroups
+                    .filter { !remoteBetaGroups.map(\.id).contains($0.id) }
+                let addToGroups = Change.addBetaTesterToGroups(localTester, groupsToAdd)
+                changes += groupsToAdd.isNotEmpty ? [addToGroups] : []
+
+                let groupsToRemove = remoteBetaGroups
                     .filter { !localTester.betaGroups.map(\.id).contains($0.id) }
-                let removeAction = Change.removeBetaTesterFromGroups(localTester, groupsToRemove)
-                changes += groupsToRemove.isNotEmpty ? [removeAction] : []
-            } else if remoteTester.betaGroups.isNotEmpty {
-                changes.append(.removeBetaTesterFromGroups(remoteTester, remoteTester.betaGroups))
+                let removeFromGroups = Change.removeBetaTesterFromGroups(localTester, groupsToRemove)
+                changes += groupsToRemove.isNotEmpty ? [removeFromGroups] : []
+            } else if remoteBetaGroups.isNotEmpty {
+                changes.append(.removeBetaTesterFromGroups(remoteTester, remoteBetaGroups))
             }
         }
 
