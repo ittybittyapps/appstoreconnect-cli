@@ -97,8 +97,8 @@ struct TestFlightProgramDifference {
                     .filter { !localTester.betaGroups.map(\.id).contains($0.id) }
                 let removeFromGroups = Change.removeBetaTesterFromGroups(localTester, groupsToRemove)
                 changes += groupsToRemove.isNotEmpty ? [removeFromGroups] : []
-            } else if remoteBetaGroups.isNotEmpty {
-                changes.append(.removeBetaTesterFromGroups(remoteTester, remoteBetaGroups))
+            } else if remoteApps.isNotEmpty {
+                changes.append(.removeBetaTesterFromApps(remoteTester, remoteApps))
             }
         }
 
