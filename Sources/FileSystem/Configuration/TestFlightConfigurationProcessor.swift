@@ -14,9 +14,9 @@ struct TestFlightConfigurationProcessor {
         self.path = path
     }
 
-    private let appYAMLName = "app.yml"
-    private let betaTestersCSVName = "beta-testers.csv"
-    private let betaGroupFolderName = "betagroups"
+    private static let appYAMLName = "app.yml"
+    private static let betaTestersCSVName = "beta-testers.csv"
+    private static let betaGroupFolderName = "betagroups"
 
     func writeConfiguration(_ configuration: TestFlightConfiguration) throws {
         let appsFolder = try Folder(path: path)
@@ -38,22 +38,34 @@ struct TestFlightConfigurationProcessor {
         try configuration.appConfigurations.forEach { config in
             let appFolder = try appsFolder.createSubfolder(named: config.app.bundleId)
 
-            let appFile = try appFolder.createFile(named: appYAMLName)
+            let appFile = try appFolder.createFile(named: Self.appYAMLName)
             let appYAML = try YAMLEncoder().encode(config.app)
             try appFile.write(appYAML)
 
-            let testersFile = try appFolder.createFile(named: betaTestersCSVName)
+            let testersFile = try appFolder.createFile(named: Self.betaTestersCSVName)
             let testerRows = rowsForTesters(config.betaTesters)
             let testersCSV = try CSVWriter.encode(rows: testerRows, into: String.self)
             try testersFile.write(testersCSV)
 
-            let groupFolder = try appFolder.createSubfolder(named: betaGroupFolderName)
+            let groupFolder = try appFolder.createSubfolder(named: Self.betaGroupFolderName)
             let groupFiles: [(fileName: String, yamlData: String)] = try config.betaGroups.map {
                 (filenameForBetaGroup($0), try YAMLEncoder().encode($0))
             }
 
             try groupFiles.forEach { file in
                 try groupFolder.createFile(named: file.fileName).append(file.yamlData)
+            }
+        }
+    }
+
+    enum Error: LocalizedError {
+        case testerNotInTestersList(email: String, betaGroup: BetaGroup, app: App)
+
+        var errorDescription: String? {
+            switch self {
+            case .testerNotInTestersList(let email, let betaGroup, let app):
+                return "Tester with email: \(email) in beta group named: \(betaGroup.groupName) " +
+                    "for app: \(app.bundleId) is not included in the \(betaTestersCSVName) file"
             }
         }
     }
@@ -78,17 +90,25 @@ struct TestFlightConfigurationProcessor {
         }
 
         configuration.appConfigurations = try folder.subfolders.map { appFolder in
-            let appYAML = try appFolder.file(named: appYAMLName).readAsString()
+            let appYAML = try appFolder.file(named: Self.appYAMLName).readAsString()
             let app = try YAMLDecoder().decode(from: appYAML) as App
 
             var appConfiguration = TestFlightConfiguration.AppConfiguration(app: app)
 
-            let testersFile = try appFolder.file(named: betaTestersCSVName)
-            appConfiguration.betaTesters = try decodeBetaTesters(try testersFile.read())
+            let testersFile = try appFolder.file(named: Self.betaTestersCSVName)
+            let betaTesters = try decodeBetaTesters(try testersFile.read())
+            appConfiguration.betaTesters = betaTesters
 
-            let groupsFolder = try appFolder.subfolder(named: betaGroupFolderName)
-            appConfiguration.betaGroups = try groupsFolder.files.map { groupFile in
-                try YAMLDecoder().decode(from: try groupFile.readAsString())
+            let groupsFolder = try appFolder.subfolder(named: Self.betaGroupFolderName)
+            let emails = betaTesters.map(\.email)
+            appConfiguration.betaGroups = try groupsFolder.files.map { groupFile -> BetaGroup in
+                let group: BetaGroup = try YAMLDecoder().decode(from: try groupFile.readAsString())
+
+                if let email = group.testers.first(where: { !emails.contains($0) }) {
+                    throw Error.testerNotInTestersList(email: email, betaGroup: group, app: app)
+                }
+
+                return group
             }
 
             return appConfiguration
