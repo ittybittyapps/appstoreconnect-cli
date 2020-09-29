@@ -708,6 +708,7 @@ class AppStoreConnectService {
         )
         .execute(with: requestor)
         .await()
+        .filter { ($0.attributes?.identifier?.starts(with: bundleId) ?? false) }
         .map(\.id)
 
         return try bundleIdResourceIds.map {
