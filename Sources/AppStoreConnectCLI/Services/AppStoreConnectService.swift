@@ -703,19 +703,23 @@ class AppStoreConnectService {
     }
 
     func listProfilesByBundleId(_ bundleId: String, limit: Int?) throws -> [Model.Profile] {
-        let bundleIdResourceId = try ReadBundleIdOperation(
-            options: .init(bundleId: bundleId)
+        let bundleIdResourceIds = try ListBundleIdsOperation(
+            options: .init(identifiers: [bundleId], names: [], platforms: [], seedIds: [], limit: nil)
         )
-            .execute(with: requestor)
-            .await()
-            .id
+        .execute(with: requestor)
+        .await()
+        .filter { ($0.attributes?.identifier?.starts(with: bundleId) ?? false) }
+        .map(\.id)
 
-        return try ListProfilesByBundleIdOperation(
-            options: .init(bundleIdResourceId: bundleIdResourceId, limit: limit)
-        )
+        return try bundleIdResourceIds.map {
+            try ListProfilesByBundleIdOperation(
+                options: .init(bundleIdResourceId: $0, limit: limit)
+            )
             .execute(with: requestor)
             .await()
-            .map(Model.Profile.init)
+        }
+        .flatMap { $0 }
+        .map(Model.Profile.init)
     }
 
     func readProfile(id: String) throws -> Model.Profile {

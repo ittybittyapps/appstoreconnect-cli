@@ -14,7 +14,12 @@ struct ListProfilesByBundleIdCommand: CommonParsableCommand {
     @OptionGroup()
     var common: CommonOptions
 
-    @Argument(help: "The bundle ID of an application. (eg. com.example.app)")
+    @Argument(
+        help: ArgumentHelp(
+            "The bundle ID of an application. (eg. com.example.app)",
+            discussion: "Note that all provisioning profiles for bundle identifiers beginning with this string will be fetched."
+        )
+    )
     var bundleId: String
 
     @Option(default: 200, help: "Limit the number of profiles to return (maximum 200).")
