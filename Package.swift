@@ -21,7 +21,7 @@ let package = Package(
         ),
         .package(
             url: "https://github.com/apple/swift-argument-parser",
-            from: "0.0.2"
+            .exact("0.0.2")
         ),
         .package(
             url: "https://github.com/ittybittyapps/appstoreconnect-swift-sdk.git",
