@@ -22,7 +22,7 @@ struct CreateProfileOperation: APIOperation {
             name: options.name,
             profileType: options.profileType,
             certificateIds: options.certificateIds,
-            deviceIds: options.deviceIds
+            deviceIds: options.profileType.areDeviceIdsRequired ? options.deviceIds : []
         )
     }
 
@@ -32,5 +32,13 @@ struct CreateProfileOperation: APIOperation {
             .map { $0.data }
             .eraseToAnyPublisher()
     }
+    
+    
 
+}
+
+fileprivate extension ProfileType {
+    var areDeviceIdsRequired: Bool {
+        return !self.rawValue.contains("_APP_STORE")
+    }
 }
