@@ -17,12 +17,15 @@ struct CreateProfileOperation: APIOperation {
     private let endpoint: APIEndpoint<ProfileResponse>
 
     init(options: Options) {
+        let shouldOmitDeviceIds = [.macAppStore, .iOSAppStore, .tvOSAppStore]
+            .contains(options.profileType)
+        
         endpoint = APIEndpoint.create(
             profileWithId: options.bundleId,
             name: options.name,
             profileType: options.profileType,
             certificateIds: options.certificateIds,
-            deviceIds: options.profileType.areDeviceIdsRequired ? options.deviceIds : []
+            deviceIds: shouldOmitDeviceIds ? [] : options.deviceIds
         )
     }
 
@@ -33,10 +36,4 @@ struct CreateProfileOperation: APIOperation {
             .eraseToAnyPublisher()
     }
 
-}
-
-fileprivate extension ProfileType {
-    var areDeviceIdsRequired: Bool {
-        return !self.rawValue.contains("_APP_STORE")
-    }
 }
