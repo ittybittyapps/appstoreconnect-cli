@@ -19,7 +19,7 @@ struct CreateProfileOperation: APIOperation {
     init(options: Options) {
         let shouldOmitDeviceIds = [.macAppStore, .iOSAppStore, .tvOSAppStore]
             .contains(options.profileType)
-        
+
         endpoint = APIEndpoint.create(
             profileWithId: options.bundleId,
             name: options.name,
