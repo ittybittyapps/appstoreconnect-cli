@@ -32,8 +32,6 @@ struct CreateProfileOperation: APIOperation {
             .map { $0.data }
             .eraseToAnyPublisher()
     }
-    
-    
 
 }
 
