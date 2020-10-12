@@ -18,8 +18,10 @@ final class TestFlightProgramDifferenceTests: XCTestCase {
 
         let remote = TestFlightProgram(
             apps: [],
-            testers: [BetaTester(email: "foo@gmail.com", firstName: "Foo", lastName: "Bar", inviteType: "EMAIL", betaGroups: [], apps: []),
-                      BetaTester(email: "foo@gmail.com", firstName: "Foo", lastName: "Bar", inviteType: "EMAIL", betaGroups: [], apps: [])],
+            testers: [
+                BetaTester(email: "foo@gmail.com", firstName: "Foo", lastName: "Bar", inviteType: "EMAIL", betaGroups: [], apps: []),
+                BetaTester(email: "foo@gmail.com", firstName: "Foo", lastName: "Bar", inviteType: "EMAIL", betaGroups: [], apps: []),
+            ],
             groups: []
         )
 
