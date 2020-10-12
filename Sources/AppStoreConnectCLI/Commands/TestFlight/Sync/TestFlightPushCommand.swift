@@ -26,7 +26,7 @@ struct TestFlightPushCommand: CommonParsableCommand {
         let local = try FileSystem.readTestFlightConfiguration(from: inputPath)
         let remote = try service.getTestFlightProgram()
 
-        let difference = TestFlightProgramDifference(local: local, remote: remote)
+        let difference = try TestFlightProgramDifference(local: local, remote: remote)
 
         difference.changes.forEach { print($0.description) }
 

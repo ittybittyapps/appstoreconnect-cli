@@ -52,9 +52,20 @@ struct TestFlightProgramDifference {
         }
     }
 
+    enum Error: LocalizedError, Equatable {
+        case duplicateTesters(email: String)
+
+        var errorDescription: String? {
+            switch self {
+            case .duplicateTesters(let email):
+                return "There are two beta testers with the same email '\(email)' exists in your account, please clean that up before continue."
+            }
+        }
+    }
+
     let changes: [Change]
 
-    init(local: TestFlightProgram, remote: TestFlightProgram) {
+    init(local: TestFlightProgram, remote: TestFlightProgram) throws {
         var changes: [Change] = []
 
         // Groups
@@ -79,6 +90,10 @@ struct TestFlightProgramDifference {
         for remoteTester in remote.testers {
             let remoteApps = remoteTester.apps
             let remoteBetaGroups = remoteTester.betaGroups
+
+            if remote.testers.filter({ $0.email == remoteTester.email}).count > 1 {
+                throw Error.duplicateTesters(email: remoteTester.email ?? "")
+            }
 
             if let localTester = local.testers.first(where: { $0.email == remoteTester.email }) {
                 let appsToAdd = localTester.apps.filter { app in
