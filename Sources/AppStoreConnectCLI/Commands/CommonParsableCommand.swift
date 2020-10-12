@@ -28,6 +28,9 @@ struct CommonOptions: ParsableArguments {
     @OptionGroup()
     var authOptions: AuthOptions
 
+    @OptionGroup()
+    var outputOptions: OutputOptions
+
     @Flag(default: .table, help: "Display results in specified format.")
     var outputFormat: OutputFormat
 
@@ -43,6 +46,18 @@ struct CommonOptions: ParsableArguments {
             return .quiet
         }
     }
+
+    /// Used to define the command's `PrintLevel`. Defaults to `false`.
+    @Flag(name: .shortAndLong, help: "Display extra messages as command is running.")
+    var verbose: Bool
+}
+
+struct OutputOptions: ParsableArguments {
+    @Flag(default: .table, help: "Display results in specified format.")
+    var outputFormat: OutputFormat
+
+    @Flag(help: "Display result in a human readable format.")
+    var pretty: Bool
 
     /// Used to define the command's `PrintLevel`. Defaults to `false`.
     @Flag(name: .shortAndLong, help: "Display extra messages as command is running.")
