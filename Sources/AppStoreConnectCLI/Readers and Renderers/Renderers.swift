@@ -31,7 +31,25 @@ enum Renderers {
                 print(input.renderAsTable())
             }
         }
+    }
 
+    struct ResultRendererWithOptions<T: ResultRenderable>: Renderer {
+        typealias Input = T
+
+        let options: OutputOptions
+
+        func render(_ input: T) {
+            switch options.outputFormat {
+            case .csv:
+                print(input.renderAsCSV())
+            case .json:
+                print(input.renderAsJSON(pretty: options.pretty))
+            case .yaml:
+                print(input.renderAsYAML())
+            case .table:
+                print(input.renderAsTable())
+            }
+        }
     }
 }
 
@@ -62,6 +80,13 @@ extension ResultRenderable {
         return String(data: json, encoding: .utf8)!
     }
 
+    func renderAsJSON(pretty: Bool) -> String {
+        let jsonEncoder = JSONEncoder()
+        jsonEncoder.outputFormatting = pretty ? [.prettyPrinted, .sortedKeys] : [.sortedKeys]
+        let json = try! jsonEncoder.encode(self) // swiftlint:disable:this force_try
+        return String(data: json, encoding: .utf8)!
+    }
+
     func renderAsYAML() -> String {
         let yamlEncoder = YAMLEncoder()
         let yaml = try! yamlEncoder.encode(self) // swiftlint:disable:this force_try
@@ -70,6 +95,10 @@ extension ResultRenderable {
 
     func render(format: OutputFormat) {
         Renderers.ResultRenderer(format: format).render(self)
+    }
+
+    func render(options: OutputOptions) {
+        Renderers.ResultRendererWithOptions(options: options).render(self)
     }
 }
 

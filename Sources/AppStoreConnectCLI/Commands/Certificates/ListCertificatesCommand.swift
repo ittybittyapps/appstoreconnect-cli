@@ -62,7 +62,7 @@ struct ListCertificatesCommand: CommonParsableCommand {
             }
         }
 
-        certificates.render(format: common.outputFormat)
+        certificates.render(options: common.outputOptions)
     }
 
 }
