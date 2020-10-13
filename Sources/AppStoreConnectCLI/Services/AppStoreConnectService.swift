@@ -1078,10 +1078,27 @@ class AppStoreConnectService {
             .zip(betaGroupsOperation.execute(with: requestor))
             .await()
 
+        let betagroups = groups.map(Model.BetaGroup.init)
+
+        // Using beta groups from API to update beta groups in testers, for adding extra informations like app info in a group
+        let betatesters = testers.map(Model.BetaTester.init).map { tester -> Model.BetaTester in
+            var updatedTester = tester
+
+            updatedTester.betaGroups = tester.betaGroups.map { betagroupInTester in
+                if let betagroup = betagroups.first(where: { $0.id == betagroupInTester.id }) {
+                    return betagroup
+                }
+
+                return betagroupInTester
+            }
+
+            return updatedTester
+        }
+
         return TestFlightProgram(
             apps: apps.map(Model.App.init),
-            testers: testers.map(Model.BetaTester.init),
-            groups: groups.map(Model.BetaGroup.init)
+            testers: betatesters,
+            groups: betagroups
         )
     }
 
