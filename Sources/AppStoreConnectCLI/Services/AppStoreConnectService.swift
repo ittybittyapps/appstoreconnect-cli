@@ -419,6 +419,24 @@ class AppStoreConnectService {
         try operation.execute(with: requestor).await()
     }
 
+    func removeTesterFromApps(email: String, appIds: [String]) throws {
+        let testerId = try GetBetaTesterOperation(
+            options: .init(identifier: .email(email))
+        )
+        .execute(with: requestor)
+        .await()
+        .betaTester
+        .id
+
+        let operation = RemoveTesterOperation(
+            options: .init(
+                removeStrategy: .removeTesterFromApps(testerId: testerId, appIds: appIds)
+            )
+        )
+
+        try operation.execute(with: requestor).await()
+    }
+
     func readBetaGroup(bundleId: String, groupName: String) throws -> Model.BetaGroup {
         let app = try ReadAppOperation(options: .init(identifier: .bundleId(bundleId)))
             .execute(with: requestor)
@@ -468,6 +486,12 @@ class AppStoreConnectService {
             .await()
 
         try DeleteBetaGroupOperation(options: .init(betaGroupId: betaGroup.id))
+            .execute(with: requestor)
+            .await()
+    }
+
+    func deleteBetaGroup(id: String) throws {
+        try DeleteBetaGroupOperation(options: .init(betaGroupId: id))
             .execute(with: requestor)
             .await()
     }
