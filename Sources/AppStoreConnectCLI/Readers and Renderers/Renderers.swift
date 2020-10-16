@@ -14,25 +14,6 @@ protocol Renderer {
 }
 
 enum Renderers {
-    struct ResultRenderer<T: ResultRenderable>: Renderer {
-        typealias Input = T
-
-        let format: OutputFormat
-
-        func render(_ input: T) {
-            switch format {
-            case .csv:
-                print(input.renderAsCSV())
-            case .json:
-                print(input.renderAsJSON())
-            case .yaml:
-                print(input.renderAsYAML())
-            case .table:
-                print(input.renderAsTable())
-            }
-        }
-    }
-
     struct ResultRendererWithOptions<T: ResultRenderable>: Renderer {
         typealias Input = T
 
@@ -91,10 +72,6 @@ extension ResultRenderable {
         let yamlEncoder = YAMLEncoder()
         let yaml = try! yamlEncoder.encode(self) // swiftlint:disable:this force_try
         return yaml
-    }
-
-    func render(format: OutputFormat) {
-        Renderers.ResultRenderer(format: format).render(self)
     }
 
     func render(options: OutputOptions) {

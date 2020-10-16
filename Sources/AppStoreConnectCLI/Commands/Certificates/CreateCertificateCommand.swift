@@ -29,6 +29,6 @@ struct CreateCertificateCommand: CommonParsableCommand {
             csrContent: csrContent
         )
 
-        certificate.render(format: common.outputFormat)
+        certificate.render(options: common.outputOptions)
     }
 }

@@ -26,6 +26,6 @@ struct ReadBetaGroupCommand: CommonParsableCommand {
 
         let betaGroup = try service.readBetaGroup(bundleId: appBundleId, groupName: groupName)
 
-        betaGroup.render(format: common.outputFormat)
+        betaGroup.render(options: common.outputOptions)
     }
 }

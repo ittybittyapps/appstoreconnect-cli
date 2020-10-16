@@ -27,6 +27,6 @@ struct ReadBuildCommand: CommonParsableCommand {
 
         let buildDetailsInfo = try service.readBuild(bundleId: bundleId, buildNumber: buildNumber, preReleaseVersion: preReleaseVersion)
 
-        buildDetailsInfo.render(format: common.outputFormat)
+        buildDetailsInfo.render(options: common.outputOptions)
     }
 }

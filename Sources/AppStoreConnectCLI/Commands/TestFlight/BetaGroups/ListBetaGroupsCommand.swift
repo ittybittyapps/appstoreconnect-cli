@@ -49,6 +49,6 @@ struct ListBetaGroupsCommand: CommonParsableCommand {
             excludeInternal: excludeInternal
         )
 
-        betaGroups.render(format: common.outputFormat)
+        betaGroups.render(options: common.outputOptions)
     }
 }

@@ -84,6 +84,6 @@ struct ListBuildsCommand: CommonParsableCommand {
             limit: limit
         )
 
-        builds.render(format: common.outputFormat)
+        builds.render(options: common.outputOptions)
     }
 }

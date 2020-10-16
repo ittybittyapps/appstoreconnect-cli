@@ -30,26 +30,6 @@ struct CommonOptions: ParsableArguments {
 
     @OptionGroup()
     var outputOptions: OutputOptions
-
-    @Flag(default: .table, help: "Display results in specified format.")
-    var outputFormat: OutputFormat
-
-    /// The verbosity of the executed command.
-    var printLevel: PrintLevel {
-        // Commands are parsable by default except for `--table` which is intended to be interactive.
-        switch (verbose, outputFormat == .table) {
-        // if `--verbose` or `--table`is used then return a verbose print level
-        case (true, _), (_, true):
-            return .verbose
-        // if both `--verbose` and `--table` are not used, then return a quiet print level
-        case (false, false):
-            return .quiet
-        }
-    }
-
-    /// Used to define the command's `PrintLevel`. Defaults to `false`.
-    @Flag(name: .shortAndLong, help: "Display extra messages as command is running.")
-    var verbose: Bool
 }
 
 struct OutputOptions: ParsableArguments {

@@ -89,6 +89,6 @@ struct ListBetaTestersCommand: CommonParsableCommand {
             relatedResourcesLimit: relatedResourcesLimit
         )
 
-        betaTesters.render(format: common.outputFormat)
+        betaTesters.render(options: common.outputOptions)
     }
 }

@@ -26,7 +26,7 @@ struct RevokeCertificatesCommand: CommonParsableCommand {
         _ = try service.revokeCertificates(serials: serials)
 
         // Only print if the `PrintLevel` is set to verbose.
-        if common.printLevel == .verbose {
+        if common.outputOptions.printLevel == .verbose {
             serials.forEach {
                 print("🚮 Certificate `\($0)` revoked.")
             }
