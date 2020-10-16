@@ -43,6 +43,6 @@ struct InviteBetaTesterCommand: CommonParsableCommand {
             groupNames: groups
         )
 
-        betaTester.render(format: common.outputFormat)
+        betaTester.render(options: common.outputOptions)
     }
 }

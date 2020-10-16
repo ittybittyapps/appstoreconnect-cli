@@ -51,7 +51,7 @@ struct CreateProfileCommand: CommonParsableCommand {
             deviceUDIDs: devicesUdids
         )
 
-        [profile].render(format: common.outputFormat)
+        [profile].render(options: common.outputOptions)
     }
 
 }

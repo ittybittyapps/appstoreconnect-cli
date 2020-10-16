@@ -69,6 +69,6 @@ public struct ListUsersCommand: CommonParsableCommand {
                 includeVisibleApps: includeVisibleApps
             )
 
-        users.render(format: common.outputFormat)
+        users.render(options: common.outputOptions)
     }
 }

@@ -32,7 +32,7 @@ struct SyncUsersCommand: CommonParsableCommand {
 
     func run() throws {
         // Only print if the `PrintLevel` is set to verbose.
-        if common.printLevel == .verbose {
+        if common.outputOptions.printLevel == .verbose {
             print("## Dry run ##")
         }
 

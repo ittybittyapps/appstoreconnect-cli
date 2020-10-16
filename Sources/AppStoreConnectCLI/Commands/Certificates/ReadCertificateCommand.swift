@@ -29,11 +29,11 @@ struct ReadCertificateCommand: CommonParsableCommand {
             let file = try fileProcessor.write(certificate)
 
             // Only print if the `PrintLevel` is set to verbose.
-            if common.printLevel == .verbose {
+            if common.outputOptions.printLevel == .verbose {
                 print("📥 Certificate '\(certificate.name ?? "")' downloaded to: \(file.path)")
             }
         }
 
-        certificate.render(format: common.outputFormat)
+        certificate.render(options: common.outputOptions)
     }
 }

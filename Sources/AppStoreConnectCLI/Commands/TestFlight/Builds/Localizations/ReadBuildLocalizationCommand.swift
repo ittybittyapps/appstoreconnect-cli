@@ -27,6 +27,6 @@ struct ReadBuildLocalizationCommand: CommonParsableCommand {
             locale: locale
         )
 
-        [buildLocalization].render(format: common.outputFormat)
+        [buildLocalization].render(options: common.outputOptions)
     }
 }

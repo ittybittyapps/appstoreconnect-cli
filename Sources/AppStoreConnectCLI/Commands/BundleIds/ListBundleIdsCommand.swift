@@ -41,6 +41,6 @@ struct ListBundleIdsCommand: CommonParsableCommand {
             limit: limit
         )
 
-        bundleIds.render(format: common.outputFormat)
+        bundleIds.render(options: common.outputOptions)
     }
 }

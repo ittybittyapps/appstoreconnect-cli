@@ -72,6 +72,6 @@ struct InviteUserCommand: CommonParsableCommand {
             .map { $0.data }
             .await()
 
-        invitation.render(format: common.outputFormat)
+        invitation.render(options: common.outputOptions)
     }
 }

@@ -49,6 +49,6 @@ struct ListProfilesByBundleIdCommand: CommonParsableCommand {
             }
         }
 
-        profiles.render(format: common.outputFormat)
+        profiles.render(options: common.outputOptions)
     }
 }

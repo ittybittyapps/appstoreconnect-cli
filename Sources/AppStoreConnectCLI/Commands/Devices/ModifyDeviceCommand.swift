@@ -35,7 +35,7 @@ struct ModifyDeviceCommand: CommonParsableCommand {
             .map(Device.init)
             .await()
 
-        device.render(format: common.outputFormat)
+        device.render(options: common.outputOptions)
     }
 
 }

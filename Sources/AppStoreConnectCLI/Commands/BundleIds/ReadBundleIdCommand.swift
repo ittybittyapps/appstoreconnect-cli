@@ -23,6 +23,6 @@ struct ReadBundleIdCommand: CommonParsableCommand {
 
         let bundleId = try service.readBundleIdInformation(bundleId: identifier)
 
-        bundleId.render(format: common.outputFormat)
+        bundleId.render(options: common.outputOptions)
     }
 }
