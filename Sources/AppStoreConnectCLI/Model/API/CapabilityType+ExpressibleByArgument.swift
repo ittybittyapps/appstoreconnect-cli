@@ -32,6 +32,7 @@ extension CapabilityType: CaseIterable, ExpressibleByArgument, CustomStringConve
             .classkit,
             .autofillCredentialProvider,
             .accessWifiInformation,
+            .appleIdAuth,
         ]
     }
 
