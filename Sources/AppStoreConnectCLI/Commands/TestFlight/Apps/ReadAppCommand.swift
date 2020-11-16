@@ -22,6 +22,6 @@ struct ReadAppCommand: CommonParsableCommand {
 
         let app = try service.readApp(identifier: appLookupArgument.identifier)
 
-        app.render(format: common.outputFormat)
+        app.render(options: common.outputOptions)
     }
 }

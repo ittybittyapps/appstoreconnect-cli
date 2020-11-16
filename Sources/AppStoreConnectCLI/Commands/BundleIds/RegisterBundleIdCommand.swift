@@ -35,6 +35,6 @@ struct RegisterBundleIdCommand: CommonParsableCommand {
             .map(BundleId.init)
             .await()
 
-        bundleId.render(format: common.outputFormat)
+        bundleId.render(options: common.outputOptions)
     }
 }

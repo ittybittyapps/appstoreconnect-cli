@@ -34,6 +34,6 @@ struct ListUserInvitationsCommand: CommonParsableCommand {
             includeVisibleApps: includeVisibleApps
         )
 
-        invitations.render(format: common.outputFormat)
+        invitations.render(options: common.outputOptions)
     }
 }

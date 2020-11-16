@@ -26,6 +26,6 @@ struct ListBetaTesterByGroupCommand: CommonParsableCommand {
         let service = try makeService()
 
         let betaTesters = try service.listBetaTestersForGroup(identifier: appLookupArgument.identifier, groupName: groupName)
-        betaTesters.render(format: common.outputFormat)
+        betaTesters.render(options: common.outputOptions)
     }
 }

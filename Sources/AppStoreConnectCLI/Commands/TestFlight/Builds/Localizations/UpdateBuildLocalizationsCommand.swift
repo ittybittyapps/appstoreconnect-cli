@@ -36,6 +36,6 @@ struct UpdateBuildLocalizationsCommand: CommonParsableCommand, CreateUpdateBuild
             whatsNew: readWhatsNew()
         )
 
-        [buildLocalization].render(format: common.outputFormat)
+        [buildLocalization].render(options: common.outputOptions)
     }
 }

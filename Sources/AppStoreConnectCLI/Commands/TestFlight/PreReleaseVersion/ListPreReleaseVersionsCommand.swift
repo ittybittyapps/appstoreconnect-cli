@@ -51,6 +51,6 @@ struct ListPreReleaseVersionsCommand: CommonParsableCommand {
             sort: sort
         )
 
-        prereleaseVersions.render(format: common.outputFormat)
+        prereleaseVersions.render(options: common.outputOptions)
     }
 }

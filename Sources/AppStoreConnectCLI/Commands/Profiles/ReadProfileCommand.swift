@@ -35,6 +35,6 @@ struct ReadProfileCommand: CommonParsableCommand {
             print("📥 Profile '\(profile.name!)' downloaded to: \(file.path)")
         }
 
-        [profile].render(format: common.outputFormat)
+        [profile].render(options: common.outputOptions)
     }
 }
