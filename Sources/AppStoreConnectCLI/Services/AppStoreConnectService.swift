@@ -93,6 +93,33 @@ class AppStoreConnectService {
             )
         )
         .execute(with: requestor)
+        .compactMap(Model.User.fromAPIUser)
+        .await()
+    }
+
+    func modifyUserInfo(
+        email: String,
+        roles: [UserRole],
+        allAppsVisible: Bool,
+        provisioningAllowed: Bool,
+        bundleIds: [String]
+    ) throws -> Model.User {
+        let userId = try GetUserInfoOperation(options: .init(email: email, includeVisibleApps: false))
+            .execute(with: requestor)
+            .await()
+            .id
+
+        return try ModifyUserOperation(
+            options: .init(
+                userId: userId,
+                allAppsVisible: allAppsVisible,
+                provisioningAllowed: provisioningAllowed,
+                roles: roles,
+                appsVisibleIds: bundleIds
+            )
+        )
+        .execute(with: requestor)
+        .compactMap(Model.User.fromAPIUser)
         .await()
     }
 
