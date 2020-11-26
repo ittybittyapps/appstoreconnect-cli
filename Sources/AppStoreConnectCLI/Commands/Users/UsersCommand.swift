@@ -8,14 +8,15 @@ struct UsersCommand: ParsableCommand {
         commandName: "users",
         abstract: "Manage users on your App Store Connect team.",
         subcommands: [
+            AddUserVisibleAppsCommand.self,
+            CancelUserInvitationsCommand.self,
+            GetUserInfoCommand.self,
             InviteUserCommand.self,
             ListUserInvitationsCommand.self,
-            CancelUserInvitationsCommand.self,
             // TODO: ListInvitedUserVisibleAppsCommand.self, // Get a list of apps that will be visible to a user with a pending invitation.
             ListUsersCommand.self,
-            GetUserInfoCommand.self,
             ListUserVisibleAppsCommand.self,
-            AddUserVisibleAppsCommand.self,
+            ModifyUserInfoCommand.self,
             RemoveUserVisibleAppsCommand.self,
             SetUserVisibleAppsCommand.self,
             SyncUsersCommand.self,
