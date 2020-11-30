@@ -37,7 +37,7 @@ struct InviteUserCommand: CommonParsableCommand {
             return
         }
 
-        if !userInfo.bundleIds.isEmpty {
+        if userInfo.bundleIds.isNotEmpty {
             let resourceIds = try service
                 .getAppResourceIdsFrom(bundleIds: userInfo.bundleIds)
                 .await()
