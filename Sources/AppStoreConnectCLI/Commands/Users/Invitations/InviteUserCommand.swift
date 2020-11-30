@@ -26,30 +26,20 @@ struct InviteUserCommand: CommonParsableCommand {
     @Argument(help: "The user invitation recipient's last name.")
     var lastName: String
 
-    @Option(parsing: .upToNextOption, help: "Assigned user roles that determine the user's access to sections of App Store Connect and tasks they can perform.")
-    var roles: [UserRole]
-
-    @Flag(help: "Indicates that a user has access to all apps available to the team.")
-    var allAppsVisible: Bool
-
-    @Flag(help: "Indicates the user's specified role allows access to the provisioning functionality on the Apple Developer website.")
-    var provisioningAllowed: Bool
-
-    @Option(parsing: .upToNextOption,
-            help: "Array of bundle IDs that uniquely identifies the apps.")
-    var bundleIds: [String]
+    @OptionGroup()
+    var userInfo: UserInfoArguments
 
     public func run() throws {
         let service = try makeService()
 
-        if allAppsVisible {
+        if userInfo.allAppsVisible {
             try inviteUserToTeam(by: service)
             return
         }
 
-        if !bundleIds.isEmpty {
+        if userInfo.bundleIds.isNotEmpty {
             let resourceIds = try service
-                .getAppResourceIdsFrom(bundleIds: bundleIds)
+                .getAppResourceIdsFrom(bundleIds: userInfo.bundleIds)
                 .await()
 
             try inviteUserToTeam(with: resourceIds, by: service)
@@ -63,9 +53,9 @@ struct InviteUserCommand: CommonParsableCommand {
             userWithEmail: email,
             firstName: firstName,
             lastName: lastName,
-            roles: roles,
-            allAppsVisible: allAppsVisible,
-            provisioningAllowed: provisioningAllowed,
+            roles: userInfo.roles,
+            allAppsVisible: userInfo.allAppsVisible,
+            provisioningAllowed: userInfo.provisioningAllowed,
             appsVisibleIds: appsVisibleIds) // appsVisibleIds should be empty when allAppsVisible is true
 
         let invitation = try service.request(request)
