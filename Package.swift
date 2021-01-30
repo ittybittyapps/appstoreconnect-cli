@@ -24,8 +24,8 @@ let package = Package(
             .exact("0.0.2")
         ),
         .package(
-            url: "https://github.com/ittybittyapps/appstoreconnect-swift-sdk.git",
-            .branch("master")
+            url: "https://github.com/AvdLee/appstoreconnect-swift-sdk.git",
+            from: "1.0.0"
         ),
         .package(
             url: "https://github.com/jpsim/Yams.git",
