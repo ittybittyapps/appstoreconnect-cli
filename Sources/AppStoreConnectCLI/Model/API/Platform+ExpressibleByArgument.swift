@@ -4,7 +4,7 @@ import ArgumentParser
 import AppStoreConnect_Swift_SDK
 import Foundation
 
-extension Platform: CaseIterable, ExpressibleByArgument, CustomStringConvertible {
+extension Platform: ExpressibleByArgument, CustomStringConvertible {
     public typealias AllCases = [Platform]
 
     public static var allCases: AllCases {
