@@ -20,6 +20,9 @@ struct TestFlightPushCommand: CommonParsableCommand {
         help: "Path to read in the TestFlight configuration."
     ) var inputPath: String
 
+    @Flag(help: "Perform a dry run.")
+    var dryRun: Bool
+
     func run() throws {
         let service = try makeService()
 
@@ -28,11 +31,32 @@ struct TestFlightPushCommand: CommonParsableCommand {
 
         let difference = TestFlightProgramDifference(local: local, remote: remote)
 
-        difference.changes.forEach { print($0.description) }
+        if dryRun {
+            difference.changes.forEach { print($0.description) }
+        } else {
+            try difference.changes.forEach {
+                try performChange(change: $0, with: service)
+            }
+        }
+    }
 
-        // TODO: Push the testflight program to the API
-
-        throw CommandError.unimplemented
+    func performChange(change: TestFlightProgramDifference.Change, with service: AppStoreConnectService) throws {
+        switch change {
+        case .removeBetaGroup(let betagroup):
+            guard let groupId = betagroup.id else { return }
+            try service.deleteBetaGroup(id: groupId)
+            print("✅ \(change.description)")
+        case .removeBetaTesterFromApps(let tester, let apps):
+            guard let email = tester.email else { return }
+            try service.removeTesterFromApps(email: email, appIds: apps.map(\.id))
+            print("✅ \(change.description)")
+        case .removeBetaTesterFromGroups(let tester, let groups):
+            guard let email = tester.email else { return }
+            try service.removeTesterFromGroups(email: email, groupNames: groups.compactMap(\.groupName))
+            print("✅ \(change.description)")
+        default:
+            print("❌ \(change.description): this operation has not been implemented")
+        }
     }
 
 }
