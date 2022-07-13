@@ -11,7 +11,6 @@ struct AuthOptions: ParsableArguments {
     }
 
     @Option(
-        default: .environment("APPSTORE_CONNECT_ISSUER_ID"),
         help: ArgumentHelp(
             "An AppStore Connect API Key issuer ID.",
             discussion:
@@ -23,11 +22,10 @@ struct AuthOptions: ParsableArguments {
             valueName: "uuid"
         )
     )
-    var apiIssuer: IssuerID
+    var apiIssuer: IssuerID = .environment("APPSTORE_CONNECT_ISSUER_ID")
 
     // swiftlint:disable line_length
     @Option(
-        default: .environment("APPSTORE_CONNECT_API_KEY_ID"),
         help: ArgumentHelp(
             "An AppStoreConnect API Key ID.",
             discussion:
@@ -43,5 +41,5 @@ struct AuthOptions: ParsableArguments {
             valueName: "keyid"
         )
     )
-    var apiKeyId: APIKeyID
+    var apiKeyId: APIKeyID = .environment("APPSTORE_CONNECT_API_KEY_ID")
 }

@@ -33,15 +33,16 @@ struct CommonOptions: ParsableArguments {
 }
 
 struct OutputOptions: ParsableArguments {
-    @Flag(default: .table, help: "Display results in specified format.")
-    var outputFormat: OutputFormat
+
+    @Flag(help: "Display results in specified format.")
+    var outputFormat: OutputFormat = .table
 
     @Flag(help: "Display result in a human readable format.")
-    var pretty: Bool
+    var pretty = false
 
     /// Used to define the command's `PrintLevel`. Defaults to `false`.
     @Flag(name: .shortAndLong, help: "Display extra messages as command is running.")
-    var verbose: Bool
+    var verbose = false
 
     /// The verbosity of the executed command.
     var printLevel: PrintLevel {

@@ -29,7 +29,7 @@ struct ListProfilesCommand: CommonParsableCommand {
         parsing: .upToNextOption,
         help: "The resource id of the profile."
     )
-    var filterId: [String]
+    var filterId: [String] = []
 
     @Option(
         parsing: .upToNextOption,
@@ -38,7 +38,7 @@ struct ListProfilesCommand: CommonParsableCommand {
             valueName: "name"
         )
     )
-    var filterName: [String]
+    var filterName: [String] = []
 
     @Option(
         help: ArgumentHelp(
@@ -55,7 +55,7 @@ struct ListProfilesCommand: CommonParsableCommand {
             valueName: "type"
         )
     )
-    var filterProfileType: [ProfileType]
+    var filterProfileType: [ProfileType] = []
 
     @Option(help:
         ArgumentHelp(

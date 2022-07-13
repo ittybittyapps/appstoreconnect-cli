@@ -18,12 +18,11 @@ struct TestFlightPullCommand: CommonParsableCommand {
     @Option(
         parsing: .upToNextOption,
         help: "Filter by only including apps with the specified bundleIds in the configuration"
-    ) var filterBundleIds: [String]
+    )
+    var filterBundleIds: [String] = []
 
-    @Option(
-        default: "./config/apps",
-        help: "Path to output/write the TestFlight configuration."
-    ) var outputPath: String
+    @Option(help: "Path to output/write the TestFlight configuration.")
+    var outputPath = "./config/apps"
 
     func run() throws {
         let service = try makeService()

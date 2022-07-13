@@ -19,13 +19,13 @@ struct ListAppsCommand: CommonParsableCommand {
     var limit: Int?
 
     @Option(parsing: .upToNextOption, help: "Filter the results by the specified bundle IDs")
-    var filterBundleIds: [String]
+    var filterBundleIds: [String] = []
 
     @Option(parsing: .upToNextOption, help: "Filter the results by the specified app names")
-    var filterNames: [String]
+    var filterNames: [String] = []
 
     @Option(parsing: .upToNextOption, help: "Filter the results by the specified app SKUs")
-    var filterSkus: [String]
+    var filterSkus: [String] = []
 
     func run() throws {
         let service = try makeService()

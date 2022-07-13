@@ -20,11 +20,8 @@ struct RegisterBundleIdCommand: CommonParsableCommand {
     @Argument(help: "The new name for the bundle identifier.")
     var name: String
 
-    @Option(
-        default: .universal,
-        help: "The platform of the bundle identifier \(BundleIdPlatform.allCases)."
-    )
-    var platform: BundleIdPlatform
+    @Option(help: "The platform of the bundle identifier \(BundleIdPlatform.allCases).")
+    var platform: BundleIdPlatform = .universal
 
     func run() throws {
         let service = try makeService()

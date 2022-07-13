@@ -22,7 +22,10 @@ struct ListProfilesByBundleIdCommand: CommonParsableCommand {
     )
     var bundleId: String
 
-    @Option(default: 200, help: "Limit the number of profiles to return (maximum 200).")
+    @Option(
+        help: "Limit the number of profiles to return (maximum 200).",
+        transform: { Int($0).map { min($0, 200) } }
+    )
     var limit: Int?
 
     @Option(help:
