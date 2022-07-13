@@ -17,7 +17,7 @@ let package = Package(
     dependencies: [
         .package(
             url: "https://github.com/johnsundell/files.git",
-            from: "4.0.0"
+            from: "4.1.1"
         ),
         .package(
             url: "https://github.com/apple/swift-argument-parser",
@@ -25,7 +25,7 @@ let package = Package(
         ),
         .package(
             url: "https://github.com/AvdLee/appstoreconnect-swift-sdk.git",
-            from: "1.0.0"
+            from: "1.7.0"
         ),
         .package(
             url: "https://github.com/jpsim/Yams.git",
@@ -37,7 +37,7 @@ let package = Package(
         ),
         .package(
             url: "https://github.com/dehesa/CodableCSV.git",
-            from: "0.5.2"
+            from: "0.5.5"
         )
     ],
     targets: [
