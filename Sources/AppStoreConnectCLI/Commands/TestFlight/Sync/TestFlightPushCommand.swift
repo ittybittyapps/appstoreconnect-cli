@@ -15,10 +15,8 @@ struct TestFlightPushCommand: CommonParsableCommand {
     @OptionGroup()
     var common: CommonOptions
 
-    @Option(
-        default: "./config/apps",
-        help: "Path to read in the TestFlight configuration."
-    ) var inputPath: String
+    @Option(help: "Path to read in the TestFlight configuration.")
+    var inputPath = "./config/apps"
 
     func run() throws {
         let service = try makeService()

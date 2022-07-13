@@ -52,7 +52,8 @@ struct ListBetaTestersCommand: CommonParsableCommand {
             "TestFlight beta group names.",
             valueName: "group-name"
         )
-    ) var filterGroupNames: [String]
+    )
+    var filterGroupNames: [String] = []
 
     @Option(help: "Number of resources to return. (maximum: 200)")
     var limit: Int?
@@ -63,7 +64,8 @@ struct ListBetaTestersCommand: CommonParsableCommand {
             "Sort the results using the provided key \(ListBetaTesters.Sort.allCases).",
             discussion: "The `-` prefix indicates descending order."
         )
-    ) var sort: ListBetaTesters.Sort?
+    )
+    var sort: ListBetaTesters.Sort?
 
     @Option(help: "Number of included related resources to return.")
     var relatedResourcesLimit: Int?

@@ -25,7 +25,8 @@ struct ListBetaGroupsCommand: CommonParsableCommand {
             """,
             valueName: "filter-names"
         )
-    ) var filterNames: [String]
+    )
+    var filterNames: [String] = []
 
     @Option(
         parsing: .unconditional,
@@ -33,11 +34,13 @@ struct ListBetaGroupsCommand: CommonParsableCommand {
             "Sort the results using the provided key \(ListBetaGroups.Sort.allCases).",
             discussion: "The `-` prefix indicates descending order."
         )
-    ) var sort: ListBetaGroups.Sort?
+    )
+    var sort: ListBetaGroups.Sort?
 
     @Flag(
         help: "Exclude apple store connect internal beta groups."
-    ) var excludeInternal: Bool
+    )
+    var excludeInternal = false
 
     func run() throws {
         let service = try makeService()

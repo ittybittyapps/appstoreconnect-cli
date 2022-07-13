@@ -1,4 +1,4 @@
-// swift-tools-version:5.1
+// swift-tools-version:5.6
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -21,7 +21,7 @@ let package = Package(
         ),
         .package(
             url: "https://github.com/apple/swift-argument-parser",
-            .exact("0.0.2")
+            exact: "1.1.3"
         ),
         .package(
             url: "https://github.com/AvdLee/appstoreconnect-swift-sdk.git",
@@ -43,14 +43,15 @@ let package = Package(
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
-        .target(name: "appstoreconnect-cli", dependencies: ["AppStoreConnectCLI"]),
+        .executableTarget(name: "appstoreconnect-cli", dependencies: ["AppStoreConnectCLI"]),
         .target(name: "Model"),
-        .target(name: "FileSystem",
-                dependencies: [
-                    .product(name: "CodableCSV", package: "CodableCSV"),
-                    .product(name: "Yams", package: "Yams"),
-                    .product(name: "Files", package: "Files"),
-                ]
+        .target(
+            name: "FileSystem",
+            dependencies: [
+                .product(name: "CodableCSV", package: "CodableCSV"),
+                .product(name: "Yams", package: "Yams"),
+                .product(name: "Files", package: "Files"),
+            ]
         ),
         .target(
             name: "AppStoreConnectCLI",
@@ -64,6 +65,12 @@ let package = Package(
                 .product(name: "CodableCSV", package: "CodableCSV")
             ]
         ),
-        .testTarget(name: "appstoreconnect-cliTests", dependencies: ["appstoreconnect-cli"]),
+        .testTarget(
+            name: "appstoreconnect-cliTests",
+            dependencies: ["appstoreconnect-cli"],
+            resources: [
+                .copy("Models/Fixtures.bundle")
+            ]
+        ),
     ]
 )

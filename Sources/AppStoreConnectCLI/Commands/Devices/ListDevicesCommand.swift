@@ -31,7 +31,7 @@ struct ListDevicesCommand: CommonParsableCommand {
         ),
         transform: { $0.lowercased() }
     )
-    var filterName: [String]
+    var filterName: [String] = []
 
     @Option(
         parsing: .upToNextOption,
@@ -40,7 +40,7 @@ struct ListDevicesCommand: CommonParsableCommand {
             valueName: "platform"
         )
     )
-    var filterPlatform: [Platform]
+    var filterPlatform: [Platform] = []
 
     @Option(
         help: ArgumentHelp(
@@ -58,7 +58,7 @@ struct ListDevicesCommand: CommonParsableCommand {
         ),
         transform: { $0.lowercased() }
     )
-    var filterUDID: [String]
+    var filterUDID: [String] = []
 
     func run() throws {
         let service = try makeService()

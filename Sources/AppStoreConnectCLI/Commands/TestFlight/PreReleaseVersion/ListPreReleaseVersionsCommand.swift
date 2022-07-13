@@ -21,7 +21,7 @@ struct ListPreReleaseVersionsCommand: CommonParsableCommand {
             valueName: "platform"
         )
     )
-    var filterPlatforms: [String]
+    var filterPlatforms: [String] = []
 
     @Option(
         parsing: .upToNextOption,
@@ -30,7 +30,7 @@ struct ListPreReleaseVersionsCommand: CommonParsableCommand {
             valueName: "version"
         )
     )
-    var filterVersions: [String]
+    var filterVersions: [String] = []
 
     @Option(
         parsing: .unconditional,

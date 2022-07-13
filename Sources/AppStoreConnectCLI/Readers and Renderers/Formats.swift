@@ -4,7 +4,7 @@ import ArgumentParser
 import Foundation
 import FileSystem
 
-enum OutputFormat: String, CaseIterable, Codable {
+enum OutputFormat: String, CaseIterable, Codable, EnumerableFlag {
     case csv
     case json
     case table

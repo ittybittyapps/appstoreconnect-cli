@@ -21,14 +21,11 @@ struct SyncUsersCommand: CommonParsableCommand {
     @Argument(help: "Path to the file containing the information about users. Specify format with --input-format")
     var config: String
 
-    @Option(
-        default: .json,
-        help: "Read config file in provided format (\(InputFormat.allCases.map { $0.rawValue }.joined(separator: ", ")))."
-    )
-    var inputFormat: InputFormat
+    @Option(help: "Read config file in provided format (\(InputFormat.allCases.map { $0.rawValue }.joined(separator: ", "))).")
+    var inputFormat: InputFormat = .json
 
     @Flag(help: "Perform a dry run.")
-    var dryRun: Bool
+    var dryRun = false
 
     func run() throws {
         // Only print if the `PrintLevel` is set to verbose.

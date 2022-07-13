@@ -32,13 +32,13 @@ public struct ListUsersCommand: CommonParsableCommand {
         help: "Filter the results by the specified username.",
         transform: { $0.lowercased() }
     )
-    var filterUsername: [String]
+    var filterUsername: [String] = []
 
     @Option(
         parsing: .upToNextOption,
         help: ArgumentHelp(stringLiteral: "Filter the results by the specified roles (\(UserRole.allCases.map { $0.rawValue.lowercased() }.joined(separator: ", "))).")
     )
-    var filterRole: [UserRole]
+    var filterRole: [UserRole] = []
 
     @Option(
         parsing: .upToNextOption,
@@ -50,10 +50,10 @@ public struct ListUsersCommand: CommonParsableCommand {
         ),
         transform: AppLookupIdentifier.init
     )
-    var filterVisibleApps: [AppLookupIdentifier]
+    var filterVisibleApps: [AppLookupIdentifier] = []
 
     @Flag(help: "Include visible apps in results.")
-    var includeVisibleApps: Bool
+    var includeVisibleApps = false
 
     public func run() throws {
         let service = try makeService()

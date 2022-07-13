@@ -16,7 +16,7 @@ struct GetUserInfoCommand: CommonParsableCommand {
     var email: String
 
     @Flag(help: "Include visible apps in results.")
-    var includeVisibleApps: Bool
+    var includeVisibleApps = false
 
     func run() throws {
         let service = try makeService()

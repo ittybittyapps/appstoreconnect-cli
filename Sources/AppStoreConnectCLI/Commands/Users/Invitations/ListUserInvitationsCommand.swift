@@ -16,13 +16,13 @@ struct ListUserInvitationsCommand: CommonParsableCommand {
     var limitVisibleApps: Int?
 
     @Option(parsing: .upToNextOption, help: "Filter the results by the specified username")
-    var filterEmail: [String]
+    var filterEmail: [String] = []
 
     @Option(parsing: .upToNextOption, help: "Filter the results by the specified roles, (eg. \(UserRole.allCases.compactMap { $0.rawValue.lowercased() })")
-    var filterRole: [UserRole]
+    var filterRole: [UserRole] = []
 
     @Flag(help: "Include visible apps in results.")
-    var includeVisibleApps: Bool
+    var includeVisibleApps = false
 
     public func run() throws {
         let service = try makeService()

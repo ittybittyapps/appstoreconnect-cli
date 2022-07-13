@@ -20,17 +20,16 @@ struct ListBuildsCommand: CommonParsableCommand {
             valueName: "bundle-id"
         )
     )
-    var filterBundleIds: [String]
+    var filterBundleIds: [String] = []
 
     @Flag(
-        default: true,
         inversion: .prefixedNo,
         exclusivity: .exclusive,
         help: ArgumentHelp(
             "Whether expired builds should be included."
         )
     )
-    var includeExpired: Bool
+    var includeExpired = true
 
     @Option(
         parsing: .upToNextOption,
@@ -39,7 +38,7 @@ struct ListBuildsCommand: CommonParsableCommand {
             valueName: "pre-release-version"
         )
     )
-    var filterPreReleaseVersions: [String]
+    var filterPreReleaseVersions: [String] = []
 
     @Option(
         parsing: .upToNextOption,
@@ -48,16 +47,16 @@ struct ListBuildsCommand: CommonParsableCommand {
             valueName: "build-number"
         )
     )
-    var filterBuildNumbers: [String]
+    var filterBuildNumbers: [String] = []
 
     @Option(
         parsing: .upToNextOption,
         help: ArgumentHelp(
             "Filter by the processing state a build \(ListBuilds.Filter.ProcessingState.allCases)",
             valueName: "processing-state"
-     )
+        )
     )
-    var filterProcessingStates: [ListBuilds.Filter.ProcessingState]
+    var filterProcessingStates: [ListBuilds.Filter.ProcessingState] = []
 
     @Option(
         parsing: .upToNextOption,
@@ -66,7 +65,7 @@ struct ListBuildsCommand: CommonParsableCommand {
             valueName: "beta-review-state"
         )
     )
-    var filterBetaReviewStates: [String]
+    var filterBetaReviewStates: [String] = []
 
     @Option(help: "Limit the number of individualTesters & betaBuildLocalizations")
     var limit: Int?
