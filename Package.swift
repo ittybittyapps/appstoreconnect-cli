@@ -33,7 +33,7 @@ let package = Package(
         ),
         .package(
             url: "https://github.com/scottrhoyt/SwiftyTextTable.git",
-            from: "0.5.0"
+            from: "0.9.0"
         ),
         .package(
             url: "https://github.com/dehesa/CodableCSV.git",
