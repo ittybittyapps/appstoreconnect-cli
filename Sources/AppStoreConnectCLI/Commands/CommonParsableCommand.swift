@@ -33,7 +33,7 @@ struct CommonOptions: ParsableArguments {
 }
 
 struct OutputOptions: ParsableArguments {
-    
+
     @Flag(help: "Display results in specified format.")
     var outputFormat: OutputFormat = .table
 

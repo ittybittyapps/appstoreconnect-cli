@@ -28,7 +28,7 @@ struct ListPreReleaseVersionsOperation: APIOperation {
 
         if options.filterAppIds.isNotEmpty { filters.append(.app(options.filterAppIds)) }
         if options.filterVersions.isNotEmpty { filters.append(.version(options.filterVersions)) }
-        if options.filterPlatforms.isNotEmpty { filters.append(.platform(options.filterPlatforms.map { .init(rawValue: $0) ?? .IOS } )) }
+        if options.filterPlatforms.isNotEmpty { filters.append(.platform(options.filterPlatforms.map { .init(rawValue: $0) ?? .IOS })) }
 
         let sort = [options.sort].compactMap { $0 }
 
