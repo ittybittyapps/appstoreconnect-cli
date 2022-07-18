@@ -1,6 +1,7 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
 import AppStoreConnect_Swift_SDK
+import Bagbutik
 import Combine
 import Foundation
 import Model
@@ -17,14 +18,27 @@ extension Model.BundleId {
             seedId: attributes.seedId
         )
     }
+    
+    init(_ attributes: Bagbutik.BundleId.Attributes) {
+        self.init(
+            identifier: attributes.identifier,
+            name: attributes.name,
+            platform: attributes.platform?.rawValue,
+            seedId: attributes.seedId
+        )
+    }
 
     init(_ apiBundleId: AppStoreConnect_Swift_SDK.BundleId) {
         self.init(apiBundleId.attributes!)
     }
 
+    init(_ apiBundleId: Bagbutik.BundleId) {
+        self.init(apiBundleId.attributes!)
+    }
+    
     init(_ response: AppStoreConnect_Swift_SDK.BundleIdResponse) {
         self.init(response.data)
-    }
+    }  
 }
 
 // MARK: - TextTable conveniences

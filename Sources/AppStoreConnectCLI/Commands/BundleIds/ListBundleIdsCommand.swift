@@ -33,10 +33,10 @@ struct ListBundleIdsCommand: CommonParsableCommand {
     @Option(parsing: .upToNextOption, help: "Filter the results by seed ID")
     var filterSeedId: [String] = []
 
-    func run() throws {
+    func run() async throws {
         let service = try makeService()
 
-        let bundleIds = try service.listBundleIds(
+        let bundleIds = try await service.listBundleIds(
             identifiers: filterIdentifier,
             names: filterName,
             platforms: filterPlatform,

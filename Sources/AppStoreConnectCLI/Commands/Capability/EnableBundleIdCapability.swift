@@ -21,10 +21,10 @@ struct EnableBundleIdCapabilityCommand: CommonParsableCommand {
 
     // TODO: CapabilitySetting
 
-    func run() throws {
+    func run() async throws {
         let service = try makeService()
 
-        try service.enableBundleIdCapability(
+        try await service.enableBundleIdCapability(
             bundleId: bundleId, capabilityType: capabilityType
         )
     }

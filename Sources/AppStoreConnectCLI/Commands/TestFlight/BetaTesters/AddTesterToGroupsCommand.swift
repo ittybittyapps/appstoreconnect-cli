@@ -26,9 +26,9 @@ struct AddTesterToGroupsCommand: CommonParsableCommand {
         }
     }
 
-    func run() throws {
+    func run() async throws {
         let service = try makeService()
 
-        try service.addTesterToGroups(email: email, bundleId: bundleId, groupNames: groupNames)
+        try await service.addTesterToGroups(email: email, bundleId: bundleId, groupNames: groupNames)
     }
 }

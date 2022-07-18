@@ -1,6 +1,7 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
 import AppStoreConnect_Swift_SDK
+import Bagbutik
 import Combine
 import Foundation
 import Model
@@ -42,6 +43,23 @@ extension Model.BetaGroup: TableInfoProvider, ResultRenderable {
 extension Model.BetaGroup {
     init(
         _ apiApp: AppStoreConnect_Swift_SDK.App?,
+        _ apiBetaGroup: AppStoreConnect_Swift_SDK.BetaGroup
+    ) {
+        self.init(
+            id: apiBetaGroup.id,
+            app: apiApp.map(Model.App.init),
+            groupName: apiBetaGroup.attributes?.name,
+            isInternal: apiBetaGroup.attributes?.isInternalGroup,
+            publicLink: apiBetaGroup.attributes?.publicLink,
+            publicLinkEnabled: apiBetaGroup.attributes?.publicLinkEnabled,
+            publicLinkLimit: apiBetaGroup.attributes?.publicLinkLimit,
+            publicLinkLimitEnabled: apiBetaGroup.attributes?.publicLinkLimitEnabled,
+            creationDate: apiBetaGroup.attributes?.createdDate?.formattedDate
+        )
+    }
+    
+    init(
+        _ apiApp: Bagbutik.App?,
         _ apiBetaGroup: AppStoreConnect_Swift_SDK.BetaGroup
     ) {
         self.init(

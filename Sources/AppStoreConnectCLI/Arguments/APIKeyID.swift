@@ -31,6 +31,13 @@ struct APIKeyID: EnvironmentLoadableArgument {
     }
 
     func load() throws -> String {
+        return loadPEM()
+            .components(separatedBy: .newlines)
+            .filter { $0.hasSuffix("PRIVATE KEY-----") == false }
+            .joined()
+    }
+    
+    func loadPEM() throws -> String {
 
         // TODO: validate the format of the env var content
         // TODO: validate format of file is correct (if found)
@@ -43,8 +50,5 @@ struct APIKeyID: EnvironmentLoadableArgument {
         }
 
         return apiKeyFileContent
-            .components(separatedBy: .newlines)
-            .filter { $0.hasSuffix("PRIVATE KEY-----") == false }
-            .joined()
     }
 }

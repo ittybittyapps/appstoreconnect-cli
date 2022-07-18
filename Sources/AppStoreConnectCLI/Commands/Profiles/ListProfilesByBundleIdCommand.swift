@@ -37,10 +37,10 @@ struct ListProfilesByBundleIdCommand: CommonParsableCommand {
     )
     var downloadPath: String?
 
-    func run() throws {
+    func run() async throws {
         let service = try makeService()
 
-        let profiles = try service.listProfilesByBundleId(bundleId, limit: limit)
+        let profiles = try await service.listProfilesByBundleId(bundleId, limit: limit)
 
         if let path = downloadPath {
             let processor = ProfileProcessor(path: .folder(path: path))

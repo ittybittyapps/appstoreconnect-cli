@@ -1,14 +1,14 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
-import AppStoreConnect_Swift_SDK
+import Bagbutik
 import Combine
 import Foundation
 
-struct ListUserInvitationsOperation: APIOperation {
+struct ListUserInvitationsOperation: APIOperationV2 {
 
     struct Options {
         let filterEmail: [String]
-        let filterRole: [UserRole]
+        let filterRole: [ListUserInvitationsV1.Filter.Roles]
         let includeVisibleApps: Bool
         let limitVisibleApps: Int?
     }
@@ -19,24 +19,15 @@ struct ListUserInvitationsOperation: APIOperation {
         self.options = options
     }
 
-    func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<[UserInvitation], Error> {
-        var filters = [ListInvitedUsers.Filter]()
+    func execute(with service: BagbutikService) async throws -> [UserInvitation] {
+        var filters = [ListUserInvitationsV1.Filter]()
 
         if options.filterEmail.isNotEmpty { filters.append(.email(options.filterEmail)) }
-        if options.filterRole.isNotEmpty { filters.append(.roles(options.filterRole.map { $0.rawValue })) }
+        if options.filterRole.isNotEmpty { filters.append(.roles(options.filterRole)) }
 
-        let limit = options.limitVisibleApps.map { [ListInvitedUsers.Limit.visibleApps($0)] }
+        let limits = options.limitVisibleApps.map { [ListUserInvitationsV1.Limit.visibleApps($0)] }
 
-        return requestor.requestAllPages {
-                .invitedUsers(
-                    limit: limit,
-                    filter: filters,
-                    next: $0
-                )
-            }
-            .map { $0.flatMap { $0.data } }
-            .eraseToAnyPublisher()
+        return try await service.requestAllPages(.listUserInvitationsV1(filters: filters, limits: limits)).data
     }
 }
 
-extension UserInvitationsResponse: PaginatedResponse { }

@@ -1,6 +1,7 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
 import AppStoreConnect_Swift_SDK
+import Bagbutik
 import Combine
 import Foundation
 import struct Model.App
@@ -12,6 +13,17 @@ extension App: ResultRenderable {}
 
 extension App {
     init(_ apiApp: AppStoreConnect_Swift_SDK.App) {
+        let attributes = apiApp.attributes
+        self.init(
+            id: apiApp.id,
+            bundleId: attributes?.bundleId,
+            name: attributes?.name,
+            primaryLocale: attributes?.primaryLocale,
+            sku: attributes?.sku
+        )
+    }
+    
+    init(_ apiApp: Bagbutik.App) {
         let attributes = apiApp.attributes
         self.init(
             id: apiApp.id,
@@ -44,37 +56,5 @@ extension App: TableInfoProvider {
             primaryLocale ?? "",
             sku ?? "",
         ]
-    }
-}
-
-extension AppStoreConnectService {
-
-    private enum AppError: LocalizedError {
-        case couldntFindApp(bundleId: [String])
-
-        var errorDescription: String? {
-            switch self {
-            case .couldntFindApp(let bundleIds):
-                return "No apps were found matching \(bundleIds)."
-            }
-        }
-    }
-
-    /// Find the opaque internal identifier for an application that related to this bundle ID.
-    func getAppResourceIdsFrom(bundleIds: [String]) -> AnyPublisher<[String], Error> {
-        let getAppResourceIdRequest = APIEndpoint.apps(
-            filters: [ListApps.Filter.bundleId(bundleIds)]
-        )
-
-        return self.request(getAppResourceIdRequest)
-            .tryMap { (response: AppsResponse) throws -> [AppStoreConnect_Swift_SDK.App] in
-                guard !response.data.isEmpty else {
-                    throw AppError.couldntFindApp(bundleId: bundleIds)
-                }
-
-                return response.data
-            }
-            .compactMap { $0.map { $0.id } }
-            .eraseToAnyPublisher()
     }
 }

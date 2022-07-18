@@ -17,10 +17,10 @@ struct DeleteBuildLocalizationsCommand: CommonParsableCommand {
     @Argument(help: "The locale information of the build localization resource. eg. (en-AU)")
     var locale: String
 
-    func run() throws {
+    func run() async throws {
         let service = try makeService()
 
-        try service.deleteBuildLocalization(
+        try await service.deleteBuildLocalization(
             bundleId: build.bundleId,
             buildNumber: build.buildNumber,
             preReleaseVersion: build.preReleaseVersion,

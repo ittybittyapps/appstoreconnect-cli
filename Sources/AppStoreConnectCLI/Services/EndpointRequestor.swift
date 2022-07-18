@@ -7,11 +7,30 @@ import Foundation
 protocol EndpointRequestor {
     func request<T: Decodable>(_ endpoint: APIEndpoint<T>) -> Future<T, Error>
     func request(_ endpoint: APIEndpoint<Void>) -> Future<Void, Error>
+    
+    func request<T: Decodable>(_ endpoint: APIEndpoint<T>) async throws -> T
+    func request(_ endpoint: APIEndpoint<Void>) async throws
 }
 
 struct DefaultEndpointRequestor: EndpointRequestor {
     let provider: APIProvider
 
+    func request<T>(_ endpoint: APIEndpoint<T>) async throws -> T where T : Decodable {
+        try await withCheckedThrowingContinuation { cont in
+            provider.request(endpoint) { result in
+                cont.resume(with: result)
+            }
+        }
+    }
+    
+    func request(_ endpoint: APIEndpoint<Void>) async throws {
+        try await withCheckedThrowingContinuation { cont in
+            provider.request(endpoint) { result in
+                cont.resume(with: result)
+            }
+        }
+    }
+    
     func request<T: Decodable>(_ endpoint: APIEndpoint<T>) -> Future<T, Error> {
         Future { [provider] promise in
             provider.request(endpoint, completion: promise)

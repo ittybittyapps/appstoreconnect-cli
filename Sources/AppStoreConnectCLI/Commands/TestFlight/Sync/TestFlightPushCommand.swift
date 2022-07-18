@@ -18,11 +18,11 @@ struct TestFlightPushCommand: CommonParsableCommand {
     @Option(help: "Path to read in the TestFlight configuration.")
     var inputPath = "./config/apps"
 
-    func run() throws {
+    func run() async throws {
         let service = try makeService()
 
         let local = try FileSystem.readTestFlightConfiguration(from: inputPath)
-        let remote = try service.getTestFlightProgram()
+        let remote = try await service.getTestFlightProgram()
 
         let difference = TestFlightProgramDifference(local: local, remote: remote)
 

@@ -1,7 +1,7 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
-import AppStoreConnect_Swift_SDK
 import ArgumentParser
+import Model
 
 struct ListUserInvitationsCommand: CommonParsableCommand {
     public static var configuration = CommandConfiguration(
@@ -24,10 +24,10 @@ struct ListUserInvitationsCommand: CommonParsableCommand {
     @Flag(help: "Include visible apps in results.")
     var includeVisibleApps = false
 
-    public func run() throws {
+    public func run() async throws {
         let service = try makeService()
 
-        let invitations = try service.listUserInvitaions(
+        let invitations = try await service.listUserInvitaions(
             filterEmail: filterEmail,
             filterRole: filterRole,
             limitVisibleApps: limitVisibleApps,

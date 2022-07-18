@@ -21,7 +21,7 @@ struct GetUserInfoCommand: CommonParsableCommand {
     func run() throws {
         let service = try makeService()
 
-        let user = try service.getUserInfo(
+        let user = try service.userInfo(
             with: email,
             includeVisibleApps: includeVisibleApps
         )

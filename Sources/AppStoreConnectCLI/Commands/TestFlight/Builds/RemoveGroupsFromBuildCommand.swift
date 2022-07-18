@@ -31,10 +31,10 @@ struct RemoveBuildFromGroupsCommand: CommonParsableCommand {
         }
     }
 
-    func run() throws {
+    func run() async throws {
         let service = try makeService()
 
-        try service.removeBuildFromGroups(
+        try await service.removeBuildFromGroups(
             bundleId: bundleId,
             version: preReleaseVersion,
             buildNumber: buildNumber,

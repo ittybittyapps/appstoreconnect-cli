@@ -10,8 +10,16 @@ extension EndpointRequestor {
         Future { $0(.failure(TestError.somethingBadHappened)) }
     }
 
+    func request<T>(_ endpoint: APIEndpoint<T>) async throws -> T where T : Decodable {
+        throw TestError.somethingBadHappened
+    }
+
     func request(_ endpoint: APIEndpoint<Void>) -> Future<Void, Error> {
         Future { $0(.failure(TestError.somethingBadHappened)) }
+    }
+    
+    func request(_ endpoint: APIEndpoint<Void>) async throws {
+        throw TestError.somethingBadHappened
     }
 }
 

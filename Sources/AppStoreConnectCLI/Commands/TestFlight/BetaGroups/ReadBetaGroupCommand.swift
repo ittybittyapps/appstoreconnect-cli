@@ -21,10 +21,10 @@ struct ReadBetaGroupCommand: CommonParsableCommand {
     @Argument(help: "The name of the beta group.")
     var groupName: String
 
-    func run() throws {
+    func run() async throws {
         let service = try makeService()
 
-        let betaGroup = try service.readBetaGroup(bundleId: appBundleId, groupName: groupName)
+        let betaGroup = try await service.readBetaGroup(bundleId: appBundleId, groupName: groupName)
 
         betaGroup.render(options: common.outputOptions)
     }

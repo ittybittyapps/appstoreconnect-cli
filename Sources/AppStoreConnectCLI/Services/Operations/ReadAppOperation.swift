@@ -1,11 +1,11 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
-import AppStoreConnect_Swift_SDK
-import Combine
+import Bagbutik
 import Foundation
 
-struct ReadAppOperation: APIOperation {
-
+struct ReadAppOperation: APIOperationV2 {
+    typealias Output = App
+    
     struct Options {
         let identifier: AppLookupIdentifier
     }
@@ -24,37 +24,30 @@ struct ReadAppOperation: APIOperation {
         }
     }
 
-    typealias App = AppStoreConnect_Swift_SDK.App
-
     private let options: Options
 
     init(options: Options) {
         self.options = options
     }
 
-    func execute(with requestor: EndpointRequestor) -> AnyPublisher<App, Swift.Error> {
-        let result: AnyPublisher<App, Swift.Error>
-
+    func execute(with service: BagbutikService) async throws -> Output {
+        let result: App
+        
         switch options.identifier {
         case .appId(let appId):
-            result = requestor.request(.app(withId: appId))
-                .map(\.data)
-                .eraseToAnyPublisher()
+            result = try await service.request(.getAppV1(id: appId)).data
+                
         case .bundleId(let bundleId):
-            let endpoint: APIEndpoint = .apps(filters: [.bundleId([bundleId])])
-
-            result = requestor.request(endpoint)
-                .tryMap { (response: AppsResponse) throws -> App in
-                    switch response.data.count {
-                    case 0:
-                        throw Error.notFound(bundleId)
-                    case 1:
-                        return response.data.first!
-                    default:
-                        throw Error.notUnique(bundleId)
-                    }
-                }
-                .eraseToAnyPublisher()
+            let data = try await service.requestAllPages(.listAppsV1(filters: [.bundleId([bundleId])])).data
+                          
+            switch data.count {
+            case 0:
+                throw Error.notFound(bundleId)
+            case 1:
+                result = data.first!
+            default:
+                throw Error.notUnique(bundleId)
+            }
         }
 
         return result

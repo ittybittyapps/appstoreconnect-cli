@@ -41,26 +41,22 @@ struct ListBetaTesterByBuildsCommand: CommonParsableCommand {
         }
     }
 
-    func run() throws {
+    func run() async throws {
         let service = try makeService()
 
-        let betaTesters = try service
-            .getAppResourceIdsFrom(bundleIds: [bundleId])
-            .flatMap { [versions, preReleaseVersions] appIds -> AnyPublisher<BuildsResponse, Error> in
+        let appIds = try await service.appResourceIdsForBundleIds([bundleId])
+        
+        var filters: [ListBuilds.Filter] = [.app(appIds)]
+        if !versions.isEmpty {
+            filters.append(.version(versions))
+        }
 
-                var filters: [ListBuilds.Filter] = [.app(appIds)]
+        if !preReleaseVersions.isEmpty {
+            filters.append(.preReleaseVersionVersion(preReleaseVersions))
+        }
 
-                if !versions.isEmpty {
-                    filters.append(.version(versions))
-                }
-
-                if !preReleaseVersions.isEmpty {
-                    filters.append(.preReleaseVersionVersion(preReleaseVersions))
-                }
-
-                return service.request(APIEndpoint.builds(filter: filters))
-                    .eraseToAnyPublisher()
-            }
+        let betaTesters = try service.request(APIEndpoint.builds(filter: filters))
+            .eraseToAnyPublisher()
             .flatMap { [versions, preReleaseVersions] buildResponse -> AnyPublisher<BetaTestersResponse, Error> in
                 guard !buildResponse.data.isEmpty else {
                     let error = CommandError.noBuildsFound(preReleaseVersions: preReleaseVersions, versions: versions)

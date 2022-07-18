@@ -1,8 +1,10 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
 import AppStoreConnect_Swift_SDK
+
 import ArgumentParser
 import Foundation
+import Model
 
 struct InviteUserCommand: CommonParsableCommand {
     static var configuration = CommandConfiguration(
@@ -29,39 +31,57 @@ struct InviteUserCommand: CommonParsableCommand {
     @OptionGroup()
     var userInfo: UserInfoArguments
 
-    public func run() throws {
+    func validate() throws {
+        if userInfo.allAppsVisible == false && userInfo.bundleIds.isEmpty {
+            throw ValidationError.init("If you set allAppsVisible to false, you must provide at least one value for the visibleApps relationship.")
+        }
+    }
+    
+    public func run() async throws {
         let service = try makeService()
 
+        let invitation: Model.UserInvitation
+        
         if userInfo.allAppsVisible {
-            try inviteUserToTeam(by: service)
-            return
+            invitation = try await service.inviteUserToTeam(
+                email: email,
+                firstName: firstName,
+                lastName: lastName,
+                roles: userInfo.roles,
+                allAppsVisible: userInfo.allAppsVisible,
+                provisioningAllowed: userInfo.provisioningAllowed
+            )
+        } else {
+            let resourceIds = try await service
+                .appResourceIdsForBundleIds(userInfo.bundleIds)
+
+            guard resourceIds.isEmpty == false else {
+                throw AppError.couldntFindApp(bundleId: userInfo.bundleIds)
+            }
+                        
+            invitation = try await service.inviteUserToTeam(
+                email: email,
+                firstName: firstName,
+                lastName: lastName,
+                roles: userInfo.roles,
+                allAppsVisible: userInfo.allAppsVisible,
+                provisioningAllowed: userInfo.provisioningAllowed,
+                appsVisibleIds: resourceIds
+            )
         }
-
-        if userInfo.bundleIds.isNotEmpty {
-            let resourceIds = try service
-                .getAppResourceIdsFrom(bundleIds: userInfo.bundleIds)
-                .await()
-
-            try inviteUserToTeam(with: resourceIds, by: service)
-        }
-
-        fatalError("Invalid Input: If you set allAppsVisible to false, you must provide at least one value for the visibleApps relationship.")
+       
+        invitation.render(options: common.outputOptions)
     }
 
-    func inviteUserToTeam(with appsVisibleIds: [String] = [], by service: AppStoreConnectService) throws {
-        let request = APIEndpoint.invite(
-            userWithEmail: email,
-            firstName: firstName,
-            lastName: lastName,
-            roles: userInfo.roles,
-            allAppsVisible: userInfo.allAppsVisible,
-            provisioningAllowed: userInfo.provisioningAllowed,
-            appsVisibleIds: appsVisibleIds) // appsVisibleIds should be empty when allAppsVisible is true
+}
 
-        let invitation = try service.request(request)
-            .map { $0.data }
-            .await()
+private enum AppError: LocalizedError {
+    case couldntFindApp(bundleId: [String])
 
-        invitation.render(options: common.outputOptions)
+    var errorDescription: String? {
+        switch self {
+        case .couldntFindApp(let bundleIds):
+            return "No apps were found matching \(bundleIds)."
+        }
     }
 }

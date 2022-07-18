@@ -17,10 +17,10 @@ struct ReadBuildLocalizationCommand: CommonParsableCommand {
     @Argument(help: "The locale information of the build localization resource. eg. (en-AU)")
     var locale: String
 
-    func run() throws {
+    func run() async throws {
         let service = try makeService()
 
-        let buildLocalization = try service.readBuildLocaization(
+        let buildLocalization = try await service.readBuildLocaization(
             bundleId: build.bundleId,
             buildNumber: build.buildNumber,
             preReleaseVersion: build.preReleaseVersion,

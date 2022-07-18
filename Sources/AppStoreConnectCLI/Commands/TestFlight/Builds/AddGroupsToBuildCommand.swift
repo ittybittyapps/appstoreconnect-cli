@@ -24,10 +24,10 @@ struct AddGroupsToBuildCommand: CommonParsableCommand {
         }
     }
 
-    func run() throws {
+    func run() async throws {
         let service = try makeService()
 
-        try service.addGroupsToBuild(
+        try await service.addGroupsToBuild(
             bundleId: build.bundleId,
             version: build.preReleaseVersion,
             buildNumber: build.buildNumber,
