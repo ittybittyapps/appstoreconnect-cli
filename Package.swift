@@ -29,7 +29,7 @@ let package = Package(
         ),
         .package(
             url: "https://github.com/jpsim/Yams.git",
-            from: "2.0.0"
+            from: "5.0.1"
         ),
         .package(
             url: "https://github.com/scottrhoyt/SwiftyTextTable.git",
