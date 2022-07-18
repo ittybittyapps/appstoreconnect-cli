@@ -18,10 +18,10 @@ struct ReadBundleIdCommand: CommonParsableCommand {
     @Argument(help: "The reverse-DNS bundle ID identifier to read. Must be unique. (eg. com.example.app)")
     var identifier: String
 
-    func run() throws {
+    func run() async throws {
         let service = try makeService()
 
-        let bundleId = try service.readBundleIdInformation(bundleId: identifier)
+        let bundleId = try await service.readBundleIdInformation(bundleId: identifier)
 
         bundleId.render(options: common.outputOptions)
     }

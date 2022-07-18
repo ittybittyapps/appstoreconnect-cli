@@ -1,32 +1,41 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
 import AppStoreConnect_Swift_SDK
+import class Bagbutik.BagbutikService
+import struct Bagbutik.JWT
 import Combine
+import CollectionConcurrencyKit
 import Foundation
 import Model
 
 class AppStoreConnectService {
+
+    private let service: BagbutikService
     private let provider: APIProvider
     private let requestor: EndpointRequestor
 
-    init(configuration: APIConfiguration) {
+    init(configuration: APIConfiguration, jwt: JWT) {
+        service = BagbutikService(jwt: jwt)
         provider = APIProvider(configuration: configuration)
         requestor = DefaultEndpointRequestor(provider: provider)
     }
-
+    
+    /// Find the opaque internal identifier for an application that related to this bundle ID.
+    func appResourceIdsForBundleIds(_ bundleIds: [String]) async throws -> [String] {
+        return try await service.requestAllPages(.listAppsV1(filters: [.bundleId(bundleIds)])).data.map(\.id)
+    }
+    
     func listApps(
         bundleIds: [String] = [],
         names: [String] = [],
         skus: [String] = [],
         limit: Int? = nil
-    ) throws -> [Model.App] {
+    ) async throws -> [Model.App] {
         let operation = ListAppsOperation(
             options: .init(bundleIds: bundleIds, names: names, skus: skus, limit: limit)
         )
 
-        let output = try operation.execute(with: requestor).await()
-
-        return output.map(Model.App.init)
+        return try await operation.execute(with: service).map { Model.App.init($0) }
     }
 
     func listBundleIds(
@@ -35,7 +44,7 @@ class AppStoreConnectService {
         platforms: [String],
         seedIds: [String],
         limit: Int?
-    ) throws -> [Model.BundleId] {
+    ) async throws -> [Model.BundleId] {
         let operation = ListBundleIdsOperation(options:
             .init(
                 identifiers: identifiers,
@@ -46,46 +55,45 @@ class AppStoreConnectService {
             )
         )
 
-        return try operation.execute(with: requestor).await().map(Model.BundleId.init)
+        return try await operation.execute(with: service).map { Model.BundleId.init($0) }            
     }
 
     func listUsers(
         limitVisibleApps: Int?,
         limitUsers: Int?,
-        sort: ListUsers.Sort?,
+        sort: String?,
         filterUsername: [String],
-        filterRole: [UserRole],
+        filterRole: [Model.UserRole],
         filterVisibleApps: [AppLookupIdentifier],
         includeVisibleApps: Bool
-    ) throws -> [Model.User] {
-        let appIds = try filterVisibleApps.map { identifier -> String in
+    ) async throws -> [Model.User] {
+        let appIds = try await filterVisibleApps.asyncMap { identifier -> String in
             switch identifier {
             case .appId(let appid):
                 return appid
             case .bundleId(let bundleId):
-                return try ReadAppOperation(options: .init(identifier: .bundleId(bundleId)))
-                    .execute(with: requestor)
-                    .await()
+                return try await ReadAppOperation(options: .init(identifier: .bundleId(bundleId)))
+                    .execute(with: service)
                     .id
             }
         }
 
-        return try ListUsersOperation(
+        return try await ListUsersOperation(
             options: .init(
                 limitVisibleApps: limitVisibleApps,
                 limitUsers: limitUsers,
                 sort: sort,
                 filterUsername: filterUsername,
-                filterRole: filterRole,
+                filterRole: filterRole.map(\.rawValue),
                 filterVisibleApps: appIds,
                 includeVisibleApps: includeVisibleApps
             )
         )
-        .execute(with: requestor)
-        .await()
+        .execute(with: service)
+        .map { .init($0) }
     }
 
-    func getUserInfo(with email: String, includeVisibleApps: Bool) throws -> Model.User {
+    func userInfo(with email: String, includeVisibleApps: Bool) throws -> Model.User {
         try GetUserInfoOperation(
             options: .init(
                 email: email,
@@ -99,7 +107,7 @@ class AppStoreConnectService {
 
     func modifyUserInfo(
         email: String,
-        roles: [UserRole],
+        roles: [Model.UserRole],
         allAppsVisible: Bool,
         provisioningAllowed: Bool,
         bundleIds: [String]
@@ -114,7 +122,7 @@ class AppStoreConnectService {
                 userId: userId,
                 allAppsVisible: allAppsVisible,
                 provisioningAllowed: provisioningAllowed,
-                roles: roles,
+                roles: roles.map { .init($0) },
                 appsVisibleIds: bundleIds
             )
         )
@@ -208,7 +216,7 @@ class AppStoreConnectService {
         bundleId: String,
         groupName: String,
         emails: [String]
-    ) throws {
+    ) async throws {
         let testerIds = try emails.map {
             try GetBetaTesterOperation(options: .init(identifier: .email($0)))
                 .execute(with: requestor)
@@ -217,9 +225,8 @@ class AppStoreConnectService {
                 .id
         }
 
-        let app = try ReadAppOperation(options: .init(identifier: .bundleId(bundleId)))
-            .execute(with: requestor)
-            .await()
+        let app = try await ReadAppOperation(options: .init(identifier: .bundleId(bundleId)))
+            .execute(with: service)
 
         let groupId = try GetBetaGroupOperation(
                 options: .init(appId: app.id, bundleId: bundleId, betaGroupName: groupName)
@@ -241,16 +248,15 @@ class AppStoreConnectService {
         email: String,
         bundleId: String,
         groupNames: [String]
-    ) throws {
+    ) async throws {
         let testerId = try GetBetaTesterOperation(options: .init(identifier: .email(email)))
             .execute(with: requestor)
             .await()
             .betaTester
             .id
 
-        let app = try ReadAppOperation(options: .init(identifier: .bundleId(bundleId)))
-            .execute(with: requestor)
-            .await()
+        let app = try await ReadAppOperation(options: .init(identifier: .bundleId(bundleId)))
+            .execute(with: service)
 
         let groupIds = try groupNames.map {
             try GetBetaGroupOperation(
@@ -370,9 +376,9 @@ class AppStoreConnectService {
     func listBetaTestersForGroup(
         identifier: AppLookupIdentifier,
         groupName: String
-    ) throws -> [Model.BetaTester] {
+    ) async throws -> [Model.BetaTester] {
         let readAppOperation = ReadAppOperation(options: .init(identifier: identifier))
-        let app = try readAppOperation.execute(with: requestor).await()
+        let app = try await readAppOperation.execute(with: service)
 
         let getBetaGroupOperation = GetBetaGroupOperation(
             options: .init(appId: app.id, bundleId: nil, betaGroupName: groupName)
@@ -446,10 +452,9 @@ class AppStoreConnectService {
         try operation.execute(with: requestor).await()
     }
 
-    func readBetaGroup(bundleId: String, groupName: String) throws -> Model.BetaGroup {
-        let app = try ReadAppOperation(options: .init(identifier: .bundleId(bundleId)))
-            .execute(with: requestor)
-            .await()
+    func readBetaGroup(bundleId: String, groupName: String) async throws -> Model.BetaGroup {
+        let app = try await ReadAppOperation(options: .init(identifier: .bundleId(bundleId)))
+            .execute(with: service)
 
         let options = GetBetaGroupOperation.Options(appId: app.id, bundleId: bundleId, betaGroupName: groupName)
         let betaGroup = try GetBetaGroupOperation(options: options)
@@ -615,8 +620,8 @@ class AppStoreConnectService {
         version: String,
         buildNumber: String,
         groupNames: [String]
-    ) throws {
-        let (buildId, groupIds) = try getBuildIdAndGroupIdsFrom(
+    ) async throws {
+        let (buildId, groupIds) = try await buildIdAndGroupIdsFrom(
             bundleId: bundleId,
             version: version,
             buildNumber: buildNumber,
@@ -633,8 +638,8 @@ class AppStoreConnectService {
         version: String,
         buildNumber: String,
         groupNames: [String]
-    ) throws {
-        let (buildId, groupIds) = try getBuildIdAndGroupIdsFrom(
+    ) async throws {
+        let (buildId, groupIds) = try await buildIdAndGroupIdsFrom(
             bundleId: bundleId,
             version: version,
             buildNumber: buildNumber,
@@ -646,12 +651,11 @@ class AppStoreConnectService {
             .await()
     }
 
-    func readApp(identifier: AppLookupIdentifier) throws -> Model.App {
-        let sdkApp = try ReadAppOperation(options: .init(identifier: identifier))
-            .execute(with: requestor)
-            .await()
+    func readApp(identifier: AppLookupIdentifier) async throws -> Model.App {
+        let app = try await ReadAppOperation(options: .init(identifier: identifier))
+            .execute(with: service)
 
-        return Model.App(sdkApp)
+        return Model.App(app)
     }
 
     func listPreReleaseVersions(
@@ -729,12 +733,11 @@ class AppStoreConnectService {
             .map(Device.init)
     }
 
-    func listProfilesByBundleId(_ bundleId: String, limit: Int?) throws -> [Model.Profile] {
-        let bundleIdResourceIds = try ListBundleIdsOperation(
+    func listProfilesByBundleId(_ bundleId: String, limit: Int?) async throws -> [Model.Profile] {
+        let bundleIdResourceIds = try await ListBundleIdsOperation(
             options: .init(identifiers: [bundleId], names: [], platforms: [], seedIds: [], limit: nil)
         )
-        .execute(with: requestor)
-        .await()
+        .execute(with: service)
         .filter { ($0.attributes?.identifier?.starts(with: bundleId) ?? false) }
         .map(\.id)
 
@@ -786,12 +789,11 @@ class AppStoreConnectService {
         profileType: ProfileType,
         certificateSerialNumbers: [String],
         deviceUDIDs: [String]
-    ) throws -> Model.Profile {
-        let bundleIdResourceId = try ReadBundleIdOperation(
+    ) async throws -> Model.Profile {
+        let bundleIdResourceId = try await ReadBundleIdOperation(
             options: .init(bundleId: bundleId)
         )
-        .execute(with: requestor)
-        .await()
+        .execute(with: service)
         .id
 
         let deviceIds = try ListDevicesOperation(
@@ -840,39 +842,91 @@ class AppStoreConnectService {
 
     func listUserInvitaions(
         filterEmail: [String],
-        filterRole: [UserRole],
+        filterRole: [Model.UserRole],
         limitVisibleApps: Int?,
         includeVisibleApps: Bool
-    ) throws -> [UserInvitation] {
-        try ListUserInvitationsOperation(
+    ) async throws -> [Model.UserInvitation] {
+        try await ListUserInvitationsOperation(
                 options: .init(
                     filterEmail: filterEmail,
-                    filterRole: filterRole,
+                    filterRole: filterRole.map { .init($0) },
                     includeVisibleApps: includeVisibleApps,
                     limitVisibleApps: limitVisibleApps
                 )
             )
-            .execute(with: requestor)
-            .await()
+            .execute(with: service)
+            .map {
+                UserInvitation($0)
+            }
     }
 
+    /// Find the opaque internal identifier for this invitation; search by email address.
+    ///
+    /// This is an App Store Connect internal identifier
+    func invitationIdentifier(matching email: String) async throws -> String {
+        let invitations = try await service.request(.listUserInvitationsV1(filters: [.email([email])]))
+            .data
+        
+        guard let invitation = invitations.first(where: { $0.attributes?.email == email }) else {
+            // FIXME: should throw
+            fatalError("User with email address '\(email)' not unique or not found")
+        }
+        
+        return invitation.id
+    }
+    
+    func cancel(userInvitationWithId identifier: String) async throws {
+        let _ = try await service.request(.deleteUserInvitationV1(id: identifier))        
+    }
+
+    func inviteUserToTeam(
+        email: String,
+        firstName: String,
+        lastName: String,
+        roles: [Model.UserRole],
+        allAppsVisible: Bool,
+        provisioningAllowed: Bool,
+        appsVisibleIds: [String] = []
+    ) async throws -> Model.UserInvitation {
+        
+        // appsVisibleIds should be empty when allAppsVisible is true
+        precondition(allAppsVisible && appsVisibleIds.isEmpty)
+                      
+        let invitation = try await service.request(
+            .createUserInvitationV1(
+                requestBody: .init(
+                    data: .init(
+                        attributes: .init(
+                            allAppsVisible: allAppsVisible,
+                            email: email,
+                            firstName: firstName,
+                            lastName: lastName,
+                            provisioningAllowed: provisioningAllowed,
+                            roles: roles.map { .init($0) }
+                        )
+                    )
+                )
+            )
+        ).data
+        
+        return .init(invitation)
+    }
+    
+    
     func readBundleIdInformation(
         bundleId: String
-    ) throws -> Model.BundleId {
-        try ReadBundleIdOperation(
+    ) async throws -> Model.BundleId {
+        Model.BundleId(try await ReadBundleIdOperation(
                 options: .init(bundleId: bundleId)
             )
-            .execute(with: requestor)
-            .map(Model.BundleId.init)
-            .await()
+            .execute(with: service))
     }
 
-    func modifyBundleIdInformation(bundleId: String, name: String) throws -> Model.BundleId {
-        let id = try ReadBundleIdOperation(
+    func modifyBundleIdInformation(bundleId: String, name: String) async throws -> Model.BundleId {
+        let id = try await ReadBundleIdOperation(
             options: .init(bundleId: bundleId)
         )
-        .execute(with: requestor)
-        .await()
+        .execute(with: service)
         .id
 
         return try ModifyBundleIdOperation(options: .init(resourceId: id, name: name))
@@ -881,12 +935,11 @@ class AppStoreConnectService {
             .await()
     }
 
-    func deleteBundleId(bundleId: String) throws {
-        let id = try ReadBundleIdOperation(
+    func deleteBundleId(bundleId: String) async throws {
+        let id = try await ReadBundleIdOperation(
             options: .init(bundleId: bundleId)
         )
-        .execute(with: requestor)
-        .await()
+        .execute(with: service)
         .id
 
         try DeleteBundleIdOperation(options: .init(resourceId: id))
@@ -897,12 +950,11 @@ class AppStoreConnectService {
     func enableBundleIdCapability(
         bundleId: String,
         capabilityType: CapabilityType
-    ) throws {
-        let bundleIdResourceId = try ReadBundleIdOperation(
+    ) async throws {
+        let bundleIdResourceId = try await ReadBundleIdOperation(
                 options: .init(bundleId: bundleId)
             )
-            .execute(with: requestor)
-            .await()
+            .execute(with: service)
             .id
 
         _ = try EnableBundleIdCapabilityOperation(
@@ -912,12 +964,11 @@ class AppStoreConnectService {
             .await()
     }
 
-    func disableBundleIdCapability(bundleId: String, capabilityType: CapabilityType) throws {
-        let bundleIdResourceId = try ReadBundleIdOperation(
+    func disableBundleIdCapability(bundleId: String, capabilityType: CapabilityType) async throws {
+        let bundleIdResourceId = try await ReadBundleIdOperation(
                 options: .init(bundleId: bundleId)
             )
-            .execute(with: requestor)
-            .await()
+            .execute(with: service)            
             .id
 
         let capability = try ListCapabilitiesOperation(
@@ -975,8 +1026,8 @@ class AppStoreConnectService {
         buildNumber: String,
         preReleaseVersion: String,
         limit: Int?
-    ) throws -> [BuildLocalization] {
-        let buildId = try getBuildIdFrom(
+    ) async throws -> [BuildLocalization] {
+        let buildId = try await buildIdFrom(
             bundleId: bundleId,
             buildNumber: buildNumber,
             preReleaseVersion: preReleaseVersion
@@ -995,8 +1046,8 @@ class AppStoreConnectService {
         buildNumber: String,
         preReleaseVersion: String,
         locale: String
-    ) throws -> BuildLocalization {
-        let buildId = try getBuildIdFrom(
+    ) async throws -> BuildLocalization {
+        let buildId = try await buildIdFrom(
             bundleId: bundleId,
             buildNumber: buildNumber,
             preReleaseVersion: preReleaseVersion
@@ -1016,8 +1067,8 @@ class AppStoreConnectService {
         buildNumber: String,
         preReleaseVersion: String,
         locale: String
-    ) throws {
-        let buildId = try getBuildIdFrom(
+    ) async throws {
+        let buildId = try await buildIdFrom(
             bundleId: bundleId,
             buildNumber: buildNumber,
             preReleaseVersion: preReleaseVersion
@@ -1043,8 +1094,8 @@ class AppStoreConnectService {
         preReleaseVersion: String,
         locale: String,
         whatsNew: String
-    ) throws -> BuildLocalization {
-        let buildId = try getBuildIdFrom(
+    ) async throws -> BuildLocalization {
+        let buildId = try await buildIdFrom(
             bundleId: bundleId,
             buildNumber: buildNumber,
             preReleaseVersion: preReleaseVersion
@@ -1065,8 +1116,8 @@ class AppStoreConnectService {
         preReleaseVersion: String,
         locale: String,
         whatsNew: String
-    ) throws -> BuildLocalization {
-        let buildId = try getBuildIdFrom(
+    ) async throws -> BuildLocalization {
+        let buildId = try await buildIdFrom(
             bundleId: bundleId,
             buildNumber: buildNumber,
             preReleaseVersion: preReleaseVersion
@@ -1091,9 +1142,9 @@ class AppStoreConnectService {
         )
     }
 
-    func getTestFlightProgram(bundleIds: [String] = []) throws -> TestFlightProgram {
+    func getTestFlightProgram(bundleIds: [String] = []) async throws -> TestFlightProgram {
         let appsOperation = ListAppsOperation(options: .init(bundleIds: bundleIds))
-        let apps = try appsOperation.execute(with: requestor).await()
+        let apps = try await appsOperation.execute(with: service)
         let appIds = apps.map(\.id)
 
         // Passing appIds can cause undefined API behaviour for list beta testers so we retrieve all
@@ -1154,15 +1205,14 @@ class AppStoreConnectService {
 
 extension AppStoreConnectService {
 
-    func getBuildIdAndGroupIdsFrom(
+    func buildIdAndGroupIdsFrom(
         bundleId: String,
         version: String,
         buildNumber: String,
         groupNames: [String]
-    ) throws -> (buildId: String, groupIds: [String]) {
-        let appId = try ReadAppOperation(options: .init(identifier: .bundleId(bundleId)))
-            .execute(with: requestor)
-            .await()
+    ) async throws -> (buildId: String, groupIds: [String]) {
+        let appId = try await ReadAppOperation(options: .init(identifier: .bundleId(bundleId)))
+            .execute(with: service)
             .id
 
         let buildId = try ReadBuildOperation(
@@ -1190,14 +1240,13 @@ extension AppStoreConnectService {
         return (buildId, groupIds)
     }
 
-    private func getBuildIdFrom(
+    private func buildIdFrom(
         bundleId: String,
         buildNumber: String,
         preReleaseVersion: String
-    ) throws -> String {
-        let appId = try ReadAppOperation(options: .init(identifier: .bundleId(bundleId)))
-        .execute(with: requestor)
-        .await()
+    ) async throws -> String {
+        let appId = try await ReadAppOperation(options: .init(identifier: .bundleId(bundleId)))
+        .execute(with: service)
         .id
 
         return try ReadBuildOperation(

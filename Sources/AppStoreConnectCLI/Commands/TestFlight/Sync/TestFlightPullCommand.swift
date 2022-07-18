@@ -24,10 +24,10 @@ struct TestFlightPullCommand: CommonParsableCommand {
     @Option(help: "Path to output/write the TestFlight configuration.")
     var outputPath = "./config/apps"
 
-    func run() throws {
+    func run() async throws {
         let service = try makeService()
 
-        let testflightProgram = try service.getTestFlightProgram(bundleIds: filterBundleIds)
+        let testflightProgram = try await service.getTestFlightProgram(bundleIds: filterBundleIds)
 
         try FileSystem.writeTestFlightConfiguration(program: testflightProgram, to: outputPath)
     }

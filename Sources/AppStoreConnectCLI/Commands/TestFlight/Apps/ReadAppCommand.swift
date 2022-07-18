@@ -17,10 +17,10 @@ struct ReadAppCommand: CommonParsableCommand {
     @OptionGroup()
     var appLookupArgument: AppLookupArgument
 
-    func run() throws {
+    func run() async throws {
         let service = try makeService()
 
-        let app = try service.readApp(identifier: appLookupArgument.identifier)
+        let app = try await service.readApp(identifier: appLookupArgument.identifier)
 
         app.render(options: common.outputOptions)
     }

@@ -4,7 +4,7 @@ import AppStoreConnect_Swift_SDK
 import ArgumentParser
 import Foundation
 
-protocol CommonParsableCommand: ParsableCommand {
+protocol CommonParsableCommand: AsyncParsableCommand {
     var common: CommonOptions { get }
 
     func makeService() throws -> AppStoreConnectService
@@ -20,7 +20,7 @@ enum PrintLevel {
 
 extension CommonParsableCommand {
     func makeService() throws -> AppStoreConnectService {
-        AppStoreConnectService(configuration: try APIConfiguration(common.authOptions))
+        try AppStoreConnectService(configuration: .init(common.authOptions), jwt: .init(common.authOptions))
     }
 }
 

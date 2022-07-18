@@ -1,9 +1,8 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
-import AppStoreConnect_Swift_SDK
 import ArgumentParser
-import Combine
 import Foundation
+import Model
 
 public struct ListUsersCommand: CommonParsableCommand {
     public static var configuration = CommandConfiguration(
@@ -23,9 +22,9 @@ public struct ListUsersCommand: CommonParsableCommand {
 
     @Option(
         parsing: SingleValueParsingStrategy.unconditional,
-        help: "Sort the results using the provided key (\(ListUsers.Sort.allCases.map { $0.rawValue }.joined(separator: ", "))).\nThe `-` prefix indicates descending order."
+        help: "Sort the results using the provided key (\(Sort.allCases.map { $0.rawValue }.joined(separator: ", "))).\nThe `-` prefix indicates descending order."
     )
-    var sort: ListUsers.Sort?
+    var sort: Sort?
 
     @Option(
         parsing: .upToNextOption,
@@ -55,14 +54,21 @@ public struct ListUsersCommand: CommonParsableCommand {
     @Flag(help: "Include visible apps in results.")
     var includeVisibleApps = false
 
-    public func run() throws {
+    public enum Sort: String, CaseIterable, ExpressibleByArgument {
+        case lastNameAscending = "lastName"
+        case lastNameDescending = "-lastName"
+        case usernameAscending = "username"
+        case usernameDescending = "-username"
+    }
+    
+    public func run() async throws {
         let service = try makeService()
 
-        let users = try service
+        let users = try await service
             .listUsers(
                 limitVisibleApps: limitVisibleApps,
                 limitUsers: limitUsers,
-                sort: sort,
+                sort: sort?.rawValue,
                 filterUsername: filterUsername,
                 filterRole: filterRole,
                 filterVisibleApps: filterVisibleApps,

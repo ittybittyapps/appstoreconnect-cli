@@ -1,11 +1,12 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
-import AppStoreConnect_Swift_SDK
-import Combine
+import Bagbutik
 import Foundation
+import Model
 
-struct ReadBundleIdOperation: APIOperation {
-
+struct ReadBundleIdOperation: APIOperationV2 {
+    typealias Output = Bagbutik.BundleId
+    
     struct Options {
         let bundleId: String
     }
@@ -30,24 +31,21 @@ struct ReadBundleIdOperation: APIOperation {
         self.options = options
     }
 
-    func execute(with requestor: EndpointRequestor) -> AnyPublisher<BundleId, Swift.Error> {
-        requestor.request(
-            .listBundleIds(
-                filter: [.identifier([options.bundleId])]
-            )
+    func execute(with service: BagbutikService) async throws -> Output {
+        let bundleIds = try await service.request(
+            .listBundleIdsV1(filters: [.identifier([options.bundleId])])
         )
-        .tryMap {
-            let data = $0.data.filter { $0.attributes?.identifier == self.options.bundleId }
-            switch data.count {
-            case 0:
-                throw Error.couldNotFindBundleId(self.options.bundleId)
-            case 1:
-                return data.first!
-            default:
-                throw Error.bundleIdNotUnique(self.options.bundleId)
-            }
+            .data
+            .filter { $0.attributes?.identifier == self.options.bundleId }
+        
+        switch bundleIds.count {
+        case 0:
+            throw Error.couldNotFindBundleId(self.options.bundleId)
+        case 1:
+            return bundleIds.first!
+        default:
+            throw Error.bundleIdNotUnique(self.options.bundleId)
         }
-        .eraseToAnyPublisher()
     }
-
+    
 }

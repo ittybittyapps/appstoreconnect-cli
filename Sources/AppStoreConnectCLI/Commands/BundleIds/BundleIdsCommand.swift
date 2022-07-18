@@ -3,7 +3,7 @@
 import ArgumentParser
 import Foundation
 
-struct BundleIdsCommand: ParsableCommand {
+struct BundleIdsCommand: AsyncParsableCommand {
     static var configuration = CommandConfiguration(
         commandName: "bundle-ids",
         abstract: "Manage the bundle IDs that uniquely identify your apps.",

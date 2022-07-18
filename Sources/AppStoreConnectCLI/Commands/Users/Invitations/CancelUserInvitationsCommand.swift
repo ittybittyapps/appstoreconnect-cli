@@ -16,14 +16,9 @@ struct CancelUserInvitationsCommand: CommonParsableCommand {
     @Argument(help: "The email address of a pending user invitation.")
     var email: String
 
-    public func run() throws {
+    public func run() async throws {
         let service = try makeService()
-
-        let cancelInvitation = { service.request(APIEndpoint.cancel(userInvitationWithId: $0)) }
-
-        try service
-            .invitationIdentifier(matching: email)
-            .flatMap(cancelInvitation)
-            .await()
+       
+        try await service.cancel(userInvitationWithId: service.invitationIdentifier(matching: email))
     }
 }

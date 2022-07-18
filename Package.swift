@@ -6,7 +6,7 @@ import PackageDescription
 let package = Package(
     name: "appstoreconnect-cli",
     platforms: [
-        .macOS(.v10_15)
+        .macOS(.v12)
     ],
     products: [
         .executable(
@@ -38,7 +38,15 @@ let package = Package(
         .package(
             url: "https://github.com/dehesa/CodableCSV.git",
             from: "0.5.5"
-        )
+        ),
+        .package(
+            url: "https://github.com/MortenGregersen/Bagbutik.git",
+            from: "2.0.0"
+        ),
+        .package(
+            url: "https://github.com/JohnSundell/CollectionConcurrencyKit.git",
+            from: "0.2.0"
+        ),
     ],
     targets: [
         // Targets are the basic building blocks of a package. A target can define a module or a test suite.
@@ -59,10 +67,12 @@ let package = Package(
                 .target(name: "Model"),
                 .target(name: "FileSystem"),
                 .product(name: "AppStoreConnect-Swift-SDK", package: "AppStoreConnect-Swift-SDK"),
+                .product(name: "Bagbutik", package: "Bagbutik"),
                 .product(name: "Yams", package: "Yams"),
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "SwiftyTextTable", package: "SwiftyTextTable"),
-                .product(name: "CodableCSV", package: "CodableCSV")
+                .product(name: "CodableCSV", package: "CodableCSV"),
+                .product(name: "CollectionConcurrencyKit", package: "CollectionConcurrencyKit"),
             ]
         ),
         .testTarget(

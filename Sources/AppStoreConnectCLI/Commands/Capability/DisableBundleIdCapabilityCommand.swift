@@ -19,9 +19,9 @@ struct DisableBundleIdCapabilityCommand: CommonParsableCommand {
     @Argument(help: ArgumentHelp("Bundle Id capability type.", discussion: "One of \(CapabilityType.allCases)"))
     var capabilityType: CapabilityType
 
-    func run() throws {
+    func run() async throws {
         let service = try makeService()
 
-        try service.disableBundleIdCapability(bundleId: bundleId, capabilityType: capabilityType)
+        try await service.disableBundleIdCapability(bundleId: bundleId, capabilityType: capabilityType)
     }
 }

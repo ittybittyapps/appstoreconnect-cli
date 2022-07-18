@@ -1,9 +1,9 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
-import AppStoreConnect_Swift_SDK
+import Bagbutik
 import Combine
 
-struct ListAppsOperation: APIOperation {
+struct ListAppsOperation: APIOperationV2 {
 
     struct Options {
         var bundleIds: [String] = []
@@ -17,31 +17,23 @@ struct ListAppsOperation: APIOperation {
     init(options: Options) {
         self.options = options
     }
-
-    typealias App = AppStoreConnect_Swift_SDK.App
-
-    func execute(with requestor: EndpointRequestor) -> AnyPublisher<[App], Error> {
-        var filters: [ListApps.Filter] = []
+   
+    func execute(with service: BagbutikService) async throws -> [App] {
+        var filters: [ListAppsV1.Filter] = []
 
         if options.bundleIds.isNotEmpty { filters.append(.bundleId(options.bundleIds)) }
         if options.names.isNotEmpty { filters.append(.name(options.names)) }
         if options.skus.isNotEmpty { filters.append(.sku(options.skus)) }
 
-        let limits = options.limit.map { [ListApps.Limit.apps($0)] }
-
+        let limits = options.limit.map { [ListAppsV1.Limit.limit($0)] }
+        
         guard limits != nil else {
-            return requestor.requestAllPages {
-                .apps(filters: filters, next: $0)
-            }
-            .map { $0.flatMap(\.data) }
-            .eraseToAnyPublisher()
+            return try await service.requestAllPages(.listAppsV1(filters: filters)).data
         }
 
-        return requestor.request(.apps(filters: filters, limits: limits))
-            .map(\.data)
-            .eraseToAnyPublisher()
+        return try await service
+            .request(.listAppsV1(filters: filters, limits: limits))
+            .data
     }
 
 }
-
-extension AppsResponse: PaginatedResponse { }

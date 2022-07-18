@@ -22,10 +22,10 @@ struct ModifyBundleIdCommand: CommonParsableCommand {
     @Argument(help: "The new name for the bundle identifier.")
     var name: String
 
-    func run() throws {
+    func run() async throws {
         let service = try makeService()
 
-        let bundleId = try service
+        let bundleId = try await service
             .modifyBundleIdInformation(bundleId: identifier, name: name)
 
         bundleId.render(options: common.outputOptions)

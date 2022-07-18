@@ -25,10 +25,10 @@ struct CreateBuildLocalizationsCommand: CommonParsableCommand, CreateUpdateBuild
         try validateWhatsNewInput()
     }
 
-    func run() throws {
+    func run() async throws {
         let service = try makeService()
 
-        let buildLocalization = try service.createBuildLocalization(
+        let buildLocalization = try await service.createBuildLocalization(
             bundleId: build.bundleId,
             buildNumber: build.buildNumber,
             preReleaseVersion: build.preReleaseVersion,

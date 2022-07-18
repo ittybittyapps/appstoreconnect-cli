@@ -27,10 +27,10 @@ struct ListAppsCommand: CommonParsableCommand {
     @Option(parsing: .upToNextOption, help: "Filter the results by the specified app SKUs")
     var filterSkus: [String] = []
 
-    func run() throws {
+    func run() async throws {
         let service = try makeService()
 
-        let apps = try service.listApps(
+        let apps = try await service.listApps(
             bundleIds: filterBundleIds,
             names: filterNames,
             skus: filterSkus,

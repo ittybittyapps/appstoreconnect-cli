@@ -1,9 +1,9 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
-import AppStoreConnect_Swift_SDK
+import Bagbutik
 import Combine
 
-struct ListBundleIdsOperation: APIOperation {
+struct ListBundleIdsOperation: APIOperationV2 {
     struct Options {
         let identifiers: [String]
         let names: [String]
@@ -18,12 +18,10 @@ struct ListBundleIdsOperation: APIOperation {
         self.options = options
     }
 
-    typealias BundleId = AppStoreConnect_Swift_SDK.BundleId
+    func execute(with service: BagbutikService) async throws -> [BundleId] {
+        let platforms = options.platforms.compactMap(ListBundleIdsV1.Filter.Platform.init(rawValue:))
 
-    func execute(with requestor: EndpointRequestor) throws -> AnyPublisher<[BundleId], Error> {
-        let platforms = options.platforms.compactMap(Platform.init(rawValue:))
-
-        var filters: [BundleIds.Filter] = []
+        var filters: [ListBundleIdsV1.Filter] = []
 
         if options.identifiers.isNotEmpty { filters.append(.identifier(options.identifiers)) }
         if options.names.isNotEmpty { filters.append(.name(options.names)) }
@@ -31,19 +29,9 @@ struct ListBundleIdsOperation: APIOperation {
         if options.seedIds.isNotEmpty { filters.append(.seedId(options.seedIds)) }
 
         guard let limit = options.limit else {
-            return requestor.requestAllPages {
-                    .listBundleIds(filter: filters, next: $0)
-                }
-                .map { $0.flatMap(\.data) }
-                .eraseToAnyPublisher()
+            return try await service.requestAllPages(.listBundleIdsV1(filters: filters)).data
         }
 
-        return requestor.request(
-                .listBundleIds(filter: filters, limit: limit)
-            )
-            .map(\.data)
-            .eraseToAnyPublisher()
+        return try await service.request(.listBundleIdsV1(filters: filters, limits: [.limit(limit)])).data
     }
 }
-
-extension BundleIdsResponse: PaginatedResponse { }

@@ -1,14 +1,37 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
+import AppStoreConnect_Swift_SDK
+import Bagbutik
 import Foundation
 import Combine
 import struct Model.User
+import struct Model.UserInvitation
 import SwiftyTextTable
-import AppStoreConnect_Swift_SDK
 
-extension UserInvitation: ResultRenderable { }
+extension Model.UserInvitation {
+    init(_ apiInvitation: Bagbutik.UserInvitation) {
+        let attributes = apiInvitation.attributes!
 
-extension UserInvitation: TableInfoProvider {
+        self.init(attributes)
+    }
+
+    init(_ attributes: Bagbutik.UserInvitation.Attributes) {
+        self.init(
+            username: attributes.email!,
+            firstName: attributes.firstName!,
+            lastName: attributes.lastName!,
+            roles: (attributes.roles ?? []).map { .init($0) },
+            provisioningAllowed: attributes.provisioningAllowed ?? false,
+            allAppsVisible: attributes.allAppsVisible ?? false,
+            expirationDate: attributes.expirationDate!
+        )
+    }
+    
+}
+
+extension Model.UserInvitation: ResultRenderable { }
+
+extension Model.UserInvitation: TableInfoProvider {
     static func tableColumns() -> [TextTableColumn] {
        return [
             TextTableColumn(header: "Email"),
@@ -23,19 +46,19 @@ extension UserInvitation: TableInfoProvider {
 
     var tableRow: [CustomStringConvertible] {
         return [
-            attributes?.email ?? "",
-            attributes?.firstName ?? "",
-            attributes?.lastName ?? "",
-            attributes?.roles?.map { $0.rawValue }.joined(separator: ", ") ?? "",
-            attributes?.expirationDate ?? "",
-            attributes?.provisioningAllowed?.toYesNo() ?? "",
-            attributes?.allAppsVisible?.toYesNo() ?? "",
+            username,
+            firstName ?? "",
+            lastName ?? "",
+            roles.map { $0.rawValue }.joined(separator: ", "),
+            expirationDate,
+            provisioningAllowed.toYesNo(),
+            allAppsVisible.toYesNo(),
         ]
     }
 }
 
-extension APIEndpoint where T == UserInvitationResponse {
-    static func invite(user: User) -> Self {
+extension APIEndpoint where T == AppStoreConnect_Swift_SDK.UserInvitationResponse {
+    static func invite(user: Model.User) -> Self {
         invite(
             userWithEmail: user.username,
             firstName: user.firstName,
@@ -46,27 +69,4 @@ extension APIEndpoint where T == UserInvitationResponse {
             appsVisibleIds: user.allAppsVisible ? [] : user.visibleApps
         )
     }
-}
-
-extension AppStoreConnectService {
-
-    /// Find the opaque internal identifier for this invitation; search by email address.
-    ///
-    /// This is an App Store Connect internal identifier
-    func invitationIdentifier(matching email: String) throws -> AnyPublisher<String, Error> {
-        let endpoint = APIEndpoint.invitedUsers(
-            filter: [.email([email])]
-        )
-
-        return self.request(endpoint)
-            .map { $0.data.filter { $0.attributes?.email == email } }
-            .compactMap { response -> String? in
-                if response.count == 1 {
-                    return response.first?.id
-                }
-                fatalError("User with email address '\(email)' not unique or not found")
-            }
-            .eraseToAnyPublisher()
-    }
-
 }

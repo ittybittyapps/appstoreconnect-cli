@@ -1,12 +1,11 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
 import AppStoreConnect_Swift_SDK
+import Bagbutik
 import Combine
 import Foundation
 import Model
 import SwiftyTextTable
-
-// TODO: Extract these extensions somewhere that makes sense down the road
 
 // MARK: - API conveniences
 
@@ -31,7 +30,7 @@ extension Model.User {
         )
     }
 
-    static func fromAPIResponse(_ response: UsersResponse) -> [Model.User] {
+    static func fromAPIResponse(_ response: AppStoreConnect_Swift_SDK.UsersResponse) -> [Model.User] {
         let users: [AppStoreConnect_Swift_SDK.User] = response.data
 
         return users.compactMap { (user: AppStoreConnect_Swift_SDK.User) -> Model.User in
@@ -54,6 +53,22 @@ extension Model.User {
             roles: attributes.roles?.map(\.rawValue) ?? [],
             provisioningAllowed: attributes.provisioningAllowed ?? false,
             allAppsVisible: attributes.provisioningAllowed ?? false,
+            visibleApps: visibleApps?.compactMap { $0.attributes?.bundleId }
+        )
+    }
+    
+    init(_ user: Bagbutik.User, visibleApps: [Bagbutik.App]? = nil) {
+        self.init(attributes: user.attributes!, visibleApps: visibleApps)
+    }
+        
+    init(attributes: Bagbutik.User.Attributes, visibleApps: [Bagbutik.App]? = nil) {
+        self.init(
+            username: attributes.username ?? "",
+            firstName: attributes.firstName ?? "",
+            lastName: attributes.lastName ?? "",
+            roles: attributes.roles?.map(\.rawValue) ?? [],
+            provisioningAllowed: attributes.provisioningAllowed ?? false,
+            allAppsVisible: attributes.allAppsVisible ?? false,
             visibleApps: visibleApps?.compactMap { $0.attributes?.bundleId }
         )
     }

@@ -18,9 +18,9 @@ struct DeleteBundleIdCommand: CommonParsableCommand {
     @Argument(help: "The reverse-DNS bundle ID identifier to delete. Must be unique. (eg. com.example.app)")
     var identifier: String
 
-    func run() throws {
+    func run() async throws {
         let service = try makeService()
 
-        try service.deleteBundleId(bundleId: identifier)
+        try await service.deleteBundleId(bundleId: identifier)
     }
 }

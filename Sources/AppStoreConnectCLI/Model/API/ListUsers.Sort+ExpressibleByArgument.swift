@@ -1,8 +1,8 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
 import ArgumentParser
-import AppStoreConnect_Swift_SDK
+import Bagbutik
 import Foundation
 
-extension ListUsers.Sort: Codable, ExpressibleByArgument {
+extension ListUsersV1.Sort: Codable, ExpressibleByArgument {
 }

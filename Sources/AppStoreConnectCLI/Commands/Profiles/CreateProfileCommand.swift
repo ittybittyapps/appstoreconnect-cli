@@ -40,10 +40,10 @@ struct CreateProfileCommand: CommonParsableCommand {
         }
     }
 
-    func run() throws {
+    func run() async throws {
         let service = try makeService()
 
-        let profile = try service.createProfile(
+        let profile = try await service.createProfile(
             name: name,
             bundleId: bundleId,
             profileType: profileType,

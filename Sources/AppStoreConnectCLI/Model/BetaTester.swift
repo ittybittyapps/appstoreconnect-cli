@@ -26,7 +26,7 @@ extension Model.BetaTester {
             firstName: betaTester.attributes?.firstName,
             lastName: betaTester.attributes?.lastName,
             inviteType: betaTester.attributes?.inviteType?.rawValue,
-            betaGroups: betaGroups.map { Model.BetaGroup(nil, $0) },
+            betaGroups: betaGroups.map { Model.BetaGroup(Optional<AppStoreConnect_Swift_SDK.App>.none, $0) },
             apps: apps.map(Model.App.init)
         )
     }

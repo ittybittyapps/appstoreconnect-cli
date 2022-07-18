@@ -3,7 +3,7 @@
 import ArgumentParser
 import Foundation
 
-public struct AppStoreConnectCLI: ParsableCommand {
+public struct AppStoreConnectCLI: AsyncParsableCommand {
     public static var configuration = CommandConfiguration(
         commandName: "asc",
         abstract: "A utility for interacting with the AppStore Connect API.",
