@@ -3,6 +3,7 @@
 import AppStoreConnect_Swift_SDK
 import ArgumentParser
 import Foundation
+import Bagbutik
 
 protocol CommonParsableCommand: AsyncParsableCommand {
     var common: CommonOptions { get }
@@ -21,6 +22,12 @@ enum PrintLevel {
 extension CommonParsableCommand {
     func makeService() throws -> AppStoreConnectService {
         try AppStoreConnectService(configuration: .init(common.authOptions), jwt: .init(common.authOptions))
+    }
+}
+
+extension BagbutikService {
+    convenience init(authOptions: AuthOptions) throws {
+        try self.init(jwt: .init(authOptions))
     }
 }
 
