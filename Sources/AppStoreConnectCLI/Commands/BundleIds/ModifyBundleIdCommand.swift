@@ -1,7 +1,7 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
-import AppStoreConnect_Swift_SDK
 import ArgumentParser
+import Bagbutik
 import Combine
 import Foundation
 import struct Model.BundleId
@@ -23,11 +23,21 @@ struct ModifyBundleIdCommand: CommonParsableCommand {
     var name: String
 
     func run() async throws {
-        let service = try makeService()
+        let service = try BagbutikService(authOptions: common.authOptions)
+        let bundleId = try await ReadBundleIdOperation(
+            service: service,
+            options: .init(bundleId: identifier)
+        )
+        .execute()
 
-        let bundleId = try await service
-            .modifyBundleIdInformation(bundleId: identifier, name: name)
-
-        bundleId.render(options: common.outputOptions)
+        let result = Model.BundleId(
+            try await ModifyBundleIdOperation(
+                service: service,
+                options: .init(resourceId: bundleId.id, name: name)
+            )
+            .execute()
+        )
+        
+        result.render(options: common.outputOptions)
     }
 }
