@@ -8,6 +8,7 @@ struct ReadAppOperation: APIOperation {
 
     struct Options {
         let identifier: AppLookupIdentifier
+        var shouldMatchExactly: Bool = true
     }
 
     enum Error: LocalizedError {
@@ -51,7 +52,17 @@ struct ReadAppOperation: APIOperation {
                     case 1:
                         return response.data.first!
                     default:
-                        throw Error.notUnique(bundleId)
+                        guard options.shouldMatchExactly else {
+                            throw Error.notUnique(bundleId)
+                        }
+
+                        guard let match = response.data.first(where: {
+                            $0.attributes?.bundleId == bundleId
+                        }) else {
+                            throw Error.notFound(bundleId)
+                        }
+
+                        return match
                     }
                 }
                 .eraseToAnyPublisher()

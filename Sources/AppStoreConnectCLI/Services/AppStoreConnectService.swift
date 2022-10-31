@@ -1059,7 +1059,7 @@ class AppStoreConnectService {
         )
     }
 
-    func upateBuildLocalization(
+    func updateBuildLocalization(
         bundleId: String,
         buildNumber: String,
         preReleaseVersion: String,

@@ -28,7 +28,7 @@ struct UpdateBuildLocalizationsCommand: CommonParsableCommand, CreateUpdateBuild
     func run() throws {
         let service = try makeService()
 
-        let buildLocalization = try service.upateBuildLocalization(
+        let buildLocalization = try service.updateBuildLocalization(
             bundleId: build.bundleId,
             buildNumber: build.buildNumber,
             preReleaseVersion: build.preReleaseVersion,
