@@ -935,18 +935,6 @@ class AppStoreConnectService {
             .await()
     }
 
-    func deleteBundleId(bundleId: String) async throws {
-        let id = try await ReadBundleIdOperation(
-            options: .init(bundleId: bundleId)
-        )
-        .execute(with: service)
-        .id
-
-        try DeleteBundleIdOperation(options: .init(resourceId: id))
-            .execute(with: requestor)
-            .await()
-    }
-
     func enableBundleIdCapability(
         bundleId: String,
         capabilityType: CapabilityType

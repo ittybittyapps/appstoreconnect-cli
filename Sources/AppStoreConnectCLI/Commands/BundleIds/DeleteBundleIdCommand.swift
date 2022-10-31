@@ -1,7 +1,7 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
-import AppStoreConnect_Swift_SDK
 import ArgumentParser
+import Bagbutik
 import Combine
 import Foundation
 
@@ -19,8 +19,16 @@ struct DeleteBundleIdCommand: CommonParsableCommand {
     var identifier: String
 
     func run() async throws {
-        let service = try makeService()
+        let service = try BagbutikService(authOptions: common.authOptions)
+        let bundleId = try await ReadBundleIdOperation(
+            service: service,
+            options: .init(bundleId: identifier)
+        )
+        .execute()
 
-        try await service.deleteBundleId(bundleId: identifier)
+        try await DeleteBundleIdOperation(
+            service: service,
+            options: .init(resourceId: bundleId.id))
+        .execute()
     }
 }
