@@ -1,9 +1,11 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
-import AppStoreConnect_Swift_SDK
 import ArgumentParser
+import Model
 
 struct ListBundleIdsCommand: CommonParsableCommand {
+    typealias Platform = ListBundleIdsOperation.Options.Platform
+    
     public static var configuration = CommandConfiguration(
         commandName: "list",
         abstract: "Find and list bundle IDs that are registered to your team."
@@ -26,24 +28,27 @@ struct ListBundleIdsCommand: CommonParsableCommand {
 
     @Option(
         parsing: .upToNextOption,
-        help: "Filter the results by platform (\(Platform.allCases.description))."
+        help: ArgumentHelp("Filter the results by platform. One of \(Platform.allValueStrings.formatted(.list(type: .or)))."),
+        completion: .list(Platform.allValueStrings)
     )
-    var filterPlatform: [String] = []
+    var filterPlatform: [Platform] = []
 
     @Option(parsing: .upToNextOption, help: "Filter the results by seed ID")
     var filterSeedId: [String] = []
 
     func run() async throws {
-        let service = try makeService()
-
-        let bundleIds = try await service.listBundleIds(
-            identifiers: filterIdentifier,
-            names: filterName,
-            platforms: filterPlatform,
-            seedIds: filterSeedId,
-            limit: limit
+        try await ListBundleIdsOperation(
+            service: .init(authOptions: common.authOptions),
+            options: .init(
+                identifiers: filterIdentifier,
+                names: filterName,
+                platforms: filterPlatform,
+                seedIds: filterSeedId,
+                limit: limit
+            )
         )
-
-        bundleIds.render(options: common.outputOptions)
+        .execute()
+        .map { Model.BundleId($0) }
+        .render(options: common.outputOptions)
     }
 }
