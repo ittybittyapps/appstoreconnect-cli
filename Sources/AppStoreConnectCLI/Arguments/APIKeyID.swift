@@ -31,7 +31,7 @@ struct APIKeyID: EnvironmentLoadableArgument {
     }
 
     func load() throws -> String {
-        return loadPEM()
+        try loadPEM()
             .components(separatedBy: .newlines)
             .filter { $0.hasSuffix("PRIVATE KEY-----") == false }
             .joined()
