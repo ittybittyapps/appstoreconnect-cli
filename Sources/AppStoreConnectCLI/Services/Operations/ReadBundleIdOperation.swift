@@ -25,13 +25,15 @@ struct ReadBundleIdOperation: APIOperationV2 {
         }
     }
 
+    private let service: BagbutikService
     private let options: Options
 
-    init(options: Options) {
+    init(service: BagbutikService, options: Options) {
+        self.service = service
         self.options = options
     }
 
-    func execute(with service: BagbutikService) async throws -> Output {
+    func execute() async throws -> Output {
         let bundleIds = try await service.request(
             .listBundleIdsV1(filters: [.identifier([options.bundleId])])
         )

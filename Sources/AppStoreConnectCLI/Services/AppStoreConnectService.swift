@@ -791,9 +791,10 @@ class AppStoreConnectService {
         deviceUDIDs: [String]
     ) async throws -> Model.Profile {
         let bundleIdResourceId = try await ReadBundleIdOperation(
+            service: service,
             options: .init(bundleId: bundleId)
         )
-        .execute(with: service)
+        .execute()
         .id
 
         let deviceIds = try ListDevicesOperation(
@@ -916,23 +917,13 @@ class AppStoreConnectService {
     func readBundleIdInformation(
         bundleId: String
     ) async throws -> Model.BundleId {
-        Model.BundleId(try await ReadBundleIdOperation(
+        Model.BundleId(
+            try await ReadBundleIdOperation(
+                service: service,
                 options: .init(bundleId: bundleId)
             )
-            .execute(with: service))
-    }
-
-    func modifyBundleIdInformation(bundleId: String, name: String) async throws -> Model.BundleId {
-        let id = try await ReadBundleIdOperation(
-            options: .init(bundleId: bundleId)
+            .execute()
         )
-        .execute(with: service)
-        .id
-
-        return try ModifyBundleIdOperation(options: .init(resourceId: id, name: name))
-            .execute(with: requestor)
-            .map(Model.BundleId.init)
-            .await()
     }
 
     func enableBundleIdCapability(
@@ -940,9 +931,10 @@ class AppStoreConnectService {
         capabilityType: CapabilityType
     ) async throws {
         let bundleIdResourceId = try await ReadBundleIdOperation(
+                service: service,
                 options: .init(bundleId: bundleId)
             )
-            .execute(with: service)
+            .execute()
             .id
 
         _ = try EnableBundleIdCapabilityOperation(
@@ -954,9 +946,10 @@ class AppStoreConnectService {
 
     func disableBundleIdCapability(bundleId: String, capabilityType: CapabilityType) async throws {
         let bundleIdResourceId = try await ReadBundleIdOperation(
+                service: service,
                 options: .init(bundleId: bundleId)
             )
-            .execute(with: service)            
+            .execute()
             .id
 
         let capability = try ListCapabilitiesOperation(
