@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/MortenGregersen/Bagbutik.git",
       "state" : {
-        "revision" : "a0752c08c0f3a20f6648f75be0b7267f96486e67",
-        "version" : "2.0.0"
+        "revision" : "e053914690fada30d9169fbe6bb3f0906b0824a8",
+        "version" : "2.1.2"
       }
     },
     {
@@ -23,8 +23,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/dehesa/CodableCSV.git",
       "state" : {
-        "revision" : "2db5f560db5f8c3444f3a00fa145aa699efac3bf",
-        "version" : "0.5.5"
+        "revision" : "99ace2cfdfbc19108b529c021005fb57a460e715",
+        "version" : "0.6.7"
       }
     },
     {
@@ -41,71 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/johnsundell/files.git",
       "state" : {
-        "revision" : "22fe84797d499ffca911ccd896b34efaf06a50b9",
-        "version" : "4.1.1"
-      }
-    },
-    {
-      "identity" : "komondor",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/shibapm/Komondor.git",
-      "state" : {
-        "revision" : "90b087b1e39069684b1ff4bf915c2aae594f2d60",
-        "version" : "1.1.3"
-      }
-    },
-    {
-      "identity" : "packageconfig",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/shibapm/PackageConfig.git",
-      "state" : {
-        "revision" : "58523193c26fb821ed1720dcd8a21009055c7cdb",
-        "version" : "1.1.3"
-      }
-    },
-    {
-      "identity" : "pathkit",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/kylef/PathKit.git",
-      "state" : {
-        "revision" : "3bfd2737b700b9a36565a8c94f4ad2b050a5e574",
-        "version" : "1.0.1"
-      }
-    },
-    {
-      "identity" : "shellout",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/JohnSundell/ShellOut.git",
-      "state" : {
-        "revision" : "e1577acf2b6e90086d01a6d5e2b8efdaae033568",
-        "version" : "2.3.0"
-      }
-    },
-    {
-      "identity" : "spectre",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/kylef/Spectre.git",
-      "state" : {
-        "revision" : "26cc5e9ae0947092c7139ef7ba612e34646086c7",
-        "version" : "0.10.1"
-      }
-    },
-    {
-      "identity" : "stencil",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/stencilproject/Stencil.git",
-      "state" : {
-        "revision" : "ccd9402682f4c07dac9561befd207c8156e80e20",
-        "version" : "0.14.2"
-      }
-    },
-    {
-      "identity" : "stencilswiftkit",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/SwiftGen/StencilSwiftKit",
-      "state" : {
-        "revision" : "54cbedcdbb4334e03930adcff7343ffaf317bf0f",
-        "version" : "2.8.0"
+        "revision" : "d273b5b7025d386feef79ef6bad7de762e106eaf",
+        "version" : "4.2.0"
       }
     },
     {
@@ -131,8 +68,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/nicklockwood/SwiftFormat",
       "state" : {
-        "revision" : "665c3c58923ee8ac36d3e44b17dc185229cce301",
-        "version" : "0.49.13"
+        "revision" : "3a5a4b9baa2ad2f6bb528351807eefbf3b9c0786",
+        "version" : "0.50.3"
       }
     },
     {
