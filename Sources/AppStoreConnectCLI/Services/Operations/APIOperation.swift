@@ -17,7 +17,7 @@ protocol APIOperationV2 {
     associatedtype Output
     associatedtype Service
 
-    init(options: Options)
+    init(service: Service, options: Options)
 
-    func execute(with service: Service) async throws -> Output
+    func execute() async throws -> Output
 }

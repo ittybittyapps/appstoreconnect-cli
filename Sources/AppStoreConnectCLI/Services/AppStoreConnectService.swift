@@ -913,59 +913,6 @@ class AppStoreConnectService {
         return .init(invitation)
     }
     
-    
-    func readBundleIdInformation(
-        bundleId: String
-    ) async throws -> Model.BundleId {
-        Model.BundleId(
-            try await ReadBundleIdOperation(
-                service: service,
-                options: .init(bundleId: bundleId)
-            )
-            .execute()
-        )
-    }
-
-    func enableBundleIdCapability(
-        bundleId: String,
-        capabilityType: CapabilityType
-    ) async throws {
-        let bundleIdResourceId = try await ReadBundleIdOperation(
-                service: service,
-                options: .init(bundleId: bundleId)
-            )
-            .execute()
-            .id
-
-        _ = try EnableBundleIdCapabilityOperation(
-                options: .init(bundleIdResourceId: bundleIdResourceId, capabilityType: capabilityType)
-            )
-            .execute(with: requestor)
-            .await()
-    }
-
-    func disableBundleIdCapability(bundleId: String, capabilityType: CapabilityType) async throws {
-        let bundleIdResourceId = try await ReadBundleIdOperation(
-                service: service,
-                options: .init(bundleId: bundleId)
-            )
-            .execute()
-            .id
-
-        let capability = try ListCapabilitiesOperation(
-                options: .init(bundleIdResourceId: bundleIdResourceId)
-            )
-            .execute(with: requestor)
-            .await()
-            .first { $0.attributes?.capabilityType == capabilityType }
-
-        guard let id = capability?.id else { return }
-
-        try DisableCapabilityOperation(options: .init(capabilityId: id))
-            .execute(with: requestor)
-            .await()
-    }
-
     func downloadSales(
         frequency: [DownloadSalesAndTrendsReports.Filter.Frequency],
         reportType: [DownloadSalesAndTrendsReports.Filter.ReportType],

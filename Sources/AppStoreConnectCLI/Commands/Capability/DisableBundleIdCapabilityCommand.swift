@@ -1,6 +1,6 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
-import AppStoreConnect_Swift_SDK
+import Bagbutik
 import ArgumentParser
 
 struct DisableBundleIdCapabilityCommand: CommonParsableCommand {
@@ -16,12 +16,38 @@ struct DisableBundleIdCapabilityCommand: CommonParsableCommand {
     @Argument(help: "The reverse-DNS bundle ID identifier to delete. Must be unique. (eg. com.example.app)")
     var bundleId: String
 
-    @Argument(help: ArgumentHelp("Bundle Id capability type.", discussion: "One of \(CapabilityType.allCases)"))
-    var capabilityType: CapabilityType
+    @Argument(
+        help: ArgumentHelp("Bundle Id capability type.", discussion: "List of \(CapabilityType.allValueStrings.formatted(.list(type: .or)))"),
+        completion: .list(CapabilityType.allValueStrings)
+    )
+    var capabilityType: [CapabilityType]
 
     func run() async throws {
-        let service = try makeService()
 
-        try await service.disableBundleIdCapability(bundleId: bundleId, capabilityType: capabilityType)
+        let service = try BagbutikService(authOptions: common.authOptions)
+        let bundleIdResourceId = try await ReadBundleIdOperation(
+                service: service,
+                options: .init(bundleId: bundleId)
+            )
+            .execute()
+            .id
+
+        let capabilityIdentifiers = try await ListCapabilitiesOperation(
+                service: service,
+                options: .init(bundleIdResourceId: bundleIdResourceId)
+            )
+            .execute()
+            .filter { capabilityType.contains($0.attributes!.capabilityType!) }
+            .map { $0.id }
+
+        await withThrowingTaskGroup(of: Void.self) { group in
+            for id in capabilityIdentifiers {
+                group.addTask {
+                    try await DisableBundleIdCapabilityOperation(service: service, options: .init(capabilityId: id)).execute()
+                }
+            }
+        }
+        
+        // TODO: should list capabilities on bundleId
     }
 }

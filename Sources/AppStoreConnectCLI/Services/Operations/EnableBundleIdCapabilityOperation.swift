@@ -1,31 +1,32 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
-import AppStoreConnect_Swift_SDK
-import Combine
+import Bagbutik
 import Foundation
 
-struct EnableBundleIdCapabilityOperation: APIOperation {
+struct EnableBundleIdCapabilityOperation: APIOperationV2 {
 
     struct Options {
         let bundleIdResourceId: String
         let capabilityType: CapabilityType
     }
 
-    let option: Options
+    private let service: BagbutikService
+    private let options: Options
 
-    init(options: Options) {
-        self.option = options
+    init(service: BagbutikService, options: Options) {
+        self.service = service
+        self.options = options
     }
 
-    func execute(with requestor: EndpointRequestor) -> AnyPublisher<BundleIdCapabilityResponse, Error> {
-        requestor
-            .request(
-                .enableCapability(
-                    id: option.bundleIdResourceId,
-                    capabilityType: option.capabilityType
-                )
+    func execute() async throws -> BundleIdCapability {
+        let body = BundleIdCapabilityCreateRequest(
+            data: .init(
+                attributes: .init(capabilityType: options.capabilityType),
+                relationships: .init(bundleId: .init(data: .init(id: options.bundleIdResourceId)))
             )
-            .eraseToAnyPublisher()
+        )
+        
+        return try await service.request(.createBundleIdCapabilityV1(requestBody: body)).data
     }
 
 }
