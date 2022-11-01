@@ -1,11 +1,14 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
-import AppStoreConnect_Swift_SDK
+import Bagbutik
 import ArgumentParser
 import Foundation
 import struct Model.BundleId
 
 struct RegisterBundleIdCommand: CommonParsableCommand {
+    
+    typealias Platform = Bagbutik.BundleIdPlatform
+    
     public static var configuration = CommandConfiguration(
         commandName: "register",
         abstract: "Register a new bundle ID for app development."
@@ -20,18 +23,22 @@ struct RegisterBundleIdCommand: CommonParsableCommand {
     @Argument(help: "The new name for the bundle identifier.")
     var name: String
 
-    @Option(help: "The platform of the bundle identifier \(BundleIdPlatform.allCases).")
-    var platform: BundleIdPlatform = .universal
+    @Option(
+        help: "The platform of the bundle identifier. One of \(Platform.allValueStrings.formatted(.list(type: .or))).",
+        completion: .list(Platform.allValueStrings)
+    )
+    var platform: Platform = .universal
 
-    func run() throws {
-        let service = try makeService()
+    func run() async throws {
+        
+        let result = Model.BundleId(
+            try await RegisterBundleIdOperation(
+                service: .init(authOptions: common.authOptions),
+                options: .init(bundleId: identifier, name: name, platform: platform)
+            )
+            .execute()
+        )
 
-        let request = APIEndpoint.registerNewBundleId(id: identifier, name: name, platform: platform)
-
-        let bundleId = try service.request(request)
-            .map(BundleId.init)
-            .await()
-
-        bundleId.render(options: common.outputOptions)
+        result.render(options: common.outputOptions)
     }
 }
