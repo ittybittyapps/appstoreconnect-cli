@@ -2,10 +2,11 @@
 
 import AppStoreConnect_Swift_SDK
 import ArgumentParser
+import Bagbutik
 import Foundation
 
-extension CertificateType: CaseIterable, ExpressibleByArgument, CustomStringConvertible {
-    public typealias AllCases = [CertificateType]
+extension AppStoreConnect_Swift_SDK.CertificateType: CaseIterable, ExpressibleByArgument, CustomStringConvertible {
+    public typealias AllCases = [Self]
     public static var allCases: AllCases {
         [
             .iOSDevelopment,
@@ -24,5 +25,11 @@ extension CertificateType: CaseIterable, ExpressibleByArgument, CustomStringConv
 
     public var description: String {
         rawValue.lowercased()
+    }
+}
+
+extension Bagbutik.CertificateType: ExpressibleByArgument {
+    public init?(argument: String) {
+        self.init(rawValue: argument.uppercased())
     }
 }

@@ -160,17 +160,6 @@ class AppStoreConnectService {
         return Model.Certificate(sdkCertificate)
     }
 
-    func createCertificate(
-        certificateType: CertificateType,
-        csrContent: String
-    ) throws -> Model.Certificate {
-        try CreateCertificateOperation(
-                options: .init(certificateType: certificateType, csrContent: csrContent)
-            )
-            .execute(with: requestor)
-            .await()
-    }
-
     func revokeCertificates(serials: [String]) throws {
         let certificatesIds = try serials.map {
             try ReadCertificateOperation(options: .init(serial: $0))

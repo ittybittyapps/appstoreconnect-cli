@@ -1,31 +1,34 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
-import AppStoreConnect_Swift_SDK
-import Combine
+import Bagbutik
 import Foundation
-import struct Model.Certificate
 
-struct CreateCertificateOperation: APIOperation {
+struct CreateCertificateOperation: APIOperationV2 {
 
     struct Options {
         let certificateType: CertificateType
         let csrContent: String
     }
 
-    private let endpoint: APIEndpoint<CertificateResponse>
+    private let service: BagbutikService
+    private let options: Options
 
-    init(options: Options) {
-        endpoint = APIEndpoint.create(
-            certificateWithCertificateType: options.certificateType,
-            csrContent: options.csrContent
-        )
+    init(service: BagbutikService, options: Options) {
+        self.service = service
+        self.options = options
     }
-
-    func execute(with requestor: EndpointRequestor) -> AnyPublisher<Certificate, Error> {
-        requestor
-            .request(endpoint)
-            .map { Certificate($0.data) }
-            .eraseToAnyPublisher()
+    
+    func execute() async throws -> Certificate {
+        let body = CertificateCreateRequest(
+            data: .init(
+                attributes: .init(
+                    certificateType: options.certificateType,
+                    csrContent: options.csrContent
+                )
+            )
+        )
+        
+        return try await service.request(.createCertificateV1(requestBody: body)).data
     }
 
 }

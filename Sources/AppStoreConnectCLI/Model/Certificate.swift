@@ -1,6 +1,7 @@
 // Copyright 2020 Itty Bitty Apps Pty Ltd
 
 import AppStoreConnect_Swift_SDK
+import Bagbutik
 import Foundation
 import Model
 import SwiftyTextTable
@@ -18,6 +19,21 @@ extension Model.Certificate {
             platform: attributes.platform?.rawValue,
             expirationDate: attributes.expirationDate,
             serialNumber: attributes.serialNumber
+        )
+    }
+    
+    init(_ certificate: Bagbutik.Certificate) {
+        self.init(certificate.attributes)
+    }
+    
+    init(_ attributes: Bagbutik.Certificate.Attributes?) {
+        self.init(
+            name: attributes?.name,
+            type: attributes?.certificateType?.rawValue,
+            content: attributes?.certificateContent,
+            platform: attributes?.platform?.rawValue,
+            expirationDate: attributes?.expirationDate,
+            serialNumber: attributes?.serialNumber
         )
     }
 }
