@@ -60,18 +60,25 @@ struct TestFlightConfigurationProcessor {
 
     enum Error: LocalizedError {
         case testerNotInTestersList(email: String, betaGroup: BetaGroup, app: App)
+        case noValidApp
 
         var errorDescription: String? {
             switch self {
             case .testerNotInTestersList(let email, let betaGroup, let app):
                 return "Tester with email: \(email) in beta group named: \(betaGroup.groupName) " +
                     "for app: \(app.bundleId) is not included in the \(betaTestersCSVName) file"
+
+            case .noValidApp:
+                return "There's no valid app folder found in your local configuration file path, please run 'sync pull' first"
             }
         }
     }
 
     func readConfiguration() throws -> TestFlightConfiguration {
         let folder = try Folder(path: path)
+
+        guard folder.subfolders.count() > 0 else { throw Error.noValidApp }
+
         var configuration = TestFlightConfiguration()
 
         let decodeBetaTesters: (Data) throws -> [BetaTester] = { data in
